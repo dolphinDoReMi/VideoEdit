@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Play button triangle -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M40,30 L40,78 L78,54 Z" />
+    
+    <!-- Cut/scissors icon -->
+    <path
+        android:fillColor="#EC4899"
+        android:pathData="M20,20 L30,30 L25,35 L15,25 Z" />
+    
+    <path
+        android:fillColor="#EC4899"
+        android:pathData="M88,20 L78,30 L83,35 L93,25 Z" />
+    
+    <!-- AI sparkle -->
+    <path
+        android:fillColor="#F59E0B"
+        android:pathData="M54,15 L56,19 L60,19 L57,22 L58,26 L54,23 L50,26 L51,22 L48,19 L52,19 Z" />
+    
+    <path
+        android:fillColor="#F59E0B"
+        android:pathData="M90,45 L92,47 L94,47 L93,49 L94,51 L90,50 L86,51 L87,49 L86,47 L88,47 Z" />
+    
+    <path
+        android:fillColor="#F59E0B"
+        android:pathData="M15,75 L17,77 L19,77 L18,79 L19,81 L15,80 L11,81 L12,79 L11,77 L13,77 Z" />
+</vector>

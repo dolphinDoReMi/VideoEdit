@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Mira</string>
+    <string name="app_description">AI-powered video editing with automatic clip selection</string>
+    
+    <!-- Main Activity -->
+    <string name="main_title">Mira • AI Video Editor</string>
+    <string name="select_video">Select Video</string>
+    <string name="auto_cut">Auto Cut</string>
+    <string name="status_ready">Ready</string>
+    <string name="status_selected">Selected</string>
+    <string name="status_analyzing">Analyzing...</string>
+    <string name="status_exporting">Export %1$d%%</string>
+    <string name="status_done">Done: %1$s</string>
+    
+    <!-- Permissions -->
+    <string name="permission_storage_title">Storage Permission</string>
+    <string name="permission_storage_message">Mira needs access to your videos to edit them.</string>
+    <string name="permission_camera_title">Camera Permission</string>
+    <string name="permission_camera_message">Allow camera access to record new videos.</string>
+    
+    <!-- Error Messages -->
+    <string name="error_no_video_selected">Please select a video first</string>
+    <string name="error_export_failed">Export failed. Please try again.</string>
+    <string name="error_insufficient_storage">Insufficient storage space</string>
+    
+    <!-- Success Messages -->
+    <string name="success_export_complete">Video exported successfully!</string>
+    <string name="success_video_saved">Video saved to: %1$s</string>
+    
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_target_duration">Target Duration (seconds)</string>
+    <string name="settings_segment_length">Segment Length (seconds)</string>
+    <string name="settings_output_quality">Output Quality</string>
+    <string name="settings_quality_high">High (1080p)</string>
+    <string name="settings_quality_medium">Medium (720p)</string>
+    <string name="settings_quality_low">Low (480p)</string>
+    
+    <!-- About -->
+    <string name="about_title">About Mira</string>
+    <string name="about_version">Version %1$s</string>
+    <string name="about_description">AI-powered video editing with automatic clip selection using Media3 Transformer technology.</string>
+    
+    <!-- Xiaomi Store -->
+    <string name="xiaomi_store_title">Download from Xiaomi Store</string>
+    <string name="xiaomi_store_description">Get Mira from the official Xiaomi Store</string>
+</resources>

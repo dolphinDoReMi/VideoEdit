@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Light Theme -->
+    <style name="Theme.Mira" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <!-- Primary brand color -->
+        <item name="colorPrimary">@color/autocut_primary</item>
+        <item name="colorPrimaryDark">@color/autocut_primary_variant</item>
+        <item name="colorAccent">@color/autocut_secondary</item>
+        
+        <!-- Status bar -->
+        <item name="android:statusBarColor">@color/autocut_primary</item>
+        <item name="android:windowLightStatusBar">false</item>
+        
+        <!-- Background -->
+        <item name="android:colorBackground">@color/background_primary</item>
+        
+        <!-- Enable edge-to-edge -->
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowTranslucentNavigation">false</item>
+        <item name="android:fitsSystemWindows">false</item>
+    </style>
+    
+    <!-- Dark Theme -->
+    <style name="Theme.Mira.Dark" parent="Theme.Mira">
+        <item name="android:colorBackground">@color/background_dark_primary</item>
+        
+        <!-- Status bar for dark theme -->
+        <item name="android:statusBarColor">@color/background_dark_primary</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+    
+    <!-- Splash Screen Theme -->
+    <style name="Theme.Mira.Splash" parent="Theme.Mira">
+        <item name="android:windowBackground">@color/autocut_primary</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+</resources>

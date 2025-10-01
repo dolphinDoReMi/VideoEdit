@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepDive - Keyframe Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>::-webkit-scrollbar { display: none;}
+    * { font-family: 'Inter', sans-serif; }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            900: '#0a0a0a',
+                            800: '#1a1a1a',
+                            700: '#2a2a2a',
+                            600: '#3a3a3a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-dark-900 text-white overflow-x-hidden">
+
+<!-- Status Bar -->
+<div id="status-bar" class="flex justify-between items-center px-4 py-2 bg-dark-800 text-xs text-gray-300">
+    <div class="flex items-center space-x-1">
+        <div class="w-1 h-1 bg-white rounded-full"></div>
+        <div class="w-1 h-1 bg-white rounded-full"></div>
+        <div class="w-1 h-1 bg-gray-600 rounded-full"></div>
+        <span class="ml-2">Verizon</span>
+    </div>
+    <div class="font-medium">9:41</div>
+    <div class="flex items-center space-x-1">
+        <i class="fa-solid fa-signal text-xs"></i>
+        <i class="fa-solid fa-wifi text-xs"></i>
+        <div class="w-6 h-3 border border-white rounded-sm">
+            <div class="w-4 h-2 bg-white rounded-sm m-0.5"></div>
+        </div>
+    </div>
+</div>
+
+<!-- App Header -->
+<div id="app-header" class="flex items-center justify-between px-6 py-4 bg-dark-800 border-b border-dark-600">
+    <div class="flex items-center space-x-3">
+        <button onclick="window.location.href='processing.html'" class="w-8 h-8 flex items-center justify-center">
+            <i class="fa-solid fa-arrow-left text-gray-300 text-lg"></i>
+        </button>
+        <div>
+            <h1 class="text-lg font-semibold text-white">Keyframe Preview</h1>
+            <p class="text-xs text-gray-400">Marketing Campaign Analysis</p>
+        </div>
+    </div>
+    <div class="flex items-center space-x-3">
+        <button onclick="window.location.href='export.html'" class="w-8 h-8 bg-dark-600 rounded-full flex items-center justify-center">
+            <i class="fa-solid fa-download text-gray-300 text-sm"></i>
+        </button>
+        <button class="w-8 h-8 bg-dark-600 rounded-full flex items-center justify-center">
+            <i class="fa-solid fa-share text-gray-300 text-sm"></i>
+        </button>
+    </div>
+</div>
+
+<!-- Video Information Bar -->
+<div id="video-info-bar" class="px-6 py-3 bg-dark-700 border-b border-dark-600">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span class="text-sm text-white font-medium">Processing Complete</span>
+        </div>
+        <div class="flex items-center space-x-4 text-xs text-gray-400">
+            <span>Duration: 2:34</span>
+            <span>•</span>
+            <span>47 keyframes</span>
+            <span>•</span>
+            <span>1080p</span>
+        </div>
+    </div>
+</div>
+
+<!-- Analysis Summary Cards -->
+<div id="analysis-summary" class="px-6 py-4">
+    <div class="grid grid-cols-2 gap-3 mb-4">
+        <div class="bg-dark-700 rounded-lg p-3 border border-dark-600">
+            <div class="flex items-center space-x-2 mb-2">
+                <i class="fa-solid fa-eye text-purple-400 text-sm"></i>
+                <span class="text-xs text-gray-400">Visual Features</span>
+            </div>
+            <p class="text-lg font-semibold text-white">384</p>
+            <p class="text-xs text-gray-400">Dimensions</p>
+        </div>
+        <div class="bg-dark-700 rounded-lg p-3 border border-dark-600">
+            <div class="flex items-center space-x-2 mb-2">
+                <i class="fa-solid fa-clock text-blue-400 text-sm"></i>
+                <span class="text-xs text-gray-400">Avg Interval</span>
+            </div>
+            <p class="text-lg font-semibold text-white">3.2s</p>
+            <p class="text-xs text-gray-400">Between shots</p>
+        </div>
+    </div>
+</div>
+
+<!-- Filter and Sort Controls -->
+<div id="filter-controls" class="px-6 py-3 bg-dark-800 border-b border-dark-600">
+    <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-semibold text-white">Keyframes</h3>
+        <div class="flex items-center space-x-2">
+            <button id="grid-view-btn" class="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
+                <i class="fa-solid fa-grid-2 text-white text-sm"></i>
+            </button>
+            <button id="list-view-btn" class="w-8 h-8 bg-dark-600 rounded-lg flex items-center justify-center">
+                <i class="fa-solid fa-list text-gray-400 text-sm"></i>
+            </button>
+        </div>
+    </div>
+    
+    <div class="flex items-center space-x-3 overflow-x-auto scrollbar-hide">
+        <button class="bg-purple-600 text-white px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap">
+            All Frames
+        </button>
+        <button class="bg-dark-600 text-gray-400 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap">
+            Scene Changes
+        </button>
+        <button class="bg-dark-600 text-gray-400 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap">
+            High Motion
+        </button>
+        <button class="bg-dark-600 text-gray-400 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap">
+            Key Objects
+        </button>
+        <button class="bg-dark-600 text-gray-400 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap">
+            Faces
+        </button>
+    </div>
+</div>
+
+<!-- Keyframe Grid Section -->
+<div id="keyframe-grid" class="px-6 py-4">
+    <div class="grid grid-cols-2 gap-3">
+        <!-- Keyframe Item 1 -->
+        <div class="keyframe-item bg-dark-700 rounded-xl overflow-hidden border border-dark-600 cursor-pointer hover:border-purple-500 transition-colors" data-timecode="00:00:05" data-shot="1" onclick="window.location.href='keyframe-viewer.html'">
+            <div class="relative">
+                <img class="w-full h-32 object-cover" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/5ed8db19c2-fd14c4d34699f2a4b0a4.png" alt="modern office meeting room with people in business attire discussing around a table, professional lighting, corporate setting" />
+                <div class="absolute top-2 left-2 bg-black/70 rounded px-2 py-1">
+                    <span class="text-xs text-white font-mono">00:05</span>
+                </div>
+                <div class="absolute top-2 right-2 bg-purple-600 rounded px-2 py-1">
+                    <span class="text-xs text-white font-medium">Shot 1</span>
+                </div>
+                <div class="absolute bottom-2 left-2 bg-black/70 rounded px-2 py-1">
+                    <span class="text-xs text-green-400">Scene Change</span>
+                </div>
+            </div>
+            <div class="p-3">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-white">Opening Scene</span>
+                    <div class="flex items-center space-x-1">
+                        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <span class="text-xs text-gray-400">High Conf.</span>
+                    </div>
+                </div>
+                <div class="text-xs text-gray-400 mb-2">Embedding: [0.23, -0.45, 0.78...]</div>
+                <div class="flex items-center space-x-2">
+                    <span class="bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded text-xs">Meeting</span>
+                    <span class="bg-green-500/20 text-green-400 px-2 py-0.5 rounded text-xs">Business</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional keyframe items would go here... -->
+        <div class="keyframe-item bg-dark-700 rounded-xl overflow-hidden border border-dark-600 cursor-pointer hover:border-purple-500 transition-colors" data-timecode="00:00:12" data-shot="2" onclick="window.location.href='keyframe-viewer.html'">
+            <div class="relative">
+                <img class="w-full h-32 object-cover" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/d92e47a69c-256d87604b79204bca78.png" alt="close-up of hands typing on laptop keyboard with charts and graphs on screen, modern workspace" />
+                <div class="absolute top-2 left-2 bg-black/70 rounded px-2 py-1">
+                    <span class="text-xs text-white font-mono">00:12</span>
+                </div>
+                <div class="absolute top-2 right-2 bg-purple-600 rounded px-2 py-1">
+                    <span class="text-xs text-white font-medium">Shot 2</span>
+                </div>
+                <div class="absolute bottom-2 left-2 bg-black/70 rounded px-2 py-1">
+                    <span class="text-xs text-blue-400">Detail Shot</span>
+                </div>
+            </div>
+            <div class="p-3">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-white">Data Analysis</span>
+                    <div class="flex items-center space-x-1">
+                        <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                        <span class="text-xs text-gray-400">Med Conf.</span>
+                    </div>
+                </div>
+                <div class="text-xs text-gray-400 mb-2">Embedding: [-0.12, 0.67, -0.34...]</div>
+                <div class="flex items-center space-x-2">
+                    <span class="bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded text-xs">Tech</span>
+                    <span class="bg-orange-500/20 text-orange-400 px-2 py-0.5 rounded text-xs">Data</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Load More Section -->
+<div id="load-more-section" class="px-6 py-4">
+    <button class="w-full bg-dark-700 border border-dark-600 text-gray-300 font-medium py-3 px-4 rounded-xl hover:bg-dark-600 transition-colors flex items-center justify-center space-x-2">
+        <i class="fa-solid fa-plus text-sm"></i>
+        <span>Load More Keyframes (39 remaining)</span>
+    </button>
+</div>
+
+<!-- Embedding Analysis Section -->
+<div id="embedding-analysis" class="px-6 py-4 bg-dark-800 border-t border-dark-600">
+    <h3 class="text-lg font-semibold text-white mb-4">Embedding Analysis</h3>
+    
+    <div class="space-y-4">
+        <div class="bg-dark-700 rounded-xl p-4 border border-dark-600">
+            <div class="flex items-center justify-between mb-3">
+                <h4 class="text-white font-medium">Feature Dimensions</h4>
+                <span class="text-purple-400 text-sm font-medium">384D</span>
+            </div>
+            <div class="grid grid-cols-4 gap-2 mb-3">
+                <div class="bg-dark-600 rounded p-2">
+                    <p class="text-xs text-gray-400">Visual</p>
+                    <p class="text-sm font-semibold text-white">128D</p>
+                </div>
+                <div class="bg-dark-600 rounded p-2">
+                    <p class="text-xs text-gray-400">Motion</p>
+                    <p class="text-sm font-semibold text-white">64D</p>
+                </div>
+                <div class="bg-dark-600 rounded p-2">
+                    <p class="text-xs text-gray-400">Object</p>
+                    <p class="text-sm font-semibold text-white">96D</p>
+                </div>
+                <div class="bg-dark-600 rounded p-2">
+                    <p class="text-xs text-gray-400">Scene</p>
+                    <p class="text-sm font-semibold text-white">96D</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <div class="flex-1 bg-dark-600 rounded-full h-2">
+                    <div class="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full" style="width: 78%"></div>
+                </div>
+                <span class="text-xs text-gray-400">78% similarity</span>
+            </div>
+        </div>
+        
+        <div class="bg-dark-700 rounded-xl p-4 border border-dark-600">
+            <h4 class="text-white font-medium mb-3">Clustering Results</h4>
+            <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                        <span class="text-sm text-white">Meeting Scenes</span>
+                    </div>
+                    <span class="text-gray-400 text-sm">15 frames</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                        <span class="text-sm text-white">Product Shots</span>
+                    </div>
+                    <span class="text-gray-400 text-sm">12 frames</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
+                        <span class="text-sm text-white">Presentations</span>
+                    </div>
+                    <span class="text-gray-400 text-sm">8 frames</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-3 h-3 bg-orange-500 rounded-full"></div>
+                        <span class="text-sm text-white">Branding</span>
+                    </div>
+                    <span class="text-gray-400 text-sm">12 frames</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Vector Similarity Section -->
+<div id="vector-similarity" class="px-6 py-4">
+    <h3 class="text-lg font-semibold text-white mb-4">Vector Similarity</h3>
+    
+    <div class="bg-dark-700 rounded-xl p-4 border border-dark-600 mb-4">
+        <div class="flex items-center justify-between mb-3">
+            <h4 class="text-white font-medium">Most Similar Frames</h4>
+            <button class="text-purple-400 text-sm font-medium">View All</button>
+        </div>
+        
+        <div class="space-y-3">
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded"></div>
+                <div class="flex-1">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-white">Frame 1 ↔ Frame 3</span>
+                        <span class="text-green-400 text-sm font-medium">0.94</span>
+                    </div>
+                    <p class="text-xs text-gray-400">Both contain meeting scenes</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-8 bg-gradient-to-r from-blue-500 to-teal-500 rounded"></div>
+                <div class="flex-1">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-white">Frame 2 ↔ Frame 6</span>
+                        <span class="text-blue-400 text-sm font-medium">0.87</span>
+                    </div>
+                    <p class="text-xs text-gray-400">Technology and data focus</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-8 bg-gradient-to-r from-green-500 to-yellow-500 rounded"></div>
+                <div class="flex-1">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-white">Frame 4 ↔ Frame 7</span>
+                        <span class="text-yellow-400 text-sm font-medium">0.82</span>
+                    </div>
+                    <p class="text-xs text-gray-400">Positive emotional content</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-dark-700 rounded-xl p-4 border border-dark-600">
+        <h4 class="text-white font-medium mb-3">Embedding Distribution</h4>
+        <div class="space-y-2">
+            <div class="flex items-center justify-between text-sm">
+                <span class="text-gray-400">Mean Vector Magnitude</span>
+                <span class="text-white">0.73</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+                <span class="text-gray-400">Standard Deviation</span>
+                <span class="text-white">0.12</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+                <span class="text-gray-400">Cosine Similarity Range</span>
+                <span class="text-white">0.45 - 0.94</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Keyframe Timeline Section -->
+<div id="keyframe-timeline" class="px-6 py-4 bg-dark-800 border-t border-dark-600">
+    <h3 class="text-lg font-semibold text-white mb-4">Timeline View</h3>
+    
+    <div class="bg-dark-700 rounded-xl p-4 border border-dark-600">
+        <div class="relative">
+            <div class="flex items-center space-x-1 mb-3">
+                <span class="text-xs text-gray-400">00:00</span>
+                <div class="flex-1 h-8 bg-dark-600 rounded-lg relative overflow-hidden">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-2 h-6 bg-purple-500 rounded ml-1"></div>
+                        <div class="w-2 h-6 bg-blue-500 rounded ml-2"></div>
+                        <div class="w-2 h-6 bg-green-500 rounded ml-2"></div>
+                        <div class="w-2 h-6 bg-yellow-500 rounded ml-3"></div>
+                        <div class="w-2 h-6 bg-pink-500 rounded ml-2"></div>
+                        <div class="w-2 h-6 bg-teal-500 rounded ml-3"></div>
+                        <div class="w-2 h-6 bg-orange-500 rounded ml-2"></div>
+                        <div class="w-2 h-6 bg-red-500 rounded ml-2"></div>
+                    </div>
+                </div>
+                <span class="text-xs text-gray-400">2:34</span>
+            </div>
+            
+            <div class="flex items-center justify-between text-xs text-gray-400">
+                <span>Scene Changes</span>
+                <span>Motion Events</span>
+                <span>Key Objects</span>
+            </div>
+        </div>
+        
+        <div class="mt-4 flex items-center justify-center space-x-4">
+            <button class="w-8 h-8 bg-dark-600 rounded-full flex items-center justify-center">
+                <i class="fa-solid fa-backward text-gray-300 text-sm"></i>
+            </button>
+            <button class="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">
+                <i class="fa-solid fa-play text-white"></i>
+            </button>
+            <button class="w-8 h-8 bg-dark-600 rounded-full flex items-center justify-center">
+                <i class="fa-solid fa-forward text-gray-300 text-sm"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Export Options Section -->
+<div id="export-options" class="px-6 py-4">
+    <h3 class="text-lg font-semibold text-white mb-4">Export Options</h3>
+    
+    <div class="space-y-3">
+        <button onclick="window.location.href='export.html'" class="w-full bg-dark-700 border border-dark-600 rounded-xl p-4 flex items-center justify-between hover:bg-dark-600 transition-colors">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-download text-purple-400"></i>
+                </div>
+                <div class="text-left">
+                    <p class="text-white font-medium">Export Keyframes</p>
+                    <p class="text-gray-400 text-sm">Download selected frames as images</p>
+                </div>
+            </div>
+            <i class="fa-solid fa-chevron-right text-gray-400"></i>
+        </button>
+        
+        <button onclick="window.location.href='export.html'" class="w-full bg-dark-700 border border-dark-600 rounded-xl p-4 flex items-center justify-between hover:bg-dark-600 transition-colors">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-file-csv text-blue-400"></i>
+                </div>
+                <div class="text-left">
+                    <p class="text-white font-medium">Export Embeddings</p>
+                    <p class="text-gray-400 text-sm">Download vector data as CSV</p>
+                </div>
+            </div>
+            <i class="fa-solid fa-chevron-right text-gray-400"></i>
+        </button>
+        
+        <button onclick="window.location.href='export.html'" class="w-full bg-dark-700 border border-dark-600 rounded-xl p-4 flex items-center justify-between hover:bg-dark-600 transition-colors">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-file-alt text-green-400"></i>
+                </div>
+                <div class="text-left">
+                    <p class="text-white font-medium">Generate Report</p>
+                    <p class="text-gray-400 text-sm">Create analysis summary PDF</p>
+                </div>
+            </div>
+            <i class="fa-solid fa-chevron-right text-gray-400"></i>
+        </button>
+    </div>
+</div>
+
+<!-- Advanced Analytics Section -->
+<div id="advanced-analytics" class="px-6 py-4 bg-dark-800 border-t border-dark-600 mb-20">
+    <h3 class="text-lg font-semibold text-white mb-4">Advanced Analytics</h3>
+    
+    <div class="grid grid-cols-1 gap-4">
+        <div class="bg-dark-700 rounded-xl p-4 border border-dark-600">
+            <h4 class="text-white font-medium mb-3">Shot Transition Analysis</h4>
+            <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-400">Cut Transitions</span>
+                    <span class="text-white text-sm">34 (72%)</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-400">Fade Transitions</span>
+                    <span class="text-white text-sm">8 (17%)</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-400">Dissolve Transitions</span>
+                    <span class="text-white text-sm">5 (11%)</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-dark-700 rounded-xl p-4 border border-dark-600">
+            <h4 class="text-white font-medium mb-3">Content Classification</h4>
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-dark-600 rounded-lg p-3">
+                    <p class="text-xs text-gray-400">Dominant Theme</p>
+                    <p class="text-sm font-semibold text-white">Business</p>
+                    <p class="text-xs text-green-400">87% confidence</p>
+                </div>
+                <div class="bg-dark-600 rounded-lg p-3">
+                    <p class="text-xs text-gray-400">Visual Style</p>
+                    <p class="text-sm font-semibold text-white">Corporate</p>
+                    <p class="text-xs text-blue-400">92% confidence</p>
+                </div>
+                <div class="bg-dark-600 rounded-lg p-3">
+                    <p class="text-xs text-gray-400">Mood</p>
+                    <p class="text-sm font-semibold text-white">Professional</p>
+                    <p class="text-xs text-purple-400">89% confidence</p>
+                </div>
+                <div class="bg-dark-600 rounded-lg p-3">
+                    <p class="text-xs text-gray-400">Quality</p>
+                    <p class="text-sm font-semibold text-white">High</p>
+                    <p class="text-xs text-yellow-400">95% confidence</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bottom Navigation -->
+<div id="bottom-navigation" class="fixed bottom-0 left-0 right-0 bg-dark-800 border-t border-dark-600 px-6 py-3">
+    <div class="flex items-center justify-between">
+        <button onclick="window.location.href='index.html'" class="flex flex-col items-center space-y-1 text-gray-400">
+            <i class="fa-solid fa-home text-lg"></i>
+            <span class="text-xs font-medium">Home</span>
+        </button>
+        
+        <button class="flex flex-col items-center space-y-1 text-gray-400">
+            <i class="fa-solid fa-compass text-lg"></i>
+            <span class="text-xs font-medium">Explore</span>
+        </button>
+        
+        <button onclick="window.location.href='video-selector.html'" class="flex flex-col items-center space-y-1 text-gray-400">
+            <i class="fa-solid fa-plus-circle text-lg"></i>
+            <span class="text-xs font-medium">Upload</span>
+        </button>
+        
+        <button class="flex flex-col items-center space-y-1 text-purple-400">
+            <i class="fa-solid fa-search text-lg"></i>
+            <span class="text-xs font-medium">Research</span>
+        </button>
+        
+        <button class="flex flex-col items-center space-y-1 text-gray-400">
+            <i class="fa-solid fa-user text-lg"></i>
+            <span class="text-xs font-medium">Profile</span>
+        </button>
+    </div>
+</div>
+
+<script>
+// View toggle functionality
+document.getElementById('grid-view-btn').addEventListener('click', function() {
+    this.className = 'w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center';
+    document.getElementById('list-view-btn').className = 'w-8 h-8 bg-dark-600 rounded-lg flex items-center justify-center';
+    
+    // Update grid layout
+    document.getElementById('keyframe-grid').className = 'px-6 py-4';
+    document.querySelector('#keyframe-grid > div').className = 'grid grid-cols-2 gap-3';
+});
+
+document.getElementById('list-view-btn').addEventListener('click', function() {
+    this.className = 'w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center';
+    document.getElementById('grid-view-btn').className = 'w-8 h-8 bg-dark-600 rounded-lg flex items-center justify-center';
+    
+    // Update list layout
+    document.getElementById('keyframe-grid').className = 'px-6 py-4';
+    document.querySelector('#keyframe-grid > div').className = 'space-y-3';
+});
+
+// Filter buttons functionality
+document.querySelectorAll('#filter-controls button').forEach(button => {
+    if (button.textContent.trim() && !button.querySelector('i')) {
+        button.addEventListener('click', function() {
+            // Remove active state from all filter buttons
+            document.querySelectorAll('#filter-controls button').forEach(btn => {
+                if (btn.textContent.trim() && !btn.querySelector('i')) {
+                    btn.className = 'bg-dark-600 text-gray-400 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap';
+                }
+            });
+            
+            // Add active state to clicked button
+            this.className = 'bg-purple-600 text-white px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap';
+        });
+    }
+});
+
+// Load more functionality
+document.querySelector('#load-more-section button').addEventListener('click', function() {
+    this.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-sm"></i><span>Loading...</span>';
+    
+    setTimeout(() => {
+        this.innerHTML = '<i class="fa-solid fa-plus text-sm"></i><span>Load More Keyframes (31 remaining)</span>';
+    }, 2000);
+});
+</script>
+
+</body>
+</html>
