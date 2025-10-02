@@ -1,0 +1,192 @@
+name: Release Deployment Pipeline
+
+on:
+  release:
+    types: [ published ]
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Type of release'
+        required: true
+        default: 'internal'
+        type: choice
+        options:
+        - internal
+        - store
+        - firebase
+
+jobs:
+  internal-release:
+    name: Internal Testing Release
+    runs-on: ubuntu-latest
+    if: github.event.inputs.release_type == 'internal' || (github.event_name == 'release' && contains(github.event.release.tag_name, 'internal'))
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        
+    - name: Cache Gradle packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+          
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+      
+    - name: Build internal APK
+      run: ./gradlew assembleInternal
+      
+    - name: Upload internal APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: internal-apk
+        path: app/build/outputs/apk/internal/*.apk
+        
+    - name: Deploy to Firebase App Distribution
+      uses: wzieba/Firebase-Distribution-Github-Action@v1
+      with:
+        appId: ${{ secrets.FIREBASE_APP_ID }}
+        token: ${{ secrets.FIREBASE_TOKEN }}
+        groups: internal-testers
+        file: app/build/outputs/apk/internal/*.apk
+        releaseNotes: |
+          Internal testing release
+          Version: ${{ github.event.release.tag_name || 'manual' }}
+          Commit: ${{ github.sha }}
+          
+  store-release:
+    name: Store Release
+    runs-on: ubuntu-latest
+    if: github.event.inputs.release_type == 'store' || (github.event_name == 'release' && !contains(github.event.release.tag_name, 'internal'))
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        
+    - name: Cache Gradle packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+          
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+      
+    - name: Setup keystore
+      run: |
+        echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > keystore/autocutpad-release.keystore
+        
+    - name: Build release AAB
+      run: ./gradlew bundleRelease
+      env:
+        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        
+    - name: Upload release AAB
+      uses: actions/upload-artifact@v4
+      with:
+        name: store-release-aab
+        path: app/build/outputs/bundle/release/*.aab
+        
+    - name: Create GitHub Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.event.release.tag_name }}
+        release_name: Release ${{ github.event.release.tag_name }}
+        body: |
+          ## AutoCutPad Release ${{ github.event.release.tag_name }}
+          
+          ### Changes
+          ${{ github.event.release.body }}
+          
+          ### Downloads
+          - **AAB for Store Submission**: Download the AAB file for store submission
+          - **APK for Testing**: Download the APK for direct installation
+          
+          ### Installation
+          1. Download the APK file
+          2. Enable "Install from unknown sources" in Android settings
+          3. Install the APK
+          
+          ### Store Submission
+          Use the AAB file for store submission to Xiaomi App Store.
+        draft: false
+        prerelease: false
+        
+    - name: Upload AAB to Release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: app/build/outputs/bundle/release/*.aab
+        asset_name: AutoCutPad-${{ github.event.release.tag_name }}.aab
+        asset_content_type: application/octet-stream
+        
+  firebase-release:
+    name: Firebase Distribution Release
+    runs-on: ubuntu-latest
+    if: github.event.inputs.release_type == 'firebase'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        
+    - name: Cache Gradle packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+          
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+      
+    - name: Build debug APK for Firebase
+      run: ./gradlew assembleDebug
+      
+    - name: Deploy to Firebase App Distribution
+      uses: wzieba/Firebase-Distribution-Github-Action@v1
+      with:
+        appId: ${{ secrets.FIREBASE_APP_ID }}
+        token: ${{ secrets.FIREBASE_TOKEN }}
+        groups: beta-testers
+        file: app/build/outputs/apk/debug/*.apk
+        releaseNotes: |
+          Firebase distribution release
+          Commit: ${{ github.sha }}
+          Branch: ${{ github.ref_name }}
+          Build: Manual trigger

@@ -1,0 +1,194 @@
+name: Automated Testing Pipeline
+
+on:
+  schedule:
+    # Run tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      test_type:
+        description: 'Type of test to run'
+        required: true
+        default: 'comprehensive'
+        type: choice
+        options:
+        - comprehensive
+        - xiaomi-specific
+        - performance
+        - e2e
+
+jobs:
+  comprehensive-test:
+    name: Comprehensive Test Suite
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event.inputs.test_type == 'comprehensive'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        
+    - name: Cache Gradle packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+          
+    - name: Grant execute permission for scripts
+      run: |
+        chmod +x scripts/test/*.sh
+        chmod +x gradlew
+        
+    - name: Run comprehensive test simulation
+      run: ./scripts/test/comprehensive_test_simulation.sh
+      
+    - name: Run core capabilities test
+      run: ./scripts/test/test_core_capabilities.sh
+      
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: comprehensive-test-results
+        path: |
+          test-results/
+          app/build/reports/
+          
+  xiaomi-test:
+    name: Xiaomi Device Testing
+    runs-on: ubuntu-latest
+    if: github.event.inputs.test_type == 'xiaomi-specific'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        
+    - name: Cache Gradle packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+          
+    - name: Grant execute permission for scripts
+      run: |
+        chmod +x scripts/test/*.sh
+        chmod +x gradlew
+        
+    - name: Run Xiaomi comprehensive test
+      run: ./scripts/test/comprehensive_xiaomi_test.sh
+      
+    - name: Run Xiaomi device test
+      run: ./scripts/test/test-xiaomi-device.sh
+      
+    - name: Upload Xiaomi test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: xiaomi-test-results
+        path: |
+          xiaomi-test-results/
+          app/build/reports/
+          
+  performance-test:
+    name: Performance Testing
+    runs-on: ubuntu-latest
+    if: github.event.inputs.test_type == 'performance'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        
+    - name: Cache Gradle packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+          
+    - name: Grant execute permission for scripts
+      run: |
+        chmod +x scripts/test/*.sh
+        chmod +x gradlew
+        
+    - name: Build debug APK for testing
+      run: ./gradlew assembleDebug
+      
+    - name: Run performance tests
+      run: ./gradlew connectedAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.mira.videoeditor.PerformanceTest
+      
+    - name: Upload performance test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: performance-test-results
+        path: app/build/reports/androidTests/
+        
+  e2e-test:
+    name: End-to-End Testing
+    runs-on: ubuntu-latest
+    if: github.event.inputs.test_type == 'e2e'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        
+    - name: Cache Gradle packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+          
+    - name: Grant execute permission for scripts
+      run: |
+        chmod +x scripts/test/*.sh
+        chmod +x gradlew
+        
+    - name: Run E2E tests
+      run: ./scripts/test/test-e2e.sh
+      
+    - name: Upload E2E test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: e2e-test-results
+        path: |
+          e2e-test-results/
+          app/build/reports/
