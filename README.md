@@ -37,22 +37,41 @@ AutoCutPad is an AI-powered video editing application that automatically selects
 
 ```
 AutoCutPad/
-├── app/
+├── app/                          # Android application module
 │   ├── build.gradle.kts          # App configuration
 │   ├── proguard-rules.pro        # Obfuscation rules
 │   └── src/main/
 │       ├── AndroidManifest.xml   # App manifest
-│       ├── java/com/autocutpad/videoeditor/
+│       ├── java/com/mira/videoeditor/
 │       │   ├── MainActivity.kt      # Main UI activity
 │       │   ├── AutoCutEngine.kt    # Video processing engine
 │       │   ├── VideoScorer.kt      # Motion analysis
 │       │   ├── MediaStoreExt.kt    # File utilities
 │       │   └── AutoCutApplication.kt # Application class
 │       └── res/                  # Resources
+├── scripts/                      # Build and automation scripts
+│   ├── build/                    # Build scripts
+│   ├── test/                     # Testing scripts
+│   ├── deployment/               # Deployment scripts
+│   └── firebase/                 # Firebase configuration
+├── docs/                         # Documentation
+│   ├── guides/                   # Development guides
+│   ├── reports/                  # Analysis and test reports
+│   └── api/                      # API documentation
+├── test/                         # Test files and assets
+│   ├── unit/                     # Unit test files
+│   ├── integration/              # Integration tests
+│   ├── e2e/                      # End-to-end tests
+│   └── assets/                   # Test video assets
+├── assets/                       # Project assets
+│   ├── images/                   # Screenshots and images
+│   └── web/                      # Web demo files
+├── releases/                     # Release builds
+│   ├── internal/                 # Internal testing builds
+│   └── store/                     # Store submission builds
 ├── keystore/                     # Release signing
-├── build-release.sh              # Build script
-├── gradle.properties             # Configuration
-└── docs/                        # Documentation
+├── config/                       # Configuration files
+└── gradle.properties             # Gradle configuration
 ```
 
 ## 🚀 Getting Started
@@ -71,10 +90,10 @@ AutoCutPad/
 ### Building for Release
 ```bash
 # Make build script executable
-chmod +x build-release.sh
+chmod +x scripts/build/build-release.sh
 
 # Run release build
-./build-release.sh
+./scripts/build/build-release.sh
 ```
 
 ## 📦 Build Variants
@@ -173,10 +192,18 @@ Enable debug logging by building debug variant:
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
+## 📚 Documentation
+
+- **[Project Context & Guidance](docs/guides/PROJECT_CONTEXT_GUIDANCE.md)**: Technical architecture, core capabilities, and development roadmap
+- **[Android VideoEdit Template](docs/guides/Android_VideoEdit_Template_Context.md)**: Template context and implementation details
+- **[Media3 Video Pipeline](docs/guides/Project1_Media3_VideoPipeline.md)**: Media3 integration and video processing pipeline
+- **[Scripts Documentation](scripts/README.md)**: Build, test, and deployment scripts guide
+- **[Documentation Index](docs/README.md)**: Complete documentation overview
+
 ## 📞 Support
 
 - **Issues**: Report bugs via GitHub Issues
-- **Documentation**: See RELEASE_GUIDE.md for detailed instructions
+- **Documentation**: See the consolidated guides above for detailed instructions
 - **Store Support**: Contact Xiaomi Developer Support
 
 ## 🗺️ Roadmap

@@ -2,10 +2,13 @@ plugins {
   id("com.android.application")
   id("org.jetbrains.kotlin.android")
   id("org.jetbrains.kotlin.plugin.compose")
+  // Temporarily disabled for testing progress fixes
+  // id("com.google.gms.google-services") // Firebase App Distribution
+  // id("com.google.firebase.appdistribution") // Firebase App Distribution plugin
 }
 
 android {
-  namespace = "com.autocutpad.videoeditor"
+  namespace = "com.mira.videoeditor"
   compileSdk = 34
 
   compileOptions {
@@ -18,11 +21,11 @@ android {
   }
 
   defaultConfig {
-    applicationId = "com.autocutpad.videoeditor"
+    applicationId = "com.mira.videoeditor"
     minSdk = 24
     targetSdk = 34
     versionCode = 1
-    versionName = "1.0.0"
+    versionName = "0.1.0"
     
     // Store metadata
     resValue("string", "app_name", "Mira")
@@ -141,6 +144,27 @@ android {
   }
 }
 
+// Firebase App Distribution configuration (temporarily disabled)
+// firebaseAppDistribution {
+//   appId = "1:384262830567:android:1960eb5e2470beb09ce542" // Firebase App ID
+//   // groups = "internal-testers" // Will be added through Firebase Console
+//   releaseNotes = """
+//     Mira v0.1.0-internal
+//     
+//     Features:
+//     - AI-powered video editing
+//     - Automatic clip selection
+//     - Motion-based scoring
+//     - Simple one-tap editing
+//     
+//     Testing Focus:
+//     - Core functionality
+//     - Performance on different devices
+//     - UI/UX feedback
+//     - Bug reporting
+//   """.trimIndent()
+// }
+
 dependencies {
   // Media3 - versions compatible with API 34
   implementation("androidx.media3:media3-transformer:1.2.1")
@@ -158,6 +182,8 @@ dependencies {
 
   // Coroutines
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
+
+  // Firebase App Distribution (handled by plugin)
 
   // (Optional) ML Kit face detection: boost score weight for "people scenes"
   // Use "unbundled version" (smaller size, requires model download on first use)

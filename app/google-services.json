@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "384262830567",
+    "project_id": "mira-282f2",
+    "storage_bucket": "mira-282f2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:384262830567:android:1960eb5e2470beb09ce542",
+        "android_client_info": {
+          "package_name": "com.mira.videoeditor.internal"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC88Ow4HwOFGxW8R5ns6osIFmPAYF8Mtf8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
