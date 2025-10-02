@@ -155,7 +155,7 @@ main() {
         echo ""
         echo "1. Go to your Firebase Console: https://console.firebase.google.com/"
         echo "2. Click 'Add app' → Android icon"
-        echo "3. Package name: com.mira.videoeditor.internal"
+        echo "3. Package name: com.mira.clip.internal"
         echo "4. App nickname: Mira Internal Testing"
         echo "5. Download google-services.json"
         echo "6. Place it in app/ directory"

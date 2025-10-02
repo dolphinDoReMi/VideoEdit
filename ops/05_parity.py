@@ -17,7 +17,7 @@ from typing import List, Dict, Any, Optional
 import numpy as np
 
 # Configuration
-PKG = os.environ.get("PKG", "com.mira.videoeditor")
+PKG = os.environ.get("PKG", "com.mira.clip")
 VARIANT = os.environ.get("VARIANT", "clip_vit_b32_mean_v1")
 THRESHOLD = 0.995  # Minimum cosine similarity threshold
 

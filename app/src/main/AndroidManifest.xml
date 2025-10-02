@@ -39,7 +39,7 @@
         android:xlargeScreens="true" />
 
     <application
-        android:name=".AutoCutApplication"
+        android:name=".Clip4ClipApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -55,7 +55,7 @@
         
         <!-- Main Activity -->
         <activity 
-            android:name=".MainActivity"
+            android:name=".Clip4ClipActivity"
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Mira">
@@ -71,38 +71,6 @@
                 <data android:mimeType="video/*" />
             </intent-filter>
         </activity>
-        
-        <!-- CLIP4Clip Test Activity - Video-Text Retrieval Testing -->
-        <activity 
-            android:name=".Clip4ClipTestActivity"
-            android:exported="true"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.Mira"
-            android:label="CLIP4Clip Test" />
-        
-        <!-- Whisper Service Test Activity - VideoWhisperService Testing -->
-        <activity 
-            android:name=".WhisperServiceTestActivity"
-            android:exported="true"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.Mira"
-            android:label="WhisperService Test" />
-        
-        <!-- Video Transcription Test Activity - WhisperEngine Testing -->
-        <activity 
-            android:name=".SimpleVideoTranscriptionTestActivity"
-            android:exported="true"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.Mira"
-            android:label="Video Transcription Test" />
-        
-        <!-- CLIP4Clip Room Demo Activity - Production Room Database Integration -->
-        <activity 
-            android:name=".Clip4ClipRoomDemoActivity"
-            android:exported="true"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.Mira"
-            android:label="CLIP4Clip Room Demo" />
         
         <!-- Video Processing Service - Dedicated CLIP4Clip video processing -->
         <service
@@ -123,6 +91,20 @@
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="microphone" />
+        
+        <!-- Debug Broadcast Receiver (debug builds only) -->
+        <receiver
+            android:name=".ops.TestReceiver"
+            android:enabled="true"
+            android:exported="true"
+            tools:ignore="ExportedReceiver">
+            <intent-filter>
+                <action android:name="com.mira.clip.INGEST_MANIFEST" />
+                <action android:name="com.mira.clip.SEARCH_MANIFEST" />
+                <action android:name="com.mira.clip.DEBUG_LOG" />
+                <action android:name="com.mira.clip.CLEAR_CACHE" />
+            </intent-filter>
+        </receiver>
         
         <!-- File Provider for sharing exported videos -->
         <provider
