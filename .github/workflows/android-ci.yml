@@ -39,6 +39,15 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
       
+    - name: Setup Google Services (if available)
+      run: |
+        if [ -f "app/google-services.json" ]; then
+          echo "Google Services file found"
+        else
+          echo "Google Services file not found - using template"
+          cp app/google-services.json.template app/google-services.json
+        fi
+      
     - name: Run unit tests
       run: ./gradlew test
       
@@ -80,6 +89,15 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
       
+    - name: Setup Google Services (if available)
+      run: |
+        if [ -f "app/google-services.json" ]; then
+          echo "Google Services file found"
+        else
+          echo "Google Services file not found - using template"
+          cp app/google-services.json.template app/google-services.json
+        fi
+      
     - name: Build debug APK
       run: ./gradlew assembleDebug
       
@@ -117,6 +135,15 @@ jobs:
           
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
+      
+    - name: Setup Google Services (if available)
+      run: |
+        if [ -f "app/google-services.json" ]; then
+          echo "Google Services file found"
+        else
+          echo "Google Services file not found - using template"
+          cp app/google-services.json.template app/google-services.json
+        fi
       
     - name: Setup keystore
       run: |
