@@ -103,6 +103,8 @@
                 <action android:name="com.mira.clip.SEARCH_MANIFEST" />
                 <action android:name="com.mira.clip.DEBUG_LOG" />
                 <action android:name="com.mira.clip.CLEAR_CACHE" />
+                <action android:name="com.mira.clip.SELFTEST_TEXT" />
+                <action android:name="com.mira.clip.SELFTEST_VIDEO" />
             </intent-filter>
         </receiver>
         
