@@ -1,0 +1,18 @@
+# CLIP BPE Merges File Placeholder
+# This is a placeholder for the CLIP BPE merges file
+# Replace this with the actual bpe_merges.txt from CLIP model
+
+# Instructions:
+# 1. Download CLIP model files from OpenAI or OpenCLIP
+# 2. Extract bpe_merges.txt from the model
+# 3. Place the actual file in app/src/main/assets/bpe_merges.txt
+# 4. The file should contain BPE merge rules, one per line
+
+# Example format:
+# a b
+# c d
+# e f
+# ...
+
+# Note: The actual file will contain thousands of merge rules
+# This placeholder is just for documentation purposes

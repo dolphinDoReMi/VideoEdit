@@ -1,0 +1,17 @@
+{
+  "placeholder": "This is a placeholder for the CLIP BPE vocabulary file",
+  "note": "Replace this with the actual bpe_vocab.json from CLIP model",
+  "instructions": [
+    "1. Download CLIP model files from OpenAI or OpenCLIP",
+    "2. Extract bpe_vocab.json from the model",
+    "3. Place the actual file in app/src/main/assets/bpe_vocab.json",
+    "4. The file should contain token-to-id mappings for BPE encoding"
+  ],
+  "example_format": {
+    "token1": 1,
+    "token2": 2,
+    "</w>": 49407,
+    "<|startoftext|>": 49406,
+    "<|endoftext|>": 49407
+  }
+}

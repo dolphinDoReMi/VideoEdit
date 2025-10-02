@@ -36,6 +36,40 @@
 # Compose rules
 -keep class androidx.compose.** { *; }
 
+# Room Database rules
+-keep class androidx.room.** { *; }
+-keep class * extends androidx.room.RoomDatabase
+-keep @androidx.room.Entity class *
+-keep @androidx.room.Dao class *
+-keep @androidx.room.Database class *
+-keep @androidx.room.TypeConverter class *
+-keep class * extends androidx.room.RoomDatabase {
+    public static <methods>;
+}
+-keep class androidx.room.migration.** { *; }
+
+# PyTorch Mobile rules
+-keep class org.pytorch.** { *; }
+-keep class org.pytorch.torchvision.** { *; }
+-keep class com.facebook.jni.** { *; }
+-keep class com.facebook.soloader.** { *; }
+-keep class com.facebook.jni.annotations.** { *; }
+
+# PyTorch Mobile native libraries
+-keep class org.pytorch.LiteModuleLoader { *; }
+-keep class org.pytorch.Module { *; }
+-keep class org.pytorch.Tensor { *; }
+-keep class org.pytorch.IValue { *; }
+
+# WorkManager rules
+-keep class androidx.work.** { *; }
+-keep class androidx.work.Worker { *; }
+-keep class androidx.work.CoroutineWorker { *; }
+-keep class androidx.work.WorkManager { *; }
+
+# DataStore rules
+-keep class androidx.datastore.** { *; }
+
 # Mira specific rules
 -keep class com.mira.videoeditor.** { *; }
 
@@ -43,6 +77,10 @@
 -dontwarn org.checkerframework.**
 -dontwarn kotlinx.coroutines.**
 -dontwarn androidx.media3.**
+-dontwarn androidx.room.**
+-dontwarn org.pytorch.**
+-dontwarn androidx.work.**
+-dontwarn androidx.datastore.**
 
 # Keep native methods
 -keepclasseswithmembernames class * {
