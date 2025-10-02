@@ -33,6 +33,12 @@ class VideoScorer(private val ctx: Context) {
      * @return List of scored segments
      */
     fun scoreSegments(uri: Uri, segmentMs: Long, maxDurationMs: Long, onProgress: (Float) -> Unit = {}): List<Segment> {
+        Logger.info(Logger.Category.MOTION, "Starting segment scoring", mapOf(
+            "uri" to uri.toString().takeLast(50),
+            "segmentMs" to segmentMs,
+            "maxDurationMs" to maxDurationMs
+        ))
+        
         val retriever = MediaMetadataRetriever()
         
         return try {
@@ -47,6 +53,13 @@ class VideoScorer(private val ctx: Context) {
             
             // Calculate total number of segments for progress tracking
             val totalSegments = (useMs / segmentMs).toInt() + if (useMs % segmentMs > 0) 1 else 0
+            
+            Logger.info(Logger.Category.MOTION, "Video analysis parameters", mapOf(
+                "totalMs" to totalMs,
+                "useMs" to useMs,
+                "totalSegments" to totalSegments,
+                "segmentMs" to segmentMs
+            ))
             
             var currentTime = 0L
             var segmentIndex = 0
@@ -64,11 +77,66 @@ class VideoScorer(private val ctx: Context) {
                 onProgress(progress.coerceIn(0f, 1f))
             }
             
-            Log.d(TAG, "Scored ${segments.size} segments")
+            val averageScore = segments.map { it.score }.average()
+            val topScore = segments.maxOfOrNull { it.score } ?: 0f
+            
+            Logger.logMotionAnalysis(segments.size, averageScore.toFloat(), topScore, mapOf(
+                "totalMs" to totalMs,
+                "segmentMs" to segmentMs
+            ))
+            
             segments
             
         } catch (e: Exception) {
-            Log.e(TAG, "Error scoring segments", e)
+            Logger.logError(Logger.Category.MOTION, "Segment scoring", e.message ?: "Unknown error", mapOf(
+                "uri" to uri.toString().takeLast(50),
+                "segmentMs" to segmentMs
+            ), e)
+            emptyList()
+        } finally {
+            retriever.release()
+        }
+    }
+    
+    /**
+     * Score arbitrary intervals (e.g., detected shots) for motion intensity.
+     * @param uri Video URI
+     * @param intervals List of Pair(startMs, endMs)
+     * @param onProgress Progress callback (0.0f to 1.0f)
+     */
+    fun scoreIntervals(
+        uri: Uri,
+        intervals: List<Pair<Long, Long>>,
+        onProgress: (Float) -> Unit = {}
+    ): List<Segment> {
+        if (intervals.isEmpty()) return emptyList()
+        val retriever = MediaMetadataRetriever()
+        return try {
+            retriever.setDataSource(ctx, uri)
+            val result = mutableListOf<Segment>()
+            var idx = 0
+            val total = intervals.size
+            for ((startMs, endMs) in intervals) {
+                val safeStart = max(0L, startMs)
+                val safeEnd = max(safeStart + 1, endMs)
+                val score = calculateMotionScore(retriever, safeStart, safeEnd)
+                result += Segment(safeStart, safeEnd, score)
+                idx++
+                onProgress((idx.toFloat() / total.toFloat()).coerceIn(0f, 1f))
+            }
+            val averageScore = result.map { it.score }.average()
+            val topScore = result.maxOfOrNull { it.score } ?: 0f
+            
+            Logger.logMotionAnalysis(result.size, averageScore.toFloat(), topScore, mapOf(
+                "mode" to "intervals",
+                "intervalCount" to intervals.size
+            ))
+            result
+        } catch (e: Exception) {
+            Logger.logError(Logger.Category.MOTION, "Interval scoring", e.message ?: "Unknown error", mapOf(
+                "uri" to uri.toString().takeLast(50),
+                "intervalCount" to intervals.size
+            ), e)
             emptyList()
         } finally {
             retriever.release()

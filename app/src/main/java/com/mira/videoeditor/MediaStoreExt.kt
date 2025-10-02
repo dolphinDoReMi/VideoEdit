@@ -2,11 +2,17 @@ package com.mira.videoeditor
 
 import android.content.Context
 import android.content.ContentResolver
+import android.content.ContentValues
 import android.net.Uri
 import android.util.Log
+import android.os.Build
+import android.os.Environment
+import android.provider.MediaStore
+import android.media.MediaScannerConnection
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
+import java.io.OutputStream
 
 /**
  * Utility extensions for MediaStore and URI handling
@@ -24,12 +30,19 @@ object MediaStoreExt {
         
         try {
             takePersistableUriPermission(uri, takeFlags)
-            Log.d(TAG, "Successfully took persistable permission for: $uri")
+            Logger.debug(Logger.Category.STORAGE, "Successfully took persistable permission", mapOf(
+                "uri" to uri.toString().takeLast(50)
+            ))
         } catch (e: SecurityException) {
-            Log.w(TAG, "Could not take persistable permission for: $uri", e)
+            Logger.warn(Logger.Category.STORAGE, "Could not take persistable permission", mapOf(
+                "uri" to uri.toString().takeLast(50),
+                "reason" to "SecurityException"
+            ))
             // This is expected on first try for some URI types
         } catch (e: Exception) {
-            Log.e(TAG, "Error taking persistable permission for: $uri", e)
+            Logger.logError(Logger.Category.STORAGE, "Taking persistable permission", e.message ?: "Unknown error", mapOf(
+                "uri" to uri.toString().takeLast(50)
+            ), e)
         }
     }
     
@@ -39,9 +52,16 @@ object MediaStoreExt {
     fun ContentResolver.hasUriPermission(uri: Uri): Boolean {
         return try {
             val permissions = getPersistedUriPermissions()
-            permissions.any { it.uri == uri }
+            val hasPermission = permissions.any { it.uri == uri }
+            Logger.debug(Logger.Category.STORAGE, "Checked URI permission", mapOf(
+                "uri" to uri.toString().takeLast(50),
+                "hasPermission" to hasPermission
+            ))
+            hasPermission
         } catch (e: Exception) {
-            Log.e(TAG, "Error checking URI permission", e)
+            Logger.logError(Logger.Category.STORAGE, "Checking URI permission", e.message ?: "Unknown error", mapOf(
+                "uri" to uri.toString().takeLast(50)
+            ), e)
             false
         }
     }
@@ -101,5 +121,75 @@ object MediaStoreExt {
             Log.e(TAG, "Error copying URI to file", e)
             false
         }
+    }
+
+    /**
+     * Save a local video file into the system Photos/Gallery via MediaStore.
+     * Returns the content Uri if successful, otherwise null.
+     */
+    fun saveVideoToGallery(
+        context: Context,
+        sourceFile: File,
+        displayName: String = defaultVideoName(),
+        relativeDir: String = Environment.DIRECTORY_MOVIES + "/Mira"
+    ): Uri? {
+        return try {
+            if (!sourceFile.exists() || sourceFile.length() == 0L) {
+                Log.e(TAG, "Source file missing or empty: ${sourceFile.absolutePath}")
+                return null
+            }
+
+            val resolver = context.contentResolver
+            val values = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, displayName)
+                put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    put(MediaStore.MediaColumns.RELATIVE_PATH, relativeDir)
+                    put(MediaStore.Video.Media.IS_PENDING, 1)
+                }
+            }
+
+            val collection = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+            val itemUri = resolver.insert(collection, values)
+            if (itemUri == null) {
+                Log.e(TAG, "Failed to insert into MediaStore: $displayName")
+                return null
+            }
+
+            resolver.openOutputStream(itemUri)?.use { out: OutputStream ->
+                sourceFile.inputStream().use { input ->
+                    input.copyTo(out)
+                }
+            } ?: run {
+                Log.e(TAG, "Failed to open output stream for: $itemUri")
+                return null
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val finalize = ContentValues().apply {
+                    put(MediaStore.Video.Media.IS_PENDING, 0)
+                }
+                resolver.update(itemUri, finalize, null, null)
+            } else {
+                // Pre-Android Q: request media scan
+                MediaScannerConnection.scanFile(
+                    context,
+                    arrayOf(sourceFile.absolutePath),
+                    arrayOf("video/mp4"),
+                    null
+                )
+            }
+
+            Log.d(TAG, "Saved video to Photos: $itemUri (from ${sourceFile.absolutePath})")
+            itemUri
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed saving video to Photos", e)
+            null
+        }
+    }
+
+    private fun defaultVideoName(): String {
+        val ts = System.currentTimeMillis()
+        return "mira_${ts}.mp4"
     }
 }
