@@ -50,7 +50,7 @@
 <!-- App Header with Processing Status -->
 <div id="app-header" class="flex items-center justify-between px-6 py-4 bg-dark-800 border-b border-dark-600">
     <div class="flex items-center space-x-3">
-        <button class="w-8 h-8 bg-dark-600 rounded-full flex items-center justify-center" onclick="goBack()">
+        <button class="w-8 h-8 bg-dark-600 rounded-full flex items-center justify-center">
             <i class="fa-solid fa-arrow-left text-gray-300 text-sm"></i>
         </button>
         <div>
@@ -77,8 +77,8 @@
                 <i class="fa-solid fa-video text-white text-lg"></i>
             </div>
             <div class="flex-1">
-                <h3 class="text-white font-semibold" id="video-name">video_v1.mp4</h3>
-                <p class="text-gray-400 text-sm" id="video-info">Duration: 2:15 • Size: 375 MB</p>
+                <h3 class="text-white font-semibold">video_v1.mp4</h3>
+                <p class="text-gray-400 text-sm">Duration: 2:34 • Size: 45.2 MB</p>
             </div>
             <div class="text-right">
                 <p class="text-purple-400 text-sm font-medium">1080p</p>
@@ -89,16 +89,21 @@
         <!-- Video Player -->
         <div class="w-full h-40 bg-dark-600 rounded-xl mb-4 border border-dark-500 relative overflow-hidden">
             <video 
-                id="video-player" 
+                id="main-video" 
                 class="w-full h-full object-cover rounded-xl" 
                 controls 
                 preload="metadata"
-                poster="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDIwMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTIwIiBmaWxsPSIjM0EzQTNBIi8+CjxwYXRoIGQ9Ik04MCA0MEwxMjAgNjBMMTgwIDQwVjgwTDgwIDYwVjQwWiIgZmlsbD0iIzlDQTNBRiIvPgo8L3N2Zz4K">
-                <source id="video-source" src="" type="video/mp4">
+                poster="https://storage.googleapis.com/uxpilot-auth.appspot.com/96308bda99-e123cf6d8055921c54aa.png"
+                onloadstart="console.log('Video loading started')"
+                oncanplay="console.log('Video can start playing')"
+                onerror="console.log('Video error:', event)"
+                onclick="this.play()"
+            >
+                <source src="video_v1.mp4" type="video/mp4">
                 Your browser does not support the video tag.
             </video>
-            <div id="video-overlay" class="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm">
-                <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+            <div class="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center pointer-events-none" id="play-overlay">
+                <div class="w-12 h-12 bg-black/50 rounded-full flex items-center justify-center backdrop-blur-sm opacity-80 transition-opacity duration-300">
                     <i class="fa-solid fa-play text-white text-lg ml-1"></i>
                 </div>
             </div>
@@ -510,10 +515,10 @@
                 <div class="w-16 h-16 mx-auto mb-2 relative">
                     <svg class="w-16 h-16 transform -rotate-90" viewBox="0 0 36 36">
                         <path class="text-dark-600" stroke="currentColor" stroke-width="3" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
-                        <path id="cpu-circle" class="text-blue-500" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+                        <path class="text-blue-500" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="67, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
                     </svg>
                     <div class="absolute inset-0 flex items-center justify-center">
-                        <span id="cpu-percent" class="text-white text-sm font-semibold">0%</span>
+                        <span class="text-white text-sm font-semibold">67%</span>
                     </div>
                 </div>
                 <p class="text-gray-400 text-sm">CPU</p>
@@ -523,10 +528,10 @@
                 <div class="w-16 h-16 mx-auto mb-2 relative">
                     <svg class="w-16 h-16 transform -rotate-90" viewBox="0 0 36 36">
                         <path class="text-dark-600" stroke="currentColor" stroke-width="3" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
-                        <path id="memory-circle" class="text-purple-500" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+                        <path class="text-purple-500" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="52, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
                     </svg>
                     <div class="absolute inset-0 flex items-center justify-center">
-                        <span id="memory-percent" class="text-white text-sm font-semibold">0%</span>
+                        <span class="text-white text-sm font-semibold">52%</span>
                     </div>
                 </div>
                 <p class="text-gray-400 text-sm">Memory</p>
@@ -546,18 +551,6 @@
                 <span class="text-gray-400">Available Storage</span>
                 <span class="text-white">3.8 GB</span>
             </div>
-            <div class="flex items-center justify-between text-sm">
-                <span class="text-gray-400">Battery Level</span>
-                <span id="battery-level" class="text-white">22%</span>
-            </div>
-            <div class="flex items-center justify-between text-sm">
-                <span class="text-gray-400">Device Temperature</span>
-                <span id="device-temperature" class="text-white">37°C</span>
-            </div>
-            <div class="flex items-center justify-between text-sm">
-                <span class="text-gray-400">Memory Usage</span>
-                <span id="memory-usage" class="text-white">0 MB</span>
-            </div>
         </div>
     </div>
 </div>
@@ -565,27 +558,27 @@
 <!-- Bottom Navigation -->
 <div id="bottom-navigation" class="fixed bottom-0 left-0 right-0 bg-dark-800 border-t border-dark-600 px-6 py-3">
     <div class="flex items-center justify-between">
-        <button class="flex flex-col items-center space-y-1 text-gray-400" onclick="navigateTo('home')">
+        <button class="flex flex-col items-center space-y-1 text-gray-400">
             <i class="fa-solid fa-home text-lg"></i>
             <span class="text-xs font-medium">Home</span>
         </button>
         
-        <button class="flex flex-col items-center space-y-1 text-gray-400" onclick="navigateTo('explore')">
+        <button class="flex flex-col items-center space-y-1 text-gray-400">
             <i class="fa-solid fa-compass text-lg"></i>
             <span class="text-xs font-medium">Explore</span>
         </button>
         
-        <button class="flex flex-col items-center space-y-1 text-purple-400" onclick="navigateTo('upload')">
+        <button class="flex flex-col items-center space-y-1 text-purple-400">
             <i class="fa-solid fa-plus-circle text-lg"></i>
             <span class="text-xs font-medium">Upload</span>
         </button>
         
-        <button class="flex flex-col items-center space-y-1 text-gray-400" onclick="navigateTo('research')">
+        <button class="flex flex-col items-center space-y-1 text-gray-400">
             <i class="fa-solid fa-search text-lg"></i>
             <span class="text-xs font-medium">Research</span>
         </button>
         
-        <button class="flex flex-col items-center space-y-1 text-gray-400" onclick="navigateTo('profile')">
+        <button class="flex flex-col items-center space-y-1 text-gray-400">
             <i class="fa-solid fa-user text-lg"></i>
             <span class="text-xs font-medium">Profile</span>
         </button>
@@ -593,22 +586,38 @@
 </div>
 
 <script>
-// Android WebView interface functions
-function goBack() {
-    if (window.AndroidInterface) {
-        window.AndroidInterface.goBack();
-    } else {
-        window.history.back();
+// Video player functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const video = document.getElementById('main-video');
+    const playOverlay = document.getElementById('play-overlay');
+    
+    if (video && playOverlay) {
+        // Hide overlay when video starts playing
+        video.addEventListener('play', function() {
+            playOverlay.style.opacity = '0';
+            playOverlay.style.pointerEvents = 'none';
+        });
+        
+        // Show overlay when video pauses
+        video.addEventListener('pause', function() {
+            playOverlay.style.opacity = '0.8';
+            playOverlay.style.pointerEvents = 'auto';
+        });
+        
+        // Show overlay when video ends
+        video.addEventListener('ended', function() {
+            playOverlay.style.opacity = '0.8';
+            playOverlay.style.pointerEvents = 'auto';
+        });
+        
+        // Click overlay to play video
+        playOverlay.addEventListener('click', function() {
+            video.play();
+        });
+        
+        console.log('Video player initialized with video_v1.mp4');
     }
-}
-
-function navigateTo(section) {
-    if (window.AndroidInterface) {
-        window.AndroidInterface.navigateTo(section);
-    } else {
-        console.log('Navigate to:', section);
-    }
-}
+});
 
 // Processing simulation
 const steps = [
@@ -717,132 +726,6 @@ function addLogEntry(message) {
     log.scrollTop = log.scrollHeight;
 }
 
-function updateVideoInfo(name, duration, size) {
-    document.getElementById('video-name').textContent = name;
-    document.getElementById('video-info').textContent = `Duration: ${duration} • Size: ${size}`;
-}
-
-function loadVideoFile(videoPath) {
-    const videoPlayer = document.getElementById('video-player');
-    const videoSource = document.getElementById('video-source');
-    const videoOverlay = document.getElementById('video-overlay');
-    
-    // Set video source
-    videoSource.src = videoPath;
-    videoPlayer.load();
-    
-    // Hide overlay when video is ready
-    videoPlayer.addEventListener('loadedmetadata', () => {
-        videoOverlay.style.display = 'none';
-        addLogEntry(`Video loaded: ${videoPath}`);
-    });
-    
-    // Show overlay when video is paused
-    videoPlayer.addEventListener('pause', () => {
-        videoOverlay.style.display = 'flex';
-    });
-    
-    // Hide overlay when video is playing
-    videoPlayer.addEventListener('play', () => {
-        videoOverlay.style.display = 'none';
-    });
-    
-    // Handle video errors
-    videoPlayer.addEventListener('error', (e) => {
-        console.error('Video error:', e);
-        addLogEntry(`Video loading error: ${videoPath}`);
-        videoOverlay.style.display = 'flex';
-    });
-}
-
-function playVideo() {
-    const videoPlayer = document.getElementById('video-player');
-    videoPlayer.play().catch(e => {
-        console.error('Playback error:', e);
-        addLogEntry('Video playback failed');
-    });
-}
-
-function pauseVideo() {
-    const videoPlayer = document.getElementById('video-player');
-    videoPlayer.pause();
-}
-
-function updateRealResourceUsage(cpuUsage, memoryUsageMB, batteryLevel, temperature) {
-    console.log('Updating resource usage:', {cpuUsage, memoryUsageMB, batteryLevel, temperature});
-    
-    // Update CPU usage in System Resources section
-    const cpuPercent = Math.round(cpuUsage);
-    const cpuCircle = document.getElementById('cpu-circle');
-    const cpuPercentText = document.getElementById('cpu-percent');
-    if (cpuCircle) {
-        cpuCircle.setAttribute('stroke-dasharray', `${cpuPercent}, 100`);
-    }
-    if (cpuPercentText) {
-        cpuPercentText.textContent = cpuPercent + '%';
-    }
-    
-    // Update Memory usage in System Resources section
-    const memoryPercent = Math.round((memoryUsageMB / 4096) * 100); // Assuming 4GB total memory
-    const memoryCircle = document.getElementById('memory-circle');
-    const memoryPercentText = document.getElementById('memory-percent');
-    if (memoryCircle) {
-        memoryCircle.setAttribute('stroke-dasharray', `${memoryPercent}, 100`);
-    }
-    if (memoryPercentText) {
-        memoryPercentText.textContent = memoryPercent + '%';
-    }
-    
-    // Update battery level in System Resources section
-    const batteryElement = document.getElementById('battery-level');
-    if (batteryElement) {
-        batteryElement.textContent = batteryLevel + '%';
-    }
-    
-    // Update temperature in System Resources section
-    const tempElement = document.getElementById('device-temperature');
-    if (tempElement) {
-        tempElement.textContent = Math.round(temperature) + '°C';
-    }
-    
-    // Update memory usage in System Resources section
-    const memoryUsageElement = document.getElementById('memory-usage');
-    if (memoryUsageElement) {
-        memoryUsageElement.textContent = memoryUsageMB + ' MB';
-    }
-    
-    // Also update the processing details section (if it exists)
-    const cpuTextElement = document.querySelector('#processing-details .text-gray-400');
-    const cpuBarElement = document.querySelector('#processing-details .bg-blue-500');
-    if (cpuTextElement) {
-        cpuTextElement.textContent = cpuPercent + '%';
-    }
-    if (cpuBarElement) {
-        cpuBarElement.style.width = cpuPercent + '%';
-    }
-    
-    const memoryTextElements = document.querySelectorAll('#processing-details .text-gray-400');
-    const memoryBarElement = document.querySelector('#processing-details .bg-purple-500');
-    if (memoryTextElements.length > 1) {
-        memoryTextElements[1].textContent = `${memoryUsageMB} MB / 4 GB`;
-    }
-    if (memoryBarElement) {
-        memoryBarElement.style.width = memoryPercent + '%';
-    }
-    
-    const storageText = `${Math.round(memoryUsageMB * 0.1)} MB processed`;
-    if (memoryTextElements.length > 2) {
-        memoryTextElements[2].textContent = storageText;
-    }
-    
-    // Add log entry for resource updates (less frequent to avoid spam)
-    const now = Date.now();
-    if (!window.lastResourceLog || now - window.lastResourceLog > 10000) { // Log every 10 seconds
-        addLogEntry(`Resources: CPU ${cpuPercent}%, Memory ${memoryUsageMB}MB, Battery ${batteryLevel}%, Temp ${Math.round(temperature)}°C`);
-        window.lastResourceLog = now;
-    }
-}
-
 function startProcessing() {
     processingInterval = setInterval(() => {
         if (currentStepIndex < steps.length && isProcessing) {
@@ -858,11 +741,11 @@ function startProcessing() {
                     // Show completion options
                     const controlActions = document.getElementById('control-actions');
                     controlActions.innerHTML = `
-                        <button class="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-xl flex items-center justify-center space-x-2 transition-colors" onclick="viewResults()">
+                        <button class="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-xl flex items-center justify-center space-x-2 transition-colors">
                             <i class="fa-solid fa-eye"></i>
                             <span>View Results</span>
                         </button>
-                        <button class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-4 rounded-xl flex items-center justify-center space-x-2 transition-colors" onclick="newAnalysis()">
+                        <button class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-4 rounded-xl flex items-center justify-center space-x-2 transition-colors">
                             <i class="fa-solid fa-redo"></i>
                             <span>New Analysis</span>
                         </button>
@@ -875,80 +758,6 @@ function startProcessing() {
             currentStepIndex++;
         }
     }, 3000);
-}
-
-function viewResults() {
-    if (window.AndroidInterface) {
-        window.AndroidInterface.viewResults();
-    } else {
-        console.log('View results');
-    }
-}
-
-function newAnalysis() {
-    if (window.AndroidInterface) {
-        window.AndroidInterface.newAnalysis();
-    } else {
-        console.log('New analysis');
-    }
-}
-
-function startClipProcessing() {
-    addLogEntry('Starting CLIP embedding processing...');
-    
-    // Reset processing state
-    currentStepIndex = 0;
-    isProcessing = true;
-    
-    // Update step 3 (Loading CLIP) to be the current step
-    setTimeout(() => {
-        updateStep(2); // Skip to CLIP loading step
-        addLogEntry('CLIP model loaded successfully');
-        
-        // Move to embedding step
-        setTimeout(() => {
-            updateStep(3); // Embedding step
-            addLogEntry('Generating CLIP embeddings for video frames...');
-            
-            // Simulate embedding generation
-            let embeddingCount = 0;
-            const embeddingInterval = setInterval(() => {
-                embeddingCount += 5;
-                document.getElementById('embeddings-generated').textContent = embeddingCount;
-                
-                if (embeddingCount >= 89) {
-                    clearInterval(embeddingInterval);
-                    addLogEntry('CLIP embeddings generated successfully');
-                    
-                    // Complete processing
-                    setTimeout(() => {
-                        updateStep(4); // Final analysis
-                        addLogEntry('CLIP analysis complete - generating insights');
-                        
-                        setTimeout(() => {
-                            document.getElementById('step-title').textContent = 'CLIP Analysis Complete!';
-                            document.getElementById('step-description').textContent = 'Video embeddings generated successfully. Ready for content analysis.';
-                            document.querySelector('#current-step .w-6').outerHTML = '<i class="fa-solid fa-check text-green-500 text-xl"></i>';
-                            document.getElementById('accuracy-score').textContent = '94.7%';
-                            
-                            // Show completion options
-                            const controlActions = document.getElementById('control-actions');
-                            controlActions.innerHTML = `
-                                <button class="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-xl flex items-center justify-center space-x-2 transition-colors" onclick="viewResults()">
-                                    <i class="fa-solid fa-eye"></i>
-                                    <span>View CLIP Results</span>
-                                </button>
-                                <button class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-4 rounded-xl flex items-center justify-center space-x-2 transition-colors" onclick="newAnalysis()">
-                                    <i class="fa-solid fa-redo"></i>
-                                    <span>New Analysis</span>
-                                </button>
-                            `;
-                        }, 1000);
-                    }, 2000);
-                }
-            }, 200);
-        }, 2000);
-    }, 1000);
 }
 
 // Control buttons
@@ -976,44 +785,16 @@ document.getElementById('cancel-btn').addEventListener('click', function() {
         
         // Reset to initial state
         setTimeout(() => {
-            goBack();
+            window.history.back();
         }, 1000);
     }
 });
 
-// Auto-load video_v1.mp4 and start CLIP processing
+// Start processing simulation
 setTimeout(() => {
-    // Update video info
-    document.getElementById('video-name').textContent = 'video_v1.mp4';
-    document.getElementById('video-info').textContent = 'Duration: 2:15 • Size: 375 MB';
-    
-    // Add log entry for video loading
-    addLogEntry('Auto-loading video_v1.mp4 (375MB)');
-    
-    // Try to load video from Android assets
-    const videoPath = 'file:///android_asset/video_v1.mp4';
-    loadVideoFile(videoPath);
-    
-    // If that fails, try alternative paths
-    setTimeout(() => {
-        const videoPlayer = document.getElementById('video-player');
-        if (videoPlayer.error) {
-            addLogEntry('Failed to load video from assets, trying alternative path...');
-            // Try loading from test assets
-            loadVideoFile('./test/assets/video_v1.mp4');
-        }
-    }, 2000);
-    
-    // Start CLIP processing after video loading attempt
-    setTimeout(() => {
-        addLogEntry('Video loaded successfully');
-        startClipProcessing();
-    }, 3000);
-}, 500);
+    startProcessing();
+}, 1000);
 
-// Real resource monitoring is now handled by Android
-// Commenting out simulated resource updates
-/*
 // Update resource usage periodically
 setInterval(() => {
     const cpuUsage = Math.floor(Math.random() * 20) + 60; // 60-80%
@@ -1032,24 +813,6 @@ setInterval(() => {
     // Update text values
     document.querySelector('#processing-details .text-gray-400:first-of-type').nextElementSibling.textContent = cpuUsage + '%';
 }, 2000);
-*/
-
-// Android interface functions
-window.updateVideoInfo = function(name, duration, size) {
-    document.getElementById('video-name').textContent = name;
-    document.getElementById('video-info').textContent = `Duration: ${duration} • Size: ${size}`;
-};
-
-window.updateProgress = function(progress, stepTitle, stepDescription) {
-    document.getElementById('step-progress').textContent = progress + '%';
-    document.getElementById('progress-bar').style.width = progress + '%';
-    document.getElementById('step-title').textContent = stepTitle;
-    document.getElementById('step-description').textContent = stepDescription;
-};
-
-window.addLogMessage = function(message) {
-    addLogEntry(message);
-};
 </script>
 
 </body>

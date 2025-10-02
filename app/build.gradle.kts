@@ -9,7 +9,7 @@ plugins {
 }
 
 android {
-  namespace = "com.mira.videoeditor"
+  namespace = "mira.ui"
   compileSdk = 34
 
   compileOptions {
@@ -26,7 +26,7 @@ android {
   }
 
   defaultConfig {
-    applicationId = "com.mira.videoeditor"
+    applicationId = "mira.ui"
     minSdk = 24
     targetSdk = 34
     versionCode = 1
@@ -37,7 +37,7 @@ android {
     resValue("string", "app_description", "AI-powered video editing with automatic clip selection")
     
     // Xiaomi store requirements
-    manifestPlaceholders["xiaomi_app_id"] = "com.mira.videoeditor"
+    manifestPlaceholders["xiaomi_app_id"] = "mira.ui"
     
     // NDK configuration removed - no longer using native code
   }
