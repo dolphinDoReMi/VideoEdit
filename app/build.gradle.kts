@@ -2,6 +2,7 @@ plugins {
   id("com.android.application")
   id("org.jetbrains.kotlin.android")
   id("org.jetbrains.kotlin.plugin.compose")
+  id("kotlin-kapt")
   // Temporarily disabled for testing progress fixes
   // id("com.google.gms.google-services") // Firebase App Distribution
   // id("com.google.firebase.appdistribution") // Firebase App Distribution plugin
@@ -33,6 +34,8 @@ android {
     
     // Xiaomi store requirements
     manifestPlaceholders["xiaomi_app_id"] = "com.mira.videoeditor"
+    
+    // NDK configuration removed - no longer using native code
   }
 
   signingConfigs {
@@ -98,6 +101,7 @@ android {
       // Keep readable logs for testing
       isMinifyEnabled = false
       isShrinkResources = false
+      isDebuggable = true  // Explicitly enable debugging for profiler
       
       buildConfigField("boolean", "DEBUG_MODE", "true")
       buildConfigField("String", "BUILD_TYPE", "\"debug\"")
@@ -112,7 +116,10 @@ android {
   buildFeatures { 
     compose = true
     buildConfig = true
+    prefab = true
   }
+  
+  // Native library configuration removed - no longer using native code
   
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -182,6 +189,24 @@ dependencies {
 
   // Coroutines
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
+
+  // Room database for CLIP4Clip embeddings and video metadata
+  implementation("androidx.room:room-runtime:2.6.1")
+  kapt("androidx.room:room-compiler:2.6.1")
+  implementation("androidx.room:room-ktx:2.6.1")
+  
+  // DataStore for settings and preferences
+  implementation("androidx.datastore:datastore-preferences:1.1.1")
+  
+  // WorkManager for background video ingestion
+  implementation("androidx.work:work-runtime-ktx:2.9.1")
+  
+  // PyTorch Mobile for CLIP models (temporarily disabled for WhisperEngine testing)
+  // implementation("org.pytorch:pytorch_android_lite:2.3.0")
+  // implementation("org.pytorch:pytorch_android_torchvision:2.3.0")
+
+  // HTTP client for optional cloud upload
+  implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
   // Firebase App Distribution (handled by plugin)
 
