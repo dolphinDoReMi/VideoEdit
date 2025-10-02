@@ -125,11 +125,15 @@ class MainActivity : AppCompatActivity() {
             
             // Ensure WebView is still valid before updating
             if (::webView.isInitialized && webView != null) {
+                // Use moving averages for smoother display (fallback to raw values if no history)
+                val displayCpu = if (cpuMovingAverage > 0) cpuMovingAverage else realCpuUsage
+                val displayMemory = if (memoryMovingAverage > 0) memoryMovingAverage else realMemoryPercentage
+                
                 webView.evaluateJavascript(
-                    "window.updateRealResourceUsage($cpuMovingAverage, $memoryMovingAverage, $batteryLevel, $temperature, '$batteryDetails', '$gpuInfo', '$threadInfo');",
+                    "window.updateRealResourceUsage($displayCpu, $displayMemory, $batteryLevel, $temperature, '$batteryDetails', '$gpuInfo', '$threadInfo');",
                     null
                 )
-                Log.d("ResourceMonitor", "Resource update sent to WebView successfully")
+                Log.d("ResourceMonitor", "Resource update sent to WebView successfully (CPU: $displayCpu%, Memory: $displayMemory%)")
             } else {
                 Log.w("ResourceMonitor", "WebView not available for resource update")
             }
@@ -379,10 +383,26 @@ class MainActivity : AppCompatActivity() {
             return 0.0
         }
         
-        val sum = cpuMemoryHistory.sumOf { it.cpuUsage }
-        val average = sum / cpuMemoryHistory.size
+        // Use exponential moving average for better smoothing
+        val readings = cpuMemoryHistory.toList()
+        if (readings.size == 1) {
+            return readings[0].cpuUsage
+        }
         
-        Log.d("ResourceMonitor", "CPU moving average: $average% (from ${cpuMemoryHistory.size} readings)")
+        // Calculate weighted average (more recent readings have higher weight)
+        var weightedSum = 0.0
+        var totalWeight = 0.0
+        val size = readings.size
+        
+        readings.forEachIndexed { index, reading ->
+            val weight = (index + 1).toDouble() / size // Linear weight increase
+            weightedSum += reading.cpuUsage * weight
+            totalWeight += weight
+        }
+        
+        val average = if (totalWeight > 0) weightedSum / totalWeight else readings.last().cpuUsage
+        
+        Log.d("ResourceMonitor", "CPU moving average: $average% (from ${cpuMemoryHistory.size} readings, weighted)")
         return average.coerceIn(0.0, 100.0)
     }
     
@@ -391,10 +411,26 @@ class MainActivity : AppCompatActivity() {
             return 0L
         }
         
-        val sum = cpuMemoryHistory.sumOf { it.memoryUsage.toDouble() }
-        val average = (sum / cpuMemoryHistory.size).toLong()
+        // Use weighted average for better smoothing
+        val readings = cpuMemoryHistory.toList()
+        if (readings.size == 1) {
+            return readings[0].memoryUsage
+        }
         
-        Log.d("ResourceMonitor", "Memory moving average: $average% (from ${cpuMemoryHistory.size} readings)")
+        // Calculate weighted average (more recent readings have higher weight)
+        var weightedSum = 0.0
+        var totalWeight = 0.0
+        val size = readings.size
+        
+        readings.forEachIndexed { index, reading ->
+            val weight = (index + 1).toDouble() / size // Linear weight increase
+            weightedSum += reading.memoryUsage * weight
+            totalWeight += weight
+        }
+        
+        val average = if (totalWeight > 0) (weightedSum / totalWeight).toLong() else readings.last().memoryUsage
+        
+        Log.d("ResourceMonitor", "Memory moving average: $average% (from ${cpuMemoryHistory.size} readings, weighted)")
         return average.coerceIn(0L, 100L)
     }
     

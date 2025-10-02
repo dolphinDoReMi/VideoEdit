@@ -3,13 +3,13 @@
 ## 🎬 Overview
 Mira Video Editor is an Android application that provides AI-powered automatic video cutting and editing capabilities using Media3 Transformer. The application analyzes video content, detects motion patterns, and automatically creates engaging short-form videos.
 
-> **📚 Documentation**: For comprehensive documentation, see [📖 Documentation Index](docs/INDEX.md)
+> **📚 Documentation**: For comprehensive documentation, see [📖 Documentation Index](docs/consolidated/DOCUMENTATION_INDEX.md)
 > 
-> **🚀 Quick Start**: See [Development Guides](docs/guides/) for setup and implementation
+> **🚀 Quick Start**: See [Development Guides](docs/consolidated/) for setup and implementation
 > 
-> **🧪 Testing**: Use [Testing Scripts](scripts/test/) for comprehensive testing
+> **🧪 Testing**: Use [Consolidated Scripts](scripts/consolidated/) for comprehensive testing
 > 
-> **📋 Scripts**: For quick script access, see [📖 Scripts Index](scripts/INDEX.md)
+> **📋 Scripts**: For quick script access, see [📖 Scripts Index](scripts/consolidated/SCRIPTS_INDEX.md)
 
 ## ✨ Key Features
 
@@ -56,24 +56,24 @@ Mira Video Editor is an Android application that provides AI-powered automatic v
 
 ## 📚 Documentation
 
-### 📖 Quick Navigation
-- **[📖 Documentation Index](docs/INDEX.md)** - Complete documentation overview
+### 📖 Consolidated Documentation
+- **[📖 Documentation Index](docs/consolidated/DOCUMENTATION_INDEX.md)** - Complete documentation overview
 - **[📚 Documentation README](docs/README.md)** - Documentation structure and navigation
 
 ### 🛠️ Development Guides
-- **[Project Context Guide](docs/guides/PROJECT_CONTEXT_GUIDANCE.md)** - Project structure and purpose
-- **[Media3 Video Pipeline](docs/guides/Project1_Media3_VideoPipeline.md)** - Core implementation guide
-- **[Enhanced Logging & Export](docs/reports/ENHANCED_LOGGING_EXPORT_IMPROVEMENTS.md)** - Latest improvements
+- **[Project Context Guide](docs/consolidated/PROJECT_CONTEXT_GUIDANCE.md)** - Project structure and purpose
+- **[Media3 Video Pipeline](docs/consolidated/Project1_Media3_VideoPipeline.md)** - Core implementation guide
+- **[CLIP4Clip Integration](docs/consolidated/CLIP4Clip_Room_Integration_Guide.md)** - CLIP4Clip database integration
 
 ### 🧪 Testing & Verification
-- **[Xiaomi Pad Testing Guide](docs/guides/XIAOMI_PAD_TESTING_GUIDE.md)** - Device testing procedures
-- **[Test Results](docs/reports/XIAOMI_PAD_COMPREHENSIVE_TEST_REPORT.md)** - Comprehensive test results
-- **[Performance Analysis](docs/reports/MEDIA3_PROCESSING_ANALYSIS.md)** - Performance metrics
+- **[Xiaomi Pad Testing Guide](docs/consolidated/XIAOMI_PAD_RESOURCE_MONITORING_GUIDE.md)** - Device testing procedures
+- **[Test Results](docs/consolidated/XIAOMI_PAD_COMPREHENSIVE_TEST_REPORT.md)** - Comprehensive test results
+- **[Performance Analysis](docs/consolidated/MEDIA3_PROCESSING_ANALYSIS.md)** - Performance metrics
 
 ### 🚀 Deployment & Operations
-- **[CI/CD Developer Guide](docs/guides/CICD_DEVELOPER_GUIDE.md)** - Development workflow
-- **[Firebase Setup Guide](docs/guides/FIREBASE_SETUP_GUIDE.md)** - Infrastructure setup
-- **[Distribution Release Guide](docs/guides/DISTRIBUTION_RELEASE_GUIDE.md)** - Release process
+- **[CI/CD Developer Guide](docs/consolidated/CICD_DEVELOPER_GUIDE.md)** - Development workflow
+- **[Firebase Setup Guide](docs/consolidated/FIREBASE_SETUP_GUIDE.md)** - Infrastructure setup
+- **[Distribution Release Guide](docs/consolidated/DISTRIBUTION_RELEASE_GUIDE.md)** - Release process
 
 ## 🚀 Quick Start
 
