@@ -7,5 +7,3 @@ dependencyResolutionManagement {
 }
 rootProject.name = "AutoCutPad"
 include(":app")
-include(":asrcore")
-include(":mira_whisper")
