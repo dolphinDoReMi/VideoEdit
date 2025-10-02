@@ -1,0 +1,39 @@
+# Android build artifacts
+.gradle/
+.idea/
+.kotlin/
+build/
+app/build/
+local.properties
+
+# APK files
+*.apk
+
+# Log files
+*.log
+*_log_*.txt
+
+# Temporary files
+*.patch
+*.tmp
+*.temp
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+*.iml
+*.ipr
+*.iws
+.vscode/
+.idea/
+
+# Keystore files (keep the directory structure but ignore actual keystores)
+keystore/*.keystore
+!keystore/README.md

@@ -1,9 +1,9 @@
 plugins {
   id("com.android.application")
   id("org.jetbrains.kotlin.android")
-  id("org.jetbrains.kotlin.plugin.compose")
-  id("kotlin-kapt")
   // Temporarily disabled for testing progress fixes
+  // id("com.google.devtools.ksp")
+  // id("dagger.hilt.android.plugin")
   // id("com.google.gms.google-services") // Firebase App Distribution
   // id("com.google.firebase.appdistribution") // Firebase App Distribution plugin
 }
@@ -149,6 +149,11 @@ android {
       enableSplit = true
     }
   }
+
+  testOptions {
+    unitTests.isIncludeAndroidResources = true
+    animationsDisabled = true
+  }
 }
 
 // Firebase App Distribution configuration (temporarily disabled)
@@ -180,7 +185,7 @@ dependencies {
   implementation("androidx.media3:media3-exoplayer:1.2.1") // For preview (optional)
 
   // UI - Using compatible versions for API 34
-  implementation(platform("androidx.compose:compose-bom:2024.10.00"))
+  implementation(platform("androidx.compose:compose-bom:2023.10.01"))
   implementation("androidx.activity:activity-compose:1.8.2")
   implementation("androidx.compose.ui:ui")
   implementation("androidx.compose.material:material")
@@ -191,9 +196,9 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
 
   // Room database for CLIP4Clip embeddings and video metadata
-  implementation("androidx.room:room-runtime:2.6.1")
-  kapt("androidx.room:room-compiler:2.6.1")
-  implementation("androidx.room:room-ktx:2.6.1")
+  // implementation("androidx.room:room-runtime:2.7.0")
+  // ksp("androidx.room:room-compiler:2.7.0")
+  // implementation("androidx.room:room-ktx:2.7.0")
   
   // DataStore for settings and preferences
   implementation("androidx.datastore:datastore-preferences:1.1.1")
@@ -213,4 +218,26 @@ dependencies {
   // (Optional) ML Kit face detection: boost score weight for "people scenes"
   // Use "unbundled version" (smaller size, requires model download on first use)
   implementation("com.google.mlkit:face-detection:16.1.7")
+  
+  // Dependency Injection with Hilt
+  // implementation("com.google.dagger:hilt-android:2.48")
+  // ksp("com.google.dagger:hilt-compiler:2.48")
+  // implementation("androidx.hilt:hilt-work:1.1.0")
+  
+  // Security - SQLCipher for encrypted database
+  implementation("net.zetetic:android-database-sqlcipher:4.5.4")
+  
+  // Performance monitoring
+  implementation("androidx.tracing:tracing:1.2.0")
+
+  // Test dependencies
+  testImplementation("junit:junit:4.13.2")
+  testImplementation("org.robolectric:robolectric:4.12.2")
+  testImplementation("androidx.room:room-testing:2.7.0")
+  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
+
+  androidTestImplementation("androidx.test:runner:1.6.2")
+  androidTestImplementation("androidx.test.ext:junit:1.2.1")
+  androidTestImplementation("androidx.work:work-testing:2.9.1")
+  androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 }

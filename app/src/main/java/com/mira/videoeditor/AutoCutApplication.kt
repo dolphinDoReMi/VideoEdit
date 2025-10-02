@@ -3,7 +3,9 @@ package com.mira.videoeditor
 import android.app.Application
 import android.content.Context
 import androidx.media3.common.util.Util
+import dagger.hilt.android.HiltAndroidApp
 
+@HiltAndroidApp
 class AutoCutApplication : Application() {
     
     companion object {

@@ -155,7 +155,7 @@ interface TextFtsDao {
         SELECT t.* FROM texts t 
         JOIN texts_fts fts ON t.rowid = fts.rowid
         WHERE texts_fts MATCH :query
-        ORDER BY rank
+        ORDER BY fts.rowid
         LIMIT :limit
     """)
     suspend fun search(query: String, limit: Int = 20): List<TextEntity>

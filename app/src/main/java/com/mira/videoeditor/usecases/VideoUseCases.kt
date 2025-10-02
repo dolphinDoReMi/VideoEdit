@@ -10,6 +10,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * Use cases for CLIP4Clip video-text retrieval system.
@@ -25,7 +27,10 @@ import kotlinx.coroutines.withContext
  * Handles the complete pipeline from video selection to stored embeddings,
  * including background processing and progress tracking.
  */
-class VideoIngestionUseCase(private val context: Context) {
+@Singleton
+class VideoIngestionUseCase @Inject constructor(
+    private val context: Context
+) {
 
     companion object {
         private const val DEFAULT_VARIANT = "clip_vit_b32_mean_v1"
@@ -184,7 +189,10 @@ class VideoIngestionUseCase(private val context: Context) {
  * Provides high-level search operations with different granularities
  * (video-level vs shot-level) and result formatting.
  */
-class VideoSearchUseCase(private val context: Context) {
+@Singleton
+class VideoSearchUseCase @Inject constructor(
+    private val context: Context
+) {
 
     companion object {
         private const val DEFAULT_VARIANT = "clip_vit_b32_mean_v1"
@@ -300,7 +308,10 @@ class VideoSearchUseCase(private val context: Context) {
  * 
  * Provides operations for database cleanup, optimization, and monitoring.
  */
-class DatabaseManagementUseCase(private val context: Context) {
+@Singleton
+class DatabaseManagementUseCase @Inject constructor(
+    private val context: Context
+) {
 
     /**
      * Perform database maintenance tasks.
