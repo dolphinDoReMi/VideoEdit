@@ -115,7 +115,12 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+
 # Large model files (use Git LFS or exclude from repo)
 app/src/main/assets/models/*.bin
 app/src/main/assets/*.mp4
 app/src/main/assets/processing_interface.html
+
+# Keystore files (keep the directory structure but ignore actual keystores)
+keystore/*.keystore
+!keystore/README.md

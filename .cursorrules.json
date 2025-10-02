@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "description": "Never rewrite test invariants; fix implementation instead.",
+      "alwaysApply": true,
+      "globs": ["app/src/test/**", "app/src/androidTest/**"],
+      "editsAllowed": false
+    },
+    {
+      "description": "When touching WhisperEngine, WhisperBridge, AsrFileScanWorker, or AsrTranscribeWorker, run instrumented tests.",
+      "alwaysApply": true,
+      "commands": ["./gradlew :app:connectedDebugAndroidTest"]
+    }
+  ]
+}

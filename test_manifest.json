@@ -1,0 +1,11 @@
+{
+  "variant": "clip_vit_b32_mean_v1",
+  "frame_count": 2,
+  "videos": [
+    {
+      "id": "test001",
+      "path": "/sdcard/Movies/video_v1.mp4"
+    }
+  ],
+  "output_dir": "/sdcard/MiraClip/out/embeddings"
+}

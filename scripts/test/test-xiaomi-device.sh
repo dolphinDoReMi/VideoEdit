@@ -55,15 +55,15 @@ adb -s $XIAOMI_DEVICE push test-videos/motion-test-video.mp4 /sdcard/Download/mo
 
 # Grant permissions (MIUI specific)
 echo "🔐 Granting permissions..."
-adb -s $XIAOMI_DEVICE shell pm grant com.mira.videoeditor.debug android.permission.READ_EXTERNAL_STORAGE
-adb -s $XIAOMI_DEVICE shell pm grant com.mira.videoeditor.debug android.permission.READ_MEDIA_VIDEO
-adb -s $XIAOMI_DEVICE shell pm grant com.mira.videoeditor.debug android.permission.WRITE_EXTERNAL_STORAGE
-adb -s $XIAOMI_DEVICE shell pm grant com.mira.videoeditor.debug android.permission.CAMERA
-adb -s $XIAOMI_DEVICE shell pm grant com.mira.videoeditor.debug android.permission.RECORD_AUDIO
+adb -s $XIAOMI_DEVICE shell pm grant com.mira.clip.debug android.permission.READ_EXTERNAL_STORAGE
+adb -s $XIAOMI_DEVICE shell pm grant com.mira.clip.debug android.permission.READ_MEDIA_VIDEO
+adb -s $XIAOMI_DEVICE shell pm grant com.mira.clip.debug android.permission.WRITE_EXTERNAL_STORAGE
+adb -s $XIAOMI_DEVICE shell pm grant com.mira.clip.debug android.permission.CAMERA
+adb -s $XIAOMI_DEVICE shell pm grant com.mira.clip.debug android.permission.RECORD_AUDIO
 
 # Launch the app
 echo "🚀 Launching AutoCutPad..."
-adb -s $XIAOMI_DEVICE shell am start -n com.mira.videoeditor.debug/com.mira.videoeditor.MainActivity
+adb -s $XIAOMI_DEVICE shell am start -n com.mira.clip.debug/com.mira.clip.MainActivity
 
 echo "✅ Xiaomi device testing setup complete!"
 echo ""
@@ -81,7 +81,7 @@ echo "- Test video processing performance on MIUI"
 echo "- Check if exported videos are accessible"
 echo ""
 echo "📁 Test video location: /sdcard/Download/motion-test-video.mp4"
-echo "📱 App package: com.mira.videoeditor.debug"
+echo "📱 App package: com.mira.clip.debug"
 echo "🎯 Device: $MODEL (MIUI $MIUI_VERSION)"
 echo ""
 echo "💡 Tips for MIUI testing:"

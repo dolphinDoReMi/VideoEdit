@@ -1,15 +1,15 @@
 plugins {
   id("com.android.application")
   id("org.jetbrains.kotlin.android")
-  id("org.jetbrains.kotlin.plugin.compose")
-  id("kotlin-kapt")
+  id("com.google.devtools.ksp")
   // Temporarily disabled for testing progress fixes
+  // id("dagger.hilt.android.plugin")
   // id("com.google.gms.google-services") // Firebase App Distribution
   // id("com.google.firebase.appdistribution") // Firebase App Distribution plugin
 }
 
 android {
-  namespace = "com.mira.videoeditor"
+  namespace = "com.mira.clip"
   compileSdk = 34
 
   compileOptions {
@@ -20,22 +20,24 @@ android {
   kotlinOptions {
     jvmTarget = "17"
   }
+  
+  composeOptions {
+    kotlinCompilerExtensionVersion = "1.5.3"
+  }
 
   defaultConfig {
-    applicationId = "com.mira.videoeditor"
-    minSdk = 24
+    applicationId = "com.mira.clip"
+    minSdk = 26
     targetSdk = 34
     versionCode = 1
     versionName = "0.1.0"
     
     // Store metadata
-    resValue("string", "app_name", "Mira")
+    resValue("string", "app_name", "mira_clip")
     resValue("string", "app_description", "AI-powered video editing with automatic clip selection")
     
     // Xiaomi store requirements
-    manifestPlaceholders["xiaomi_app_id"] = "com.mira.videoeditor"
-    
-    // NDK configuration removed - no longer using native code
+    manifestPlaceholders["xiaomi_app_id"] = "com.mira.clip"
   }
 
   signingConfigs {
@@ -114,12 +116,8 @@ android {
   }
 
   buildFeatures { 
-    compose = true
     buildConfig = true
-    prefab = true
   }
-  
-  // Native library configuration removed - no longer using native code
   
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -149,6 +147,11 @@ android {
       enableSplit = true
     }
   }
+
+  testOptions {
+    unitTests.isIncludeAndroidResources = true
+    animationsDisabled = true
+  }
 }
 
 // Firebase App Distribution configuration (temporarily disabled)
@@ -173,44 +176,33 @@ android {
 // }
 
 dependencies {
-  // Media3 - versions compatible with API 34
-  implementation("androidx.media3:media3-transformer:1.2.1")
-  implementation("androidx.media3:media3-effect:1.2.1")
-  implementation("androidx.media3:media3-common:1.2.1")
-  implementation("androidx.media3:media3-exoplayer:1.2.1") // For preview (optional)
-
-  // UI - Using compatible versions for API 34
-  implementation(platform("androidx.compose:compose-bom:2024.10.00"))
-  implementation("androidx.activity:activity-compose:1.8.2")
-  implementation("androidx.compose.ui:ui")
-  implementation("androidx.compose.material:material")
-  implementation("androidx.compose.ui:ui-tooling-preview")
-  debugImplementation("androidx.compose.ui:ui-tooling")
-
-  // Coroutines
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
-
-  // Room database for CLIP4Clip embeddings and video metadata
   implementation("androidx.room:room-runtime:2.6.1")
-  kapt("androidx.room:room-compiler:2.6.1")
   implementation("androidx.room:room-ktx:2.6.1")
-  
-  // DataStore for settings and preferences
-  implementation("androidx.datastore:datastore-preferences:1.1.1")
-  
-  // WorkManager for background video ingestion
-  implementation("androidx.work:work-runtime-ktx:2.9.1")
-  
-  // PyTorch Mobile for CLIP models (temporarily disabled for WhisperEngine testing)
-  // implementation("org.pytorch:pytorch_android_lite:2.3.0")
-  // implementation("org.pytorch:pytorch_android_torchvision:2.3.0")
+  ksp("androidx.room:room-compiler:2.6.1")
 
-  // HTTP client for optional cloud upload
+  implementation("androidx.work:work-runtime-ktx:2.9.1")
+  androidTestImplementation("androidx.work:work-testing:2.9.1")
+
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
   implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
-  // Firebase App Distribution (handled by plugin)
+  // AndroidX AppCompat
+  implementation("androidx.appcompat:appcompat:1.6.1")
+  implementation("androidx.core:core-ktx:1.12.0")
 
-  // (Optional) ML Kit face detection: boost score weight for "people scenes"
-  // Use "unbundled version" (smaller size, requires model download on first use)
-  implementation("com.google.mlkit:face-detection:16.1.7")
+  // DataStore for settings
+  implementation("androidx.datastore:datastore-preferences:1.0.0")
+
+  // PyTorch dependencies
+  implementation("org.pytorch:pytorch_android_lite:1.13.1")
+
+  // Hilt dependencies (temporarily disabled for build issues)
+  // implementation("com.google.dagger:hilt-android:2.48")
+  // ksp("com.google.dagger:hilt-compiler:2.48")
+
+  testImplementation("junit:junit:4.13.2")
+  testImplementation("org.robolectric:robolectric:4.12.2")
+  testImplementation("androidx.room:room-testing:2.6.1")
+  androidTestImplementation("androidx.test:runner:1.6.2")
+  androidTestImplementation("androidx.test.ext:junit:1.2.1")
 }

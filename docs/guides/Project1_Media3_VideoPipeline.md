@@ -11,6 +11,32 @@ A production-ready, edge-first video editing pipeline for Xiaomi Pad Ultra that 
 - **Minimal Upload**: Only compressed MP4s and JSON metadata uploaded
 - **No Cloud GPUs**: CPU-only backend for indexing and search
 
+## A. Shot Sampling
+
+### A1 视频解码（Downscale 抽帧）
+- 技术细节：`MediaMetadataRetriever` 或 `MediaCodec` 解码缩略帧（约 160×90 @12fps，或等效降采样）
+- 目的：快速获得低分辨率帧序列，供直方图/差分分析
+- 验证方式：对一段 1 分钟 1080p 视频抽帧，确保 <1s 得到缩略帧序列（在日志中打印耗时）
+
+### A2 场景切换检测（Shot Boundary）
+- 技术细节：灰度直方图差（HIST_BINS=32）或 HSV 直方图差；阈值自适应（默认阈值约 0.28，最短镜头时长 `minShotMs` 约 1500ms）
+- 参考实现：`ShotDetector` 使用下采样 + 灰度直方图，SAD 归一化到 [0..1]
+- 验证方式：选取带明显场景切换的视频（如电影预告片），输出切分时间点（ms），人工核对切点时间戳
+
+### A3 Shot 封装（结构化输出）
+- 技术细节：每个 shot 输出 `{ startMs, endMs, id }`，确保覆盖整段视频且无重叠/倒序
+- 参考输出：App 侧以内存对象为主（用于后续打分与拼接）；可扩展为 JSON 导出
+- 验证方式：导出/打印 JSON 列表，检查是否完整覆盖源视频时轴，抽查若干边界与原视频对应关系
+
+### A4 Keyframe 抽取（预览/质检）
+- 技术细节：每个 shot 抽取 头/中/尾 1–2 帧，并保存为图片（或内存位图用于 UI 预览）
+- 用途：快速质检分段是否合理、生成缩略图墙
+- 验证方式：检查生成文件数量是否等于 `shots × 关键帧数`，抽样人工预览关键帧图像
+
+> 实现对照
+- 代码路径：`app/src/main/java/com/mira/videoeditor/ShotDetector.kt`（边界检测）、`VideoScorer.kt`（区间打分）、`AutoCutEngine.kt`（镜头级候选与导出）
+- 运行参数：`useShotSampling`、`shotSampleMs`、`minShotMs`、`shotThreshold` 可在 `AutoCutEngine.autoCutAndExport(...)` 中配置
+
 ## Architecture
 
 ```
@@ -757,3 +783,215 @@ app.listen(8080, ()=>console.log("cloud-lite on :8080 (CPU-only)"));
 - Real-time preview during analysis
 
 This project provides a complete, production-ready foundation for edge-first video editing with intelligent content analysis and efficient cloud integration.
+
+## Progress Log
+
+- 2025-10-02 — Shot Sampling implemented and integrated
+  - Added `ShotDetector.kt` (histogram-based, 96×54 grayscale, 32 bins, SAD threshold)
+  - Extended `VideoScorer` with `scoreIntervals(...)` to score arbitrary [startMs,endMs]
+  - Updated `AutoCutEngine.autoCutAndExport(...)` to support:
+    - `useShotSampling` (default true), `shotSampleMs`, `minShotMs`, `shotThreshold`
+    - Progress mapping: detection (5–10%), scoring (10–15%), selection (15–25%)
+  - Enabled by default in `MainActivity` with: sample=500ms, minShot=1500ms, thr=0.28
+  - Docs: Added “A. Shot Sampling” (A1–A4) with verification steps
+
+- Verification status (A1–A4)
+  - A1: Downscaled frame extraction working; typical 1‑min 1080p trailer completes <1s
+  - A2: Boundaries printed to logs; thresholds tunable. Matches visible cuts on trailers
+  - A3: Shots cover full duration; contiguous, non-overlapping
+  - A4: Ready to add optional keyframe dumps (head/mid/tail) and `shots.json` for QA
+
+- Next actions
+  - [ ] Add optional QA outputs: `shots.json` and PNG keyframes to app files dir
+  - [ ] UI switch to toggle shot sampling and QA outputs at runtime
+  - [ ] Parameter presets for different content types (trailer, vlog, sports)
+  - [ ] Integrate speech-aware weighting (SAMW-SS) on top of shots
+
+## Android 自动视频剪辑 App 开发流程（落地指南）
+
+> 下面是一个 Android 自动视频剪辑 App 的完整开发流程（结合本指南与现有实现，可按阶段直接落地）。本节与当前仓库实现一一对应：`ShotDetector.kt` 负责镜头检测，`VideoScorer.kt` 负责片段打分，`AutoCutEngine.kt`/Media3 导出承担拼接与编码。
+
+### 1. 问题拆分
+
+| 模块 | 功能 |
+| --- | --- |
+| 视频读取与解码 | 把用户拍摄的视频切成帧或片段 |
+| 内容分析 | 检测镜头切换、运动、人物/人脸、语音高潮点 |
+| 片段评分与挑选 | 对每个片段打分，选出最精彩的若干段 |
+| 编辑与特效 | 裁剪、拼接、转场、滤镜、字幕、背景音乐 |
+| 导出与编码 | 硬件加速合成 H.264/H.265 MP4 |
+| UI 交互 | 预览、让用户可微调片段顺序和长度 |
+
+对应实现映射：
+- `app/src/main/java/com/mira/videoeditor/ShotDetector.kt`：镜头切换/分段
+- `app/src/main/java/com/mira/videoeditor/VideoScorer.kt`：片段打分与排序
+- `app/src/main/java/com/mira/videoeditor/AutoCutEngine.kt`：EDL 生成与 Media3 导出
+- `app/src/main/java/com/mira/videoeditor/MainActivity.kt`：选择视频、触发 E2E 流程
+
+### 2. 技术选择
+
+| 层 | 推荐工具 |
+| --- | --- |
+| 视频编辑底层 | Jetpack Media3 Transformer（官方）或商业 SDK（如 Meishe、KSY） |
+| 镜头检测/运动检测 | OpenCV / FFmpeg scene detection |
+| 人脸检测 | ML Kit / TensorFlow Lite |
+| 音频高潮点 | Librosa（可服务端）或 Android MediaExtractor |
+| 特效与导出 | Media3 Transformer + GPU 滤镜（OpenGL/Glide） |
+| UI | Jetpack Compose / XML，自定义播放器预览 |
+
+本仓库当前采用「Media3-only」策略，后续可渐进式引入 OpenCV/TFLite。
+
+### 3. 系统架构
+
+```
+视频输入
+   ↓
+帧提取/片段切分 (FFmpeg/MediaExtractor)
+   ↓
+内容分析 (人脸 + 镜头切换 + 运动 + 音频峰值)
+   ↓
+打分与选片 (规则 / 轻量模型)
+   ↓
+编辑拼接 (Media3 Transformer)
+   ↓
+加滤镜 + 字幕 + 音乐
+   ↓
+硬件加速编码导出
+   ↓
+UI 预览 & 用户可调整
+```
+
+与上文「Architecture」一致：分析 → EDL → 多码率导出 → 上传。
+
+### 4. 开发优先级
+
+1. 先搭建视频编辑管道
+   - 用 Media3 Transformer 做裁剪、拼接、导出。
+2. 加简单自动选片
+   - 用 FFmpeg 或 OpenCV 检测场景变化；简单帧差 + 人脸检测。
+3. 增强智能分析
+   - 加入动作检测、音频高潮点、镜头稳定度分析。
+4. 优化用户体验
+   - 低分辨率预览、GPU 滤镜、转场动画。
+5. 最终打包 / 适配不同机型
+   - 处理硬件加速兼容、异常场景、UI 完善。
+
+### 5. 时间计划（建议）
+
+| 阶段 | 工作内容 | 周期 |
+| --- | --- | --- |
+| 需求 & 样例收集 | 定义视频时长、目标风格 | 1 周 |
+| 基础编辑实现 | 剪切、拼接、导出 | 2~3 周 |
+| 简单自动选片 | 场景切换 + 人脸检测 | 2 周 |
+| 高级分析 & 特效 | 动作检测、音乐匹配 | 3~4 周 |
+| 性能 & UI 打磨 | 预览流畅、低耗电 | 2~3 周 |
+
+### 6. 核心示例代码（Kotlin）
+
+```kotlin
+// 片段分析与选取（示意）
+data class Clip(val startMs: Long, val endMs: Long, val score: Float)
+
+fun analyzeVideo(videoPath: String): List<Clip> {
+    val segments = segmentVideo(videoPath, 2000) // 每段 2s
+    return segments.map {
+        val motion = calcMotion(it)
+        val face = detectFace(it)
+        Clip(it.start, it.end, motion * 0.5f + face * 0.5f)
+    }.sortedByDescending { it.score }.take(5)
+}
+
+// 拼接导出（示意，实际请参考 AutoCutEngine + Media3Exporter 实现）
+fun composeVideo(videoPath: String, output: String) {
+    val clips = analyzeVideo(videoPath)
+    val transformer = Transformer.Builder(context)
+        .setVideoMimeType(MimeTypes.VIDEO_H264)
+        .build()
+    val composition = Composition.Builder()
+    clips.forEach {
+        composition.addClip(Clip.createFromUri(videoPath, it.startMs, it.endMs))
+    }
+    transformer.start(composition, output)
+}
+```
+
+要点：
+- `calcMotion()` 可用 OpenCV 帧差；`detectFace()` 用 ML Kit 人脸检测。
+- 实际项目中使用 `Media3Exporter`（见上文）以获得硬件加速导出与多码率能力。
+
+## Enhanced Logging System
+
+The project now includes a comprehensive logging system (`Logger.kt`) that provides:
+
+### Structured Logging Categories
+- **Engine**: AutoCutEngine operations and processing stages
+- **Video**: Video file operations and metadata
+- **Motion**: Motion analysis and shot detection
+- **Export**: Media3 Transformer export operations
+- **UI**: User interface interactions and state changes
+- **Performance**: Timing and memory usage metrics
+- **Error**: Enhanced error reporting with context
+- **Test**: Testing framework operations
+- **Storage**: File system and MediaStore operations
+- **Media**: Media processing and analysis
+
+### Enhanced Log Features
+- **Timestamped entries** with millisecond precision
+- **Contextual information** including file paths, durations, and performance metrics
+- **Performance timing** with automatic memory tracking
+- **Progress logging** with human-readable stages
+- **Error logging** with stack traces and context
+- **Privacy-aware** URI logging (shows last 50 characters only)
+
+### Export Location Improvements
+
+**Previous Behavior**: Videos were automatically saved to Photos/Gallery
+**New Behavior**: Videos are saved to Documents/Mira/exports by default
+
+#### Benefits:
+- **Better organization**: Exports are kept separate from user photos
+- **Easier access**: Users can find exports in the Documents folder
+- **No gallery clutter**: User's photo library remains clean
+- **Better file management**: Timestamped filenames prevent conflicts
+
+#### File Structure:
+```
+/storage/emulated/0/Android/data/com.mira.videoeditor/files/exports/
+├── mira_export_1703123456789.mp4
+├── mira_export_1703123567890.mp4
+└── ...
+```
+
+### Logging Examples
+
+```kotlin
+// Enhanced logging with context
+Logger.info(Logger.Category.ENGINE, "AutoCutEngine initialization", mapOf(
+    "input" to input.toString().takeLast(50),
+    "output" to outputPath,
+    "targetMs" to targetDurationMs,
+    "segmentMs" to segmentMs
+))
+
+// Performance timing
+Logger.measureTime(Logger.Category.EXPORT, "Video export") {
+    // Export operation
+}
+
+// Motion analysis results
+Logger.logMotionAnalysis(
+    segmentCount = 15,
+    averageScore = 0.342f,
+    topScore = 0.876f,
+    context = mapOf("mode" to "shot_detection")
+)
+```
+
+### Next Steps
+
+- **Enhanced Monitoring**: The logging system provides detailed insights into video processing performance
+- **Export Management**: Users can now easily manage their exported videos in the Documents folder
+- **Debugging**: Comprehensive logs make it easier to diagnose issues and optimize performance
+- **Analytics**: Log data can be used for performance analysis and user behavior insights
+
+The project now provides a production-ready logging system that enhances debugging capabilities while maintaining user privacy and improving file organization.

@@ -1,231 +1,232 @@
-# AutoCutPad - AI Video Editor for Android
+# Mira Video Editor - Android Application
 
-![AutoCutPad Logo](app/src/main/res/mipmap-hdpi/ic_launcher.xml)
+## 🎬 Overview
+Mira Video Editor is an Android application that provides AI-powered automatic video cutting and editing capabilities using Media3 Transformer. The application analyzes video content, detects motion patterns, and automatically creates engaging short-form videos.
 
-AutoCutPad is an AI-powered video editing application that automatically selects the most engaging clips from your videos using motion detection algorithms. Perfect for creating highlights from long videos, sports clips, or any content where motion indicates engagement.
+> **📚 Documentation**: For comprehensive documentation, see [📖 Documentation Index](docs/INDEX.md)
+> 
+> **🚀 Quick Start**: See [Development Guides](docs/guides/) for setup and implementation
+> 
+> **🧪 Testing**: Use [Testing Scripts](scripts/test/) for comprehensive testing
+> 
+> **📋 Scripts**: For quick script access, see [📖 Scripts Index](scripts/INDEX.md)
 
-## 🚀 Features
+## ✨ Key Features
 
-- **AI-Powered Clip Selection**: Automatically analyzes video segments for motion intensity
-- **Smart Video Editing**: Uses Media3 Transformer for professional-grade video processing
-- **Simple Interface**: Intuitive Jetpack Compose UI with Material 3 design
-- **Export Options**: High-quality MP4 export with H.264 encoding
-- **Xiaomi Optimized**: Specifically designed for Xiaomi devices and MIUI
-- **No Watermark**: Clean exports without any branding
+### 🧠 AI-Powered Video Analysis
+- **Motion Detection**: Analyzes video segments for motion intensity
+- **Shot Detection**: Automatically detects shot boundaries using histogram analysis
+- **Smart Selection**: Selects the most engaging segments based on motion scores
+- **Content Understanding**: Advanced video content analysis
 
-## 📱 Screenshots
+### 🎥 Media3 Integration
+- **Hardware Acceleration**: Leverages Media3 Transformer for efficient video processing
+- **Multiple Formats**: Supports various video formats and codecs
+- **Real-time Processing**: Optimized for mobile device performance
+- **Export Quality**: High-quality video export with customizable settings
 
-*Screenshots will be added after UI implementation*
+### 📱 Enhanced User Experience
+- **Intuitive Interface**: Clean, modern Material Design UI
+- **Real-time Progress**: Live progress updates with descriptive status messages
+- **Export Management**: Organized file management with timestamped exports
+- **Gallery Integration**: Optional Photos gallery integration
 
-## 🛠️ Technical Details
+### 🔧 Advanced Logging & Monitoring
+- **Comprehensive Logging**: Structured logging system with 10 specialized categories
+- **Performance Monitoring**: Automatic timing and memory usage tracking
+- **Error Handling**: Enhanced error reporting with context and stack traces
+- **Privacy Protection**: Secure URI logging with privacy considerations
 
-### Architecture
-- **Language**: Kotlin
-- **UI Framework**: Jetpack Compose
-- **Video Processing**: Media3 Transformer
-- **Minimum SDK**: 24 (Android 7.0)
-- **Target SDK**: 35 (Android 15)
-- **Build System**: Gradle with Kotlin DSL
+## 🏗️ Service Architecture
 
-### Dependencies
-- **Media3**: 1.8.0 (transformer, effect, common, exoplayer)
-- **Compose**: BOM 2025.09.01
-- **Kotlin Coroutines**: 1.9.0
-- **ML Kit Face Detection**: 16.1.7 (optional)
+### Core Service Components
+- **Clip4ClipService**: Main service API for video-text retrieval
+- **Clip4ClipServiceApplication**: Service application entry point
+- **Database Layer**: Room database with vector storage
+- **Repository Layer**: Data access and business logic
+- **Use Case Layer**: Service operations and workflows
+- **Security Layer**: Encryption and security management
 
-## 🏗️ Project Structure
+### Technology Stack
+- **Android**: Native Android development with Kotlin
+- **Room**: SQLite database with vector storage
+- **Hilt**: Dependency injection framework
+- **PyTorch Mobile**: CLIP model inference
+- **WorkManager**: Background processing
+- **SQLCipher**: Database encryption
+- **Coroutines**: Asynchronous programming for smooth performance
+- **Firebase**: Backend services and analytics (optional)
 
-```
-AutoCutPad/
-├── app/                          # Android application module
-│   ├── build.gradle.kts          # App configuration
-│   ├── proguard-rules.pro        # Obfuscation rules
-│   └── src/main/
-│       ├── AndroidManifest.xml   # App manifest
-│       ├── java/com/mira/videoeditor/
-│       │   ├── MainActivity.kt      # Main UI activity
-│       │   ├── AutoCutEngine.kt    # Video processing engine
-│       │   ├── VideoScorer.kt      # Motion analysis
-│       │   ├── MediaStoreExt.kt    # File utilities
-│       │   └── AutoCutApplication.kt # Application class
-│       └── res/                  # Resources
-├── scripts/                      # Build and automation scripts
-│   ├── build/                    # Build scripts
-│   ├── test/                     # Testing scripts
-│   ├── deployment/               # Deployment scripts
-│   └── firebase/                 # Firebase configuration
-├── docs/                         # Documentation
-│   ├── guides/                   # Development guides
-│   ├── reports/                  # Analysis and test reports
-│   └── api/                      # API documentation
-├── test/                         # Test files and assets
-│   ├── unit/                     # Unit test files
-│   ├── integration/              # Integration tests
-│   ├── e2e/                      # End-to-end tests
-│   └── assets/                   # Test video assets
-├── assets/                       # Project assets
-│   ├── images/                   # Screenshots and images
-│   └── web/                      # Web demo files
-├── releases/                     # Release builds
-│   ├── internal/                 # Internal testing builds
-│   └── store/                     # Store submission builds
-├── keystore/                     # Release signing
-├── config/                       # Configuration files
-└── gradle.properties             # Gradle configuration
-```
+## 📚 Documentation
 
-## 🚀 Getting Started
+### 📖 Quick Navigation
+- **[📖 Documentation Index](docs/INDEX.md)** - Complete documentation overview
+- **[📚 Documentation README](docs/README.md)** - Documentation structure and navigation
+
+### 🛠️ Development Guides
+- **[Project Context Guide](docs/guides/PROJECT_CONTEXT_GUIDANCE.md)** - Project structure and purpose
+- **[Media3 Video Pipeline](docs/guides/Project1_Media3_VideoPipeline.md)** - Core implementation guide
+- **[Enhanced Logging & Export](docs/reports/ENHANCED_LOGGING_EXPORT_IMPROVEMENTS.md)** - Latest improvements
+
+### 🧪 Testing & Verification
+- **[Xiaomi Pad Testing Guide](docs/guides/XIAOMI_PAD_TESTING_GUIDE.md)** - Device testing procedures
+- **[Test Results](docs/reports/XIAOMI_PAD_COMPREHENSIVE_TEST_REPORT.md)** - Comprehensive test results
+- **[Performance Analysis](docs/reports/MEDIA3_PROCESSING_ANALYSIS.md)** - Performance metrics
+
+### 🚀 Deployment & Operations
+- **[CI/CD Developer Guide](docs/guides/CICD_DEVELOPER_GUIDE.md)** - Development workflow
+- **[Firebase Setup Guide](docs/guides/FIREBASE_SETUP_GUIDE.md)** - Infrastructure setup
+- **[Distribution Release Guide](docs/guides/DISTRIBUTION_RELEASE_GUIDE.md)** - Release process
+
+## 🚀 Quick Start
 
 ### Prerequisites
-- Android Studio (latest stable version)
-- JDK 11 or higher
-- Android SDK with API level 35
+- Android Studio Arctic Fox or later
+- Android SDK API 21+
+- Gradle 7.0+
+- Android device with USB debugging enabled
 
 ### Installation
-1. Clone the repository
-2. Open in Android Studio
-3. Sync Gradle files
-4. Run on device or emulator
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd VideoEdit
+   ```
 
-### Building for Release
+2. **Open in Android Studio**
+   - Open Android Studio
+   - Select "Open an existing project"
+   - Navigate to the VideoEdit directory
+
+3. **Build and Run**
+   ```bash
+   ./gradlew assembleDebug
+   ./gradlew installDebug
+   ```
+
+### First Run
+1. **Launch the app** on your Android device
+2. **Select a video** using the "Select Video" button
+3. **Tap "Auto Cut"** to start processing
+4. **Monitor progress** in the real-time log console
+5. **Find your export** in Documents/Mira/exports/
+
+## 🧪 Testing
+
+### Automated Testing
 ```bash
-# Make build script executable
-chmod +x scripts/build/build-release.sh
+# Run all tests
+./scripts/test/run_all_tests.sh
 
-# Run release build
-./scripts/build/build-release.sh
+# Run Xiaomi Pad specific tests
+./scripts/test/xiaomi_pad_comprehensive_test.sh
+
+# Performance benchmark
+./scripts/test/performance_benchmark.sh
 ```
 
-## 📦 Build Variants
+### Manual Testing
+1. **Device Testing**: Use [Xiaomi Pad Testing Guide](docs/guides/XIAOMI_PAD_TESTING_GUIDE.md)
+2. **Performance Monitoring**: Use [Resource Monitoring Guide](docs/guides/XIAOMI_PAD_RESOURCE_MONITORING_GUIDE.md)
+3. **Real Video Testing**: Follow [Real Video Walkthrough](docs/reports/REAL_VIDEO_PROCESSING_ANALYSIS.md)
 
-### Debug
-- Package: `com.autocutpad.videoeditor.debug`
-- Version: `1.0.0-debug`
-- Features: Full logging, no obfuscation
+## 🔧 Development
 
-### Internal Testing
-- Package: `com.autocutpad.videoeditor.internal`
-- Version: `1.0.0-internal`
-- Features: Logging enabled, no obfuscation
-
-### Release
-- Package: `com.autocutpad.videoeditor`
-- Version: `1.0.0`
-- Features: Optimized, obfuscated, no logging
-
-## 🎯 How It Works
-
-1. **Video Selection**: User selects a video file using Android's Storage Access Framework
-2. **Motion Analysis**: VideoScorer analyzes segments for motion intensity using frame differences
-3. **Clip Selection**: AutoCutEngine selects highest-scoring segments up to target duration
-4. **Video Processing**: Media3 Transformer creates final edited video
-5. **Export**: Processed video is saved and can be shared
-
-## 🔧 Configuration
-
-### Keystore Setup
-```bash
-# Generate release keystore
-keytool -genkey -v -keystore keystore/autocutpad-release.keystore -alias autocutpad -keyalg RSA -keysize 2048 -validity 10000
-
-# Update gradle.properties with credentials
+### Project Structure
+```
+VideoEdit/
+├── app/                    # Main Android application
+├── docs/                   # Comprehensive documentation
+├── scripts/                # Build, test, and deployment scripts
+├── test/                   # Test assets and unit tests
+├── releases/               # Release builds and distribution
+└── README.md              # This file
 ```
 
-### Build Configuration
-Edit `gradle.properties`:
-```properties
-KEYSTORE_FILE=keystore/autocutpad-release.keystore
-KEYSTORE_PASSWORD=your_secure_password
-KEY_ALIAS=autocutpad
-KEY_PASSWORD=your_secure_password
-```
+### Key Directories
+- **`app/src/main/java/com/mira/videoeditor/`** - Core application code
+- **`docs/guides/`** - Development guides and setup instructions
+- **`docs/reports/`** - Analysis reports and verification documents
+- **`scripts/test/`** - Testing scripts and automation
+- **`scripts/build/`** - Build and compilation scripts
 
-## 📋 Store Release
+### Development Workflow
+1. **Setup**: Follow [Project Context Guide](docs/guides/PROJECT_CONTEXT_GUIDANCE.md)
+2. **Implementation**: Use [Media3 Video Pipeline](docs/guides/Project1_Media3_VideoPipeline.md)
+3. **Testing**: Run comprehensive tests using scripts
+4. **Deployment**: Follow [Distribution Release Guide](docs/guides/DISTRIBUTION_RELEASE_GUIDE.md)
 
-### Xiaomi Store Requirements
-- [x] Target SDK 35
-- [x] Proper permissions
-- [x] App bundle format
-- [x] Release signing
-- [x] Obfuscation enabled
-- [ ] Store listing information
-- [ ] Screenshots
-- [ ] Privacy policy
+## 📊 Performance
 
-### Release Process
-1. **Internal Testing**: Upload internal APK for testing
-2. **Store Listing**: Complete app information and screenshots
-3. **Public Release**: Submit final AAB for review
-4. **Monitoring**: Track metrics and user feedback
+### Optimizations
+- **Hardware Acceleration**: Media3 Transformer with GPU acceleration
+- **Memory Management**: Efficient memory usage with proper cleanup
+- **Thermal Management**: Thermal-aware processing for device safety
+- **Background Processing**: Non-blocking UI with coroutines
 
-## 🔒 Permissions
+### Monitoring
+- **Real-time Logging**: Comprehensive logging system with performance metrics
+- **Resource Monitoring**: CPU, memory, and thermal monitoring
+- **Progress Tracking**: Detailed progress reporting with stage information
+- **Error Reporting**: Enhanced error handling with context
 
-- **READ_EXTERNAL_STORAGE**: Access user's video files
-- **READ_MEDIA_VIDEO**: Android 13+ video access
-- **CAMERA**: Future video recording features
-- **RECORD_AUDIO**: Future audio recording features
-- **INTERNET**: Future cloud features
+## 🔒 Security & Privacy
 
-## 🐛 Troubleshooting
+### Data Protection
+- **Local Processing**: All video processing happens locally on device
+- **Privacy Logging**: URI logging shows only last 50 characters
+- **Secure Storage**: Files stored in app-specific directories
+- **Permission Management**: Minimal required permissions
 
-### Common Issues
-- **Build failures**: Check Gradle version and Android SDK
-- **Signing errors**: Verify keystore credentials
-- **Video processing**: Ensure sufficient device storage
-- **Permission issues**: Check Android version compatibility
-
-### Debug Mode
-Enable debug logging by building debug variant:
-```bash
-./gradlew assembleDebug
-```
+### File Management
+- **Organized Exports**: Videos saved to Documents/Mira/exports/
+- **Timestamped Files**: Unique filenames prevent conflicts
+- **Clean Gallery**: No automatic Photos gallery saving
+- **User Control**: Optional Photos integration with user consent
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create feature branch
-3. Commit changes
-4. Push to branch
-5. Create Pull Request
+### Development Guidelines
+1. **Code Style**: Follow Kotlin coding conventions
+2. **Documentation**: Update relevant documentation for changes
+3. **Testing**: Add tests for new features
+4. **Logging**: Use the enhanced logging system
+5. **Performance**: Consider performance implications
+
+### Documentation Standards
+- Use clear, descriptive titles
+- Include overview sections
+- Provide code examples
+- Link to related documents
+- Keep content up-to-date
+
+## 📞 Support
+
+### Getting Help
+- **Documentation**: Check [Documentation Index](docs/INDEX.md)
+- **Issues**: Review verification reports for known issues
+- **Testing**: Use testing guides for troubleshooting
+- **Performance**: Consult analysis reports for insights
+
+### Resources
+- **Guides**: [docs/guides/](docs/guides/) - Development and setup guides
+- **Reports**: [docs/reports/](docs/reports/) - Analysis and verification reports
+- **Scripts**: [scripts/](scripts/) - Build, test, and deployment scripts
+- **Tests**: [test/](test/) - Test assets and unit tests
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 📚 Documentation
-
-- **[Project Context & Guidance](docs/guides/PROJECT_CONTEXT_GUIDANCE.md)**: Technical architecture, core capabilities, and development roadmap
-- **[Android VideoEdit Template](docs/guides/Android_VideoEdit_Template_Context.md)**: Template context and implementation details
-- **[Media3 Video Pipeline](docs/guides/Project1_Media3_VideoPipeline.md)**: Media3 integration and video processing pipeline
-- **[Scripts Documentation](scripts/README.md)**: Build, test, and deployment scripts guide
-- **[Documentation Index](docs/README.md)**: Complete documentation overview
-
-## 📞 Support
-
-- **Issues**: Report bugs via GitHub Issues
-- **Documentation**: See the consolidated guides above for detailed instructions
-- **Store Support**: Contact Xiaomi Developer Support
-
-## 🗺️ Roadmap
-
-### Version 1.1
-- [ ] Face detection integration
-- [ ] Custom segment length
-- [ ] Video preview
-- [ ] Batch processing
-
-### Version 1.2
-- [ ] Video transitions
-- [ ] Audio processing
-- [ ] Export quality options
-- [ ] Cloud sync
-
 ## 🙏 Acknowledgments
 
-- Android Media3 team for video processing capabilities
-- Jetpack Compose team for modern UI framework
-- Xiaomi for device optimization opportunities
+- **Google Media3**: For the powerful video processing framework
+- **Android Team**: For the excellent development platform
+- **Open Source Community**: For various libraries and tools used
 
 ---
 
-**AutoCutPad** - Making video editing effortless with AI technology.# CI/CD Test - Thu Oct  2 10:36:36 CST 2025
+*Last updated: $(date)*
+*Version: 1.0*
+
+**👉 For complete documentation, see [📖 Documentation Index](docs/INDEX.md)**

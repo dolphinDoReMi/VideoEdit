@@ -17,7 +17,7 @@ else
     echo ""
     echo "1. Go to https://console.firebase.google.com/"
     echo "2. Create a new project named 'Mira Video Editor'"
-    echo "3. Add Android app with package name: com.mira.videoeditor.internal"
+    echo "3. Add Android app with package name: com.mira.clip.internal"
     echo "4. Download google-services.json"
     echo "5. Place it in the app/ directory"
     echo "6. Run this script again"

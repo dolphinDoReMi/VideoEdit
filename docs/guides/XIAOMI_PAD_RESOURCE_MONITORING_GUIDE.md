@@ -13,8 +13,8 @@ This comprehensive guide provides methods to monitor resource usage on Xiaomi Pa
 # Monitor app memory usage in real-time
 adb -s 050C188041A00540 shell "dumpsys meminfo com.mira.videoeditor.debug"
 
-# Continuous memory monitoring (every 5 seconds)
-watch -n 5 "adb -s 050C188041A00540 shell 'dumpsys meminfo com.mira.videoeditor.debug | grep TOTAL'"
+# Continuous memory monitoring (every 5 seconds) - shows in GB
+watch -n 5 "adb -s 050C188041A00540 shell 'dumpsys meminfo com.mira.videoeditor.debug | grep TOTAL | awk \"{print \\\$2/1048576 \\\"GB\\\"}\"'"
 
 # Memory usage history
 adb -s 050C188041A00540 shell "dumpsys meminfo com.mira.videoeditor.debug | grep -E '(TOTAL|Native|Dalvik|App|Unknown)'"
