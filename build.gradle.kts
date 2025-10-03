@@ -2,6 +2,7 @@ plugins {
   id("com.android.application") version "8.1.4" apply false // Stable version
   id("org.jetbrains.kotlin.android") version "2.1.0" apply false // Updated for compatibility
   id("org.jetbrains.kotlin.plugin.serialization") version "2.1.0" apply false // Kotlin serialization
+  id("org.jetbrains.kotlin.plugin.compose") version "2.1.0" apply false // Compose compiler
   id("com.google.devtools.ksp") version "1.9.10-1.0.13" apply false // KSP for annotation processing
   id("androidx.room") version "2.7.0" apply false // Room plugin for schema export
   id("com.google.gms.google-services") version "4.4.0" apply false // Firebase App Distribution

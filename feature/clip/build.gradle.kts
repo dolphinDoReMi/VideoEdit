@@ -1,28 +1,31 @@
-plugins { 
+plugins {
   id("com.android.library")
-  kotlin("android") 
+  kotlin("android")
 }
 
 android {
   namespace = "com.mira.com.feature.clip"
   compileSdk = 34
-  defaultConfig { minSdk = 26 }
-  buildFeatures { buildConfig = true }
-  
+
+  defaultConfig {
+    minSdk = 26
+    targetSdk = 34
+    consumerProguardFiles("consumer-rules.pro")
+  }
+
+  buildTypes {
+    getByName("release") { isMinifyEnabled = false }
+    getByName("debug")   { /* inherits */ }
+    create("internal")   { isMinifyEnabled = false }
+  }
+
   compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
   }
-  
-  kotlinOptions {
-    jvmTarget = "17"
-  }
+  kotlinOptions { jvmTarget = "11" }
 }
 
 dependencies {
-  implementation(project(":core:infra"))
-  implementation(project(":core:media"))
-  implementation("org.json:json:20240303")
-  // Swap in a real encoder later:
-  // implementation("org.pytorch:pytorch_android_lite:1.13.1")
+  implementation("org.json:json:20231013")
 }

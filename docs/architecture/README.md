@@ -1,47 +1,92 @@
-# Architecture Design
+# Architecture Design Thread
 
-This directory contains the core architecture design documentation for the VideoEdit project.
+This directory contains all architecture-related documentation, design principles, and verification guides for the Mira Video Editor project.
 
-## Contents
+## 📁 Directory Structure
 
-- **Project1_Media3_VideoPipeline.md** - Media3 video processing pipeline architecture
-- **Android_VideoEdit_Template_Context.md** - Android template context and setup
-- **PROJECT_CONTEXT_GUIDANCE.md** - Project context and architectural guidance
-- **CICD_DEVELOPER_GUIDE.md** - CI/CD architecture and developer workflow
-- **AUTOCUTAPPLICATION_VERIFICATION.md** - AutoCut application architecture verification
-- **AUTOCUTENGINE_VERIFICATION.md** - AutoCut engine architecture verification
-- **MAINACTIVITY_VERIFICATION.md** - MainActivity architecture verification
-- **MEDIASTOREEXT_VERIFICATION.md** - MediaStore extension architecture verification
-- **VIDEOSCORER_VERIFICATION.md** - VideoScorer architecture verification
-- **FINAL_OUTPUT_ANALYSIS.md** - Final output analysis and architecture review
-- **REAL_VIDEO_PROCESSING_ANALYSIS.md** - Real video processing architecture analysis
-- **MEDIA3_PROCESSING_ANALYSIS.md** - Media3 processing architecture analysis
-- **MEDIA3_STEP_BY_STEP_WORKFLOW.md** - Media3 step-by-step workflow architecture
+### Core Architecture Documents
+- **`README.md`** - This overview document
+- **`DOCUMENTATION_INDEX.md`** - Complete documentation index
+- **`PROJECT_CONTEXT_GUIDANCE.md`** - Project context and guidance
+- **`Android_VideoEdit_Template_Context.md`** - Android video editing template context
 
-## Architecture Overview
+### System Architecture
+- **`CLIP4CLIP_SERVICE_ARCHITECTURE.md`** - CLIP4Clip service architecture
+- **`Project1_Media3_VideoPipeline.md`** - Media3 video pipeline architecture
+- **`CONTROL_KNOTS.md`** - Control system documentation
+- **`POLICY_GUARD_SYSTEM.md`** - Policy enforcement system
 
-The VideoEdit project follows a modular architecture with the following key components:
+### Development Guidelines
+- **`Cursor-Workspace-Rules.md`** - Development guidelines and rules
+- **`Change-Policy.md`** - Change management policy
+- **`CICD_DEVELOPER_GUIDE.md`** - CI/CD developer guide
+- **`DEVELOPER_INVITATION_SYSTEM.md`** - Developer invitation system
 
-1. **Core Modules** (`core/`)
-   - `infra/` - Infrastructure and utilities
-   - `media/` - Media processing core
-   - `ml/` - Machine learning core
+### Verification & Testing
+- **`AUTOCUTAPPLICATION_VERIFICATION.md`** - AutoCut application verification
+- **`AUTOCUTENGINE_VERIFICATION.md`** - AutoCut engine verification
+- **`MAINACTIVITY_VERIFICATION.md`** - MainActivity verification
+- **`MEDIASTOREEXT_VERIFICATION.md`** - MediaStore extension verification
+- **`VIDEOSCORER_VERIFICATION.md`** - Video scorer verification
 
-2. **Feature Modules** (`feature/`)
-   - `clip/` - CLIP-based video analysis
-   - `retrieval/` - Video retrieval system
-   - `ui/` - User interface components
-   - `whisper/` - Audio transcription (build files preserved)
+### Analysis & Reports
+- **`FINAL_OUTPUT_ANALYSIS.md`** - Final output analysis
+- **`REAL_VIDEO_PROCESSING_ANALYSIS.md`** - Real video processing analysis
+- **`MEDIA3_PROCESSING_ANALYSIS.md`** - Media3 processing analysis
 
-3. **Application Layer** (`app/`)
-   - Main application with build variants (debug, internal, release)
-   - Firebase integration and distribution
-   - Policy guard system
+### Firebase & Setup
+- **`COMPLETE_FIREBASE_SETUP.md`** - Complete Firebase setup guide
+- **`FIREBASE_KEYSTORE_SETUP_COMPLETE.md`** - Firebase keystore setup completion
 
-## Design Principles
+### Communication & Testing
+- **`TESTER_COMMUNICATION_TEMPLATES.md`** - Tester communication templates
 
-- **Modularity**: Each feature is encapsulated in its own module
-- **Separation of Concerns**: Clear boundaries between core, feature, and app layers
-- **Testability**: Comprehensive testing at unit, integration, and e2e levels
-- **Policy Enforcement**: Automated checks for code quality and architectural constraints
-- **CI/CD Integration**: Automated build, test, and deployment pipelines
+## 🎯 Purpose
+
+This thread focuses on:
+- **System Architecture**: High-level design and architectural decisions
+- **Design Principles**: Core principles and patterns used throughout the system
+- **Verification**: Architecture compliance and verification procedures
+- **Development Guidelines**: Rules and policies for development
+- **Analysis**: Performance and processing analysis
+
+## 🔗 Related Threads
+
+- **Modules** (`../modules/`): Implementation details and feature modules
+- **DEV Changelog** (`../dev-changelog/`): Development history and version tracking
+- **Release** (`../release/`): Release management and deployment
+
+## 📚 Key Documents
+
+### For New Developers
+1. Start with `PROJECT_CONTEXT_GUIDANCE.md`
+2. Read `CLIP4CLIP_SERVICE_ARCHITECTURE.md` for system overview
+3. Review `Cursor-Workspace-Rules.md` for development guidelines
+4. Check `CONTROL_KNOTS.md` for configuration management
+
+### For Architecture Reviews
+1. `CLIP4CLIP_SERVICE_ARCHITECTURE.md` - System architecture
+2. `Project1_Media3_VideoPipeline.md` - Video processing pipeline
+3. `POLICY_GUARD_SYSTEM.md` - Policy enforcement
+4. `CONTROL_KNOTS.md` - Configuration management
+
+### For Verification
+1. `AUTOCUTAPPLICATION_VERIFICATION.md` - Application verification
+2. `AUTOCUTENGINE_VERIFICATION.md` - Engine verification
+3. `MAINACTIVITY_VERIFICATION.md` - MainActivity verification
+4. `VIDEOSCORER_VERIFICATION.md` - Video scorer verification
+
+## 🛠️ Scripts
+
+Related scripts are located in `scripts/architecture/`:
+- Architecture validation scripts
+- Compliance checking tools
+- Verification automation
+
+## 📝 Maintenance
+
+This directory is maintained by the architecture team and should be updated when:
+- New architectural decisions are made
+- System components are added or modified
+- Verification procedures change
+- Development guidelines are updated

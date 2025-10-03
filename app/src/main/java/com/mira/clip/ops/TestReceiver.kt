@@ -32,6 +32,12 @@ class TestReceiver : BroadcastReceiver() {
         const val ACTION_CLEAR_CACHE = "com.mira.clip.CLEAR_CACHE"
         const val ACTION_SELFTEST_TEXT = "com.mira.clip.SELFTEST_TEXT"
         const val ACTION_SELFTEST_VIDEO = "com.mira.clip.SELFTEST_VIDEO"
+        
+        // New verification actions
+        const val ACTION_CLIP_RUN = "com.mira.videoeditor.debug.CLIP.RUN"
+        const val ACTION_VERIFY_REPRESENTATION = "com.mira.videoeditor.debug.VERIFY_REPRESENTATION"
+        const val ACTION_VERIFY_RETRIEVAL = "com.mira.videoeditor.debug.VERIFY_RETRIEVAL"
+        const val ACTION_VERIFY_REPRODUCIBILITY = "com.mira.videoeditor.debug.VERIFY_REPRODUCIBILITY"
     }
     
     override fun onReceive(context: Context, intent: Intent) {
@@ -113,6 +119,80 @@ class TestReceiver : BroadcastReceiver() {
                         file.writeText(result.toString())
                         
                         Log.i(TAG, "Video self-test complete: frames=${frames.size}, dim=${embedding.size}, norm=$norm")
+                    }
+                    
+                    // New verification actions
+                    ACTION_CLIP_RUN -> {
+                        val test = intent.getStringExtra("test")
+                        Log.i(TAG, "CLIP.RUN received with test: $test")
+                        
+                        val result = JSONObject(mapOf(
+                            "status" to "received",
+                            "test" to test,
+                            "timestamp" to System.currentTimeMillis()
+                        ))
+                        
+                        val file = java.io.File(context.filesDir, "clip_run_test.json")
+                        file.writeText(result.toString())
+                        
+                        Log.i(TAG, "CLIP.RUN test completed")
+                    }
+                    
+                    ACTION_VERIFY_REPRESENTATION -> {
+                        val outputDir = intent.getStringExtra("output_dir") ?: "/sdcard/MiraClip/test/representation"
+                        Log.i(TAG, "VERIFY_REPRESENTATION: output_dir=$outputDir")
+                        
+                        // Create placeholder representation verification
+                        val result = JSONObject(mapOf(
+                            "status" to "placeholder",
+                            "message" to "Representation verification not yet implemented",
+                            "output_dir" to outputDir,
+                            "timestamp" to System.currentTimeMillis()
+                        ))
+                        
+                        val file = java.io.File(outputDir, "representation_verification.json")
+                        file.parentFile?.mkdirs()
+                        file.writeText(result.toString())
+                        
+                        Log.i(TAG, "Representation verification placeholder completed")
+                    }
+                    
+                    ACTION_VERIFY_RETRIEVAL -> {
+                        val outputDir = intent.getStringExtra("output_dir") ?: "/sdcard/MiraClip/test/retrieval"
+                        Log.i(TAG, "VERIFY_RETRIEVAL: output_dir=$outputDir")
+                        
+                        // Create placeholder retrieval verification
+                        val result = JSONObject(mapOf(
+                            "status" to "placeholder",
+                            "message" to "Retrieval verification not yet implemented",
+                            "output_dir" to outputDir,
+                            "timestamp" to System.currentTimeMillis()
+                        ))
+                        
+                        val file = java.io.File(outputDir, "retrieval_verification.json")
+                        file.parentFile?.mkdirs()
+                        file.writeText(result.toString())
+                        
+                        Log.i(TAG, "Retrieval verification placeholder completed")
+                    }
+                    
+                    ACTION_VERIFY_REPRODUCIBILITY -> {
+                        val outputDir = intent.getStringExtra("output_dir") ?: "/sdcard/MiraClip/test/reproducibility"
+                        Log.i(TAG, "VERIFY_REPRODUCIBILITY: output_dir=$outputDir")
+                        
+                        // Create placeholder reproducibility verification
+                        val result = JSONObject(mapOf(
+                            "status" to "placeholder",
+                            "message" to "Reproducibility verification not yet implemented",
+                            "output_dir" to outputDir,
+                            "timestamp" to System.currentTimeMillis()
+                        ))
+                        
+                        val file = java.io.File(outputDir, "reproducibility_verification.json")
+                        file.parentFile?.mkdirs()
+                        file.writeText(result.toString())
+                        
+                        Log.i(TAG, "Reproducibility verification placeholder completed")
                     }
                     
                     else -> {

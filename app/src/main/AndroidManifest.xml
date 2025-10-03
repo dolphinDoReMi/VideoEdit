@@ -24,7 +24,6 @@
     
     <!-- WebView permissions -->
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     
     <!-- Hardware features -->
     <uses-feature android:name="android.hardware.camera" android:required="false" />
@@ -39,7 +38,7 @@
         android:xlargeScreens="true" />
 
     <application
-        android:name=".Clip4ClipApplication"
+        android:name="com.mira.clip.Clip4ClipApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -55,7 +54,7 @@
         
         <!-- Main Activity -->
         <activity 
-            android:name=".Clip4ClipActivity"
+            android:name="com.mira.clip.Clip4ClipActivity"
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Mira">
@@ -92,9 +91,30 @@
             android:exported="false"
             android:foregroundServiceType="microphone" />
         
+        <!-- Exported: to allow explicit ADB or cross-app triggers for e2e -->
+        <receiver
+            android:name=".orch.OrchestrationReceiver"
+            android:exported="true">
+          <intent-filter>
+            <action android:name="com.mira.clip.ORCHESTRATE"/>
+            <action android:name="com.mira.clip.INGEST"/>
+            <action android:name="com.mira.clip.SEARCH"/>
+            <category android:name="android.intent.category.DEFAULT"/>
+          </intent-filter>
+        </receiver>
+        
+        <!-- Production CLIP receiver (not exported) -->
+        <receiver
+            android:name="com.mira.com.feature.clip.ClipReceiver"
+            android:exported="false">
+          <intent-filter>
+            <action android:name="com.mira.clip.CLIP.RUN"/>
+          </intent-filter>
+        </receiver>
+        
         <!-- Debug Broadcast Receiver (debug builds only) -->
         <receiver
-            android:name=".ops.TestReceiver"
+            android:name="com.mira.clip.ops.TestReceiver"
             android:enabled="true"
             android:exported="true"
             tools:ignore="ExportedReceiver">
@@ -105,6 +125,11 @@
                 <action android:name="com.mira.clip.CLEAR_CACHE" />
                 <action android:name="com.mira.clip.SELFTEST_TEXT" />
                 <action android:name="com.mira.clip.SELFTEST_VIDEO" />
+                <!-- New verification actions -->
+                <action android:name="com.mira.videoeditor.debug.CLIP.RUN" />
+                <action android:name="com.mira.videoeditor.debug.VERIFY_REPRESENTATION" />
+                <action android:name="com.mira.videoeditor.debug.VERIFY_RETRIEVAL" />
+                <action android:name="com.mira.videoeditor.debug.VERIFY_REPRODUCIBILITY" />
             </intent-filter>
         </receiver>
         

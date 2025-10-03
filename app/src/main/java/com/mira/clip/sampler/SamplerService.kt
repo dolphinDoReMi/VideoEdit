@@ -5,7 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
-import com.mira.videoeditor.R
+import com.mira.com.R
 import com.mira.clip.config.ConfigProvider
 import com.mira.clip.model.SampleResult
 import com.mira.clip.util.SamplerIntents

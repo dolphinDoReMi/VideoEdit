@@ -1,0 +1,23 @@
+{
+  "variant": "clip_vit_b32",
+  "frame_count": 32,
+  "batch_size": 8,
+  "index": {
+    "dir": "/sdcard/Mira/index/clip_vit_b32",
+    "type": "FLAT",
+    "nlist": 4096,
+    "pq_m": 16,
+    "nprobe": 16
+  },
+  "ingest": {
+    "videos": [
+      "/sdcard/Android/data/com.mira.com/files/media/video_v1.mp4"
+    ],
+    "output_dir": "/sdcard/MiraClip/out/embeddings/clip_vit_b32"
+  },
+  "query": {
+    "query_vec_path": "/sdcard/Mira/query/query.f32",
+    "top_k": 50,
+    "output_path": "/sdcard/MiraClip/out/results/q1.json"
+  }
+}

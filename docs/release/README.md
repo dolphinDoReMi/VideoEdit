@@ -1,106 +1,112 @@
-# Release
+# Release Thread
 
-This directory contains release documentation for iOS, Android, and macOS Web versions, including policy guidelines.
+This directory contains all release management, deployment, and distribution documentation for the Mira Video Editor project.
 
-## Contents
+## 📁 Directory Structure
 
-### Android Release
-- **CLIP4Clip_Production_Deployment_Checklist.md** - Production deployment checklist
-- **DISTRIBUTION_RELEASE_GUIDE.md** - Distribution and release guide
-- **ANDROID_TESTFLIGHT_ALTERNATIVES.md** - Android testing alternatives
+### Core Release Documentation
+- **`README.md`** - This overview document
+- **`DISTRIBUTION_RELEASE_GUIDE.md`** - Complete distribution and release guide
+- **`CLIP4Clip_Production_Deployment_Checklist.md`** - Production deployment checklist
 
 ### Firebase Integration
-- **FIREBASE_APP_DISTRIBUTION_SETUP.md** - Firebase App Distribution setup
-- **FIREBASE_SETUP_COMPLETE.md** - Firebase setup completion
-- **FIREBASE_SETUP_GUIDE.md** - Firebase setup guide
-- **FIREBASE_STATUS_REPORT.md** - Firebase status report
-- **COMPLETE_FIREBASE_SETUP.md** - Complete Firebase setup guide
+- **`FIREBASE_SETUP_GUIDE.md`** - Firebase setup guide
+- **`FIREBASE_SETUP_COMPLETE.md`** - Firebase setup completion
+- **`FIREBASE_APP_DISTRIBUTION_SETUP.md`** - Firebase App Distribution setup
+- **`FIREBASE_KEYSTORE_SETUP_COMPLETE.md`** - Firebase keystore setup completion
+- **`FIREBASE_STATUS_REPORT.md`** - Firebase status report
+- **`FIREBASE_TESTER_INVITATIONS.md`** - Firebase tester invitations
 
-### Internal Testing
-- **INTERNAL_TESTING_ACTION_PLAN.md** - Internal testing action plan
-- **INTERNAL_TESTING_LAUNCH_PLAN.md** - Internal testing launch plan
-- **INTERNAL_TESTING_SUBMISSION.md** - Internal testing submission
-- **INTERNAL_TESTING.md** - Internal testing overview
-- **TESTER_COMMUNICATION_TEMPLATES.md** - Tester communication templates
-- **DEVELOPER_INVITATION_SYSTEM.md** - Developer invitation system
+### Testing & Distribution
+- **`INTERNAL_TESTING.md`** - Internal testing procedures
+- **`INTERNAL_TESTING_ACTION_PLAN.md`** - Internal testing action plan
+- **`INTERNAL_TESTING_LAUNCH_PLAN.md`** - Internal testing launch plan
+- **`INTERNAL_TESTING_SUBMISSION.md`** - Internal testing submission
+- **`ANDROID_TESTFLIGHT_ALTERNATIVES.md`** - Android TestFlight alternatives
 
-### Public Release
-- **PUBLIC_RELEASE.md** - Public release guide
-- **RELEASE_NOTES_v0.1.0.md** - Release notes for v0.1.0
+### Release Management
+- **`PUBLIC_RELEASE.md`** - Public release procedures
+- **`RELEASE_NOTES_v0.1.0.md`** - Release notes for version 0.1.0
 
-## Release Strategy
+## 🎯 Purpose
 
-### Build Variants
-- **Debug**: `com.mira.com.debug` - Development and testing
-- **Internal**: `com.mira.com.internal` - Internal testing and QA
-- **Release**: `com.mira.com` - Production release
+This thread focuses on:
+- **Release Management**: Complete release lifecycle management
+- **Distribution**: Firebase App Distribution and store submission
+- **Testing**: Internal testing and validation procedures
+- **Deployment**: Production deployment and rollback procedures
+- **Store Submission**: Play Store and Xiaomi Store submission
 
-### Release Pipeline
+## 🔗 Related Threads
 
-1. **Development** → Debug builds for development
-2. **Internal Testing** → Internal builds for QA and testing
-3. **Beta Testing** → Firebase App Distribution for beta testers
-4. **Production** → Google Play Store release
+- **Architecture Design** (`../architecture/`): System architecture and design principles
+- **Modules** (`../modules/`): Feature modules and implementation guides
+- **DEV Changelog** (`../dev-changelog/`): Development history and version tracking
 
-### Policy Guidelines
+## 📚 Key Documents
 
-#### Code Quality
-- All tests must pass (unit, integration, e2e)
-- Policy guard checks must pass
-- Code review required for all changes
-- Conventional Commits format required
+### For Release Managers
+1. Start with `DISTRIBUTION_RELEASE_GUIDE.md` for complete release process
+2. Follow `CLIP4Clip_Production_Deployment_Checklist.md` for deployment
+3. Use `INTERNAL_TESTING_ACTION_PLAN.md` for testing procedures
+4. Check `PUBLIC_RELEASE.md` for public release steps
 
-#### Release Process
-- Automated CI/CD pipeline
-- Firebase App Distribution for testing
-- Keystore signing for release builds
-- Version bumping and changelog updates
+### For Firebase Setup
+1. `FIREBASE_SETUP_GUIDE.md` - Initial Firebase setup
+2. `FIREBASE_APP_DISTRIBUTION_SETUP.md` - App Distribution setup
+3. `FIREBASE_KEYSTORE_SETUP_COMPLETE.md` - Keystore configuration
+4. `FIREBASE_TESTER_INVITATIONS.md` - Tester management
 
-#### Security
-- Keystore protection and rotation
-- Firebase security rules
-- Code signing verification
-- Dependency vulnerability scanning
+### For Internal Testing
+1. `INTERNAL_TESTING.md` - Testing procedures
+2. `INTERNAL_TESTING_ACTION_PLAN.md` - Action plan
+3. `INTERNAL_TESTING_LAUNCH_PLAN.md` - Launch plan
+4. `INTERNAL_TESTING_SUBMISSION.md` - Submission procedures
 
-## Release Checklist
+### For Store Submission
+1. `DISTRIBUTION_RELEASE_GUIDE.md` - Complete distribution guide
+2. `ANDROID_TESTFLIGHT_ALTERNATIVES.md` - Testing alternatives
+3. `PUBLIC_RELEASE.md` - Public release procedures
 
-### Pre-Release
-- [ ] All tests passing
-- [ ] Policy guard checks passing
-- [ ] Code review completed
-- [ ] Documentation updated
-- [ ] Changelog updated
-- [ ] Version bumped
+## 🛠️ Scripts
 
-### Release
-- [ ] Build signed with release keystore
-- [ ] Firebase App Distribution updated
-- [ ] Internal testing completed
-- [ ] Beta testing completed
-- [ ] Production release approved
+Related scripts are located in `scripts/release/`:
+- Release build scripts
+- Deployment automation
+- Distribution tools
+- Store submission helpers
 
-### Post-Release
-- [ ] Release notes published
-- [ ] Monitoring and analytics active
-- [ ] User feedback collection
-- [ ] Bug tracking and resolution
+## 📝 Maintenance
 
-## Platform-Specific Notes
+This directory is maintained by the release team and should be updated when:
+- New release procedures are established
+- Distribution channels change
+- Testing procedures are updated
+- Store submission requirements change
+- Firebase configuration is modified
 
-### Android
-- Target SDK: 34
-- Minimum SDK: 26
-- Architecture: arm64-v8a, armeabi-v7a, x86_64
-- Signing: Release keystore with 25-year validity
+## 🚀 Release Workflow
 
-### iOS (Future)
-- Target iOS: 15.0+
-- Architecture: arm64
-- Distribution: App Store Connect
-- Signing: Apple Developer certificates
+### 1. Pre-Release
+- Complete feature development
+- Run comprehensive tests
+- Update documentation
+- Prepare release notes
 
-### macOS Web (Future)
-- Target: Modern browsers
-- Framework: Capacitor
-- Distribution: Web hosting
-- Signing: Code signing certificates
+### 2. Internal Testing
+- Build release candidate
+- Distribute via Firebase App Distribution
+- Collect tester feedback
+- Fix critical issues
+
+### 3. Production Release
+- Build production APK/AAB
+- Sign with production keystore
+- Submit to stores
+- Monitor release metrics
+
+### 4. Post-Release
+- Monitor crash reports
+- Collect user feedback
+- Plan next release
+- Update documentation

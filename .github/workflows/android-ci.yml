@@ -1,213 +1,86 @@
-name: Android CI/CD Pipeline
+name: Android CI
 
 on:
   push:
     branches: [ main, develop ]
   pull_request:
-    branches: [ main ]
-  release:
-    types: [ published ]
-
-env:
-  GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.caching=true"
+  workflow_dispatch:
 
 jobs:
-  test:
-    name: Run Tests
+  build-test:
     runs-on: ubuntu-latest
-    
+    strategy:
+      matrix:
+        build-type: [ debug, release ]
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        
-    - name: Cache Gradle packages
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
-          
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-      
-    - name: Setup Google Services (if available)
-      run: |
-        if [ -f "app/google-services.json" ]; then
-          echo "Google Services file found"
-        else
-          echo "Google Services file not found - using template"
-          cp app/google-services.json.template app/google-services.json
-        fi
-      
-    - name: Run unit tests
-      run: ./gradlew test
-      
-    - name: Run lint checks
-      run: ./gradlew lint
-      
-    - name: Upload test results
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: test-results
-        path: app/build/reports/
-        
-  build-debug:
-    name: Build Debug APK
-    runs-on: ubuntu-latest
-    needs: test
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        
-    - name: Cache Gradle packages
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
-          
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-      
-    - name: Setup Google Services (if available)
-      run: |
-        if [ -f "app/google-services.json" ]; then
-          echo "Google Services file found"
-        else
-          echo "Google Services file not found - using template"
-          cp app/google-services.json.template app/google-services.json
-        fi
-      
-    - name: Build debug APK
-      run: ./gradlew assembleDebug
-      
-    - name: Upload debug APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: debug-apk
-        path: app/build/outputs/apk/debug/*.apk
-        
-  build-release:
-    name: Build Release AAB
-    runs-on: ubuntu-latest
-    needs: test
-    if: github.ref == 'refs/heads/main' || github.event_name == 'release'
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        
-    - name: Cache Gradle packages
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
-          
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-      
-    - name: Setup Google Services (if available)
-      run: |
-        if [ -f "app/google-services.json" ]; then
-          echo "Google Services file found"
-        else
-          echo "Google Services file not found - using template"
-          cp app/google-services.json.template app/google-services.json
-        fi
-      
-    - name: Setup keystore
-      run: |
-        echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > keystore/autocutpad-release.keystore
-        
-    - name: Build release AAB
-      run: ./gradlew bundleRelease
-      env:
-        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-        KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-        KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        
-    - name: Upload release AAB
-      uses: actions/upload-artifact@v4
-      with:
-        name: release-aab
-        path: app/build/outputs/bundle/release/*.aab
-        
-  firebase-distribution:
-    name: Deploy to Firebase App Distribution
-    runs-on: ubuntu-latest
-    needs: build-release
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: 'temurin', java-version: '17' }
+      - name: Gradle cache
+        uses: gradle/gradle-build-action@v3
+      - name: Assemble
+        run: ./gradlew :app:assemble${{ matrix.build-type^ }}
+      - name: Lint & Unit tests
+        run: ./gradlew lint test
+      - name: Upload APK/AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-${{ matrix.build-type }}
+          path: |
+            app/build/outputs/apk/${{ matrix.build-type }}/*.apk
+            app/build/outputs/bundle/${{ matrix.build-type }}/*.aab
+
+  distribute-internal:
     if: github.ref == 'refs/heads/main'
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Download release AAB
-      uses: actions/download-artifact@v4
-      with:
-        name: release-aab
-        
-    - name: Deploy to Firebase App Distribution
-      uses: wzieba/Firebase-Distribution-Github-Action@v1
-      with:
-        appId: ${{ secrets.FIREBASE_APP_ID }}
-        token: ${{ secrets.FIREBASE_TOKEN }}
-        groups: testers
-        file: app-release.aab
-        releaseNotes: |
-          Automated release from GitHub Actions
-          Commit: ${{ github.sha }}
-          Branch: ${{ github.ref_name }}
-          
-  security-scan:
-    name: Security Scan
+    needs: build-test
     runs-on: ubuntu-latest
-    needs: test
-    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@master
-      with:
-        scan-type: 'fs'
-        scan-ref: '.'
-        format: 'sarif'
-        output: 'trivy-results.sarif'
-        
-    - name: Upload Trivy scan results to GitHub Security tab
-      uses: github/codeql-action/upload-sarif@v3
-      if: always()
-      with:
-        sarif_file: 'trivy-results.sarif'
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: 'temurin', java-version: '17' }
+      - name: Decrypt service account
+        run: |
+          echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}" > service_account.json
+      - name: Build Release AAB
+        run: ./gradlew :app:bundleRelease
+      - name: Firebase App Distribution
+        run: |
+          ./gradlew appDistributionUploadRelease \
+            -PFIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }} \
+            -PFIREBASE_TOKEN=${{ secrets.FIREBASE_TOKEN }}
+
+  emulator-smoke-test:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: 'temurin', java-version: '17' }
+      - name: Gradle cache
+        uses: gradle/gradle-build-action@v3
+      - name: Build Debug APK
+        run: ./gradlew :app:assembleDebug
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Create AVD
+        run: |
+          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd \
+            -n test -k "system-images;android-34;google_apis;x86_64" --force
+      - name: Start emulator
+        run: |
+          $ANDROID_HOME/emulator/emulator -avd test -no-audio -no-window &
+          $ANDROID_HOME/platform-tools/adb wait-for-device
+      - name: Install APK
+        run: $ANDROID_HOME/platform-tools/adb install app/build/outputs/apk/debug/*.apk
+      - name: Test orchestration broadcast
+        run: |
+          $ANDROID_HOME/platform-tools/adb shell am broadcast \
+            -n com.mira.com/.orch.OrchestrationReceiver \
+            -a com.mira.clip.ORCHESTRATE \
+            --es manifest_uri "file:///sdcard/test.json"
+      - name: Test debug CLIP broadcast
+        run: |
+          $ANDROID_HOME/platform-tools/adb shell am broadcast \
+            -n com.mira.com/.feature.clip.debug.DebugClipReceiver \
+            -a com.mira.clip.CLIP.RUN \
+            --es manifest_uri "file:///sdcard/test.json"

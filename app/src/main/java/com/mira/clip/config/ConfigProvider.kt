@@ -1,14 +1,14 @@
 package com.mira.clip.config
 
 import android.content.Context
-import com.mira.videoeditor.BuildConfig
+import com.mira.com.BuildConfig
 
 object ConfigProvider {
     fun defaultConfig(context: Context): SamplerConfig {
         val fc = BuildConfig.DEFAULT_FRAME_COUNT
         val schedule = Schedule.valueOf(BuildConfig.DEFAULT_SCHEDULE)
         val backend = DecodeBackend.valueOf(BuildConfig.DEFAULT_DECODE_BACKEND)
-        val mem = BuildConfig.DEFAULT_MEMORY_BUDGET_MB
+        val mem = BuildConfig.DEFAULT_MEM_BUDGET_MB
 
         // Debug overrides via SharedPreferences (debug only UI writes these)
         val sp = context.getSharedPreferences("sampler_overrides", Context.MODE_PRIVATE)

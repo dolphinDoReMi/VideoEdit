@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <application>
-        <!-- Debug-only FAISS receiver -->
-        <receiver
-            android:name=".index.faiss.debug.DebugFaissReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="com.mira.clip.index.faiss.debug.ACTION_FAISS_SELFTEST"/>
-            </intent-filter>
-        </receiver>
-    </application>
+  <application>
+    <receiver
+        android:name="com.mira.com.feature.clip.debug.DebugClipReceiver"
+        android:exported="true">
+      <intent-filter>
+        <action android:name="com.mira.clip.CLIP.RUN"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+      </intent-filter>
+    </receiver>
+  </application>
 </manifest>

@@ -2,6 +2,7 @@ plugins {
   id("com.android.application")
   id("org.jetbrains.kotlin.android")
   kotlin("plugin.serialization")
+  kotlin("plugin.compose")
   // Temporarily disabled for testing progress fixes
   // id("com.google.devtools.ksp")
   // id("dagger.hilt.android.plugin")
@@ -10,7 +11,7 @@ plugins {
 }
 
 android {
-  namespace = "com.mira.videoeditor"
+  namespace = "com.mira.com"
   compileSdk = 34
 
   compileOptions {
@@ -27,8 +28,8 @@ android {
   }
 
   defaultConfig {
-    applicationId = "com.mira.videoeditor"
-    minSdk = 24
+    applicationId = "com.mira.com"     // FROZEN across variants
+    minSdk = 26
     targetSdk = 34
     versionCode = 1
     versionName = "0.1.0"
@@ -39,6 +40,23 @@ android {
     
     // Xiaomi store requirements
     manifestPlaceholders["xiaomi_app_id"] = "mira.ui"
+    
+    // Make key knots visible at runtime/CI
+    buildConfigField("int",    "CLIP_DIM",              "512")
+    buildConfigField("int",    "DEFAULT_FRAME_COUNT",   "32")
+    buildConfigField("String", "DEFAULT_SCHEDULE",      "\"UNIFORM\"")
+    buildConfigField("String", "DEFAULT_DECODE_BACKEND","\"MMR\"")
+    buildConfigField("int",    "DEFAULT_MEM_BUDGET_MB", "512")
+    buildConfigField("boolean","RETR_USE_L2_NORM",      "true")
+    buildConfigField("String", "RETR_SIMILARITY",       "\"cosine\"")
+    buildConfigField("String", "RETR_STORAGE_FMT",      "\".f32\"")
+    buildConfigField("boolean","RETR_ENABLE_ANN",       "false")
+
+    // Stable, non-appId-derived actions
+    buildConfigField("String", "ACTION_CLIP_RUN",       "\"com.mira.clip.CLIP.RUN\"")
+    buildConfigField("String", "ACTION_ORCHESTRATE",    "\"com.mira.clip.ORCHESTRATE\"")
+    buildConfigField("String", "ACTION_INGEST",         "\"com.mira.clip.INGEST\"")
+    buildConfigField("String", "ACTION_SEARCH",         "\"com.mira.clip.SEARCH\"")
     
     // NDK configuration removed - no longer using native code
   }
@@ -67,7 +85,18 @@ android {
   }
 
   buildTypes {
-    release {
+    getByName("debug") {
+      // No applicationIdSuffix — appId stays com.mira.com
+      isDebuggable = true
+      isMinifyEnabled = false
+      isShrinkResources = false
+      
+      buildConfigField("boolean", "DEBUG_MODE", "true")
+      buildConfigField("String", "BUILD_TYPE", "\"debug\"")
+      buildConfigField("boolean", "ENABLE_LOGGING", "true")
+    }
+    
+    getByName("release") {
       isMinifyEnabled = true
       isShrinkResources = true
       proguardFiles(
@@ -76,21 +105,15 @@ android {
       )
       signingConfig = signingConfigs.getByName("release")
       
-      // Release optimizations
       buildConfigField("boolean", "DEBUG_MODE", "false")
       buildConfigField("String", "BUILD_TYPE", "\"release\"")
       buildConfigField("boolean", "ENABLE_LOGGING", "false")
-      
-      // Store release configuration
-      applicationIdSuffix = ""
-      versionNameSuffix = ""
     }
     
     create("internal") {
       initWith(getByName("release"))
       
       // Internal testing configuration
-      applicationIdSuffix = ".internal"
       versionNameSuffix = "-internal"
       
       buildConfigField("boolean", "DEBUG_MODE", "true")
@@ -100,25 +123,6 @@ android {
       // Keep some debugging info for internal testing
       isMinifyEnabled = false
       isShrinkResources = false
-    }
-    
-    debug {
-      // Keep readable logs for testing
-      isMinifyEnabled = false
-      isShrinkResources = false
-      isDebuggable = true  // Explicitly enable debugging for profiler
-      
-      buildConfigField("boolean", "DEBUG_MODE", "true")
-      buildConfigField("String", "BUILD_TYPE", "\"debug\"")
-      buildConfigField("boolean", "ENABLE_LOGGING", "true")
-      buildConfigField("int", "DEFAULT_FRAME_COUNT", "32")
-      buildConfigField("String", "DEFAULT_SCHEDULE", "\"UNIFORM\"")
-      buildConfigField("String", "DEFAULT_DECODE_BACKEND", "\"MMR\"")
-      buildConfigField("int", "DEFAULT_MEMORY_BUDGET_MB", "512")
-      
-      // Debug configuration
-      applicationIdSuffix = ".debug"
-      versionNameSuffix = "-debug"
     }
   }
 
@@ -187,6 +191,19 @@ android {
 // }
 
 dependencies {
+  // Feature modules
+  implementation(project(":feature:clip"))
+  
+  // Core orchestration dependencies
+  implementation("androidx.work:work-runtime-ktx:2.9.0")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
+  implementation("org.json:json:20231013")
+  
+  // PyTorch Mobile for CLIP models
+  implementation("org.pytorch:pytorch_android:1.13.1")
+  implementation("org.pytorch:pytorch_android_torchvision:1.13.1")
+
   // Media3 - versions compatible with API 34
   implementation("androidx.media3:media3-transformer:1.2.1")
   implementation("androidx.media3:media3-effect:1.2.1")
@@ -201,23 +218,13 @@ dependencies {
   implementation("androidx.compose.ui:ui-tooling-preview")
   debugImplementation("androidx.compose.ui:ui-tooling")
 
-  // Coroutines
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
-
   // Room database for CLIP4Clip embeddings and video metadata
-  // implementation("androidx.room:room-runtime:2.7.0")
+  implementation("androidx.room:room-runtime:2.7.0")
   // ksp("androidx.room:room-compiler:2.7.0")
-  // implementation("androidx.room:room-ktx:2.7.0")
+  implementation("androidx.room:room-ktx:2.7.0")
   
   // DataStore for settings and preferences
   implementation("androidx.datastore:datastore-preferences:1.1.1")
-  
-  // WorkManager for background video ingestion
-  implementation("androidx.work:work-runtime-ktx:2.9.1")
-  
-  // PyTorch Mobile for CLIP models
-  implementation("org.pytorch:pytorch_android:1.13.1")
-  implementation("org.pytorch:pytorch_android_torchvision:1.13.1")
   
   // Kotlinx Serialization for JSON
   implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
@@ -250,9 +257,16 @@ dependencies {
   testImplementation("org.robolectric:robolectric:4.12.2")
   testImplementation("androidx.room:room-testing:2.7.0")
   testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
+  testImplementation("androidx.test.ext:junit:1.2.1")
+  testImplementation("androidx.test:core:1.5.0")
+  testImplementation("androidx.test:runner:1.5.2")
+  testImplementation("androidx.test:rules:1.5.0")
+  testImplementation("androidx.arch.core:core-testing:2.2.0")
 
-  androidTestImplementation("androidx.test:runner:1.6.2")
+  androidTestImplementation("androidx.test:runner:1.5.2")
   androidTestImplementation("androidx.test.ext:junit:1.2.1")
   androidTestImplementation("androidx.work:work-testing:2.9.1")
-  androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
+  androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+  androidTestImplementation("androidx.test:core:1.5.0")
+  androidTestImplementation("androidx.test:rules:1.5.0")
 }
