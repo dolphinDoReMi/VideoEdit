@@ -35,7 +35,6 @@ android {
     versionName = "0.1.0"
     
     // Store metadata
-    resValue("string", "app_name", "Mira")
     resValue("string", "app_description", "AI-powered video editing with automatic clip selection")
     
     // Xiaomi store requirements
