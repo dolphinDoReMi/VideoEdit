@@ -106,14 +106,8 @@
           </intent-filter>
         </receiver>
         
-        <!-- Production CLIP receiver (not exported) -->
-        <receiver
-            android:name="com.mira.com.feature.clip.ClipReceiver"
-            android:exported="false">
-          <intent-filter>
-            <action android:name="com.mira.clip.CLIP.RUN"/>
-          </intent-filter>
-        </receiver>
+        <!-- Production CLIP receiver removed - class not available in app module -->
+        <!-- The ClipReceiver is in the feature/clip module -->
         
         <!-- Debug Broadcast Receiver (debug builds only) -->
         <receiver

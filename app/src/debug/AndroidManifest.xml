@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
   <application>
-    <receiver
-        android:name="com.mira.com.feature.clip.debug.DebugClipReceiver"
-        android:exported="true">
-      <intent-filter>
-        <action android:name="com.mira.clip.CLIP.RUN"/>
-        <category android:name="android.intent.category.DEFAULT"/>
-      </intent-filter>
-    </receiver>
+    <!-- Debug receiver removed - class not available in app module -->
+    <!-- The DebugClipReceiver is in the feature/clip module -->
   </application>
 </manifest>

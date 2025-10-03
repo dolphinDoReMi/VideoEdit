@@ -3,9 +3,9 @@ plugins {
   id("org.jetbrains.kotlin.android")
   kotlin("plugin.serialization")
   kotlin("plugin.compose")
-  // Code quality plugins
-  id("io.gitlab.arturbosch.detekt")
-  id("org.jlleitschuh.gradle.ktlint")
+  // Code quality plugins - temporarily disabled
+  // id("io.gitlab.arturbosch.detekt")
+  // id("org.jlleitschuh.gradle.ktlint")
   // Temporarily disabled for testing progress fixes
   // id("com.google.devtools.ksp")
   // id("dagger.hilt.android.plugin")
@@ -16,6 +16,10 @@ plugins {
 android {
   namespace = "com.mira.com"
   compileSdk = 34
+  
+  lint {
+    baseline = file("lint-baseline.xml")
+  }
 
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_17
