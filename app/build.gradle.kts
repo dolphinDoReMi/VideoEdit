@@ -127,6 +127,23 @@ android {
       isMinifyEnabled = false
       isShrinkResources = false
     }
+    
+    create("whisperTest") {
+      initWith(getByName("debug"))
+      
+      // Whisper testing configuration with separate app ID
+      applicationIdSuffix = ".whisper.test"
+      versionNameSuffix = "-whisper-test"
+      
+      buildConfigField("boolean", "DEBUG_MODE", "true")
+      buildConfigField("String", "BUILD_TYPE", "\"whisperTest\"")
+      buildConfigField("boolean", "ENABLE_LOGGING", "true")
+      
+      // Ensure debug configuration for testing
+      isDebuggable = true
+      isMinifyEnabled = false
+      isShrinkResources = false
+    }
   }
 
   buildFeatures { 
@@ -196,6 +213,7 @@ android {
 dependencies {
   // Feature modules
   implementation(project(":feature:clip"))
+  implementation(project(":feature:whisper"))
   
   // Core orchestration dependencies
   implementation("androidx.work:work-runtime-ktx:2.9.0")
