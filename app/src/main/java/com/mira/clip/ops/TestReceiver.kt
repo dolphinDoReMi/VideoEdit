@@ -128,6 +128,17 @@ class TestReceiver : BroadcastReceiver() {
                             extFile.writeText(result.toString())
                             Log.i(TAG, "Wrote external JSON: ${extFile.absolutePath}")
                         }
+
+                        // Also write to public directory for guaranteed adb access
+                        runCatching {
+                            val publicDir = java.io.File("/sdcard/MiraClip/out")
+                            publicDir.mkdirs()
+                            val publicFile = java.io.File(publicDir, "ops_selftest_video.json")
+                            publicFile.writeText(result.toString())
+                            Log.i(TAG, "Wrote public JSON: ${publicFile.absolutePath}")
+                        }.onFailure {
+                            Log.w(TAG, "Failed writing public JSON: ${it.message}")
+                        }
                         
                         Log.i(TAG, "Video self-test complete: frames=${frames.size}, dim=${embedding.size}, norm=$norm")
                     }

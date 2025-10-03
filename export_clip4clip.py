@@ -5,6 +5,9 @@ Exports CLIP models to TorchScript Lite format for Android deployment.
 """
 
 import torch
+import math
+import torch.nn.functional as F
+from typing import Optional
 import json
 from pathlib import Path
 import argparse
@@ -77,6 +80,25 @@ def export_clip_models(model_name="ViT-B-32", pretrained="openai", output_dir="m
             x = x / l2
             return x
     
+    # Monkeypatch scaled_dot_product_attention to avoid unsupported mobile op
+    def _sdp_compat(q: torch.Tensor, k: torch.Tensor, v: torch.Tensor,
+                    attn_mask: Optional[torch.Tensor] = None,
+                    dropout_p: float = 0.0,
+                    is_causal: bool = False) -> torch.Tensor:
+        # q,k,v: (..., heads, len, dim)
+        scale = 1.0 / math.sqrt(q.size(-1))
+        scores = torch.matmul(q, k.transpose(-2, -1)) * scale
+        if attn_mask is not None:
+            scores = scores + attn_mask
+        weights = torch.softmax(scores, dim=-1)
+        if dropout_p and dropout_p > 0:
+            # no-op at export time; keep deterministic
+            pass
+        return torch.matmul(weights, v)
+
+    if hasattr(F, "scaled_dot_product_attention"):
+        F.scaled_dot_product_attention = _sdp_compat  # type: ignore
+
     # Create encoders
     print("🔧 Creating encoders...")
     img_enc = ImageEncoder(model)
