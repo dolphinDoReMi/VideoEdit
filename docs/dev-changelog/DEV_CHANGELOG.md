@@ -1,5 +1,78 @@
 # DEV Change Log
 
+## [v0.8.0] - Documentation & Script Consolidation - 2025-01-03
+
+### 🗂️ Documentation Consolidation
+
+#### 4-Thread Structure
+- **Architecture Design** (`docs/architecture/`): System architecture, design principles, and verification
+- **Modules** (`docs/modules/`): Feature modules, implementations, and testing guides
+- **DEV Changelog** (`docs/dev-changelog/`): Development history and version tracking
+- **Release** (`docs/release/`): Release management, deployment, and distribution
+
+#### Script Organization
+- **Architecture Scripts** (`scripts/architecture/`): Architecture validation and compliance
+- **Module Scripts** (`scripts/modules/`): Testing, verification, and operations
+- **DEV Changelog Scripts** (`scripts/dev-changelog/`): Changelog management and versioning
+- **Release Scripts** (`scripts/release/`): Build, deployment, and distribution automation
+
+### 🧹 Duplicate Removal
+
+#### Documentation Cleanup
+- Removed duplicate documentation across `docs/guides/`, `docs/reports/`, and root level
+- Consolidated scattered .md files into appropriate 4-thread structure
+- Eliminated redundant documentation and guides
+- Preserved all content while organizing logically
+
+#### Script Consolidation
+- Removed duplicate scripts across `scripts/test/`, `scripts/monitoring/`, `scripts/utils/`
+- Consolidated all testing scripts into `scripts/modules/`
+- Eliminated redundant automation scripts
+- Streamlined script organization for better maintainability
+
+### 📁 File Organization
+
+#### Moved to Architecture
+- `POLICY_GUARD_SYSTEM.md` - Policy enforcement system
+- `CONTROL_KNOTS.md` - Control system documentation
+- `CLIP4CLIP_SERVICE_ARCHITECTURE.md` - Service architecture
+- `Change-Policy.md` - Change management policy
+- `Cursor-Workspace-Rules.md` - Development guidelines
+
+#### Moved to Modules
+- `CLIP4CLIP_PROGRESS_REPORT.md` - Development progress
+- `CLIP_DEV_RUNBOOK.md` - Development runbook
+- `CLIP_FEATURE_README.md` - Feature documentation
+- `DATABASE_STORAGE_TEST_RESULTS.md` - Test results
+- `FAISS_INTEGRATION_GUIDE.md` - Integration guide
+- `FAISS_PERFORMANCE_GUIDE.md` - Performance guide
+- `RETRIEVAL_SYSTEM_README.md` - System documentation
+- `TEMPORAL_SAMPLING_*.md` - Sampling system docs
+- `test_report_20251002_155432.md` - Test report
+
+#### Moved to Release
+- `FIREBASE_KEYSTORE_SETUP_COMPLETE.md` - Setup completion
+
+### 🎯 Benefits
+
+#### Improved Navigation
+- Clear 4-thread structure for easy navigation
+- Logical grouping of related documentation
+- Consistent organization across docs and scripts
+- Better discoverability for developers
+
+#### Enhanced Maintainability
+- Single source of truth for each document
+- Reduced duplication and redundancy
+- Easier updates and maintenance
+- Scalable structure for future additions
+
+#### Developer Experience
+- Faster access to relevant information
+- Clear separation of concerns
+- Comprehensive README files for each directory
+- Streamlined development workflow
+
 ## [v0.7.0] - Firebase & Keystore Setup - 2025-01-03
 
 ### 🚀 Major Features Added
