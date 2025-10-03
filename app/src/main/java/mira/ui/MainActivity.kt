@@ -123,11 +123,25 @@ class MainActivity : AppCompatActivity() {
             Log.d("ResourceMonitor", "Battery: $batteryLevel%, Temp: $temperature°C")
             Log.d("ResourceMonitor", "History size: ${cpuMemoryHistory.size}")
             
+            // Alert on extreme values
+            if (realCpuUsage > 50.0) {
+                Log.w("ResourceMonitor", "EXTREME CPU VALUE DETECTED: $realCpuUsage% - this will be filtered")
+            }
+            
             // Ensure WebView is still valid before updating
             if (::webView.isInitialized && webView != null) {
-                // Use moving averages for smoother display (fallback to raw values if no history)
-                val displayCpu = if (cpuMovingAverage > 0) cpuMovingAverage else realCpuUsage
-                val displayMemory = if (memoryMovingAverage > 0) memoryMovingAverage else realMemoryPercentage
+                // Use moving averages for smoother display, with smart fallback
+                val displayCpu = when {
+                    cpuMovingAverage > 0 -> cpuMovingAverage
+                    realCpuUsage <= 50.0 -> realCpuUsage // Only use raw if reasonable
+                    else -> 10.0 // Default safe value for extreme readings
+                }
+                
+                val displayMemory = when {
+                    memoryMovingAverage > 0 -> memoryMovingAverage
+                    realMemoryPercentage <= 100 -> realMemoryPercentage
+                    else -> 2L // Default safe value
+                }
                 
                 webView.evaluateJavascript(
                     "window.updateRealResourceUsage($displayCpu, $displayMemory, $batteryLevel, $temperature, '$batteryDetails', '$gpuInfo', '$threadInfo');",
@@ -383,26 +397,34 @@ class MainActivity : AppCompatActivity() {
             return 0.0
         }
         
-        // Use exponential moving average for better smoothing
         val readings = cpuMemoryHistory.toList()
         if (readings.size == 1) {
-            return readings[0].cpuUsage
+            return readings[0].cpuUsage.coerceIn(0.0, 100.0)
         }
         
-        // Calculate weighted average (more recent readings have higher weight)
+        // Filter out extreme outliers (values > 50% are likely errors)
+        val filteredReadings = readings.filter { it.cpuUsage <= 50.0 }
+        if (filteredReadings.isEmpty()) {
+            // If all readings are extreme, use the most recent reasonable value
+            val lastReasonable = readings.lastOrNull { it.cpuUsage <= 50.0 }?.cpuUsage ?: 10.0
+            Log.d("ResourceMonitor", "CPU moving average: $lastReasonable% (filtered extreme values)")
+            return lastReasonable.coerceIn(0.0, 100.0)
+        }
+        
+        // Calculate weighted average with outlier filtering
         var weightedSum = 0.0
         var totalWeight = 0.0
-        val size = readings.size
+        val size = filteredReadings.size
         
-        readings.forEachIndexed { index, reading ->
+        filteredReadings.forEachIndexed { index, reading ->
             val weight = (index + 1).toDouble() / size // Linear weight increase
             weightedSum += reading.cpuUsage * weight
             totalWeight += weight
         }
         
-        val average = if (totalWeight > 0) weightedSum / totalWeight else readings.last().cpuUsage
+        val average = if (totalWeight > 0) weightedSum / totalWeight else filteredReadings.last().cpuUsage
         
-        Log.d("ResourceMonitor", "CPU moving average: $average% (from ${cpuMemoryHistory.size} readings, weighted)")
+        Log.d("ResourceMonitor", "CPU moving average: $average% (from ${filteredReadings.size}/${cpuMemoryHistory.size} readings, filtered)")
         return average.coerceIn(0.0, 100.0)
     }
     
