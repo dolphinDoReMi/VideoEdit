@@ -9,7 +9,6 @@ rootProject.name = "AutoCutPad"
 include(":app")
 include(":feature:clip")
 include(":feature:retrieval")
-include(":feature:ui")
 include(":feature:whisper")
 include(":core:infra")
 include(":core:media")
