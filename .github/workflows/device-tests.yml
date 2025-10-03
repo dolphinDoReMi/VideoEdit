@@ -1,0 +1,41 @@
+name: Device Tests
+
+on:
+  workflow_dispatch:
+  pull_request:
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Derive thread suffix
+        id: suffix
+        run: echo "suffix=$(./scripts/thread_suffix.sh)" >> $GITHUB_OUTPUT
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Build Debug with suffix
+        uses: gradle/gradle-build-action@v3
+        with:
+          arguments: >
+            :app:assembleDebug
+            -PappIdSuffix=${{ steps.suffix.outputs.suffix }}
+
+  ios:
+    runs-on: macos-15
+    if: ${{ false }} # flip to true when iOS project present and signing set
+    steps:
+      - uses: actions/checkout@v4
+      - name: Derive thread suffix
+        id: suffix
+        run: echo "suffix=$(./scripts/thread_suffix_ios.sh)" >> $GITHUB_OUTPUT
+      - name: Build iOS (generic)
+        run: |
+          xcodebuild -scheme MiraApp -configuration Debug \
+            -destination 'generic/platform=iOS' \
+            THREAD_SUFFIX='${{ steps.suffix.outputs.suffix }}' build
+
+
