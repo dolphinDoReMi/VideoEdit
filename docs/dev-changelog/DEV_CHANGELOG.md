@@ -1,5 +1,29 @@
 # DEV Change Log
 
+## [v0.9.1] - Whisper E2E on Xiaomi Pad + Docs Consolidation - 2025-10-04
+
+### Whisper E2E (Xiaomi Pad Ultra + Local Transcription)
+
+- Located the correct 8:54 video on device (`/sdcard/Download/video_v1.mp4`), pulled locally, and verified duration (~534.17s)
+- Extracted mono 16 kHz WAV and ran Chinese transcription locally with multilingual model (`ggml-small-q5_1.bin`) using `-l zh`
+- Generated outputs:
+  - TXT: `/Users/dennis/Movies/VideoEdit/video_v1_long.zh.txt`
+  - SRT: `/Users/dennis/Movies/VideoEdit/video_v1_long.zh.srt`
+- On-device broadcast path remains non-producing due to packaging/scope of installed app; documented workaround via local transcription
+
+### Documentation & Scripts Consolidation (4 Threads)
+
+- Consolidated documentation into 4 main threads: Architecture Design, Modules, DEV Change Log, Release
+- Updated Release thread to explicitly include iOS (Capacitor), Android, and macOS Web
+- Revised `scripts/README.md` to align with the 4-thread structure (architecture, modules, dev-changelog, release, test)
+- Removed duplicate helper scripts under `scripts/tools/` in favor of canonical `tools/`
+
+### References
+
+- Video pulled: `/Users/dennis/Movies/VideoEdit/video_v1_long.mp4`
+- Audio extracted: `/Users/dennis/Movies/VideoEdit/video_v1_long.wav`
+- Multilingual model: `/Users/dennis/Movies/VideoEdit/ggml-small-q5_1.bin`
+
 ## [v0.9.0] - CLIP Feature Configuration Production Update - 2025-01-03
 
 ### 🚀 Major Features Added

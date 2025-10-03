@@ -1,0 +1,105 @@
+name: Dependency Updates
+
+on:
+  schedule:
+    # Run every Monday at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+    inputs:
+      update_type:
+        description: 'Type of dependency update'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+        - all
+        - gradle
+        - dependencies
+        - actions
+
+jobs:
+  update-dependencies:
+    name: Update Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+            
+      - name: Update Gradle Wrapper
+        if: github.event.inputs.update_type == 'all' || github.event.inputs.update_type == 'gradle'
+        run: |
+          ./gradlew wrapper --gradle-version=8.5
+          
+      - name: Check for dependency updates
+        if: github.event.inputs.update_type == 'all' || github.event.inputs.update_type == 'dependencies'
+        run: |
+          ./gradlew dependencyUpdates
+          
+      - name: Update GitHub Actions
+        if: github.event.inputs.update_type == 'all' || github.event.inputs.update_type == 'actions'
+        run: |
+          # Check for outdated actions
+          find .github/workflows -name "*.yml" -o -name "*.yaml" | xargs grep -l "uses:" | while read file; do
+            echo "Checking $file for outdated actions..."
+            grep "uses:" "$file" | grep -v "local" | while read line; do
+              action=$(echo "$line" | sed 's/.*uses: *//' | cut -d'@' -f1)
+              version=$(echo "$line" | sed 's/.*uses: *//' | cut -d'@' -f2)
+              echo "Action: $action, Version: $version"
+            done
+          done
+          
+      - name: Create Pull Request
+        if: github.event_name == 'schedule'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'chore: update dependencies'
+          title: 'Automated Dependency Updates'
+          body: |
+            ## Automated Dependency Updates
+            
+            This PR contains automated dependency updates:
+            
+            - Gradle wrapper updates
+            - Dependency version updates
+            - GitHub Actions updates
+            
+            ### Changes
+            - Updated Gradle wrapper to latest version
+            - Updated dependencies to latest compatible versions
+            - Updated GitHub Actions to latest versions
+            
+            ### Testing
+            - [ ] All tests pass
+            - [ ] Build succeeds
+            - [ ] No breaking changes
+            
+            ### Review Checklist
+            - [ ] Review dependency changes
+            - [ ] Test on different devices
+            - [ ] Check for security updates
+            - [ ] Verify compatibility
+          branch: automated-dependency-updates
+          delete-branch: true
+          labels: |
+            dependencies
+            automated
+            maintenance

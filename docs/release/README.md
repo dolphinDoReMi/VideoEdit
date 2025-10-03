@@ -36,6 +36,7 @@ This thread focuses on:
 - **Testing**: Internal testing and validation procedures
 - **Deployment**: Production deployment and rollback procedures
 - **Store Submission**: Play Store and Xiaomi Store submission
+- **Platforms**: iOS (Capacitor), Android, and macOS Web (packaged web)
 
 ## 🔗 Related Threads
 
@@ -75,6 +76,8 @@ Related scripts are located in `scripts/release/`:
 - Deployment automation
 - Distribution tools
 - Store submission helpers
+
+For iOS (Capacitor) automation, follow the remote build/archive/upload workflow described in project rules, and mirror steps in `scripts/release/` when applicable.
 
 ## 📝 Maintenance
 

@@ -1,0 +1,155 @@
+目前的进展是想先做一个Finance Vertical的
+所以在这个Vertical 想实现一个有个性化推荐的版本
+然后目前的进展是说
+这个有走通了一条个性化推荐的路
+但是没有太多就是 end to end的这种实现
+所以那个app还不完全能work
+但是我先给你看一下这个个性化的路然后再给你看一下那个app现这样的状态
+我的理解是到app work 状态只差最后一步
+然后现在个性化的整个路径是这样子的
+目前有两个方向一个是user一个是我们的video
+然后user的话我现在暂时只录入了我们三个人作为一个 internal tester 的东西
+然后这种interaction 是我用你们的那个 internal 账户用的时候的一些interaction
+然后目前的话是记录了有一定的 event tracking 的这种功能
+所以它simulated一些 behavior 以及在的一些 entry point
+然后那个目前的话user 除了本身我还generate了这个每个user 的 embedding
+所以你们是有user embedding的就根据之前的行为产生的
+这是user 的部分然后第二部分是video 的部分
+其实整个翻楼有两大块一个是content 本身的 discovery
+然后第二个是根据这些 discovery 产生的一些 embedding
+discovery 的话目前是有一些就是既定 hard call 的一些
+financial topic 的一些curry 给那个底下的那个搜索的提供商
+然后给我们一定的比较新的反馈的视频和文章
+让我们做一定的 exploration 比如说我目前设定了
+就是一开始设定了一些就是一有的curry 以及就是
+就包括如果我们 track 这个financial investment 的话
+有一些 topic 有一些人我们是可能大部分人是感兴趣的
+就像 Elon Musk 或者是一些既定的一些机构
+或者是一些这种就是比较出名的人来
+follow 他们的一些新的news behavior 或者是这个
+每年数的一些机构的一些就是状态
+这些是一个就是基础的input 来给就是搜索的时候
+能拿到一些今天或者是此刻最新的一些信息
+这些是关于更多是关于crypto 相关的
+然后这个是机构的
+所以 bodyfollow 他们set了这个界面
+然后如果我去fetch 的话
+他这个是一个事实的
+就是说他底下的系统是在跑了
+他底下的系统是这个
+就是说他他有去fetch 一些就是这种既定的东西
+然后这个是实时搜索的 出来的结果
+然后你可以看到是说
+他根据这几个步骤 就我自己定义的这几个步骤
+来搜索出一些相关的
+就是用来做see 的一些video或者article
+然后根据这些东西来
+就是说产生比较相关的一些新闻
+比较相关的一些关于finance的一些新闻
+entity 一般是指人 或更多一点 或机构更多一点
+然后他根据有的第一轮see 的有时候他会
+他会follow up 去做第二轮
+就是如果上面的不清晰的话
+他会去clarify
+然后最后根据这些curry
+他会发到这个API的网站
+是一个底层的服务的提供商
+然后这提供商会实时的fetch 一些
+这种curry 然后来找到对应的一些API
+来找找找到的
+然后现在主要用的还是google的 比较多一点
+它是google的一个rapper
+然后根据这件事情的话
+他理论上他会进行多轮的
+这种来回的提问
+做一个db-research 这种提问
+保证这个see 的是
+就跟最新的一些financial news 或者
+最新的一些比较popular的article news
+是比较相关的
+然后他会用底下的openai4o 去做reasoning
+就保证是相关的
+然后理论上他应该会fetch 一些see
+但是现在这个过程里面
+就之前我fetch过一些 就是这些see face 是之前fetch过的
+然后他告诉你这些source是哪里
+然后fetch完之后你会来到有一个see table
+就保证每天是有新的
+然后根据see table 会expand整个video library
+然后目前library有之前prefetch的一些
+这些大部分应该是video来的
+就这些video 以及 现在我们video 主要来的还是youtube
+所以他会prefetch一些statistic
+来保证这些video的quality是比较高的
+理论上这个是可以看的 我看一下
+理论上这个link是对的 我verify
+like to me
+对 然后在这个基础上
+我会产生就是video的embedding
+然后产生video embedding之后呢 就是
+你可以看得到就是每个video
+应该是产生的embedding
+这个embedding是有open ed的那个5
+4O的那个embedding产生的
+现在主要是based on text
+不是mata model的 要用的是最大的那个version
+然后 根据user和video embedding
+我们做retrieval的话
+现在只load了我们三个人的user
+然后你可以理论上找到
+就是我们三个人对应的q是什么
+保证我们这个操作是offline做的
+就不是online做的
+比如说jun的话
+你可以看你的recommendation是说
+他会推荐你就是这个channel以及这个video
+理论上是可以看的 但有时候比较不稳定
+这个今天刚修好 刚修好
+所有这些video的topic都是finance的
+如果不是finance 已经被guard或filter
+然后这个就是cruel的部分
+理论上拿到这个一个人和他的整个q
+对于jun来说就是这四个的话
+可能有duplicate的
+这四个的话就是
+理论上应该可以做recommendation
+就是在video的那个上面做recommendation
+然后 但现在这个部分还不work
+还不work
+所以这个部分的话 现在是
+理论上是有两个page是做这个recommendation的
+一个是这个discovery page
+看一下
+discovery page 现在有点broken
+看一下production
+production的话 你们可以去这个页面
+是不是也broken
+就理论上他会load的一些video出来
+然后 如果你在lstapp
+你会像下谎 然后找到对应的
+但现在有点broken
+然后到第二个页面应该是research
+research就可以做一些qnA
+就是文字上的qnA
+但今天也不太work
+其实平时是有一个粗实的版本
+但现在不太work
+然后 剩下的这个是search
+就是我们之后有了重点开发
+但现在还不是unavailable
+然后这是financial app的一些portfolio
+这profile
+现在这后面三个都是用的mockdata
+前面两个是用的是真的data
+里面是有personalization
+但只是现在 work
+目前的进展主要是这些
+给你们update一下
+然后下一步的话
+我的时间还是花在保证
+第一个页面就是discovery的页面
+有点像tiktok或者video
+vddreal的这个东西work
+然后再说
+这个数字可以选profile
+对 目前的进展是这些

@@ -9,13 +9,20 @@ This directory contains all build, test, deployment, and utility scripts for the
 
 ```
 scripts/
-├── build/           # Build and compilation scripts
-├── test/            # Testing scripts and automation
-├── deployment/      # Deployment and release scripts
-├── firebase/        # Firebase setup and configuration
-├── monitoring/      # Performance monitoring and analysis
-└── utils/           # Utility scripts and tools
+├── architecture/     # Architecture validation and compliance
+├── dev-changelog/    # Changelog helpers and versioning
+├── modules/          # Feature/module testing & workflows
+├── release/          # Build & release automation (Android, iOS, macOS Web)
+├── test/             # End-to-end and device-specific tests
+└── tools/            # (Removed) Use top-level `tools/` for helpers
 ```
+
+## 🧭 Thread Mapping (Docs ↔ Scripts)
+
+- Architecture Design → `docs/architecture/` ↔ `scripts/architecture/`
+- Modules → `docs/modules/` ↔ `scripts/modules/`
+- DEV Change Log → `docs/dev-changelog/` ↔ `scripts/dev-changelog/`
+- Release (iOS, Android, macOS Web) → `docs/release/` ↔ `scripts/release/`
 
 ## 🚀 Quick Start
 
@@ -83,19 +90,19 @@ scripts/
 - `demo-workflow.sh` - Demo workflow automation
 - `mira-workflow-demo.sh` - Mira workflow demonstration
 
-### 🔥 Firebase Scripts (`firebase/`)
-- `firebase-auto-setup.sh` - Automated Firebase setup
-- `firebase-complete-setup.sh` - Complete Firebase configuration
-- `setup-firebase.sh` - Firebase setup script
+### 🔥 Release & Firebase Scripts (`release/`)
+- `build-release.sh` - Build signed artifacts
+- `README.md` - Release process overview (Android, iOS, macOS Web)
+- Firebase helpers are centralized under this thread
 
 ### 📊 Monitoring Scripts (`monitoring/`)
 - `xiaomi_resource_monitor.sh` - Xiaomi device resource monitoring
 - `xiaomi_performance_analyzer.sh` - Xiaomi performance analysis
 - `xiaomi_resource_log_*.txt` - Resource monitoring logs
 
-### 🛠️ Utility Scripts (`utils/`)
-- `fix_profiler.sh` - Profiler fix utility
-- `verify_profiler.sh` - Profiler verification utility
+### 🛠️ Utilities
+- Helper utilities live in top-level `tools/` (canonical location)
+- The former `scripts/tools/` duplicates were removed to avoid drift
 
 ## 📖 Usage Examples
 

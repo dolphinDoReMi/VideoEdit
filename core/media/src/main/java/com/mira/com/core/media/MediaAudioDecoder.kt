@@ -3,8 +3,10 @@ import android.media.*
 import androidx.media3.extractor.*
 import androidx.media3.extractor.mp4.Mp4Extractor
 import androidx.media3.common.C
+import androidx.media3.common.util.UnstableApi
 import java.nio.*
 
+@UnstableApi
 class MediaAudioDecoder {
   data class PCM(val sampleRate: Int, val channels: Int, val data: ShortArray)
   fun decodeToPcm16(input: android.net.Uri, ctx: android.content.Context): PCM {
