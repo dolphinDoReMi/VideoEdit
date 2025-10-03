@@ -6,11 +6,8 @@ plugins {
   id("kotlin-kapt")
   id("io.gitlab.arturbosch.detekt")
   id("org.jlleitschuh.gradle.ktlint")
-  // Temporarily disabled for testing progress fixes
-  // id("com.google.devtools.ksp")
-  // id("dagger.hilt.android.plugin")
-  // id("com.google.gms.google-services") // Firebase App Distribution
-  // id("com.google.firebase.appdistribution") // Firebase App Distribution plugin
+  id("com.google.gms.google-services") // Firebase App Distribution
+  id("com.google.firebase.appdistribution") // Firebase App Distribution plugin
 }
 
 android {
@@ -89,7 +86,11 @@ android {
 
   buildTypes {
     getByName("debug") {
-      // No applicationIdSuffix — appId stays com.mira.com
+      // Per-thread install isolation: allow -PappIdSuffix to suffix the applicationId
+      val suffix = (project.findProperty("appIdSuffix") as String?)?.let {
+        if (it.isNotBlank()) ".t.$it" else ""
+      } ?: ""
+      applicationIdSuffix = suffix
       isDebuggable = true
       isMinifyEnabled = false
       isShrinkResources = false
@@ -97,6 +98,9 @@ android {
       buildConfigField("boolean", "DEBUG_MODE", "true")
       buildConfigField("String", "BUILD_TYPE", "\"debug\"")
       buildConfigField("boolean", "ENABLE_LOGGING", "true")
+
+      // Visible app name on device to include the suffix
+      resValue("string", "app_name", "Mira (debug${suffix})")
     }
     
     getByName("release") {
@@ -163,7 +167,7 @@ android {
     jvmTarget = "17"
   }
   packaging { 
-    resources.pickFirsts += listOf("META-INF/*")
+    resources.excludes.add("META-INF/*")
     // Optimize APK size
     jniLibs {
       useLegacyPackaging = false
@@ -187,28 +191,31 @@ android {
     unitTests.isIncludeAndroidResources = true
     animationsDisabled = true
   }
+
+  // Ensure androidTest assets path is wired for device tests
+  sourceSets["androidTest"].assets.srcDirs("src/androidTest/assets")
 }
 
-// Firebase App Distribution configuration (temporarily disabled)
-// firebaseAppDistribution {
-//   appId = "1:384262830567:android:1960eb5e2470beb09ce542" // Firebase App ID
-//   groups = "internal-testers" // Will be added through Firebase Console
-//   releaseNotes = """
-//     Mira v0.1.0-internal
-//     
-//     Features:
-//     - AI-powered video editing
-//     - Automatic clip selection
-//     - Motion-based scoring
-//     - Simple one-tap editing
-//     
-//     Testing Focus:
-//     - Core functionality
-//     - Performance on different devices
-//     - UI/UX feedback
-//     - Bug reporting
-//   """.trimIndent()
-// }
+// Firebase App Distribution configuration
+firebaseAppDistribution {
+  appId = "1:384262830567:android:1960eb5e2470beb09ce542" // Firebase App ID
+  groups = "internal-testers" // Will be added through Firebase Console
+  releaseNotes = """
+    Mira v0.1.0-internal
+    
+    Features:
+    - AI-powered video editing
+    - Automatic clip selection
+    - Motion-based scoring
+    - Simple one-tap editing
+    
+    Testing Focus:
+    - Core functionality
+    - Performance on different devices
+    - UI/UX feedback
+    - Bug reporting
+  """.trimIndent()
+}
 
 dependencies {
   // Feature modules

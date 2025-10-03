@@ -62,6 +62,7 @@ jobs:
         path: |
           test-results/
           app/build/reports/
+        retention-days: 14
           
   xiaomi-test:
     name: Xiaomi Device Testing
@@ -107,6 +108,7 @@ jobs:
         path: |
           xiaomi-test-results/
           app/build/reports/
+        retention-days: 14
           
   performance-test:
     name: Performance Testing
@@ -150,6 +152,7 @@ jobs:
       with:
         name: performance-test-results
         path: app/build/reports/androidTests/
+        retention-days: 14
         
   e2e-test:
     name: End-to-End Testing
@@ -192,3 +195,4 @@ jobs:
         path: |
           e2e-test-results/
           app/build/reports/
+        retention-days: 14

@@ -44,6 +44,8 @@ The documentation is organized into **4 main threads** for easy navigation:
 - Store submission procedures
 - Internal testing workflows
 
+Note: This thread covers platform releases across iOS (Capacitor), Android, and macOS Web. See `docs/release/` and `scripts/release/` for platform-specific workflows.
+
 ## 🚀 Quick Start
 
 ### For New Developers

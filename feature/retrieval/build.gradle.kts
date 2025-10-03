@@ -19,6 +19,23 @@ android {
   kotlinOptions {
     jvmTarget = "17"
   }
+  
+  buildTypes {
+    getByName("debug") {
+      // Debug configuration
+    }
+    
+    getByName("release") {
+      // Release configuration
+    }
+    
+    create("internal") {
+      // Internal testing configuration
+      initWith(getByName("release"))
+      isMinifyEnabled = false
+      isShrinkResources = false
+    }
+  }
 }
 
 dependencies { 
