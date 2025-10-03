@@ -2,7 +2,6 @@ plugins {
   id("com.android.application")
   id("org.jetbrains.kotlin.android")
   kotlin("plugin.serialization")
-  kotlin("plugin.compose")
   // Code quality plugins - temporarily disabled
   // id("io.gitlab.arturbosch.detekt")
   // id("org.jlleitschuh.gradle.ktlint")
@@ -30,9 +29,6 @@ android {
     jvmTarget = "17"
   }
   
-  composeOptions {
-    kotlinCompilerExtensionVersion = "1.5.8"
-  }
 
   defaultConfig {
     applicationId = "com.mira.com"     // FROZEN across variants
@@ -150,7 +146,6 @@ android {
   }
 
   buildFeatures { 
-    compose = true
     buildConfig = true
     prefab = true
   }
@@ -233,13 +228,6 @@ dependencies {
   implementation("androidx.media3:media3-common:1.2.1")
   implementation("androidx.media3:media3-exoplayer:1.2.1") // For preview (optional)
 
-  // UI - Using compatible versions for API 34
-  implementation(platform("androidx.compose:compose-bom:2023.08.00"))
-  implementation("androidx.activity:activity-compose:1.8.2")
-  implementation("androidx.compose.ui:ui")
-  implementation("androidx.compose.material:material")
-  implementation("androidx.compose.ui:ui-tooling-preview")
-  debugImplementation("androidx.compose.ui:ui-tooling")
 
   // Room database for CLIP4Clip embeddings and video metadata
   implementation("androidx.room:room-runtime:2.7.0")
@@ -343,13 +331,6 @@ dependencies {
   implementation("androidx.media3:media3-common:1.2.1")
   implementation("androidx.media3:media3-exoplayer:1.2.1") // For preview (optional)
 
-  // UI - Using compatible versions for API 34
-  implementation(platform("androidx.compose:compose-bom:2023.08.00"))
-  implementation("androidx.activity:activity-compose:1.8.2")
-  implementation("androidx.compose.ui:ui")
-  implementation("androidx.compose.material:material")
-  implementation("androidx.compose.ui:ui-tooling-preview")
-  debugImplementation("androidx.compose.ui:ui-tooling")
 
   // Room database for CLIP4Clip embeddings and video metadata
   implementation("androidx.room:room-runtime:2.7.0")
