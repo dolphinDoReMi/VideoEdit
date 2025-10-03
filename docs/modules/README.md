@@ -16,15 +16,16 @@ This directory contains all feature module documentation, implementation guides,
 - **`CLIP4Clip_Room_Integration_Guide.md`** - Room database integration guide
 - **`CLIP4Clip_Step_by_Step_Testing_Guide.md`** - Step-by-step testing guide
 
-### Integration & Testing
-- **`Project2_Integration_Guide.md`** - Project 2 integration guide
-- **`Project2_Step1_Implementation_Results.md`** - Step 1 implementation results
-- **`Project2_Step2_Real_Video_Testing_Results.md`** - Step 2 real video testing results
-- **`Project2_Step2_Testing_Walkthrough.md`** - Step 2 testing walkthrough
-
 ### Whisper Integration
-- **`Project2_Whisper_Architecture.md`** - Whisper architecture documentation
-- **`Project2_Whisper_Integration.md`** - Whisper integration guide
+- **`whisper/`** - Complete Whisper documentation suite
+  - **`01_ARCHITECTURE_DESIGN.md`** - Architecture design with control knots
+  - **`02_IMPLEMENTATION_DETAILS.md`** - Full-scale implementation details
+  - **`03_CURSOR_RULES.md`** - Development guidelines and code quality standards
+  - **`04_DEVICE_DEPLOYMENT.md`** - Xiaomi Pad and iPad deployment procedures
+  - **`05_README.md`** - Multi-lens communication for different expert audiences
+  - **`06_DESIGN_RATIONALE.md`** - Theoretical foundations and literature review
+  - **`07_RELEASE.md`** - iOS, Android, and macOS Web release guidelines
+- **`WHISPER_DEVICE_ENDPOINT_DEPLOYMENT.md`** - Xiaomi Pad and iPad deployment and testing
 
 ### Media3 & Processing
 - **`Media3_AutoCutEngine_Test_Guide.md`** - Media3 AutoCut engine test guide
@@ -84,10 +85,11 @@ This thread focuses on:
 4. Check `CLIP_DEV_RUNBOOK.md` for development procedures
 
 ### For Integration
-1. `Project2_Integration_Guide.md` - General integration guide
-2. `Project2_Whisper_Integration.md` - Whisper integration
-3. `CLIP4Clip_Room_Integration_Guide.md` - Database integration
-4. `FAISS_INTEGRATION_GUIDE.md` - FAISS integration
+1. `whisper/01_ARCHITECTURE_DESIGN.md` - Whisper architecture with control knots
+2. `whisper/02_IMPLEMENTATION_DETAILS.md` - Comprehensive Whisper implementation
+3. `whisper/04_DEVICE_DEPLOYMENT.md` - Device deployment and testing
+4. `CLIP4Clip_Room_Integration_Guide.md` - Database integration
+5. `FAISS_INTEGRATION_GUIDE.md` - FAISS integration
 
 ### For Testing
 1. `CLIP4Clip_Step_by_Step_Testing_Guide.md` - Step-by-step testing

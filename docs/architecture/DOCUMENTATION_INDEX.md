@@ -9,8 +9,8 @@ This directory contains all consolidated documentation for the Mira Video Editor
 - `PROJECT_CONTEXT_GUIDANCE.md` - Project structure and purpose
 - `Project1_Media3_VideoPipeline.md` - Core Media3 implementation
 - `CLIP4Clip_Room_Integration_Guide.md` - CLIP4Clip database integration
-- `Project2_Whisper_Architecture.md` - Whisper speech recognition architecture
-- `Project2_Whisper_Integration.md` - Whisper integration guide
+- `whisper/01_ARCHITECTURE_DESIGN.md` - Whisper architecture with control knots
+- `whisper/02_IMPLEMENTATION_DETAILS.md` - Comprehensive Whisper implementation
 
 ### 🧪 **Testing & Verification**
 - `XIAOMI_PAD_RESOURCE_MONITORING_GUIDE.md` - Resource monitoring on Xiaomi devices

@@ -48,8 +48,8 @@
 - **[CLIP E2E Guide](../.cursor/rules/clip_e2e.md)** - CLIP feature implementation guide
 
 ### Feature Implementation
-- **[Whisper Architecture](modules/Project2_Whisper_Architecture.md)** - Whisper integration guide
-- **[Whisper Integration](modules/Project2_Whisper_Integration.md)** - Whisper implementation details
+- **[Whisper Architecture Design](modules/whisper/01_ARCHITECTURE_DESIGN.md)** - Whisper architecture with control knots
+- **[Whisper Implementation Details](modules/whisper/02_IMPLEMENTATION_DETAILS.md)** - Comprehensive Whisper implementation
 - **[CLIP4Clip Room Integration](modules/CLIP4Clip_Room_Integration_Guide.md)** - Database integration
 
 ### Testing & Verification
