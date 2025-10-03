@@ -112,11 +112,33 @@ class TestReceiver : BroadcastReceiver() {
                             "path" to path,
                             "frame_count" to frames.size,
                             "dim" to embedding.size,
-                            "norm" to norm
+                            "norm" to norm,
+                            // Include full 512-float embedding vector for exact reproducibility
+                            "vector" to embedding.toList()
                         ))
                         
                         val file = java.io.File(context.filesDir, "ops_selftest_video.json")
                         file.writeText(result.toString())
+
+                        // Also write to external files dir for easy adb access
+                        val extDir = context.getExternalFilesDir(null)
+                        if (extDir != null) {
+                            val extFile = java.io.File(extDir, "ops_selftest_video.json")
+                            extFile.parentFile?.mkdirs()
+                            extFile.writeText(result.toString())
+                            Log.i(TAG, "Wrote external JSON: ${extFile.absolutePath}")
+                        }
+
+                        // Also write to public directory for guaranteed adb access
+                        runCatching {
+                            val publicDir = java.io.File("/sdcard/MiraClip/out")
+                            publicDir.mkdirs()
+                            val publicFile = java.io.File(publicDir, "ops_selftest_video.json")
+                            publicFile.writeText(result.toString())
+                            Log.i(TAG, "Wrote public JSON: ${publicFile.absolutePath}")
+                        }.onFailure {
+                            Log.w(TAG, "Failed writing public JSON: ${it.message}")
+                        }
                         
                         Log.i(TAG, "Video self-test complete: frames=${frames.size}, dim=${embedding.size}, norm=$norm")
                     }

@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "description": "Never change test invariants; prefer fixing implementation.",
+      "alwaysApply": true,
+      "globs": ["app/src/test/**", "app/src/androidTest/**"],
+      "editsAllowed": false
+    },
+    {
+      "description": "When touching ClipEngines or VideoIngestWorker, run instrumented tests.",
+      "alwaysApply": true,
+      "commands": ["./gradlew :app:connectedDebugAndroidTest"]
+    },
+    {
+      "description": "When modifying database entities or DAOs, run unit tests.",
+      "alwaysApply": true,
+      "globs": ["app/src/main/java/com/mira/videoeditor/db/**"],
+      "commands": ["./gradlew :app:testDebugUnitTest"]
+    },
+    {
+      "description": "When changing ML models or encoders, run all tests.",
+      "alwaysApply": true,
+      "globs": ["app/src/main/java/com/mira/videoeditor/ml/**"],
+      "commands": ["./gradlew :app:testDebugUnitTest", "./gradlew :app:connectedDebugAndroidTest"]
+    },
+    {
+      "description": "When modifying workers, run instrumented tests.",
+      "alwaysApply": true,
+      "globs": ["app/src/main/java/com/mira/videoeditor/workers/**"],
+      "commands": ["./gradlew :app:connectedDebugAndroidTest --tests '*IngestWorkerInstrumentedTest*'"]
+    },
+    {
+      "description": "When changing video processing, run frame sampler tests.",
+      "alwaysApply": true,
+      "globs": ["app/src/main/java/com/mira/videoeditor/video/**"],
+      "commands": ["./gradlew :app:connectedDebugAndroidTest --tests '*SamplerInstrumentedTest*'"]
+    }
+  ]
+}

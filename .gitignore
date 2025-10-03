@@ -142,13 +142,5 @@ app/src/main/assets/processing_interface.html
 
 # Keystore files (keep the directory structure but ignore actual keystores)
 keystore/*.keystore
-!keystore/README.md# Large video/audio files
-*.mp4
-*.wav
-*.avi
-*.mov
-*.mkv
-video_v1_long.mp4
-video_v1_device.mp4
-test_video_with_audio.mp4
-video_v1_long.wav
+!keystore/README.md*.ptl
+mobile_models/

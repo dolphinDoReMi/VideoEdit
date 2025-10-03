@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Derive a short, sanitized per-thread suffix from branch + short SHA
-# Allowed charset for Android applicationId suffix: [a-z0-9_.]
-
+# Derive a sanitized per-thread suffix for Android appId suffixing
+# Allowed charset: [a-z0-9_.], max length 30
 RAW="${GITHUB_HEAD_REF:-$(git rev-parse --abbrev-ref HEAD)}-$(git rev-parse --short HEAD)"
 echo "$RAW" \
   | tr '[:upper:]/-' '[:lower:]__' \

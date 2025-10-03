@@ -1,0 +1,147 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      suffix: ${{ steps.suffix.outputs.suffix }}
+      db: ${{ steps.changes.outputs.db }}
+      workers: ${{ steps.changes.outputs.workers }}
+      ml: ${{ steps.changes.outputs.ml }}
+      video: ${{ steps.changes.outputs.video }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Derive thread suffix
+        id: suffix
+        run: echo "suffix=$(./scripts/thread_suffix.sh)" >> $GITHUB_OUTPUT
+      - name: Detect changed paths
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          filters: |
+            db:
+              - 'app/src/main/java/com/mira/videoeditor/db/**'
+            workers:
+              - 'app/src/main/java/com/mira/videoeditor/workers/**'
+            ml:
+              - 'app/src/main/java/com/mira/videoeditor/ml/**'
+            video:
+              - 'app/src/main/java/com/mira/videoeditor/video/**'
+
+  android-build:
+    needs: detect
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Gradle Build (assembleDebug)
+        uses: gradle/gradle-build-action@v3
+        with:
+          arguments: >
+            :app:assembleDebug
+            -PappIdSuffix=${{ needs.detect.outputs.suffix }}
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-${{ needs.detect.outputs.suffix }}.apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: warn
+
+  android-unit-tests:
+    needs: detect
+    if: needs.detect.outputs.db == 'true' || needs.detect.outputs.ml == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Run unit tests
+        uses: gradle/gradle-build-action@v3
+        with:
+          arguments: >
+            :app:testDebugUnitTest
+            -PappIdSuffix=${{ needs.detect.outputs.suffix }}
+      - name: Upload unit test reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-reports-${{ needs.detect.outputs.suffix }}
+          path: app/build/reports/tests/testDebugUnitTest/**
+          if-no-files-found: warn
+
+  android-instrumented-tests:
+    needs: detect
+    if: needs.detect.outputs.workers == 'true' || needs.detect.outputs.ml == 'true' || needs.detect.outputs.video == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Run connected instrumented tests (API 30)
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          arch: x86_64
+          profile: pixel_5
+          target: default
+          disable-animations: true
+          script: |
+            ./gradlew :app:installDebug -PappIdSuffix="${{ needs.detect.outputs.suffix }}"
+            ./gradlew :app:connectedDebugAndroidTest -PappIdSuffix="${{ needs.detect.outputs.suffix }}"
+      - name: Upload androidTest reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: androidTest-reports-${{ needs.detect.outputs.suffix }}
+          path: |
+            app/build/reports/androidTests/connected/**
+            app/build/outputs/androidTest-results/connected/**
+          if-no-files-found: warn
+
+  ios-build:
+    needs: detect
+    runs-on: macos-15
+    if: ${{ hashFiles('ios/**') != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Derive thread suffix (iOS)
+        id: suffix
+        run: echo "suffix=$(./scripts/thread_suffix_ios.sh)" >> $GITHUB_OUTPUT
+      - name: Build iOS (generic)
+        run: |
+          xcodebuild -scheme MiraApp -configuration Debug \
+            -destination 'generic/platform=iOS' \
+            THREAD_SUFFIX='${{ steps.suffix.outputs.suffix }}' build
+      - name: Export logs (xcpretty optional)
+        if: always()
+        run: |
+          mkdir -p ios-build-logs && cp -R ~/Library/Logs/DiagnosticReports ios-build-logs || true
+      - name: Upload iOS build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build-logs-${{ steps.suffix.outputs.suffix }}
+          path: ios-build-logs/**
+          if-no-files-found: warn
+
+
