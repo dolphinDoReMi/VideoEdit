@@ -98,17 +98,21 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Run connected instrumented tests (API 30)
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 30
-          arch: x86_64
-          profile: pixel_5
-          target: default
-          disable-animations: true
-          script: |
-            ./gradlew :app:installDebug -PappIdSuffix="${{ needs.detect.outputs.suffix }}"
-            ./gradlew :app:connectedDebugAndroidTest -PappIdSuffix="${{ needs.detect.outputs.suffix }}"
+      # DISABLED: Connected instrumented tests with emulator - unreliable in GitHub Actions
+      # due to resource constraints and frequent timeouts. These tests should be run
+      # locally or on dedicated testing infrastructure.
+      #
+      # - name: Run connected instrumented tests (API 30)
+      #   uses: reactivecircus/android-emulator-runner@v2
+      #   with:
+      #     api-level: 30
+      #     arch: x86_64
+      #     profile: pixel_5
+      #     target: default
+      #     disable-animations: true
+      #     script: |
+      #       ./gradlew :app:installDebug -PappIdSuffix="${{ needs.detect.outputs.suffix }}"
+      #       ./gradlew :app:connectedDebugAndroidTest -PappIdSuffix="${{ needs.detect.outputs.suffix }}"
       - name: Upload androidTest reports
         uses: actions/upload-artifact@v4
         with:

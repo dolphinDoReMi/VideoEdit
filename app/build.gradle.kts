@@ -3,6 +3,9 @@ plugins {
   id("org.jetbrains.kotlin.android")
   kotlin("plugin.serialization")
   kotlin("plugin.compose")
+  // Code quality plugins
+  id("io.gitlab.arturbosch.detekt")
+  id("org.jlleitschuh.gradle.ktlint")
   // Temporarily disabled for testing progress fixes
   // id("com.google.devtools.ksp")
   // id("dagger.hilt.android.plugin")
@@ -205,6 +208,116 @@ android {
 //     - Bug reporting
 //   """.trimIndent()
 // }
+
+dependencies {
+  // Feature modules (temporarily disabled to unblock instrumented tests)
+  // implementation(project(":feature:clip"))
+  
+  // Core orchestration dependencies
+  implementation("androidx.work:work-runtime-ktx:2.9.0")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
+  implementation("org.json:json:20231013")
+  
+  // PyTorch Mobile for CLIP models
+  implementation("org.pytorch:pytorch_android:1.13.1")
+  implementation("org.pytorch:pytorch_android_torchvision:1.13.1")
+
+  // Media3 - versions compatible with API 34
+  implementation("androidx.media3:media3-transformer:1.2.1")
+  implementation("androidx.media3:media3-effect:1.2.1")
+  implementation("androidx.media3:media3-common:1.2.1")
+  implementation("androidx.media3:media3-exoplayer:1.2.1") // For preview (optional)
+
+  // UI - Using compatible versions for API 34
+  implementation(platform("androidx.compose:compose-bom:2023.08.00"))
+  implementation("androidx.activity:activity-compose:1.8.2")
+  implementation("androidx.compose.ui:ui")
+  implementation("androidx.compose.material:material")
+  implementation("androidx.compose.ui:ui-tooling-preview")
+  debugImplementation("androidx.compose.ui:ui-tooling")
+
+  // Room database for CLIP4Clip embeddings and video metadata
+  implementation("androidx.room:room-runtime:2.7.0")
+  // ksp("androidx.room:room-compiler:2.7.0")
+  implementation("androidx.room:room-ktx:2.7.0")
+  
+  // DataStore for settings and preferences
+  implementation("androidx.datastore:datastore-preferences:1.1.1")
+  
+  // Kotlinx Serialization for JSON
+  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+  
+  // Gson for JSON serialization
+  implementation("com.google.code.gson:gson:2.11.0")
+
+  // HTTP client for optional cloud upload
+  implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+  // Firebase App Distribution (handled by plugin)
+
+  // (Optional) ML Kit face detection: boost score weight for "people scenes"
+  // Use "unbundled version" (smaller size, requires model download on first use)
+  implementation("com.google.mlkit:face-detection:16.1.7")
+  
+  // Dependency Injection with Hilt
+  // implementation("com.google.dagger:hilt-android:2.48")
+  // ksp("com.google.dagger:hilt-compiler:2.48")
+  // implementation("androidx.hilt:hilt-work:1.1.0")
+  
+  // Security - SQLCipher for encrypted database
+  implementation("net.zetetic:android-database-sqlcipher:4.5.4")
+  
+  // Performance monitoring
+  implementation("androidx.tracing:tracing:1.2.0")
+}
+
+// Custom task to verify app configuration
+tasks.register("verifyConfig") {
+  group = "verification"
+  description = "Verifies that the app configuration is valid"
+  
+  doLast {
+    println("Verifying app configuration...")
+    
+    // Check that required properties are set
+    val requiredProperties = listOf(
+      "applicationId" to android.defaultConfig.applicationId,
+      "minSdk" to android.defaultConfig.minSdk,
+      "targetSdk" to android.defaultConfig.targetSdk,
+      "versionCode" to android.defaultConfig.versionCode,
+      "versionName" to android.defaultConfig.versionName
+    )
+    
+    requiredProperties.forEach { (name, value) ->
+      if (value == null) {
+        throw GradleException("Required configuration property '$name' is not set")
+      }
+      println("✓ $name: $value")
+    }
+    
+    // Verify build types exist
+    val buildTypes = android.buildTypes.names
+    val expectedBuildTypes = listOf("debug", "release", "cliptest", "internal")
+    expectedBuildTypes.forEach { buildType ->
+      if (buildType in buildTypes) {
+        println("✓ Build type '$buildType' exists")
+      } else {
+        throw GradleException("Required build type '$buildType' is missing")
+      }
+    }
+    
+    // Verify signing configuration for release builds
+    val releaseSigningConfig = android.buildTypes.getByName("release").signingConfig
+    if (releaseSigningConfig != null) {
+      println("✓ Release signing configuration is set")
+    } else {
+      println("⚠ Release signing configuration is not set (will use debug signing)")
+    }
+    
+    println("✓ App configuration verification completed successfully")
+  }
+}
 
 dependencies {
   // Feature modules (temporarily disabled to unblock instrumented tests)

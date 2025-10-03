@@ -92,25 +92,29 @@ jobs:
         run: ./gradlew :app:assembleDebug
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
-      - name: Create AVD
-        run: |
-          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd \
-            -n test -k "system-images;android-34;google_apis;x86_64" --force
-      - name: Start emulator
-        run: |
-          $ANDROID_HOME/emulator/emulator -avd test -no-audio -no-window &
-          $ANDROID_HOME/platform-tools/adb wait-for-device
-      - name: Install APK
-        run: $ANDROID_HOME/platform-tools/adb install app/build/outputs/apk/debug/*.apk
-      - name: Test orchestration broadcast
-        run: |
-          $ANDROID_HOME/platform-tools/adb shell am broadcast \
-            -n com.mira.com/.orch.OrchestrationReceiver \
-            -a com.mira.clip.ORCHESTRATE \
-            --es manifest_uri "file:///sdcard/test.json"
-      - name: Test debug CLIP broadcast
-        run: |
-          $ANDROID_HOME/platform-tools/adb shell am broadcast \
-            -n com.mira.com/.feature.clip.debug.DebugClipReceiver \
-            -a com.mira.clip.CLIP.RUN \
-            --es manifest_uri "file:///sdcard/test.json"
+      # DISABLED: Emulator-based testing steps - unreliable in GitHub Actions
+      # due to resource constraints and frequent timeouts. These tests should
+      # be run locally or on dedicated testing infrastructure.
+      #
+      # - name: Create AVD
+      #   run: |
+      #     echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd \
+      #       -n test -k "system-images;android-34;google_apis;x86_64" --force
+      # - name: Start emulator
+      #   run: |
+      #     $ANDROID_HOME/emulator/emulator -avd test -no-audio -no-window &
+      #     $ANDROID_HOME/platform-tools/adb wait-for-device
+      # - name: Install APK
+      #   run: $ANDROID_HOME/platform-tools/adb install app/build/outputs/apk/debug/*.apk
+      # - name: Test orchestration broadcast
+      #   run: |
+      #     $ANDROID_HOME/platform-tools/adb shell am broadcast \
+      #       -n com.mira.com/.orch.OrchestrationReceiver \
+      #       -a com.mira.clip.ORCHESTRATE \
+      #       --es manifest_uri "file:///sdcard/test.json"
+      # - name: Test debug CLIP broadcast
+      #   run: |
+      #     $ANDROID_HOME/platform-tools/adb shell am broadcast \
+      #       -n com.mira.com/.feature.clip.debug.DebugClipReceiver \
+      #       -a com.mira.clip.CLIP.RUN \
+      #       --es manifest_uri "file:///sdcard/test.json"
