@@ -34,8 +34,8 @@ android {
     versionCode = 1
     versionName = "0.1.0"
     
-    // Store metadata
-    resValue("string", "app_description", "AI-powered video editing with automatic clip selection")
+    // Store metadata (avoid duplicates; defined in strings.xml)
+    // resValue("string", "app_description", "AI-powered video editing with automatic clip selection")
     
     // Xiaomi store requirements
     manifestPlaceholders["xiaomi_app_id"] = "mira.ui"
