@@ -73,4 +73,15 @@ object Config {
      */
     const val MAX_TEXT_TOKENS = 77
     const val EOT_TOKEN = 49407  // End of text token
+    
+    // CLIP defaults (mirrors BuildConfig; read BuildConfig at runtime if you prefer)
+    const val CLIP_RES = 224
+    const val CLIP_DIM = 512  // Will be overridden by BuildConfig.CLIP_DIM
+    const val DEFAULT_MEMORY_BUDGET_MB = 512  // Will be overridden by BuildConfig.DEFAULT_MEM_BUDGET_MB
+    const val RETR_ENABLE_ANN = false  // Will be overridden by BuildConfig.RETR_ENABLE_ANN
+    
+    // Retrieval configuration
+    const val RETR_USE_L2_NORM = true
+    const val RETR_SIMILARITY = "cosine"
+    const val RETR_STORAGE_FMT = ".f32"
 }
