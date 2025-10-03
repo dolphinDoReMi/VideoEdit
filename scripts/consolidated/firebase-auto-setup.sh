@@ -227,7 +227,7 @@ main() {
         echo ""
         print_status $BLUE "1. Go to your Firebase Console: https://console.firebase.google.com/"
         print_status $BLUE "2. Click 'Add app' → Android icon"
-        print_status $BLUE "3. Package name: com.mira.videoeditor.internal"
+        print_status $BLUE "3. Package name: com.mira.clip.internal"
         print_status $BLUE "4. App nickname: Mira Internal Testing"
         print_status $BLUE "5. Download google-services.json"
         print_status $BLUE "6. Place it in app/ directory"

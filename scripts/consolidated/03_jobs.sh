@@ -7,7 +7,7 @@ set -e
 echo "=== CLIP4Clip Jobs & Storage Health Check ==="
 
 # Configuration
-PKG=${PKG:-"com.mira.videoeditor"}
+PKG=${PKG:-"com.mira.clip"}
 VARIANT=${VARIANT:-"clip_vit_b32_mean_v1"}
 DEVICE_ID=${DEVICE_ID:-""}
 

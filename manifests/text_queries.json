@@ -1,0 +1,20 @@
+{
+  "variant": "clip_vit_b32_mean_v1",
+  "queries": [
+    {
+      "id": "q1",
+      "text": "a person surfing on ocean waves"
+    },
+    {
+      "id": "q2", 
+      "text": "someone walking on a beach"
+    },
+    {
+      "id": "q3",
+      "text": "a dog running in a park"
+    }
+  ],
+  "top_k": 5,
+  "index_dir": "/sdcard/MiraClip/out/embeddings",
+  "output_path": "/sdcard/MiraClip/out/search/results_q.json"
+}

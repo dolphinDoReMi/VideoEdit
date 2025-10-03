@@ -25,7 +25,7 @@ echo "Testing motion detection algorithm..."
 cat > test_video_analysis.kt << 'EOF'
 import android.content.Context
 import android.net.Uri
-import com.mira.videoeditor.VideoScorer
+import com.mira.clip.VideoScorer
 
 fun testVideoAnalysis(context: Context, videoUri: Uri) {
     val scorer = VideoScorer(context)
@@ -63,7 +63,7 @@ import android.net.Uri
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MimeTypes
 import androidx.media3.transformer.*
-import com.mira.videoeditor.AutoCutEngine
+import com.mira.clip.AutoCutEngine
 import kotlinx.coroutines.runBlocking
 
 fun testMedia3Integration(context: Context, videoUri: Uri) {
@@ -106,7 +106,7 @@ echo "Testing Storage Access Framework integration..."
 cat > test_permissions.kt << 'EOF'
 import android.content.ContentResolver
 import android.net.Uri
-import com.mira.videoeditor.MediaStoreExt
+import com.mira.clip.MediaStoreExt
 
 fun testFilePermissions(resolver: ContentResolver, videoUri: Uri) {
     println("✅ File Permissions Test:")
@@ -144,7 +144,7 @@ echo "Testing app initialization and Media3 setup..."
 cat > test_app_init.kt << 'EOF'
 import android.app.Application
 import androidx.media3.common.util.Util
-import com.mira.videoeditor.AutoCutApplication
+import com.mira.clip.AutoCutApplication
 
 fun testApplicationInitialization() {
     println("✅ Application Initialization Test:")
@@ -175,8 +175,8 @@ echo "Testing complete video processing pipeline..."
 cat > test_e2e.kt << 'EOF'
 import android.content.Context
 import android.net.Uri
-import com.mira.videoeditor.AutoCutEngine
-import com.mira.videoeditor.VideoScorer
+import com.mira.clip.AutoCutEngine
+import com.mira.clip.VideoScorer
 import kotlinx.coroutines.runBlocking
 
 fun testEndToEndProcessing(context: Context, videoUri: Uri) {
@@ -225,7 +225,7 @@ echo "Testing processing performance and memory usage..."
 cat > test_performance.kt << 'EOF'
 import android.content.Context
 import android.net.Uri
-import com.mira.videoeditor.VideoScorer
+import com.mira.clip.VideoScorer
 import kotlin.system.measureTimeMillis
 
 fun testPerformance(context: Context, videoUri: Uri) {

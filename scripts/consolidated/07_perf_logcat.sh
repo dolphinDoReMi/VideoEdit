@@ -7,7 +7,7 @@ set -e
 echo "=== CLIP4Clip Performance Monitoring ==="
 
 # Configuration
-PKG=${PKG:-"com.mira.videoeditor"}
+PKG=${PKG:-"com.mira.clip"}
 VARIANT=${VARIANT:-"clip_vit_b32_mean_v1"}
 DURATION=${DURATION:-60}  # Monitoring duration in seconds
 LOG_FILE="performance.log"

@@ -1,24 +1,3 @@
-<<<<<<< Updated upstream
-# Android build artifacts
-.gradle/
-.idea/
-.kotlin/
-build/
-app/build/
-local.properties
-
-# APK files
-*.apk
-
-# Log files
-*.log
-*_log_*.txt
-
-# Temporary files
-*.patch
-*.tmp
-*.temp
-=======
 # Built application files
 *.apk
 *.aar
@@ -118,7 +97,6 @@ fastlane/readme.md
 # Version control
 .git/
 .gitignore
->>>>>>> Stashed changes
 
 # OS generated files
 .DS_Store
@@ -129,18 +107,6 @@ fastlane/readme.md
 ehthumbs.db
 Thumbs.db
 
-<<<<<<< Updated upstream
-# IDE files
-*.iml
-*.ipr
-*.iws
-.vscode/
-.idea/
-
-# Keystore files (keep the directory structure but ignore actual keystores)
-keystore/*.keystore
-!keystore/README.md
-=======
 # IDE
 .vscode/
 *.swp
@@ -149,8 +115,12 @@ keystore/*.keystore
 # Temporary files
 *.tmp
 *.temp
+
 # Large model files (use Git LFS or exclude from repo)
 app/src/main/assets/models/*.bin
 app/src/main/assets/*.mp4
 app/src/main/assets/processing_interface.html
->>>>>>> Stashed changes
+
+# Keystore files (keep the directory structure but ignore actual keystores)
+keystore/*.keystore
+!keystore/README.md

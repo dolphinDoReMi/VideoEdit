@@ -7,7 +7,7 @@ echo "1. Checking if app is installed..."
 adb -s emulator-5554 shell pm list packages | grep mira
 
 echo -e "\n2. Starting app..."
-adb -s emulator-5554 shell am start -n com.mira.videoeditor.debug/com.mira.videoeditor.MainActivity
+adb -s emulator-5554 shell am start -n com.mira.clip.debug/com.mira.clip.MainActivity
 
 echo -e "\n3. Monitoring logs (press Ctrl+C to stop)..."
 echo "   Please test the autocut functionality in the app now!"

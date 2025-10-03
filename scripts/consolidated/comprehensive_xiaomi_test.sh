@@ -9,7 +9,7 @@ echo ""
 
 # Device information
 DEVICE="050C188041A00540"
-PACKAGE="com.mira.videoeditor.debug"
+PACKAGE="com.mira.clip.debug"
 
 echo "📱 Device: Xiaomi Pad (25032RP42C) - Android 15"
 echo "📦 Package: $PACKAGE"
@@ -30,7 +30,7 @@ if [ $APP_RUNNING -gt 0 ]; then
     echo "✅ App is running"
 else
     echo "❌ App not running, launching..."
-    adb -s $DEVICE shell am start -n $PACKAGE/com.mira.videoeditor.MainActivity
+    adb -s $DEVICE shell am start -n $PACKAGE/com.mira.clip.MainActivity
     sleep 3
 fi
 

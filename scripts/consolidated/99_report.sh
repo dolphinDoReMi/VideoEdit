@@ -7,7 +7,7 @@ set -e
 echo "=== CLIP4Clip Comprehensive Test Report ==="
 
 # Configuration
-PKG=${PKG:-"com.mira.videoeditor"}
+PKG=${PKG:-"com.mira.clip"}
 VARIANT=${VARIANT:-"clip_vit_b32_mean_v1"}
 REPORT_FILE="test_report_$(date +%Y%m%d_%H%M%S).md"
 

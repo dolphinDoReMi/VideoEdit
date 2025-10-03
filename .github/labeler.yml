@@ -1,0 +1,15 @@
+feature/whisper:
+  - changed-files:
+      - any-glob-to-any-file: ['feature/whisper/**']
+feature/clip:
+  - changed-files:
+      - any-glob-to-any-file: ['feature/clip/**']
+feature/retrieval:
+  - changed-files:
+      - any-glob-to-any-file: ['feature/retrieval/**']
+core:
+  - changed-files:
+      - any-glob-to-any-file: ['core/**']
+app:
+  - changed-files:
+      - any-glob-to-any-file: ['app/**']

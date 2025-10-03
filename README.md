@@ -37,20 +37,23 @@ Mira Video Editor is an Android application that provides AI-powered automatic v
 - **Error Handling**: Enhanced error reporting with context and stack traces
 - **Privacy Protection**: Secure URI logging with privacy considerations
 
-## 🏗️ Architecture
+## 🏗️ Service Architecture
 
-### Core Components
-- **MainActivity**: Main UI and user interaction handling
-- **AutoCutEngine**: Core video processing and analysis engine
-- **VideoScorer**: Motion-based video segment scoring
-- **ShotDetector**: Shot boundary detection using histogram analysis
-- **MediaStoreExt**: MediaStore integration and file management
-- **Logger**: Comprehensive logging and monitoring system
+### Core Service Components
+- **Clip4ClipService**: Main service API for video-text retrieval
+- **Clip4ClipServiceApplication**: Service application entry point
+- **Database Layer**: Room database with vector storage
+- **Repository Layer**: Data access and business logic
+- **Use Case Layer**: Service operations and workflows
+- **Security Layer**: Encryption and security management
 
 ### Technology Stack
 - **Android**: Native Android development with Kotlin
-- **Media3**: Google's Media3 Transformer for video processing
-- **Compose**: Modern UI framework for responsive interfaces
+- **Room**: SQLite database with vector storage
+- **Hilt**: Dependency injection framework
+- **PyTorch Mobile**: CLIP model inference
+- **WorkManager**: Background processing
+- **SQLCipher**: Database encryption
 - **Coroutines**: Asynchronous programming for smooth performance
 - **Firebase**: Backend services and analytics (optional)
 
