@@ -1,15 +1,16 @@
 plugins {
   id("com.android.application")
   id("org.jetbrains.kotlin.android")
+  kotlin("plugin.serialization")
   // Temporarily disabled for testing progress fixes
   // id("com.google.devtools.ksp")
   // id("dagger.hilt.android.plugin")
-  id("com.google.gms.google-services") // Firebase App Distribution
-  id("com.google.firebase.appdistribution") // Firebase App Distribution plugin
+  // id("com.google.gms.google-services") // Firebase App Distribution
+  // id("com.google.firebase.appdistribution") // Firebase App Distribution plugin
 }
 
 android {
-  namespace = "mira.ui"
+  namespace = "com.mira.videoeditor"
   compileSdk = 34
 
   compileOptions {
@@ -26,7 +27,7 @@ android {
   }
 
   defaultConfig {
-    applicationId = "mira.ui"
+    applicationId = "com.mira.videoeditor"
     minSdk = 24
     targetSdk = 34
     versionCode = 1
@@ -110,6 +111,10 @@ android {
       buildConfigField("boolean", "DEBUG_MODE", "true")
       buildConfigField("String", "BUILD_TYPE", "\"debug\"")
       buildConfigField("boolean", "ENABLE_LOGGING", "true")
+      buildConfigField("int", "DEFAULT_FRAME_COUNT", "32")
+      buildConfigField("String", "DEFAULT_SCHEDULE", "\"UNIFORM\"")
+      buildConfigField("String", "DEFAULT_DECODE_BACKEND", "\"MMR\"")
+      buildConfigField("int", "DEFAULT_MEMORY_BUDGET_MB", "512")
       
       // Debug configuration
       applicationIdSuffix = ".debug"
@@ -160,26 +165,26 @@ android {
   }
 }
 
-// Firebase App Distribution configuration
-firebaseAppDistribution {
-  appId = "1:384262830567:android:1960eb5e2470beb09ce542" // Firebase App ID
-  groups = "internal-testers" // Will be added through Firebase Console
-  releaseNotes = """
-    Mira v0.1.0-internal
-    
-    Features:
-    - AI-powered video editing
-    - Automatic clip selection
-    - Motion-based scoring
-    - Simple one-tap editing
-    
-    Testing Focus:
-    - Core functionality
-    - Performance on different devices
-    - UI/UX feedback
-    - Bug reporting
-  """.trimIndent()
-}
+// Firebase App Distribution configuration (temporarily disabled)
+// firebaseAppDistribution {
+//   appId = "1:384262830567:android:1960eb5e2470beb09ce542" // Firebase App ID
+//   groups = "internal-testers" // Will be added through Firebase Console
+//   releaseNotes = """
+//     Mira v0.1.0-internal
+//     
+//     Features:
+//     - AI-powered video editing
+//     - Automatic clip selection
+//     - Motion-based scoring
+//     - Simple one-tap editing
+//     
+//     Testing Focus:
+//     - Core functionality
+//     - Performance on different devices
+//     - UI/UX feedback
+//     - Bug reporting
+//   """.trimIndent()
+// }
 
 dependencies {
   // Media3 - versions compatible with API 34
@@ -210,9 +215,12 @@ dependencies {
   // WorkManager for background video ingestion
   implementation("androidx.work:work-runtime-ktx:2.9.1")
   
-  // PyTorch Mobile for CLIP models (temporarily disabled for WhisperEngine testing)
-  // implementation("org.pytorch:pytorch_android_lite:2.3.0")
-  // implementation("org.pytorch:pytorch_android_torchvision:2.3.0")
+  // PyTorch Mobile for CLIP models
+  implementation("org.pytorch:pytorch_android:1.13.1")
+  implementation("org.pytorch:pytorch_android_torchvision:1.13.1")
+  
+  // Kotlinx Serialization for JSON
+  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
   // HTTP client for optional cloud upload
   implementation("com.squareup.okhttp3:okhttp:4.12.0")

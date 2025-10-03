@@ -107,6 +107,25 @@ fastlane/readme.md
 ehthumbs.db
 Thumbs.db
 
+# Large model files
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.onnx
+*.tflite
+*.emd
+
+# Python virtual environment
+venv/
+env/
+.env
+
+# Large binary files
+*.dylib
+*.so
+*.dll
+
 # IDE
 .vscode/
 *.swp
