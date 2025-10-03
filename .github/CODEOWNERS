@@ -1,0 +1,11 @@
+# Require reviews from respective owners
+/app/                         @your-org/android-leads
+/core/infra/                  @your-org/platform-core
+/core/media/                  @your-org/media-pipeline
+/core/ml/                     @your-org/ml-platform
+/feature/whisper/             @your-org/asr-owners
+/feature/clip/                @your-org/mm-vision
+/feature/retrieval/           @your-org/search-ranking
+/feature/ui/                  @your-org/app-shell
+/tools/                       @your-org/devexp
+/docs/                        @your-org/tech-writers
