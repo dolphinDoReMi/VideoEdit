@@ -28,4 +28,7 @@ android {
 
 dependencies {
   implementation("org.json:json:20231013")
+  implementation(project(":core:infra"))
+  implementation(project(":core:media"))
+  implementation(project(":feature:retrieval"))
 }

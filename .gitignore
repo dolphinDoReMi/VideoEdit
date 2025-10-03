@@ -142,4 +142,5 @@ app/src/main/assets/processing_interface.html
 
 # Keystore files (keep the directory structure but ignore actual keystores)
 keystore/*.keystore
-!keystore/README.md
+!keystore/README.md*.ptl
+mobile_models/

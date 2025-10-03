@@ -1,163 +1,105 @@
 # Mira Video Editor Documentation
 
-Welcome to the Mira Video Editor documentation. This project implements AI-powered video editing with automatic clip selection using CLIP (Contrastive Language-Image Pre-training) technology.
+## 📚 Documentation Structure
 
-## 🎯 Project Overview
+This documentation is organized into 4 main threads for easy navigation and maintenance:
 
-Mira Video Editor is an Android application that uses CLIP ViT-B/32 models to:
-- Extract video frames and generate embeddings
-- Perform text-to-video search and retrieval
-- Automatically select and edit video clips
-- Provide background processing with no UI dependencies
+### 1. 🏗️ Architecture Design (`docs/architecture/`)
+- **System Architecture**: Overall system design and components
+- **Design Principles**: Core design patterns and guidelines
+- **Verification**: Architecture validation and compliance
+- **Policy**: Change management and development policies
 
-## 📁 Documentation Structure
+### 2. 🧩 Modules (`docs/modules/`)
+- **Feature Modules**: Individual feature implementations
+- **Testing Guides**: Comprehensive testing documentation
+- **Progress Reports**: Development progress and status
+- **Integration Guides**: Module integration instructions
 
-The documentation is organized into **4 main threads** for easy navigation:
+### 3. 📝 DEV Changelog (`docs/dev-changelog/`)
+- **Development History**: Complete version history
+- **Feature Tracking**: Major features and implementations
+- **Technical Details**: Implementation notes and decisions
+- **Version Management**: Release versioning and tracking
 
-### 1. 🏗️ [Architecture Design](architecture/)
-**System architecture, design principles, and verification**
-- System architecture and design patterns
-- Development guidelines and policies
-- Architecture verification procedures
-- Performance analysis and optimization
+### 4. 🚀 Release (`docs/release/`)
+- **Deployment Guides**: Production deployment instructions
+- **Distribution**: App store submission and distribution
+- **Testing**: Release testing and validation
+- **Store Management**: Play Store, App Store, and Xiaomi Store
 
-### 2. 🔧 [Modules](modules/)
-**Feature modules, implementations, and testing guides**
-- CLIP feature implementation
-- Whisper integration
-- FAISS vector indexing
-- Temporal sampling system
-- Database integration
-- Device-specific testing
+## 🛠️ Scripts Organization
 
-### 3. 📝 [DEV Changelog](dev-changelog/)
-**Development history and version tracking**
-- Complete development history
-- Version-by-version feature additions
-- Implementation details and decisions
-- Testing results and validation
+Scripts are organized to match the documentation structure:
 
-### 4. 🚀 [Release](release/)
-**Release management, deployment, and distribution**
-- Release lifecycle management
-- Firebase App Distribution
-- Store submission procedures
-- Internal testing workflows
+### Architecture Scripts (`scripts/architecture/`)
+- Architecture validation and compliance scripts
+
+### Module Scripts (`scripts/modules/`)
+- Testing, verification, and operations scripts
+- Comprehensive test suites and validation
+
+### DEV Changelog Scripts (`scripts/dev-changelog/`)
+- Changelog management and versioning scripts
+
+### Release Scripts (`scripts/release/`)
+- Build, deployment, and distribution automation
+
+### Tools (`scripts/tools/`)
+- Utility scripts and helper tools
+- Thread suffix generation for CI/CD
 
 ## 🚀 Quick Start
 
-### For New Developers
-1. **Start Here**: Read [Project Context Guidance](architecture/PROJECT_CONTEXT_GUIDANCE.md)
-2. **Architecture**: Review [CLIP4Clip Service Architecture](architecture/CLIP4CLIP_SERVICE_ARCHITECTURE.md)
-3. **Implementation**: Follow [CLIP Feature README](modules/CLIP_FEATURE_README.md)
-4. **Testing**: Use [Step-by-Step Testing Guide](modules/CLIP4Clip_Step_by_Step_Testing_Guide.md)
-
-### For Release Managers
-1. **Release Process**: Follow [Distribution Release Guide](release/DISTRIBUTION_RELEASE_GUIDE.md)
-2. **Deployment**: Use [Production Deployment Checklist](release/CLIP4Clip_Production_Deployment_Checklist.md)
-3. **Testing**: Execute [Internal Testing Action Plan](release/INTERNAL_TESTING_ACTION_PLAN.md)
-
-### For Testers
-1. **Testing Guide**: Follow [Step-by-Step Testing Guide](modules/CLIP4Clip_Step_by_Step_Testing_Guide.md)
-2. **Device Testing**: Use [Xiaomi Pad Testing Guide](modules/XIAOMI_PAD_COMPREHENSIVE_TEST_REPORT.md)
-3. **Performance**: Monitor with [Resource Monitoring Guide](modules/XIAOMI_PAD_RESOURCE_MONITORING_GUIDE.md)
-
-## 🔧 Key Features
-
-### CLIP Integration
-- **ViT-B/32 Model**: 512-dimensional embeddings
-- **BPE Tokenizer**: Real byte-level tokenization
-- **Background Processing**: No UI dependencies
-- **Stable Broadcasts**: CI/CD-friendly action names
-
-### Video Processing
-- **Temporal Sampling**: Deterministic frame extraction
-- **Media3 Integration**: Hardware-accelerated processing
-- **FAISS Indexing**: Vector search and retrieval
-- **Database Storage**: Room database integration
-
-### Development Features
-- **Frozen App ID**: `com.mira.com` across all variants
-- **Debug Isolation**: Separate debug package
-- **Unified Configuration**: Single source of truth
-- **CI/CD Integration**: GitHub Actions workflows
-
-## 📊 Current Status
-
-### ✅ Completed Features
-- CLIP ViT-B/32 implementation with real model
-- Temporal sampling system with multiple policies
-- FAISS vector indexing with multiple backends
-- Background processing with WorkManager
-- Firebase App Distribution integration
-- Production-grade configuration management
-
-### 🚧 In Progress
-- CLIP feature orchestration integration
-- Performance optimization
-- Store submission preparation
-
-### 🔮 Planned Features
-- Real-time video processing
-- Advanced search capabilities
-- Performance monitoring
-- User analytics
-
-## 🛠️ Development Workflow
-
-### Build Commands
+### Local Development
 ```bash
-# Build debug APK
-./gradlew :app:assembleDebug
+# Get thread suffix for isolated builds
+THREAD=$(./scripts/thread_suffix.sh)
+
+# Build with per-thread app ID
+./gradlew :app:installDebug -PappIdSuffix="$THREAD"
 
 # Run tests
-./gradlew :app:testDebugUnitTest
-
-# Run lint checks
-./gradlew :app:lintDebug
+./gradlew :app:connectedDebugAndroidTest -PappIdSuffix="$THREAD"
 ```
 
-### Testing Commands
-```bash
-# Test orchestration broadcast
-adb shell am broadcast \
-  -n com.mira.com/.orch.OrchestrationReceiver \
-  -a com.mira.clip.ORCHESTRATE
+### CI/CD
+- **GitHub Actions**: Automated builds with per-thread app ID suffixing
+- **Conditional Testing**: Runs relevant tests based on changed files
+- **Artifact Management**: Uploads builds with thread suffix naming
 
-# Test debug CLIP broadcast
-adb shell am broadcast \
-  -n com.mira.com/.feature.clip.debug.DebugClipReceiver \
-  -a com.mira.clip.CLIP.RUN
-```
+### Documentation
+- **Architecture**: Start with `docs/architecture/README.md`
+- **Modules**: Check `docs/modules/README.md` for feature guides
+- **Release**: See `docs/release/README.md` for deployment
+- **Changelog**: Review `docs/dev-changelog/DEV_CHANGELOG.md`
 
-## 📚 Additional Resources
+## 📋 Key Features
 
-### Scripts
-- **Architecture Scripts**: `scripts/architecture/` - Architecture validation
-- **Module Scripts**: `scripts/modules/` - Testing and verification
-- **Release Scripts**: `scripts/release/` - Build and deployment
+### Per-Thread App ID Isolation
+- **Android**: `com.mira.com.t.<THREAD>` for parallel installs
+- **iOS**: `com.mira.com.t.<THREAD>` for parallel installs
+- **Deterministic**: Branch+commit SHA for consistent IDs
 
-### Configuration
-- **Build Configuration**: `app/build.gradle.kts` - Gradle build configuration
-- **Manifests**: `manifests/` - Test manifests and configurations
-- **Assets**: `assets/` - Model files and test assets
+### CI/CD Pipeline
+- **Automated Builds**: GitHub Actions with conditional testing
+- **Artifact Management**: Suffix-based naming for easy mapping
+- **Cross-Platform**: Android (active), iOS (stubbed)
 
-## 🤝 Contributing
+### Documentation Consolidation
+- **4-Thread Structure**: Logical organization
+- **Duplicate Removal**: Single source of truth
+- **Copy-Pasteable Commands**: Ready-to-use examples
 
-1. **Read Guidelines**: Review [Cursor Workspace Rules](architecture/Cursor-Workspace-Rules.md)
-2. **Follow Architecture**: Adhere to [CLIP4Clip Service Architecture](architecture/CLIP4CLIP_SERVICE_ARCHITECTURE.md)
-3. **Test Thoroughly**: Use [Step-by-Step Testing Guide](modules/CLIP4Clip_Step_by_Step_Testing_Guide.md)
-4. **Update Documentation**: Keep documentation current with changes
+## 🔗 Related Documentation
 
-## 📞 Support
-
-- **Issues**: Report issues through the project's issue tracker
-- **Documentation**: Check the relevant thread documentation
-- **Testing**: Use the comprehensive testing guides
-- **Release**: Follow the release management procedures
+- [Local/Edge Builds Guide](LOCAL_EDGE_BUILDS.md) - Device testing commands
+- [CI/CD Developer Guide](architecture/CICD_DEVELOPER_GUIDE.md) - CI/CD setup
+- [CLIP Feature Guide](modules/CLIP_FEATURE_README.md) - CLIP implementation
+- [Release Guide](release/README.md) - Deployment instructions
 
 ---
 
-**Last Updated**: January 3, 2025  
-**Version**: v0.9.0  
-**Status**: Production Ready ✅
+**Last Updated**: 2025-01-04  
+**Version**: v1.0.0  
+**Status**: ✅ Production Ready
