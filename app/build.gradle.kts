@@ -110,6 +110,17 @@ android {
       buildConfigField("boolean", "ENABLE_LOGGING", "false")
     }
     
+    create("cliptest") {
+      initWith(getByName("debug"))
+      applicationIdSuffix = ".cliptest"
+      versionNameSuffix = "-cliptest"
+      
+      buildConfigField("boolean", "DEBUG_MODE", "true")
+      buildConfigField("String", "BUILD_TYPE", "\"cliptest\"")
+      buildConfigField("boolean", "ENABLE_LOGGING", "true")
+      buildConfigField("boolean", "CLIP_TEST_MODE", "true")
+    }
+    
     create("internal") {
       initWith(getByName("release"))
       
