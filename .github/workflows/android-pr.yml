@@ -1,0 +1,60 @@
+name: Android PR Build
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'app/**'
+      - 'core/**'
+      - 'feature/**'
+      - 'build.gradle.kts'
+      - 'settings.gradle.kts'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '21'
+          
+      - uses: gradle/actions/setup-gradle@v4
+      
+      - name: Verify App ID
+        run: ./gradlew :app:verifyConfig
+        
+      - name: Lint and Code Quality
+        run: ./gradlew ktlintCheck detekt
+        
+      - name: Lint Feature Module
+        run: ./gradlew :feature:whisper:lintDebug
+        
+      - name: Run Unit Tests
+        run: ./gradlew :feature:whisper:testDebugUnitTest
+        
+      - name: Assemble Debug
+        run: ./gradlew :app:assembleDebug
+        
+      - name: Assemble Internal
+        run: ./gradlew :app:assembleInternal
+        
+      - name: Upload Build Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-reports
+          path: |
+            app/build/reports/
+            feature/whisper/build/reports/
+          if-no-files-found: ignore
+          
+      - name: Upload APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: apks
+          path: |
+            app/build/outputs/apk/debug/*.apk
+            app/build/outputs/apk/internal/*.apk
+          if-no-files-found: error
