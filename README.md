@@ -3,13 +3,13 @@
 ## 🎬 Overview
 Mira Video Editor is an Android application that provides AI-powered automatic video cutting and editing capabilities using Media3 Transformer. The application analyzes video content, detects motion patterns, and automatically creates engaging short-form videos.
 
-> **📚 Documentation**: For comprehensive documentation, see [📖 Documentation Index](docs/consolidated/DOCUMENTATION_INDEX.md)
+> **📚 Documentation**: For comprehensive documentation, see [📖 Documentation Index](docs/INDEX.md)
 > 
-> **🚀 Quick Start**: See [Development Guides](docs/consolidated/) for setup and implementation
+> **🚀 Quick Start**: See [Architecture Design](docs/architecture/) for setup and implementation
 > 
-> **🧪 Testing**: Use [Consolidated Scripts](scripts/consolidated/) for comprehensive testing
+> **🧪 Testing**: Use [Module Scripts](scripts/modules/) for comprehensive testing
 > 
-> **📋 Scripts**: For quick script access, see [📖 Scripts Index](scripts/consolidated/SCRIPTS_INDEX.md)
+> **📋 Release**: See [Release Documentation](docs/release/) for deployment guides
 
 ## ✨ Key Features
 
@@ -59,24 +59,27 @@ Mira Video Editor is an Android application that provides AI-powered automatic v
 
 ## 📚 Documentation
 
-### 📖 Consolidated Documentation
-- **[📖 Documentation Index](docs/consolidated/DOCUMENTATION_INDEX.md)** - Complete documentation overview
-- **[📚 Documentation README](docs/README.md)** - Documentation structure and navigation
+### 📖 Documentation Structure
+- **[📖 Documentation Index](docs/INDEX.md)** - Complete documentation overview
+- **[🏗️ Architecture Design](docs/architecture/README.md)** - System architecture and design
+- **[📦 Modules](docs/modules/README.md)** - Feature modules and implementations
+- **[📝 DEV Changelog](docs/dev-changelog/README.md)** - Development history and changes
+- **[🚀 Release](docs/release/README.md)** - Release management and deployment
 
 ### 🛠️ Development Guides
-- **[Project Context Guide](docs/consolidated/PROJECT_CONTEXT_GUIDANCE.md)** - Project structure and purpose
-- **[Media3 Video Pipeline](docs/consolidated/Project1_Media3_VideoPipeline.md)** - Core implementation guide
-- **[CLIP4Clip Integration](docs/consolidated/CLIP4Clip_Room_Integration_Guide.md)** - CLIP4Clip database integration
+- **[Project Context Guide](docs/architecture/PROJECT_CONTEXT_GUIDANCE.md)** - Project structure and purpose
+- **[Media3 Video Pipeline](docs/architecture/Project1_Media3_VideoPipeline.md)** - Core implementation guide
+- **[CLIP4Clip Integration](docs/modules/CLIP4Clip_Room_Integration_Guide.md)** - CLIP4Clip database integration
 
 ### 🧪 Testing & Verification
-- **[Xiaomi Pad Testing Guide](docs/consolidated/XIAOMI_PAD_RESOURCE_MONITORING_GUIDE.md)** - Device testing procedures
-- **[Test Results](docs/consolidated/XIAOMI_PAD_COMPREHENSIVE_TEST_REPORT.md)** - Comprehensive test results
-- **[Performance Analysis](docs/consolidated/MEDIA3_PROCESSING_ANALYSIS.md)** - Performance metrics
+- **[Xiaomi Pad Testing Guide](docs/modules/XIAOMI_PAD_RESOURCE_MONITORING_GUIDE.md)** - Device testing procedures
+- **[Test Results](docs/modules/XIAOMI_PAD_COMPREHENSIVE_TEST_REPORT.md)** - Comprehensive test results
+- **[Performance Analysis](docs/modules/MEDIA3_PROCESSING_ANALYSIS.md)** - Performance metrics
 
 ### 🚀 Deployment & Operations
-- **[CI/CD Developer Guide](docs/consolidated/CICD_DEVELOPER_GUIDE.md)** - Development workflow
-- **[Firebase Setup Guide](docs/consolidated/FIREBASE_SETUP_GUIDE.md)** - Infrastructure setup
-- **[Distribution Release Guide](docs/consolidated/DISTRIBUTION_RELEASE_GUIDE.md)** - Release process
+- **[CI/CD Developer Guide](docs/architecture/CICD_DEVELOPER_GUIDE.md)** - Development workflow
+- **[Firebase Setup Guide](docs/release/FIREBASE_SETUP_GUIDE.md)** - Infrastructure setup
+- **[Distribution Release Guide](docs/release/DISTRIBUTION_RELEASE_GUIDE.md)** - Release process
 
 ## 🚀 Quick Start
 
@@ -116,19 +119,19 @@ Mira Video Editor is an Android application that provides AI-powered automatic v
 ### Automated Testing
 ```bash
 # Run all tests
-./scripts/test/run_all_tests.sh
+./scripts/modules/run_all_tests.sh
 
 # Run Xiaomi Pad specific tests
-./scripts/test/xiaomi_pad_comprehensive_test.sh
+./scripts/modules/xiaomi_pad_comprehensive_test.sh
 
 # Performance benchmark
-./scripts/test/performance_benchmark.sh
+./scripts/modules/performance_benchmark.sh
 ```
 
 ### Manual Testing
-1. **Device Testing**: Use [Xiaomi Pad Testing Guide](docs/guides/XIAOMI_PAD_TESTING_GUIDE.md)
-2. **Performance Monitoring**: Use [Resource Monitoring Guide](docs/guides/XIAOMI_PAD_RESOURCE_MONITORING_GUIDE.md)
-3. **Real Video Testing**: Follow [Real Video Walkthrough](docs/reports/REAL_VIDEO_PROCESSING_ANALYSIS.md)
+1. **Device Testing**: Use [Xiaomi Pad Testing Guide](docs/modules/XIAOMI_PAD_TESTING_READY.md)
+2. **Performance Monitoring**: Use [Resource Monitoring Guide](docs/modules/XIAOMI_PAD_RESOURCE_MONITORING_GUIDE.md)
+3. **Real Video Testing**: Follow [Real Video Walkthrough](docs/modules/REAL_VIDEO_PROCESSING_ANALYSIS.md)
 
 ## 🔧 Development
 
@@ -145,16 +148,16 @@ VideoEdit/
 
 ### Key Directories
 - **`app/src/main/java/com/mira/videoeditor/`** - Core application code
-- **`docs/guides/`** - Development guides and setup instructions
-- **`docs/reports/`** - Analysis reports and verification documents
-- **`scripts/test/`** - Testing scripts and automation
-- **`scripts/build/`** - Build and compilation scripts
+- **`docs/architecture/`** - System architecture and design documentation
+- **`docs/modules/`** - Feature modules and implementation guides
+- **`scripts/modules/`** - Testing scripts and automation
+- **`scripts/release/`** - Build and release scripts
 
 ### Development Workflow
-1. **Setup**: Follow [Project Context Guide](docs/guides/PROJECT_CONTEXT_GUIDANCE.md)
-2. **Implementation**: Use [Media3 Video Pipeline](docs/guides/Project1_Media3_VideoPipeline.md)
+1. **Setup**: Follow [Project Context Guide](docs/architecture/PROJECT_CONTEXT_GUIDANCE.md)
+2. **Implementation**: Use [Media3 Video Pipeline](docs/architecture/Project1_Media3_VideoPipeline.md)
 3. **Testing**: Run comprehensive tests using scripts
-4. **Deployment**: Follow [Distribution Release Guide](docs/guides/DISTRIBUTION_RELEASE_GUIDE.md)
+4. **Deployment**: Follow [Distribution Release Guide](docs/release/DISTRIBUTION_RELEASE_GUIDE.md)
 
 ## 📊 Performance
 
@@ -209,8 +212,8 @@ VideoEdit/
 - **Performance**: Consult analysis reports for insights
 
 ### Resources
-- **Guides**: [docs/guides/](docs/guides/) - Development and setup guides
-- **Reports**: [docs/reports/](docs/reports/) - Analysis and verification reports
+- **Architecture**: [docs/architecture/](docs/architecture/) - System architecture and design
+- **Modules**: [docs/modules/](docs/modules/) - Feature modules and implementations
 - **Scripts**: [scripts/](scripts/) - Build, test, and deployment scripts
 - **Tests**: [test/](test/) - Test assets and unit tests
 

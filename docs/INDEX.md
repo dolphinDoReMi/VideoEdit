@@ -3,20 +3,20 @@
 ## 📚 Consolidated Documentation Structure
 
 ### 1. **Architecture Design**
-- **[System Architecture](consolidated/architecture/README.md)** - Core architecture and design principles
+- **[System Architecture](architecture/README.md)** - Core architecture and design principles
 - **Components**: CLIP Feature Module, Retrieval System, Temporal Sampling, Policy Guard, Firebase Integration
 - **Data Flow**: Video Input → Temporal Sampling → Frame Extraction → CLIP Embedding → Vector Storage → Similarity Search → Results
 - **Technology Stack**: Kotlin, PyTorch Mobile, FAISS, WorkManager, Firebase
 
 ### 2. **Modules**
-- **[Feature Modules](consolidated/modules/README.md)** - Feature modules and core infrastructure
+- **[Feature Modules](modules/README.md)** - Feature modules and core infrastructure
 - **CLIP Feature Module** (`feature/clip/`): Video frame embedding using CLIP ViT-B/32
 - **Retrieval Module** (`feature/retrieval/`): Vector similarity search and ranking
 - **Core Infrastructure** (`core/`): Shared infrastructure and configuration
 - **App Module** (`app/`): Application entry point and coordination
 
 ### 3. **DEV Changelog**
-- **[Development History](../DEV_CHANGELOG.md)** - Complete development history and changes
+- **[Development History](dev-changelog/README.md)** - Complete development history and changes
 - **v0.7.0**: Firebase & Keystore Setup (2025-01-03)
 - **v0.6.0**: Offline Index Build & Online Retrieval System (2025-01-03)
 - **v0.5.0**: FAISS Vector Indexing System (2025-01-03)
@@ -26,7 +26,7 @@
 - **v0.1.0**: Initial Project Setup (2025-01-02)
 
 ### 4. **Release**
-- **[Release Strategy](consolidated/release/README.md)** - Release strategy and distribution channels
+- **[Release Strategy](release/README.md)** - Release strategy and distribution channels
 - **Android Release**: Current platform with Firebase App Distribution
 - **iOS Release**: Planned for Q2 2025
 - **macOS Web Version**: Planned for Q3 2025
@@ -43,36 +43,36 @@
 ## 🛠️ Development Guides
 
 ### Core Implementation
-- **[Project Context Guide](guides/PROJECT_CONTEXT_GUIDANCE.md)** - Project structure and purpose
-- **[Media3 Video Pipeline](guides/Project1_Media3_VideoPipeline.md)** - Core implementation guide
+- **[Project Context Guide](architecture/PROJECT_CONTEXT_GUIDANCE.md)** - Project structure and purpose
+- **[Media3 Video Pipeline](architecture/Project1_Media3_VideoPipeline.md)** - Core implementation guide
 - **[CLIP E2E Guide](../.cursor/rules/clip_e2e.md)** - CLIP feature implementation guide
 
 ### Feature Implementation
-- **[Whisper Architecture](guides/Project2_Whisper_Architecture.md)** - Whisper integration guide
-- **[Whisper Integration](guides/Project2_Whisper_Integration.md)** - Whisper implementation details
-- **[CLIP4Clip Room Integration](guides/CLIP4Clip_Room_Integration_Guide.md)** - Database integration
+- **[Whisper Architecture](modules/Project2_Whisper_Architecture.md)** - Whisper integration guide
+- **[Whisper Integration](modules/Project2_Whisper_Integration.md)** - Whisper implementation details
+- **[CLIP4Clip Room Integration](modules/CLIP4Clip_Room_Integration_Guide.md)** - Database integration
 
 ### Testing & Verification
-- **[Xiaomi Pad Testing Guide](guides/XIAOMI_PAD_TESTING_GUIDE.md)** - Device testing procedures
-- **[Resource Monitoring Guide](guides/XIAOMI_PAD_RESOURCE_MONITORING_GUIDE.md)** - Performance monitoring
-- **[CLIP4Clip Step-by-Step Testing](test/CLIP4Clip_Step_by_Step_Testing_Guide.md)** - CLIP testing guide
+- **[Xiaomi Pad Testing Guide](modules/XIAOMI_PAD_TESTING_READY.md)** - Device testing procedures
+- **[Resource Monitoring Guide](modules/XIAOMI_PAD_RESOURCE_MONITORING_GUIDE.md)** - Performance monitoring
+- **[CLIP4Clip Step-by-Step Testing](modules/CLIP4Clip_Step_by_Step_Testing_Guide.md)** - CLIP testing guide
 
 ## 📊 Analysis Reports
 
 ### Performance Analysis
-- **[Media3 Processing Analysis](reports/MEDIA3_PROCESSING_ANALYSIS.md)** - Performance metrics and optimization
-- **[Real Video Processing Analysis](reports/REAL_VIDEO_PROCESSING_ANALYSIS.md)** - Real-world testing results
-- **[Xiaomi Pad Comprehensive Test Report](reports/XIAOMI_PAD_COMPREHENSIVE_TEST_REPORT.md)** - Device testing results
+- **[Media3 Processing Analysis](modules/MEDIA3_PROCESSING_ANALYSIS.md)** - Performance metrics and optimization
+- **[Real Video Processing Analysis](modules/REAL_VIDEO_PROCESSING_ANALYSIS.md)** - Real-world testing results
+- **[Xiaomi Pad Comprehensive Test Report](modules/XIAOMI_PAD_COMPREHENSIVE_TEST_REPORT.md)** - Device testing results
 
 ### System Verification
-- **[Enhanced Logging & Export Improvements](reports/ENHANCED_LOGGING_EXPORT_IMPROVEMENTS.md)** - Latest improvements
-- **[MainActivity Verification](reports/MAINACTIVITY_VERIFICATION.md)** - Core component verification
-- **[AutoCutEngine Verification](reports/AUTOCUTENGINE_VERIFICATION.md)** - Engine verification
+- **[Enhanced Logging & Export Improvements](modules/ENHANCED_LOGGING_EXPORT_IMPROVEMENTS.md)** - Latest improvements
+- **[MainActivity Verification](architecture/MAINACTIVITY_VERIFICATION.md)** - Core component verification
+- **[AutoCutEngine Verification](architecture/AUTOCUTENGINE_VERIFICATION.md)** - Engine verification
 
 ### Deployment & Operations
-- **[CI/CD Developer Guide](guides/CICD_DEVELOPER_GUIDE.md)** - Development workflow
-- **[Firebase Setup Guide](guides/FIREBASE_SETUP_GUIDE.md)** - Infrastructure setup
-- **[Distribution Release Guide](guides/DISTRIBUTION_RELEASE_GUIDE.md)** - Release process
+- **[CI/CD Developer Guide](architecture/CICD_DEVELOPER_GUIDE.md)** - Development workflow
+- **[Firebase Setup Guide](release/FIREBASE_SETUP_GUIDE.md)** - Infrastructure setup
+- **[Distribution Release Guide](release/DISTRIBUTION_RELEASE_GUIDE.md)** - Release process
 
 ## 🔧 Technical Documentation
 
@@ -95,15 +95,15 @@
 
 ### Getting Started
 1. **Read**: [Main README](../README.md) for project overview
-2. **Architecture**: [System Architecture](consolidated/architecture/README.md) for design principles
-3. **Modules**: [Feature Modules](consolidated/modules/README.md) for component details
-4. **Development**: [Project Context Guide](guides/PROJECT_CONTEXT_GUIDANCE.md) for setup
+2. **Architecture**: [System Architecture](architecture/README.md) for design principles
+3. **Modules**: [Feature Modules](modules/README.md) for component details
+4. **Development**: [Project Context Guide](architecture/PROJECT_CONTEXT_GUIDANCE.md) for setup
 
 ### Development Workflow
-1. **Setup**: Follow [Project Context Guide](guides/PROJECT_CONTEXT_GUIDANCE.md)
-2. **Implementation**: Use [Media3 Video Pipeline](guides/Project1_Media3_VideoPipeline.md)
+1. **Setup**: Follow [Project Context Guide](architecture/PROJECT_CONTEXT_GUIDANCE.md)
+2. **Implementation**: Use [Media3 Video Pipeline](architecture/Project1_Media3_VideoPipeline.md)
 3. **Testing**: Run comprehensive tests using scripts
-4. **Deployment**: Follow [Distribution Release Guide](guides/DISTRIBUTION_RELEASE_GUIDE.md)
+4. **Deployment**: Follow [Distribution Release Guide](release/DISTRIBUTION_RELEASE_GUIDE.md)
 
 ### Key Technologies
 - **CLIP**: Contrastive Language-Image Pre-training for video understanding
@@ -116,10 +116,10 @@
 ## 🔍 Search & Navigation
 
 ### By Topic
-- **Architecture**: [System Architecture](consolidated/architecture/README.md)
-- **Modules**: [Feature Modules](consolidated/modules/README.md)
-- **Testing**: [Testing Guides](guides/) and [Analysis Reports](reports/)
-- **Deployment**: [Release Strategy](consolidated/release/README.md)
+- **Architecture**: [System Architecture](architecture/README.md)
+- **Modules**: [Feature Modules](modules/README.md)
+- **Testing**: [Testing Guides](modules/) and [Analysis Reports](modules/)
+- **Deployment**: [Release Strategy](release/README.md)
 
 ### By Component
 - **CLIP**: [CLIP E2E Guide](../.cursor/rules/clip_e2e.md), [CLIP Feature README](../CLIP_FEATURE_README.md)
@@ -128,10 +128,10 @@
 - **Policy Guard**: [Policy Guard System](../POLICY_GUARD_SYSTEM.md)
 
 ### By Audience
-- **Developers**: [Development Guides](guides/), [Project Context Guide](guides/PROJECT_CONTEXT_GUIDANCE.md)
-- **System Architects**: [System Architecture](consolidated/architecture/README.md)
-- **QA Engineers**: [Testing Guides](guides/), [Analysis Reports](reports/)
-- **DevOps**: [Release Strategy](consolidated/release/README.md), [CI/CD Guide](guides/CICD_DEVELOPER_GUIDE.md)
+- **Developers**: [Development Guides](architecture/), [Project Context Guide](architecture/PROJECT_CONTEXT_GUIDANCE.md)
+- **System Architects**: [System Architecture](architecture/README.md)
+- **QA Engineers**: [Testing Guides](modules/), [Analysis Reports](modules/)
+- **DevOps**: [Release Strategy](release/README.md), [CI/CD Guide](architecture/CICD_DEVELOPER_GUIDE.md)
 
 ---
 

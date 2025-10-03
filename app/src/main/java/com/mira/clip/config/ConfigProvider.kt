@@ -1,7 +1,7 @@
 package com.mira.clip.config
 
 import android.content.Context
-import com.mira.clip.BuildConfig
+import com.mira.videoeditor.BuildConfig
 
 object ConfigProvider {
     fun defaultConfig(context: Context): SamplerConfig {

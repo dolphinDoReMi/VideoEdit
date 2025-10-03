@@ -221,6 +221,9 @@ dependencies {
   
   // Kotlinx Serialization for JSON
   implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+  
+  // Gson for JSON serialization
+  implementation("com.google.code.gson:gson:2.11.0")
 
   // HTTP client for optional cloud upload
   implementation("com.squareup.okhttp3:okhttp:4.12.0")

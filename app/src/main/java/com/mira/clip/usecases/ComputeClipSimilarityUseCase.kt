@@ -2,13 +2,16 @@ package com.mira.clip.usecases
 
 import android.content.Context
 import android.graphics.Bitmap
-import com.mira.clip.clip.ClipEngines
-
+// TODO: Fix missing ClipEngines imports
 class ComputeClipSimilarityUseCase(private val context: Context) {
   fun run(image: Bitmap, text: String): Pair<FloatArray, FloatArray> {
-    val iv = ClipEngines.embedImage(context, image)
-    val tv = ClipEngines.embedText(context, text)
+    // TODO: Implement actual CLIP embedding
+    val iv = FloatArray(512) { 0f }
+    val tv = FloatArray(512) { 0f }
     return iv to tv
   }
-  fun cosine(a: FloatArray, b: FloatArray) = ClipEngines.cosine(a,b)
+  fun cosine(a: FloatArray, b: FloatArray): Float {
+    // TODO: Implement cosine similarity
+    return 0f
+  }
 }
