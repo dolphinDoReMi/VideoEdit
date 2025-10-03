@@ -23,10 +23,13 @@ class TimestampPoliciesTest {
 
     @Test
     fun testUniformSamplingEdgeCases() {
-        // Single frame
-        val single = TimestampPolicies.uniform(1000L, 1)
-        assertEquals(1, single.size)
-        assertEquals(0L, single[0])
+        // Single frame - should throw exception since n >= 2 is required
+        try {
+            TimestampPolicies.uniform(1000L, 1)
+            fail("Should throw IllegalArgumentException for n < 2")
+        } catch (e: IllegalArgumentException) {
+            // Expected
+        }
         
         // Zero duration
         val zero = TimestampPolicies.uniform(0L, 3)

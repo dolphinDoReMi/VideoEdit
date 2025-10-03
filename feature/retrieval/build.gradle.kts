@@ -22,5 +22,8 @@ android {
 }
 
 dependencies { 
-  implementation(project(":core:infra")) 
+  implementation(project(":core:infra"))
+  
+  testImplementation("org.jetbrains.kotlin:kotlin-test:2.1.0")
+  testImplementation("org.jetbrains.kotlin:kotlin-test-junit:2.1.0")
 }

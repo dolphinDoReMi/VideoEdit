@@ -1,5 +1,5 @@
 package com.mira.com.feature.retrieval
-import org.junit.Test
+import kotlin.test.Test
 import kotlin.test.assertTrue
 
 class RetrievalTest {

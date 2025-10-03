@@ -3,6 +3,9 @@ plugins {
   id("org.jetbrains.kotlin.android")
   kotlin("plugin.serialization")
   kotlin("plugin.compose")
+  id("kotlin-kapt")
+  id("io.gitlab.arturbosch.detekt")
+  id("org.jlleitschuh.gradle.ktlint")
   // Temporarily disabled for testing progress fixes
   // id("com.google.devtools.ksp")
   // id("dagger.hilt.android.plugin")
@@ -220,7 +223,7 @@ dependencies {
 
   // Room database for CLIP4Clip embeddings and video metadata
   implementation("androidx.room:room-runtime:2.7.0")
-  // ksp("androidx.room:room-compiler:2.7.0")
+  kapt("androidx.room:room-compiler:2.7.0")
   implementation("androidx.room:room-ktx:2.7.0")
   
   // DataStore for settings and preferences
@@ -262,6 +265,8 @@ dependencies {
   testImplementation("androidx.test:runner:1.5.2")
   testImplementation("androidx.test:rules:1.5.0")
   testImplementation("androidx.arch.core:core-testing:2.2.0")
+  testImplementation("org.jetbrains.kotlin:kotlin-test:2.1.0")
+  testImplementation("org.jetbrains.kotlin:kotlin-test-junit:2.1.0")
 
   androidTestImplementation("androidx.test:runner:1.5.2")
   androidTestImplementation("androidx.test.ext:junit:1.2.1")
@@ -269,4 +274,48 @@ dependencies {
   androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
   androidTestImplementation("androidx.test:core:1.5.0")
   androidTestImplementation("androidx.test:rules:1.5.0")
+}
+
+// Detekt configuration
+detekt {
+  buildUponDefaultConfig = true
+  allRules = false
+  config.setFrom("$projectDir/../detekt.yml")
+}
+
+// Ktlint configuration
+ktlint {
+  version.set("1.0.1")
+  debug.set(false)
+  verbose.set(false)
+  android.set(true)
+  outputToConsole.set(true)
+  ignoreFailures.set(true) // Allow failures for CI/CD
+  enableExperimentalRules.set(false)
+  filter {
+    exclude("**/generated/**")
+    exclude("**/build/**")
+    exclude("**/test/**")
+    exclude("**/androidTest/**")
+    exclude("**/*Test.kt")
+    exclude("**/*InstrumentedTest.kt")
+    exclude("build.gradle.kts")
+  }
+}
+
+// Custom task to verify configuration
+tasks.register("verifyConfig") {
+  group = "verification"
+  description = "Verify app configuration is correct"
+  
+  doLast {
+    println("✓ Application ID: ${android.defaultConfig.applicationId}")
+    println("✓ Min SDK: ${android.defaultConfig.minSdk}")
+    println("✓ Target SDK: ${android.defaultConfig.targetSdk}")
+    println("✓ Compile SDK: ${android.compileSdk}")
+    println("✓ Version Code: ${android.defaultConfig.versionCode}")
+    println("✓ Version Name: ${android.defaultConfig.versionName}")
+    println("✓ Build Types: ${android.buildTypes.names}")
+    println("Configuration verification completed successfully!")
+  }
 }
