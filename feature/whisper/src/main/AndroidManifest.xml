@@ -1,0 +1,20 @@
+<manifest package="com.mira.com.feature.whisper"
+          xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <!-- Storage/media read; dev builds typically adb-push to /sdcard/ -->
+  <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+                   android:maxSdkVersion="32" />
+
+  <application>
+    <!-- Broadcast entry for orchestration -->
+    <receiver
+      android:name="com.mira.com.feature.whisper.runner.WhisperReceiver"
+      android:exported="false">
+      <intent-filter>
+        <action android:name="${applicationId}.whisper.SCAN" />
+        <action android:name="${applicationId}.whisper.RUN" />
+      </intent-filter>
+    </receiver>
+  </application>
+</manifest>
