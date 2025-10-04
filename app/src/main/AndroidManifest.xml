@@ -124,6 +124,12 @@
             android:exported="false"
             android:foregroundServiceType="microphone" />
         
+        <!-- Whisper Connector Service - Connects all 3 whisper pages with background service -->
+        <service
+            android:name="com.mira.whisper.WhisperConnectorService"
+            android:enabled="true"
+            android:exported="false" />
+        
         <!-- Removed OrchestrationReceiver; class not present in app module -->
         
         <!-- Production CLIP receiver removed - class not available in app module -->

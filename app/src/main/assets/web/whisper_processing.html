@@ -551,10 +551,97 @@
         rtfValueElement.textContent = stats.rtf.toFixed(2);
       }
       
+      console.log('Resource stats updated from connector service:', stats);
+      
     } catch (e) {
       console.error('Error parsing resource stats:', e);
     }
   }
+  
+  // Connector service event handlers
+  function handleProcessingStart(batchId, fileCount) {
+    console.log('Processing started:', batchId, 'with', fileCount, 'files');
+    
+    // Update UI with real batch data
+    state.batchId = batchId;
+    state.totalFiles = fileCount;
+    state.completedFiles = 0;
+    state.currentFileIndex = 0;
+    state.isProcessing = true;
+    
+    // Update display
+    batchIdElement.textContent = batchId;
+    fileCountElement.textContent = `${fileCount} videos`;
+    
+    // Initialize file queue
+    state.files = [];
+    for (let i = 0; i < fileCount; i++) {
+      state.files.push({
+        name: `video_${i + 1}.mp4`,
+        status: i === 0 ? 'processing' : 'pending',
+        progress: 0
+      });
+    }
+    
+    renderFileQueue();
+    addLogMessage(`Processing started: ${batchId}`, 'info');
+  }
+  
+  function handleProgressUpdate(batchId, progress, fileCount, currentFile) {
+    console.log('Progress update:', batchId, progress + '%', `file ${currentFile}/${fileCount}`);
+    
+    // Update state
+    state.overallProgress = progress;
+    state.currentFileIndex = currentFile;
+    
+    // Update current file progress
+    if (currentFile < state.files.length) {
+      state.files[currentFile].progress = progress;
+      state.currentFileProgress = progress;
+    }
+    
+    // Update completed files
+    state.completedFiles = Math.floor((progress / 100) * fileCount);
+    
+    updateProgress();
+    renderFileQueue();
+    
+    addLogMessage(`Progress: ${progress}% (file ${currentFile + 1}/${fileCount})`, 'info');
+  }
+  
+  function handleProcessingComplete(batchId) {
+    console.log('Processing complete:', batchId);
+    
+    state.isProcessing = false;
+    state.overallProgress = 100;
+    state.currentFileProgress = 100;
+    
+    // Mark all files as completed
+    state.files.forEach(file => {
+      file.status = 'completed';
+      file.progress = 100;
+    });
+    
+    updateProgress();
+    renderFileQueue();
+    
+    addLogMessage('All files processed successfully!', 'success');
+    
+    // Navigate to results after delay
+    setTimeout(() => {
+      if (hasBridge && window.WhisperBridge.openWhisperResults) {
+        window.WhisperBridge.openWhisperResults();
+      } else {
+        addLogMessage('Processing complete - navigate to Results', 'success');
+      }
+    }, 2000);
+  }
+  
+  // Make functions globally available for connector service
+  window.updateResourceStats = updateResourceStats;
+  window.handleProcessingStart = handleProcessingStart;
+  window.handleProgressUpdate = handleProgressUpdate;
+  window.handleProcessingComplete = handleProcessingComplete;
 
   // Event Handlers
   backBtn.onclick = async () => {

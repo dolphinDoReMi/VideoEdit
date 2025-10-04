@@ -596,8 +596,51 @@
     }
   }
   
-  // Make updateResourceStats globally available for Android bridge
+  // Connector service event handlers
+  function handleProcessingStart(batchId, fileCount) {
+    console.log('Processing started:', batchId, 'with', fileCount, 'files');
+    
+    // Update UI with real batch data
+    state.batchId = batchId;
+    state.filesProcessed = fileCount;
+    
+    // Update display
+    document.getElementById('batch-id').textContent = batchId;
+    document.getElementById('files-processed').textContent = fileCount;
+    
+    showToast(`Processing started: ${batchId}`);
+  }
+  
+  function handleProgressUpdate(batchId, progress, fileCount, currentFile) {
+    console.log('Progress update:', batchId, progress + '%', `file ${currentFile}/${fileCount}`);
+    
+    // Update processing stats if still processing
+    if (progress < 100) {
+      document.getElementById('processing-time').textContent = 'Processing...';
+      document.getElementById('rtf-value').textContent = 'Calculating...';
+    }
+    
+    showToast(`Progress: ${progress}% (file ${currentFile + 1}/${fileCount})`);
+  }
+  
+  function handleProcessingComplete(batchId) {
+    console.log('Processing complete:', batchId);
+    
+    // Update completion status
+    document.getElementById('processing-time').textContent = 'Complete';
+    document.getElementById('rtf-value').textContent = state.rtf.toFixed(2);
+    
+    showToast('Processing complete!');
+    
+    // Load latest results
+    loadResultsData();
+  }
+  
+  // Make functions globally available for connector service
   window.updateResourceStats = updateResourceStats;
+  window.handleProcessingStart = handleProcessingStart;
+  window.handleProgressUpdate = handleProgressUpdate;
+  window.handleProcessingComplete = handleProcessingComplete;
   
   // Initialize resource monitoring
   async function initializeResourceMonitoring() {
