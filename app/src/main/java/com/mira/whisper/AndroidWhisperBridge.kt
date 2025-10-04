@@ -153,6 +153,14 @@ class AndroidWhisperBridge(private val context: Context) {
             
             Log.d(TAG, "Starting batch processing: $batchId for ${uris.size} files")
             
+            // Start the connector service for real-time coordination
+            val connectorIntent = Intent(context, WhisperConnectorService::class.java).apply {
+                action = WhisperConnectorService.ACTION_START_PROCESSING
+                putExtra(WhisperConnectorService.EXTRA_BATCH_ID, batchId)
+                putExtra(WhisperConnectorService.EXTRA_FILE_COUNT, uris.size)
+            }
+            context.startService(connectorIntent)
+            
             // Use the actual WhisperApi for batch processing
             com.mira.com.feature.whisper.api.WhisperApi.enqueueBatchTranscribe(
                 ctx = context,
@@ -1024,16 +1032,49 @@ class AndroidWhisperBridge(private val context: Context) {
 
     /**
      * Read transcript text for a given job. Looks under OUTPUT_DIR/<jobId>/ for .txt or .srt.
+     * Also checks OUTPUT_DIR root for files matching the job ID pattern.
      */
     @JavascriptInterface
     fun readTranscript(jobId: String): String {
         return try {
+            // First try: Look in job-specific subdirectory
             val jobDir = File(OUTPUT_DIR, jobId)
-            if (!jobDir.exists()) return ""
-            val txt = jobDir.listFiles { f -> f.isFile && f.name.endsWith(".txt", ignoreCase = true) }?.firstOrNull()
-            val srt = jobDir.listFiles { f -> f.isFile && f.name.endsWith(".srt", ignoreCase = true) }?.firstOrNull()
-            val target = txt ?: srt
-            target?.readText() ?: ""
+            if (jobDir.exists()) {
+                val txt = jobDir.listFiles { f -> f.isFile && f.name.endsWith(".txt", ignoreCase = true) }?.firstOrNull()
+                val srt = jobDir.listFiles { f -> f.isFile && f.name.endsWith(".srt", ignoreCase = true) }?.firstOrNull()
+                val target = txt ?: srt
+                if (target != null) {
+                    Log.d(TAG, "Found transcript in job directory: ${target.absolutePath}")
+                    return target.readText()
+                }
+            }
+            
+            // Second try: Look in OUTPUT_DIR root for files matching job ID
+            val outDir = File(OUTPUT_DIR)
+            if (outDir.exists()) {
+                val candidates = outDir.listFiles { f -> 
+                    f.isFile && (
+                        f.name.startsWith(jobId) || 
+                        f.name.contains(jobId) ||
+                        f.name.contains("chinese") && jobId.contains("chinese")
+                    ) && (f.name.endsWith(".txt", ignoreCase = true) || f.name.endsWith(".srt", ignoreCase = true))
+                }
+                
+                if (candidates != null && candidates.isNotEmpty()) {
+                    // Prefer .srt files, then .txt files
+                    val srtFile = candidates.find { it.name.endsWith(".srt", ignoreCase = true) }
+                    val txtFile = candidates.find { it.name.endsWith(".txt", ignoreCase = true) }
+                    val target = srtFile ?: txtFile
+                    
+                    if (target != null) {
+                        Log.d(TAG, "Found transcript in root directory: ${target.absolutePath}")
+                        return target.readText()
+                    }
+                }
+            }
+            
+            Log.w(TAG, "No transcript found for job: $jobId")
+            ""
         } catch (e: Exception) {
             Log.e(TAG, "readTranscript error: ${e.message}", e)
             ""
@@ -1066,13 +1107,36 @@ class AndroidWhisperBridge(private val context: Context) {
                 val txt = readTranscript(jobId)
                 if (txt.isNotEmpty()) return txt
             }
+            
             // Fallback: scan OUTPUT_DIR root for the most recent .srt or .txt
             val outDir = File(OUTPUT_DIR)
             if (outDir.exists()) {
-                val candidates = outDir.listFiles { f -> f.isFile && (f.name.endsWith(".srt", true) || f.name.endsWith(".txt", true)) }
-                val latest = candidates?.maxByOrNull { it.lastModified() }
-                if (latest != null) return latest.readText()
+                val candidates = outDir.listFiles { f -> 
+                    f.isFile && (f.name.endsWith(".srt", true) || f.name.endsWith(".txt", true))
+                }
+                
+                if (candidates != null && candidates.isNotEmpty()) {
+                    // Prefer Chinese transcription files, then larger files, then most recent
+                    val chineseFiles = candidates.filter { it.name.contains("chinese", ignoreCase = true) }
+                    val target = when {
+                        chineseFiles.isNotEmpty() -> {
+                            // Among Chinese files, prefer the largest (most complete)
+                            chineseFiles.maxByOrNull { it.length() } ?: chineseFiles.maxByOrNull { it.lastModified() }
+                        }
+                        else -> {
+                            // Among all files, prefer the largest (most complete), then most recent
+                            candidates.maxByOrNull { it.length() } ?: candidates.maxByOrNull { it.lastModified() }
+                        }
+                    }
+                    
+                    if (target != null) {
+                        Log.d(TAG, "Found latest transcript file: ${target.absolutePath} (${target.length()} bytes)")
+                        return target.readText()
+                    }
+                }
             }
+            
+            Log.w(TAG, "No transcript files found")
             ""
         } catch (e: Exception) {
             Log.e(TAG, "getLatestTranscript error: ${e.message}")
