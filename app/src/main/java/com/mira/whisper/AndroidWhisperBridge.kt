@@ -464,6 +464,29 @@ class AndroidWhisperBridge(private val context: Context) {
     }
     
     /**
+     * Navigate to Step 3 (Results) from the WebView.
+     */
+    @JavascriptInterface
+    fun openWhisperResults() {
+        try {
+            Log.d(TAG, "Opening Whisper Results Activity")
+            if (context is android.app.Activity) {
+                (context as android.app.Activity).runOnUiThread {
+                    val intent = Intent(context, WhisperResultsActivity::class.java)
+                    context.startActivity(intent)
+                }
+            } else {
+                // Fallback: try to start activity directly
+                val intent = Intent(context, WhisperResultsActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                context.startActivity(intent)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error opening WhisperResultsActivity: ${e.message}", e)
+        }
+    }
+    
+    /**
      * Export JSON format results.
      */
     @JavascriptInterface

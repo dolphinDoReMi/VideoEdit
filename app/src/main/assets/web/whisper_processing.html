@@ -1,185 +1,618 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest' };</script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>*{font-family:'Inter',sans-serif}::-webkit-scrollbar{display:none}</style>
+  <style>
+    ::-webkit-scrollbar { display: none; }
+    * { font-family: 'Inter', sans-serif; }
+    @media (prefers-reduced-motion: reduce) { .animate-pulse { animation: none !important; } }
+    .progress-bar { transition: width 0.3s ease-in-out; }
+    .processing-animation { animation: processing-pulse 2s ease-in-out infinite; }
+    @keyframes processing-pulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+  </style>
+  <script>
+    tailwind.config = {
+      theme: { 
+        extend: { 
+          colors: { 
+            dark: { 900:'#0a0a0a', 800:'#1a1a1a', 700:'#2a2a2a', 600:'#3a3a3a' }
+          }
+        }
+      }
+    }
+  </script>
 </head>
-<body class="bg-[#0a0a0a] text-white">
+<body class="bg-dark-900 text-white overflow-x-hidden">
 
-<div class="px-6 py-4 bg-[#1a1a1a] border-b border-[#3a3a3a] flex items-center justify-between">
-  <div>
-    <h1 class="text-lg font-semibold">Whisper — Processing</h1>
-    <p class="text-xs text-gray-400">Transcribing videos...</p>
+<!-- Status Bar -->
+<div id="status-bar" class="flex justify-between items-center px-4 py-2 bg-dark-800 text-xs text-gray-300">
+  <div class="flex items-center space-x-1">
+    <div class="w-1 h-1 bg-white rounded-full"></div>
+    <div class="w-1 h-1 bg-white rounded-full"></div>
+    <div class="w-1 h-1 bg-gray-600 rounded-full"></div>
+    <span class="ml-2">Xiaomi Pad</span>
+  </div>
+  <div class="font-medium">9:41</div>
+  <div class="flex items-center space-x-1">
+    <i class="fa-solid fa-signal text-xs"></i>
+    <i class="fa-solid fa-wifi text-xs"></i>
+    <div class="w-6 h-3 border border-white rounded-sm"><div class="w-4 h-2 bg-white rounded-sm m-0.5"></div></div>
   </div>
 </div>
 
-<div id="processing-status" class="px-6 py-4">
-  <div class="bg-[#1a1a1a] rounded-xl p-4 border border-[#3a3a3a]">
-    <div class="flex items-center justify-between mb-3">
-      <h2 class="text-white font-semibold">Processing Status</h2>
-      <div class="flex items-center space-x-2"><div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div><span class="text-green-400 text-sm font-medium">Running</span></div>
+<!-- App Header -->
+<div id="app-header" class="flex items-center justify-between px-6 py-4 bg-dark-800 border-b border-dark-600">
+  <div class="flex items-center space-x-3">
+    <button id="back-btn" class="w-8 h-8 bg-dark-600 rounded-full flex items-center justify-center">
+      <i class="fa-solid fa-arrow-left text-gray-300 text-sm"></i>
+    </button>
+    <div>
+      <h1 class="text-lg font-semibold text-white">Whisper Processing</h1>
+      <p class="text-xs text-gray-400">Step 2: Transcribing Audio</p>
     </div>
-    <div class="w-full bg-[#3a3a3a] rounded-full h-2 mb-3"><div id="progress-bar" class="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-500" style="width:0%"></div></div>
-    <div class="flex items-center justify-between text-sm"><span id="step-title" class="text-gray-300">Initializing...</span><span id="step-progress" class="text-white font-medium">0%</span></div>
   </div>
-</div>
-
-<div id="whisper-batch" class="px-6 py-2">
-  <div class="bg-[#1a1a1a] rounded-xl p-4 border border-[#3a3a3a]">
-    <h3 class="text-white font-semibold mb-2">Whisper Batch</h3>
-    <div class="grid grid-cols-2 gap-3 text-sm">
-      <div><div class="text-gray-400">Total</div><div id="wb-total" class="text-white font-semibold">0</div></div>
-      <div><div class="text-gray-400">Done</div><div id="wb-done" class="text-white font-semibold">0</div></div>
-      <div><div class="text-gray-400">Remaining</div><div id="wb-remaining" class="text-white font-semibold">0</div></div>
-      <div><div class="text-gray-400">RTF</div><div id="wb-rtf" class="text-white font-semibold">—</div></div>
-    </div>
-    <div class="mt-2 text-xs text-gray-400 truncate">Current: <span id="wb-current">—</span></div>
-  </div>
-  </div>
-
-<div id="system-resources" class="px-6 py-2">
-  <div class="bg-[#1a1a1a] rounded-xl p-4 border border-[#3a3a3a]">
-    <h3 class="text-white font-semibold mb-2">Xiaomi Resource Usage</h3>
-    <div class="grid grid-cols-2 gap-4">
-      <div class="text-center"><div class="text-gray-400 text-xs mb-1">CPU</div><div id="cpu-value" class="text-white font-bold text-lg">0%</div></div>
-      <div class="text-center"><div class="text-gray-400 text-xs mb-1">Memory</div><div id="memory-value" class="text-white font-bold text-lg">0%</div></div>
-      <div class="text-center"><div class="text-gray-400 text-xs mb-1">Battery</div><div id="battery-value" class="text-white font-bold text-lg">0%</div></div>
-      <div class="text-center"><div class="text-gray-400 text-xs mb-1">Temp</div><div id="temperature" class="text-white font-bold text-lg">0°C</div></div>
+  <div class="flex items-center space-x-3">
+    <div class="flex items-center space-x-2">
+      <div class="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+      <span class="text-sm text-purple-400 font-medium">Processing</span>
     </div>
   </div>
 </div>
 
-<div id="processing-log" class="px-6 py-2">
-  <div class="bg-[#1a1a1a] rounded-xl p-4 border border-[#3a3a3a]">
-    <h3 class="text-white font-semibold mb-2">Log</h3>
-    <div id="log" class="space-y-2 max-h-40 overflow-y-auto text-sm"></div>
+<!-- Main Content -->
+<div class="px-6 py-6 pb-24">
+  
+  <!-- Processing Status Card -->
+  <div class="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl p-6 mb-6 border border-dark-600">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-semibold text-white">Processing Status</h2>
+      <div class="flex items-center space-x-2">
+        <div class="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+        <span class="text-sm text-white font-medium">Step 2/3</span>
+      </div>
+    </div>
+    <div class="grid grid-cols-2 gap-4 text-sm">
+      <div>
+        <p class="text-gray-300">Batch ID</p>
+        <p class="text-white font-medium" id="batch-id">batch_12345</p>
+      </div>
+      <div>
+        <p class="text-gray-300">Files</p>
+        <p class="text-white font-medium" id="file-count">3 videos</p>
+      </div>
+      <div>
+        <p class="text-gray-300">Model</p>
+        <p class="text-white font-medium" id="model-name">ggml-small.en.bin</p>
+      </div>
+      <div>
+        <p class="text-gray-300">Preset</p>
+        <p class="text-white font-medium" id="preset-name">Single</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress Overview -->
+  <div class="bg-dark-700 rounded-2xl p-6 border border-dark-600 mb-6">
+    <h3 class="text-lg font-semibold text-white mb-4">Progress Overview</h3>
+    
+    <!-- Overall Progress -->
+    <div class="mb-6">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-sm text-gray-300">Overall Progress</span>
+        <span class="text-sm text-white font-medium" id="overall-progress">0%</span>
+      </div>
+      <div class="w-full bg-dark-600 rounded-full h-3">
+        <div class="bg-gradient-to-r from-purple-500 to-blue-500 h-3 rounded-full progress-bar" id="overall-progress-bar" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- Current File Processing -->
+    <div class="mb-6">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-sm text-gray-300">Current File</span>
+        <span class="text-sm text-white font-medium" id="current-file-progress">0%</span>
+      </div>
+      <div class="w-full bg-dark-600 rounded-full h-2">
+        <div class="bg-gradient-to-r from-green-500 to-teal-500 h-2 rounded-full progress-bar" id="current-file-progress-bar" style="width: 0%"></div>
+      </div>
+      <p class="text-xs text-gray-400 mt-1" id="current-file-name">Preparing...</p>
+    </div>
+
+    <!-- Processing Stats -->
+    <div class="grid grid-cols-3 gap-4">
+      <div class="text-center">
+        <div class="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center mx-auto mb-2">
+          <i class="fa-solid fa-clock text-purple-400 text-lg"></i>
+        </div>
+        <p class="text-2xl font-bold text-white" id="elapsed-time">0:00</p>
+        <p class="text-xs text-gray-400">Elapsed</p>
+      </div>
+      <div class="text-center">
+        <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center mx-auto mb-2">
+          <i class="fa-solid fa-microchip text-blue-400 text-lg"></i>
+        </div>
+        <p class="text-2xl font-bold text-white" id="rtf-value">—</p>
+        <p class="text-xs text-gray-400">RTF</p>
+      </div>
+      <div class="text-center">
+        <div class="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center mx-auto mb-2">
+          <i class="fa-solid fa-check-circle text-green-400 text-lg"></i>
+        </div>
+        <p class="text-2xl font-bold text-white" id="completed-files">0</p>
+        <p class="text-xs text-gray-400">Completed</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- File Processing Queue -->
+  <div class="bg-dark-700 rounded-2xl p-6 border border-dark-600 mb-6">
+    <h3 class="text-lg font-semibold text-white mb-4">Processing Queue</h3>
+    <div id="file-queue" class="space-y-3">
+      <!-- Files will be populated dynamically -->
+    </div>
+  </div>
+
+  <!-- Xiaomi Resource Monitor -->
+  <div class="bg-gradient-to-br from-dark-700 to-dark-600 rounded-2xl p-6 border border-dark-600 mb-6">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold text-white">Xiaomi Resource Usage</h3>
+      <div class="flex items-center space-x-2">
+        <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+        <span class="text-sm text-blue-400 font-medium">Live</span>
+      </div>
+    </div>
+    
+    <!-- Resource Stats Grid -->
+    <div class="grid grid-cols-2 gap-4 mb-4">
+      <div class="bg-dark-600 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center space-x-2">
+            <i class="fa-solid fa-memory text-orange-400"></i>
+            <span class="text-sm text-gray-300">Memory</span>
+          </div>
+          <span class="text-lg font-bold text-white" id="resource-memory">0%</span>
+        </div>
+        <div class="w-full bg-dark-500 rounded-full h-2">
+          <div class="bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full transition-all duration-300" id="memory-bar" style="width: 0%"></div>
+        </div>
+      </div>
+      
+      <div class="bg-dark-600 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center space-x-2">
+            <i class="fa-solid fa-microchip text-blue-400"></i>
+            <span class="text-sm text-gray-300">CPU</span>
+          </div>
+          <span class="text-lg font-bold text-white" id="resource-cpu">0%</span>
+        </div>
+        <div class="w-full bg-dark-500 rounded-full h-2">
+          <div class="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300" id="cpu-bar" style="width: 0%"></div>
+        </div>
+      </div>
+      
+      <div class="bg-dark-600 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center space-x-2">
+            <i class="fa-solid fa-battery-half text-green-400"></i>
+            <span class="text-sm text-gray-300">Battery</span>
+          </div>
+          <span class="text-lg font-bold text-white" id="resource-battery">0%</span>
+        </div>
+        <div class="w-full bg-dark-500 rounded-full h-2">
+          <div class="bg-gradient-to-r from-green-500 to-yellow-500 h-2 rounded-full transition-all duration-300" id="battery-bar" style="width: 0%"></div>
+        </div>
+      </div>
+      
+      <div class="bg-dark-600 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center space-x-2">
+            <i class="fa-solid fa-thermometer-half text-red-400"></i>
+            <span class="text-sm text-gray-300">Temperature</span>
+          </div>
+          <span class="text-lg font-bold text-white" id="resource-temperature">0°C</span>
+        </div>
+        <div class="text-xs text-gray-400 mt-1" id="temperature-status">Normal</div>
+      </div>
+    </div>
+    
+    <!-- Processing Details -->
+    <div class="bg-dark-600 rounded-xl p-4">
+      <h4 class="text-sm font-semibold text-gray-300 mb-3">Processing Details</h4>
+      <div class="space-y-2 text-xs">
+        <div class="flex justify-between">
+          <span class="text-gray-400">Threads:</span>
+          <span class="text-white" id="thread-count">4</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-400">Processing Speed:</span>
+          <span class="text-white" id="processing-speed">Normal</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-400">Estimated Time:</span>
+          <span class="text-white" id="estimated-time">Calculating...</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-400">Last Update:</span>
+          <span class="text-white" id="last-update">Never</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Processing Log -->
+  <div class="bg-dark-700 rounded-2xl p-6 border border-dark-600 mb-6">
+    <h3 class="text-lg font-semibold text-white mb-4">Processing Log</h3>
+    <div id="processing-log" class="space-y-2 max-h-48 overflow-y-auto text-xs">
+      <div class="text-gray-400">Starting whisper processing...</div>
+    </div>
   </div>
 </div>
 
-<div id="whisper-transcript" class="px-6 py-2" style="display:none;">
-  <div class="bg-[#1a1a1a] rounded-xl p-4 border border-[#3a3a3a]">
-    <h3 class="text-white font-semibold mb-2">Transcription</h3>
-    <pre id="tx" class="text-sm text-gray-200 whitespace-pre-wrap max-h-80 overflow-y-auto">Loading...</pre>
+<!-- Bottom Navigation -->
+<div id="bottom-navigation" class="fixed bottom-0 left-0 right-0 bg-dark-800 border-t border-dark-600 px-6 py-3 pb-[env(safe-area-inset-bottom)]">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center space-x-6">
+      <div class="flex items-center space-x-2">
+        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+        <span class="text-xs text-green-400 font-medium">Select</span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <div class="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+        <span class="text-xs text-purple-400 font-medium">Processing</span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <div class="w-2 h-2 bg-gray-600 rounded-full"></div>
+        <span class="text-xs text-gray-500">Results</span>
+      </div>
+    </div>
+    <div class="text-xs text-gray-500">Whisper Processing</div>
   </div>
 </div>
 
 <script>
-function addLogEntry(t){ const log=document.getElementById('log'); const d=document.createElement('div'); d.textContent=t; log.appendChild(d); log.scrollTop=log.scrollHeight; }
-// Live resource updates (called from Android)
-function updateRealResourceUsage(cpu, memPct, battery, temp){
-  document.getElementById('cpu-value').textContent = Math.round(cpu)+'%';
-  document.getElementById('memory-value').textContent = Math.round(memPct)+'%';
-  document.getElementById('battery-value').textContent = battery+'%';
-  document.getElementById('temperature').textContent = Math.round(temp)+'°C';
-}
-// Batch channel
-(function(){
-  if ('BroadcastChannel' in window){
-    const ch = new BroadcastChannel('whisper-ui');
-    ch.onmessage = (e)=>{
-      const d=e.data||{};
-      if(d.type==='whisper.run' && Array.isArray(d.uris)){
-        document.getElementById('wb-total').textContent=d.uris.length;
-        document.getElementById('wb-remaining').textContent=d.uris.length;
-        document.getElementById('wb-current').textContent=d.uris[0]||'—';
-        addLogEntry('Batch started');
-      }else if(d.type==='whisper.progress'){
-        if(typeof d.pct==='number'){
-          document.getElementById('step-progress').textContent=d.pct+'%';
-          document.getElementById('progress-bar').style.width=d.pct+'%';
-        }
-        if(d.msg) addLogEntry(d.msg);
-      }else if(d.type==='whisper.done'){
-        const t=Number(document.getElementById('wb-total').textContent)||0;
-        const done=Math.min(t,(Number(document.getElementById('wb-done').textContent)||0)+1);
-        document.getElementById('wb-done').textContent=done;
-        document.getElementById('wb-remaining').textContent=Math.max(0,t-done);
-        if(d.rtf!=null) document.getElementById('wb-rtf').textContent=Number(d.rtf).toFixed(2);
-        addLogEntry('Finished '+(d.uri||''));
-      }else if(d.type==='whisper.error'){
-        addLogEntry('Error: '+(d.error||'unknown'));
+/* ===================== WHISPER: PROCESSING PAGE ===================== */
+
+(() => {
+  // State management
+  const state = {
+    batchId: 'batch_12345',
+    totalFiles: 3,
+    completedFiles: 0,
+    currentFileIndex: 0,
+    currentFileProgress: 0,
+    overallProgress: 0,
+    startTime: Date.now(),
+    isProcessing: true,
+    files: [
+      { name: 'video1.mp4', status: 'processing', progress: 0 },
+      { name: 'video2.avi', status: 'pending', progress: 0 },
+      { name: 'video3.mov', status: 'pending', progress: 0 }
+    ]
+  };
+
+  // DOM Elements
+  const backBtn = document.getElementById('back-btn');
+  const batchIdElement = document.getElementById('batch-id');
+  const fileCountElement = document.getElementById('file-count');
+  const modelNameElement = document.getElementById('model-name');
+  const presetNameElement = document.getElementById('preset-name');
+  const overallProgressElement = document.getElementById('overall-progress');
+  const overallProgressBar = document.getElementById('overall-progress-bar');
+  const currentFileProgressElement = document.getElementById('current-file-progress');
+  const currentFileProgressBar = document.getElementById('current-file-progress-bar');
+  const currentFileNameElement = document.getElementById('current-file-name');
+  const elapsedTimeElement = document.getElementById('elapsed-time');
+  const rtfValueElement = document.getElementById('rtf-value');
+  const completedFilesElement = document.getElementById('completed-files');
+  const fileQueueElement = document.getElementById('file-queue');
+  const processingLogElement = document.getElementById('processing-log');
+
+  // Bridge contract (provided by Android WebView)
+  const hasBridge = typeof window.WhisperBridge !== 'undefined';
+  const bridge = hasBridge ? {
+    async getResourceStats() { 
+      if (window.WhisperBridge.getResourceStats) {
+        return window.WhisperBridge.getResourceStats();
+      }
+    },
+    async goBack() {
+      if (window.WhisperBridge.goBack) {
+        return window.WhisperBridge.goBack();
+      }
+    },
+    async getLatestSidecar() {
+      if (window.WhisperBridge.getLatestSidecar) {
+        return window.WhisperBridge.getLatestSidecar();
+      }
+    }
+  } : mockBridge();
+
+  function mockBridge() {
+    return {
+      async getResourceStats() { 
+        return JSON.stringify({
+          memory: Math.floor(Math.random() * 50) + 20,
+          cpu: Math.floor(Math.random() * 30) + 10,
+          battery: Math.floor(Math.random() * 40) + 60,
+          temperature: Math.floor(Math.random() * 10) + 35,
+          batteryDetails: 'Level: 75%, Temp: 37.2°C, Voltage: 4.1V',
+          gpuInfo: 'GPU: Adreno 640',
+          threadInfo: 'Threads: 45 | Main: main | Active: 12 | CPUs: 8 | Est. Processing: 16',
+          timestamp: Date.now()
+        });
+      },
+      async goBack() { 
+        console.log('Mock: Going back');
+        return 'ok';
+      },
+      async getLatestSidecar() {
+        return JSON.stringify({
+          job_id: state.batchId,
+          uri: 'file:///sdcard/video1.mp4',
+          preset: 'Single',
+          rtf: 0.45,
+          created_at: Date.now()
+        });
       }
     };
   }
-})();
-// Reveal transcript via bridge
-function revealTranscript(){ try{ if(window.WhisperBridge&&window.WhisperBridge.getLatestTranscript){ const txt=window.WhisperBridge.getLatestTranscript(); document.getElementById('whisper-transcript').style.display='block'; document.getElementById('tx').textContent=txt||'No transcript.'; } }catch(e){}
-}
-</script>
 
-<script>
-document.addEventListener('DOMContentLoaded', function(){
-  function pullStatsOnce(){
-    try {
-      if (window.WhisperBridge && window.WhisperBridge.getResourceStats) {
-        const s = window.WhisperBridge.getResourceStats();
-        const data = typeof s === 'string' ? JSON.parse(s) : s;
-        if (data) {
-          updateRealResourceUsage(
-            Number(data.cpu || 0),
-            Number(data.memory || 0),
-            Number(data.battery || 0),
-            Number(data.temperature || 0),
-            data.batteryDetails || '',
-            data.gpuInfo || '',
-            data.threadInfo || ''
-          );
-        }
-      }
-    } catch (e) {}
+  // Utility Functions
+  function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   }
 
-  // Kick off immediate and periodic resource updates
-  pullStatsOnce();
-  window.__whisperStatsTimer = setInterval(pullStatsOnce, 2000);
-
-  // Poll transcript; when available, reveal and mark as completed
-  function tryReveal(){
-    try {
-      if (window.WhisperBridge && window.WhisperBridge.getLatestTranscript) {
-        const txt = window.WhisperBridge.getLatestTranscript();
-        if (txt && txt.length > 0) {
-          const tx = document.getElementById('tx');
-          const panel = document.getElementById('whisper-transcript');
-          if (panel) panel.style.display = 'block';
-          if (tx) tx.textContent = txt;
-          // Update status to completed
-          const headerStatus = document.querySelector('#processing-status .text-green-400');
-          if (headerStatus) headerStatus.textContent = 'Completed';
-          const dots = document.querySelectorAll('.w-2.h-2');
-          dots.forEach(el => {
-            if (el.className.indexOf('bg-green-500') !== -1 || el.className.indexOf('bg-blue-500') !== -1) {
-              el.className = 'w-2 h-2 bg-green-500 rounded-full';
-            }
-          });
-          clearInterval(window.__whisperTranscriptTimer);
-        }
-      }
-    } catch(e) {}
-  }
-  window.__whisperTranscriptTimer = setInterval(tryReveal, 3000);
-
-  // Liveness: gently advance progress if no events are received
-  let fallbackProgress = 0;
-  window.__whisperProgressTimer = setInterval(() => {
-    const stepEl = document.getElementById('step-progress');
-    const bar = document.getElementById('progress-bar');
-    if (!stepEl || !bar) return;
-    const current = parseInt(String(stepEl.textContent).replace('%','')) || 0;
-    if (current === 0 || current === fallbackProgress) {
-      fallbackProgress = Math.min(95, current + 1);
-      stepEl.textContent = fallbackProgress + '%';
-      bar.style.width = fallbackProgress + '%';
-    } else {
-      fallbackProgress = current;
+  function addLogMessage(message, type = 'info') {
+    const logEntry = document.createElement('div');
+    const timestamp = new Date().toLocaleTimeString();
+    const colors = {
+      info: 'text-gray-300',
+      success: 'text-green-400',
+      warning: 'text-yellow-400',
+      error: 'text-red-400'
+    };
+    
+    logEntry.className = `${colors[type]} processing-animation`;
+    logEntry.textContent = `[${timestamp}] ${message}`;
+    
+    processingLogElement.appendChild(logEntry);
+    processingLogElement.scrollTop = processingLogElement.scrollHeight;
+    
+    // Keep only last 50 log entries
+    while (processingLogElement.children.length > 50) {
+      processingLogElement.removeChild(processingLogElement.firstChild);
     }
-  }, 1500);
-});
+  }
+
+  function updateProgress() {
+    // Update overall progress
+    overallProgressElement.textContent = `${state.overallProgress}%`;
+    overallProgressBar.style.width = `${state.overallProgress}%`;
+    
+    // Update current file progress
+    currentFileProgressElement.textContent = `${state.currentFileProgress}%`;
+    currentFileProgressBar.style.width = `${state.currentFileProgress}%`;
+    
+    // Update current file name
+    if (state.currentFileIndex < state.files.length) {
+      currentFileNameElement.textContent = state.files[state.currentFileIndex].name;
+    }
+    
+    // Update completed files
+    completedFilesElement.textContent = state.completedFiles;
+    
+    // Update elapsed time
+    const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
+    elapsedTimeElement.textContent = formatTime(elapsed);
+  }
+
+  function renderFileQueue() {
+    fileQueueElement.innerHTML = '';
+    
+    state.files.forEach((file, index) => {
+      const fileDiv = document.createElement('div');
+      fileDiv.className = 'flex items-center justify-between bg-dark-600 rounded-lg p-3';
+      
+      const statusColors = {
+        pending: 'text-gray-400',
+        processing: 'text-blue-400',
+        completed: 'text-green-400',
+        error: 'text-red-400'
+      };
+      
+      const statusIcons = {
+        pending: 'fa-clock',
+        processing: 'fa-spinner fa-spin',
+        completed: 'fa-check-circle',
+        error: 'fa-exclamation-circle'
+      };
+      
+      fileDiv.innerHTML = `
+        <div class="flex items-center space-x-3">
+          <div class="w-8 h-8 bg-dark-700 rounded-lg flex items-center justify-center">
+            <i class="fa-solid ${statusIcons[file.status]} ${statusColors[file.status]} text-sm"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm text-white font-medium truncate">${file.name}</p>
+            <p class="text-xs ${statusColors[file.status]}">${file.status.charAt(0).toUpperCase() + file.status.slice(1)}</p>
+          </div>
+        </div>
+        <div class="text-right">
+          <p class="text-sm text-white font-medium">${file.progress}%</p>
+          <div class="w-16 bg-dark-500 rounded-full h-1 mt-1">
+            <div class="bg-gradient-to-r from-purple-500 to-blue-500 h-1 rounded-full" style="width: ${file.progress}%"></div>
+          </div>
+        </div>
+      `;
+      
+      fileQueueElement.appendChild(fileDiv);
+    });
+  }
+
+  function simulateProcessing() {
+    if (!state.isProcessing) return;
+    
+    // Simulate current file progress
+    if (state.currentFileIndex < state.files.length) {
+      const currentFile = state.files[state.currentFileIndex];
+      if (currentFile.status === 'processing') {
+        currentFile.progress += Math.random() * 5;
+        if (currentFile.progress >= 100) {
+          currentFile.progress = 100;
+          currentFile.status = 'completed';
+          state.completedFiles++;
+          state.currentFileIndex++;
+          
+          addLogMessage(`Completed: ${currentFile.name}`, 'success');
+          
+          // Start next file
+          if (state.currentFileIndex < state.files.length) {
+            state.files[state.currentFileIndex].status = 'processing';
+            addLogMessage(`Starting: ${state.files[state.currentFileIndex].name}`, 'info');
+          } else {
+            // All files completed
+            state.isProcessing = false;
+            addLogMessage('All files processed successfully!', 'success');
+            setTimeout(() => {
+              // Navigate to results page
+              if (hasBridge && window.WhisperBridge.openWhisperResults) {
+                window.WhisperBridge.openWhisperResults();
+              } else {
+                addLogMessage('Processing complete - navigate to Results', 'success');
+              }
+            }, 2000);
+          }
+        }
+      }
+    }
+    
+    // Update overall progress
+    state.overallProgress = Math.floor((state.completedFiles / state.totalFiles) * 100);
+    
+    // Update current file progress
+    if (state.currentFileIndex < state.files.length) {
+      state.currentFileProgress = state.files[state.currentFileIndex].progress;
+    }
+    
+    updateProgress();
+    renderFileQueue();
+  }
+
+  // Resource monitoring functions
+  function updateResourceStats(statsJson) {
+    try {
+      const stats = JSON.parse(statsJson);
+      
+      // Update main resource displays
+      document.getElementById('resource-memory').textContent = stats.memory + '%';
+      document.getElementById('resource-cpu').textContent = stats.cpu.toFixed(1) + '%';
+      document.getElementById('resource-battery').textContent = stats.battery + '%';
+      document.getElementById('resource-temperature').textContent = stats.temperature.toFixed(1) + '°C';
+      
+      // Update progress bars
+      document.getElementById('memory-bar').style.width = stats.memory + '%';
+      document.getElementById('cpu-bar').style.width = stats.cpu + '%';
+      document.getElementById('battery-bar').style.width = stats.battery + '%';
+      
+      // Update detailed information
+      document.getElementById('battery-details').textContent = stats.batteryDetails || 'N/A';
+      document.getElementById('gpu-info').textContent = stats.gpuInfo || 'N/A';
+      document.getElementById('thread-info').textContent = stats.threadInfo || 'N/A';
+      
+      // Update timestamp
+      const updateTime = new Date(stats.timestamp).toLocaleTimeString();
+      document.getElementById('last-update').textContent = updateTime;
+      
+      // Update temperature status
+      const tempStatus = document.getElementById('temperature-status');
+      if (stats.temperature > 40) {
+        tempStatus.textContent = 'Hot';
+        tempStatus.className = 'text-xs text-red-400 mt-1';
+      } else if (stats.temperature < 30) {
+        tempStatus.textContent = 'Cool';
+        tempStatus.className = 'text-xs text-blue-400 mt-1';
+      } else {
+        tempStatus.textContent = 'Normal';
+        tempStatus.className = 'text-xs text-green-400 mt-1';
+      }
+      
+      // Update RTF if available
+      if (stats.rtf) {
+        rtfValueElement.textContent = stats.rtf.toFixed(2);
+      }
+      
+    } catch (e) {
+      console.error('Error parsing resource stats:', e);
+    }
+  }
+
+  // Event Handlers
+  backBtn.onclick = async () => {
+    try {
+      await bridge.goBack();
+    } catch (e) {
+      console.error('Error going back:', e);
+    }
+  };
+
+  // Initialize
+  batchIdElement.textContent = state.batchId;
+  fileCountElement.textContent = `${state.totalFiles} videos`;
+  modelNameElement.textContent = 'ggml-small.en.bin';
+  presetNameElement.textContent = 'Single';
+  
+  updateProgress();
+  renderFileQueue();
+  
+  addLogMessage('Whisper processing initialized', 'info');
+  addLogMessage(`Starting batch: ${state.batchId}`, 'info');
+  addLogMessage(`Processing ${state.totalFiles} files`, 'info');
+  
+  // Start processing simulation
+  const processingInterval = setInterval(() => {
+    simulateProcessing();
+    if (!state.isProcessing) {
+      clearInterval(processingInterval);
+    }
+  }, 500);
+  
+  // Initialize resource monitoring
+  async function initializeResourceMonitoring() {
+    try {
+      const stats = await bridge.getResourceStats();
+      updateResourceStats(stats);
+    } catch (e) {
+      console.error('Error initializing resource monitoring:', e);
+    }
+  }
+
+  // Start resource monitoring
+  initializeResourceMonitoring();
+  if (hasBridge) {
+    setInterval(async () => {
+      try {
+        const stats = await bridge.getResourceStats();
+        updateResourceStats(stats);
+      } catch (e) {
+        console.error('Resource monitoring error:', e);
+      }
+    }, 2000);
+  }
+
+  console.log('Whisper Processing initialized');
+
+})();
 </script>
 
 </body>
 </html>
-

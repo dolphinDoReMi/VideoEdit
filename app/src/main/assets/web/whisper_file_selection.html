@@ -4,295 +4,295 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>* { font-family: 'Inter', sans-serif; } ::-webkit-scrollbar{display:none}</style>
-</head>
-<body class="bg-[#0a0a0a] text-white">
-
-<div class="px-6 py-4 bg-[#1a1a1a] border-b border-[#3a3a3a] flex items-center justify-between">
-  <div>
-    <h1 class="text-lg font-semibold">Whisper — File Selection</h1>
-    <p class="text-xs text-gray-400">Select one or more videos to transcribe</p>
-  </div>
-</div>
-
-<div class="px-6 py-6 space-y-4">
-  <button id="browse" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 rounded-xl">Browse Local Files</button>
-
-  <div id="summary" class="hidden bg-[#1a1a1a] rounded-xl p-4 border border-[#3a3a3a] text-sm">
-    <div class="flex justify-between mb-2">
-      <span class="text-gray-400">Selected Files</span>
-      <span id="count" class="text-purple-300">0</span>
-    </div>
-    <div id="files" class="space-y-1 text-gray-300"></div>
-  </div>
-
-  <button id="run" class="w-full bg-[#3a3a3a] text-gray-400 font-semibold py-3 rounded-xl cursor-not-allowed" disabled>Process Selected Files (Batch)</button>
-
-  <div id="status" class="bg-[#1a1a1a] rounded-xl p-4 border border-[#3a3a3a] text-sm">
-    <div class="flex items-center space-x-2"><div id="dot" class="w-2 h-2 rounded-full bg-gray-500"></div><span id="msg" class="text-gray-300">Ready — choose files</span></div>
-  </div>
-</div>
-
-<script>
-(function(){
-  const hasBridge = typeof window.WhisperBridge !== 'undefined';
-  const browseBtn = document.getElementById('browse');
-  const runBtn = document.getElementById('run');
-  const summary = document.getElementById('summary');
-  const countEl = document.getElementById('count');
-  const filesEl = document.getElementById('files');
-  const dot = document.getElementById('dot');
-  const msg = document.getElementById('msg');
-  let selected = [];
-
-  function setStatus(text, color){
-    msg.textContent = text;
-    dot.className = 'w-2 h-2 rounded-full ' + (color||'bg-gray-500');
-  }
-
-  function render(){
-    if (selected.length === 0){ summary.classList.add('hidden'); runBtn.disabled = true; runBtn.className='w-full bg-[#3a3a3a] text-gray-400 font-semibold py-3 rounded-xl cursor-not-allowed'; return; }
-    summary.classList.remove('hidden');
-    countEl.textContent = String(selected.length);
-    filesEl.innerHTML = '';
-    selected.forEach(f=>{
-      const d = document.createElement('div');
-      d.textContent = f.name || f.uri || 'video';
-      filesEl.appendChild(d);
-    });
-    runBtn.disabled = false; runBtn.className='w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-semibold py-3 rounded-xl';
-  }
-
-  browseBtn.onclick = async () => {
-    try {
-      setStatus('Opening file browser...', 'bg-blue-500');
-      if (!hasBridge){ setStatus('Bridge not available', 'bg-yellow-500'); return; }
-      const r = window.WhisperBridge.openFilePicker();
-      if (r === 'file_picker_launched') setStatus('File picker opened', 'bg-green-500');
-    } catch(e){ setStatus('Browse failed', 'bg-red-500'); }
-  };
-
-  window.handleFileSelection = (json) => {
-    try {
-      const data = JSON.parse(json);
-      if (data && data.success && Array.isArray(data.files)){
-        selected = data.files;
-        render();
-        setStatus(`${selected.length} file(s) selected`, 'bg-green-500');
-      } else { setStatus('No files selected', 'bg-yellow-500'); }
-    } catch(e){ setStatus('Selection error', 'bg-red-500'); }
-  };
-
-  runBtn.onclick = async () => {
-    if (selected.length === 0 || !hasBridge) return;
-    try {
-      setStatus('Submitting batch...', 'bg-purple-500');
-      const uris = selected.map(f=>f.uri);
-      const batchId = window.WhisperBridge.runBatch(JSON.stringify({ uris, preset:'Single', modelPath:'/sdcard/Models/ggml-small.en.bin' }));
-      setStatus('Processing started', 'bg-purple-500');
-      if (window.WhisperBridge.openWhisperStep2) window.WhisperBridge.openWhisperStep2();
-    } catch(e){ setStatus('Processing failed', 'bg-red-500'); }
-  };
-})();
-</script>
-
-</body>
-</html>
-
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://cdn.tailwindcss.com"></script>
   <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest' };</script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <script>
-    /* Tailwind: keep your theme, add a safelist for status dots used by JS */
-        tailwind.config = {
-      safelist: [
-        'bg-yellow-500','bg-blue-500','bg-purple-500','bg-green-500','bg-gray-500',
-        'bg-green-500/20','bg-blue-500/20','text-green-300','text-blue-300'
-      ],
-            theme: {
-                extend: {
-                    colors: {
-            dark: { 900:'#0a0a0a', 800:'#1a1a1a', 700:'#2a2a2a', 600:'#3a3a3a' }
-                    }
-                }
-            }
-        }
-    </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     ::-webkit-scrollbar { display: none; }
     * { font-family: 'Inter', sans-serif; }
     @media (prefers-reduced-motion: reduce) { .animate-pulse { animation: none !important; } }
   </style>
+  <script>
+    tailwind.config = {
+      theme: { 
+        extend: { 
+          colors: { 
+            dark: { 900:'#0a0a0a', 800:'#1a1a1a', 700:'#2a2a2a', 600:'#3a3a3a' }
+          }
+        }
+      }
+    }
+  </script>
 </head>
 <body class="bg-dark-900 text-white overflow-x-hidden">
 
+<!-- Status Bar -->
+<div id="status-bar" class="flex justify-between items-center px-4 py-2 bg-dark-800 text-xs text-gray-300">
+  <div class="flex items-center space-x-1">
+    <div class="w-1 h-1 bg-white rounded-full"></div>
+    <div class="w-1 h-1 bg-white rounded-full"></div>
+    <div class="w-1 h-1 bg-gray-600 rounded-full"></div>
+    <span class="ml-2">Xiaomi Pad</span>
+  </div>
+  <div class="font-medium">9:41</div>
+  <div class="flex items-center space-x-1">
+    <i class="fa-solid fa-signal text-xs"></i>
+    <i class="fa-solid fa-wifi text-xs"></i>
+    <div class="w-6 h-3 border border-white rounded-sm"><div class="w-4 h-2 bg-white rounded-sm m-0.5"></div></div>
+  </div>
+</div>
 
 <!-- App Header -->
 <div id="app-header" class="flex items-center justify-between px-6 py-4 bg-dark-800 border-b border-dark-600">
-    <div class="flex items-center space-x-3">
+  <div class="flex items-center space-x-3">
     <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-      <i class="fa-solid fa-play text-white text-sm"></i>
+      <i class="fa-solid fa-microphone text-white text-sm"></i>
     </div>
-        <div>
-      <h1 class="text-lg font-semibold text-white">Whisper</h1>
-      <p class="text-xs text-gray-400">On-device Transcription</p>
-        </div>
+    <div>
+      <h1 class="text-lg font-semibold text-white">Whisper Transcription</h1>
+      <p class="text-xs text-gray-400">Step 1: Select Video Files</p>
     </div>
-    <div class="flex items-center space-x-3">
-        <button class="w-8 h-8 bg-dark-600 rounded-full flex items-center justify-center">
-      <i class="fa-solid fa-bell text-gray-300 text-sm"></i>
-    </button>
-        <button class="w-8 h-8 bg-dark-600 rounded-full flex items-center justify-center">
-      <i class="fa-solid fa-user text-gray-300 text-sm"></i>
-        </button>
+  </div>
+  <div class="flex items-center space-x-3">
+    <div class="flex items-center space-x-2">
+      <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+      <span class="text-sm text-blue-400 font-medium">Ready</span>
     </div>
+  </div>
 </div>
 
-<!-- Main Dashboard Section -->
-<div id="main-dashboard" class="px-6 py-8">
-  <!-- Status Card -->
-  <div id="status-card" class="bg-gradient-to-r from-dark-700 to-dark-600 rounded-2xl p-6 mb-6 border border-dark-600">
+<!-- Main Content -->
+<div class="px-6 py-6 pb-24">
+  
+  <!-- Welcome Card -->
+  <div class="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl p-6 mb-6 border border-dark-600">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-xl font-semibold text-white">Project Status</h2>
+      <h2 class="text-xl font-semibold text-white">Select Video Files</h2>
       <div class="flex items-center space-x-2">
-        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-        <span class="text-sm text-green-400 font-medium">Ready</span>
-            </div>
-            </div>
-    <p class="text-gray-300 mb-4">Whisper: Select Files → Processing → Results</p>
+        <div class="w-2 h-2 bg-white rounded-full"></div>
+        <span class="text-sm text-white font-medium">Step 1/3</span>
+      </div>
+    </div>
+    <p class="text-gray-100 mb-4">Choose one or more video files to transcribe using Whisper AI. Supported formats: MP4, AVI, MOV, MKV, WebM</p>
     <div class="flex items-center space-x-4">
       <div class="flex items-center space-x-2">
-        <i class="fa-solid fa-clock text-purple-400"></i>
-        <span class="text-sm text-gray-400">File Selection Ready</span>
-            </div>
+        <i class="fa-solid fa-video text-white"></i>
+        <span class="text-sm text-gray-100">Video Files</span>
+      </div>
       <div class="flex items-center space-x-2">
-        <i class="fa-solid fa-chart-line text-blue-400"></i>
-        <span class="text-sm text-gray-400">Batch Processing Support</span>
-        </div>
-            </div>
-        </div>
-        
+        <i class="fa-solid fa-microchip text-white"></i>
+        <span class="text-sm text-gray-100">On-Device Processing</span>
+      </div>
+    </div>
+  </div>
 
-<!-- Whisper: Step 1 Control Panel -->
-<div id="main-actions" class="px-6 mb-8">
-  <div class="bg-dark-700 rounded-2xl p-6 border border-dark-600">
-    <h3 class="text-lg font-semibold text-white mb-6">Whisper — File Selection</h3>
+  <!-- File Selection Section -->
+  <div class="bg-dark-700 rounded-2xl p-6 border border-dark-600 mb-6">
+    <h3 class="text-lg font-semibold text-white mb-6">File Selection</h3>
 
-    <!-- File Selection Section -->
-    <div class="mb-4">
-      <button id="browse-local-btn"
-              class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-4 px-6 rounded-xl flex items-center justify-center space-x-3 transition-all duration-200 mb-4">
-        <i class="fa-solid fa-folder-open text-xl"></i>
-        <span class="text-lg">Browse Local Files</span>
-      </button>
-      
-      <!-- Preset Selection -->
-      <div class="bg-dark-600 rounded-xl px-4 py-3 flex items-center justify-between">
+    <!-- Browse Button -->
+    <button id="browse-files-btn"
+            class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-4 px-6 rounded-xl flex items-center justify-center space-x-3 transition-all duration-200 mb-6">
+      <i class="fa-solid fa-folder-open text-xl"></i>
+      <span class="text-lg">Browse Video Files</span>
+    </button>
+    
+    <!-- Preset Selection -->
+    <div class="bg-dark-600 rounded-xl p-4 mb-6">
+      <div class="flex items-center justify-between mb-3">
         <div class="flex items-center space-x-3">
           <i class="fa-solid fa-sliders text-yellow-300"></i>
           <span class="text-sm text-gray-300">Processing Preset</span>
         </div>
         <div class="flex items-center space-x-2">
-          <button id="preset-single" class="text-xs px-3 py-1 rounded-lg bg-purple-600 text-white font-medium">Single</button>
+          <button id="preset-single" class="text-xs px-3 py-1 rounded-lg bg-purple-600 text-white font-medium ring-1 ring-purple-500">Single</button>
           <button id="preset-accuracy" class="text-xs px-3 py-1 rounded-lg bg-dark-700 border border-dark-600 text-gray-300">Accuracy</button>
         </div>
+      </div>
+      <div class="text-xs text-gray-400">
+        <p><strong>Single:</strong> Fast processing, good for most videos</p>
+        <p><strong>Accuracy:</strong> Slower processing, higher accuracy</p>
+      </div>
+    </div>
+
+    <!-- Model Selection -->
+    <div class="bg-dark-600 rounded-xl p-4 mb-6">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center space-x-3">
+          <i class="fa-solid fa-brain text-blue-300"></i>
+          <span class="text-sm text-gray-300">AI Model</span>
+        </div>
+        <button id="pick-model-btn" class="text-xs px-3 py-1 rounded bg-dark-700 border border-dark-600 hover:border-purple-600">Change</button>
+      </div>
+      <div class="text-xs text-gray-400">
+        <p id="selected-model">ggml-small.en.bin (Default)</p>
+        <p>Optimized for English transcription</p>
       </div>
     </div>
                 
     <!-- Selected Files Summary -->
-    <div id="selected-files-summary" class="bg-dark-800 rounded-xl p-3 border border-dark-600 mb-4 text-xs text-gray-300" style="display: none;">
-      <div class="flex justify-between items-center mb-2">
-        <span class="text-gray-400">Selected Files:</span>
+    <div id="selected-files-summary" class="bg-dark-800 rounded-xl p-4 border border-dark-600 mb-6" style="display: none;">
+      <div class="flex justify-between items-center mb-3">
+        <span class="text-gray-400 font-medium">Selected Files:</span>
         <div class="flex items-center space-x-2">
-          <span id="file-count" class="text-purple-300 font-medium">0</span>
-          <button id="clear-selection-btn" class="text-red-400 hover:text-red-300 text-xs px-2 py-1 rounded border border-red-600 hover:border-red-500">Clear</button>
+          <span id="file-count" class="text-purple-300 font-bold text-lg">0</span>
+          <button id="clear-selection-btn" class="text-red-400 hover:text-red-300 text-xs px-2 py-1 rounded border border-red-600 hover:border-red-500">Clear All</button>
         </div>
       </div>
-      <div id="files-list" class="space-y-1"></div>
-      <div class="mt-2 pt-2 border-t border-dark-600">
-        <div><span class="text-gray-400">Preset:</span> <span id="sel-preset">Single</span></div>
-        <div class="flex items-center justify-between">
-          <div><span class="text-gray-400">Model:</span> <span id="sel-model" class="break-all">ggml-small.en.bin (Default)</span></div>
-          <button id="pick-model-btn" class="text-xs px-2 py-1 rounded bg-dark-700 border border-dark-600 hover:border-purple-600">Pick</button>
-        </div>
-      </div>
+      <div id="files-list" class="space-y-2"></div>
     </div>
 
     <!-- Process Button -->
-    <button id="run-whisper-btn"
+    <button id="process-files-btn"
             class="w-full bg-dark-600 text-gray-400 font-semibold py-4 px-6 rounded-xl mb-4 flex items-center justify-center space-x-3 cursor-not-allowed opacity-60"
             disabled>
       <i class="fa-solid fa-play text-xl"></i>
-      <span class="text-lg">Process Selected Files (Batch)</span>
+      <span class="text-lg">Start Processing</span>
     </button>
 
     <!-- Status Information -->
-    <div id="analysis-status" class="bg-dark-800 rounded-xl p-4 border border-dark-600"
+    <div id="status-info" class="bg-dark-800 rounded-xl p-4 border border-dark-600"
          role="status" aria-live="polite" aria-busy="false">
       <div class="flex items-center space-x-3">
         <div class="w-3 h-3 bg-gray-500 rounded-full"></div>
-                    <div>
-          <p class="text-sm font-medium text-white">File Selection Status</p>
-          <p class="text-xs text-gray-400">Ready — Select video files to process</p>
-                    </div>
-                </div>
+        <div>
+          <p class="text-sm font-medium text-white">Ready to Select Files</p>
+          <p class="text-xs text-gray-400">Choose video files to begin transcription</p>
         </div>
-            </div>
-        </div>
-        
-<!-- Runs / Sidecars -->
-<div id="recent-projects" class="px-6 mb-8">
-        <div class="flex items-center justify-between mb-4">
-    <h3 class="text-lg font-semibold text-white">Whisper Runs</h3>
-            <div class="flex items-center space-x-2">
-      <button id="refresh-runs" class="text-purple-400 text-sm font-medium">Refresh</button>
+      </div>
     </div>
   </div>
 
-  <div id="runs-list" class="space-y-3">
-    <!-- dynamically populated -->
-    <div class="text-sm text-gray-500">No runs yet.</div>
-            </div>
-        </div>
-        
+  <!-- Resource Monitor -->
+  <div class="bg-gradient-to-br from-dark-700 to-dark-600 rounded-2xl p-4 border border-dark-600 mb-6">
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center space-x-2">
+        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+        <h3 class="text-sm font-semibold text-white">Xiaomi Resource Usage</h3>
+      </div>
+      <button id="refresh-stats" class="text-xs px-2 py-1 rounded bg-dark-600 border border-dark-500 hover:border-purple-600">Refresh</button>
+    </div>
+    <div id="stats-body" class="grid grid-cols-2 gap-3 text-xs text-gray-300">
+      <div class="bg-dark-700 rounded-lg p-2 border border-dark-600"><span class="text-gray-400">CPU</span> <span class="float-right text-white" id="stat-cpu">—</span>%</div>
+      <div class="bg-dark-700 rounded-lg p-2 border border-dark-600"><span class="text-gray-400">Memory</span> <span class="float-right text-white" id="stat-mem">—</span>%</div>
+      <div class="bg-dark-700 rounded-lg p-2 border border-dark-600"><span class="text-gray-400">Battery</span> <span class="float-right text-white" id="stat-bat">—</span>%</div>
+      <div class="bg-dark-700 rounded-lg p-2 border border-dark-600"><span class="text-gray-400">Temp</span> <span class="float-right text-white" id="stat-temp">—</span>°C</div>
+    </div>
+  </div>
+</div>
 
+<!-- Bottom Navigation -->
+<div id="bottom-navigation" class="fixed bottom-0 left-0 right-0 bg-dark-800 border-t border-dark-600 px-6 py-3 pb-[env(safe-area-inset-bottom)]">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center space-x-6">
+      <div class="flex items-center space-x-2">
+        <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
+        <span class="text-xs text-purple-400 font-medium">Select</span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <div class="w-2 h-2 bg-gray-600 rounded-full"></div>
+        <span class="text-xs text-gray-500">Processing</span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <div class="w-2 h-2 bg-gray-600 rounded-full"></div>
+        <span class="text-xs text-gray-500">Results</span>
+      </div>
+    </div>
+    <div class="text-xs text-gray-500">Whisper File Selection</div>
+  </div>
+</div>
 
 <script>
-/* ---------- Whisper: Combined File Selection & Processing ---------- */
+/* ===================== WHISPER: FILE SELECTION PAGE ===================== */
 
 (() => {
-  const dotColor = { idle:'bg-gray-500', yellow:'bg-yellow-500', blue:'bg-blue-500', purple:'bg-purple-500', green:'bg-green-500' };
-  const statusDot = document.querySelector('#analysis-status .w-3');
-  const statusText = document.querySelector('#analysis-status .text-xs');
-  const statusCard = document.getElementById('analysis-status');
+  // State management
+  const state = {
+    selectedFiles: [],
+    selectedPreset: 'Single',
+    selectedModel: 'ggml-small.en.bin (Default)',
+    isProcessing: false
+  };
 
-  const setDot = (k) => statusDot.className = `w-3 h-3 rounded-full ${dotColor[k]||dotColor.idle} animate-pulse`;
-  const setStatus = (msg, k='idle', busy=false) => { statusText.textContent = msg; setDot(k); statusCard.setAttribute('aria-busy', String(busy)); };
-
-  const presetElement = document.getElementById('sel-preset');
-  const modelElement = document.getElementById('sel-model');
-  const processButton = document.getElementById('run-whisper-btn');
-  const browseLocalButton = document.getElementById('browse-local-btn');
-  const clearSelectionButton = document.getElementById('clear-selection-btn');
-  const presetSingleButton = document.getElementById('preset-single');
-  const presetAccuracyButton = document.getElementById('preset-accuracy');
-  const runsListElement = document.getElementById('runs-list');
-  const refreshButton = document.getElementById('refresh-runs');
-  const selectedFilesSummaryElement = document.getElementById('selected-files-summary');
+  // DOM Elements
+  const browseFilesBtn = document.getElementById('browse-files-btn');
+  const processFilesBtn = document.getElementById('process-files-btn');
+  const selectedFilesSummary = document.getElementById('selected-files-summary');
   const fileCountElement = document.getElementById('file-count');
   const filesListElement = document.getElementById('files-list');
+  const clearSelectionBtn = document.getElementById('clear-selection-btn');
+  const presetSingleBtn = document.getElementById('preset-single');
+  const presetAccuracyBtn = document.getElementById('preset-accuracy');
+  const pickModelBtn = document.getElementById('pick-model-btn');
+  const selectedModelElement = document.getElementById('selected-model');
+  const statusInfo = document.getElementById('status-info');
+  const statusDot = document.querySelector('#status-info .w-3');
+  const statusText = document.querySelector('#status-info .text-xs');
+  const refreshStatsBtn = document.getElementById('refresh-stats');
 
-  let selectedFiles = [];
-  let selectedPreset = 'Single';
-  let selectedModel = 'ggml-small.en.bin (Default)';
+  // Bridge contract (provided by Android WebView)
+  const hasBridge = typeof window.WhisperBridge !== 'undefined';
+  const bridge = hasBridge ? {
+    async openFilePicker() { return window.WhisperBridge.openFilePicker(); },
+    async getAllVideoFiles() { return window.WhisperBridge.getAllVideoFiles(); },
+    async runBatch(args) { 
+      const batchId = window.WhisperBridge.runBatch(JSON.stringify(args));
+      return batchId;
+    },
+    async openStep2() { 
+      if (window.WhisperBridge.openWhisperStep2) {
+        return window.WhisperBridge.openWhisperStep2();
+      }
+    },
+    async getResourceStats() { 
+      if (window.WhisperBridge.getResourceStats) {
+        return window.WhisperBridge.getResourceStats();
+      }
+    },
+    async pickModel() {
+      if (window.WhisperBridge.pickModel) {
+        return window.WhisperBridge.pickModel();
+      }
+    }
+  } : mockBridge();
+
+  function mockBridge() {
+    return {
+      async openFilePicker() { 
+        console.log('Mock: Opening file picker');
+        return 'file_picker_launched'; 
+      },
+      async getAllVideoFiles() { 
+        return JSON.stringify({
+          files: [
+            { name: 'video1.mp4', size: 15728640, uri: 'file:///sdcard/video1.mp4', format: 'mp4' },
+            { name: 'movie2.avi', size: 20971520, uri: 'file:///sdcard/movie2.avi', format: 'avi' }
+          ],
+          count: 2
+        });
+      },
+      async runBatch() { 
+        console.log('Mock: Starting batch processing');
+        return 'batch-mock-123';
+      },
+      async openStep2() { 
+        console.log('Mock: Opening processing page');
+        return 'ok';
+      },
+      async getResourceStats() { 
+        return JSON.stringify({
+          memory: Math.floor(Math.random() * 50) + 20,
+          cpu: Math.floor(Math.random() * 30) + 10,
+          battery: Math.floor(Math.random() * 40) + 60,
+          temperature: Math.floor(Math.random() * 10) + 35
+        });
+      },
+      async pickModel() {
+        console.log('Mock: Picking model');
+        return '/sdcard/Models/ggml-small.en.bin';
+      }
+    };
+  }
 
   // Utility Functions
   function formatFileSize(bytes) {
@@ -303,137 +303,69 @@
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 
-  /* ---- Bridge contract (provided by Android WebView) ----
-     window.WhisperBridge.run(json) -> String jobId
-     window.WhisperBridge.runBatch(json) -> String batchId
-     window.WhisperBridge.export(jobId) -> "ok"
-     window.WhisperBridge.listRuns() -> JSON string: [{jobId, uri, rtf, sidecarPath}]
-     window.WhisperBridge.openFilePicker() -> String result
-     window.WhisperBridge.getAllVideoFiles() -> JSON string: {files: [], count: 0}
-     All may throw on error.
-     
-     Bridge also supports BroadcastChannel for real-time communication:
-     - whisper.run: Start transcription
-     - whisper.ack: Host acknowledged run
-     - whisper.progress: Progress updates
-     - whisper.done: Run completed
-     - whisper.error: Error occurred
-  ------------------------------------------------------- */
-
-  const hasBridge = typeof window.WhisperBridge !== 'undefined';
-  const isDevBuild = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-
-  // BroadcastChannel for real-time communication
-  let broadcastChannel = null;
-  if ('BroadcastChannel' in window) {
-    broadcastChannel = new BroadcastChannel('whisper-ui');
-    broadcastChannel.onmessage = (event) => {
-      switch(event.data.type) {
-        case 'whisper.ack':
-            console.log('Host acknowledged run');
-            break;
-        case 'whisper.progress':
-          console.log('Progress:', event.data.pct + '%', event.data.msg);
-            break;
-        case 'whisper.done':
-          console.log('Run completed:', event.data);
-            break;
-        case 'whisper.error':
-          console.error('Run error:', event.data.error);
-            break;
-    }
+  function setStatus(message, type = 'info', busy = false) {
+    statusText.textContent = message;
+    statusInfo.setAttribute('aria-busy', String(busy));
+    
+    // Update status dot color
+    const colors = {
+      info: 'bg-gray-500',
+      success: 'bg-green-500',
+      warning: 'bg-yellow-500',
+      error: 'bg-red-500',
+      processing: 'bg-purple-500'
     };
+    statusDot.className = `w-3 h-3 rounded-full ${colors[type] || colors.info} ${type === 'processing' ? 'animate-pulse' : ''}`;
   }
 
-  const bridge = hasBridge ? {
-    async openFilePicker() { return window.WhisperBridge.openFilePicker(); },
-    async getAllVideoFiles() { return window.WhisperBridge.getAllVideoFiles(); },
-    async runBatch(args) { 
-      const batchId = window.WhisperBridge.runBatch(JSON.stringify(args));
-      // Send whisper.run event via BroadcastChannel
-      if (broadcastChannel) {
-        broadcastChannel.postMessage({ type: 'whisper.run', ...args, jobId: batchId });
-      }
-      return batchId;
-    },
-    async run(args)   { 
-      const jobId = window.WhisperBridge.run(JSON.stringify(args));
-      // Send whisper.run event via BroadcastChannel
-      if (broadcastChannel) {
-        broadcastChannel.postMessage({ type: 'whisper.run', ...args, jobId });
-      }
-      return jobId;
-    },
-    async export(jobId){ return window.WhisperBridge.export(jobId); },
-    async listRuns()  { const s = window.WhisperBridge.listRuns(); return JSON.parse(s); },
-    async openStep2() { if (window.WhisperBridge.openWhisperStep2) return window.WhisperBridge.openWhisperStep2(); },
-    async getResourceStats() { if (window.WhisperBridge.getResourceStats) return window.WhisperBridge.getResourceStats(); }
-  } : mockBridge(); // fallback for browser preview
-
-  function mockBridge() {
-    // Simple in-memory stub so UI can be exercised without Android
-    const mem = { runs: [] };
-    return {
-      async openFilePicker(){ return 'file_picker_launched'; },
-      async getAllVideoFiles(){ 
-        return JSON.stringify({
-          files: [
-            { name: 'video1.mp4', size: 15728640, uri: 'file:///sdcard/video1.mp4', format: 'mp4' },
-            { name: 'movie2.avi', size: 20971520, uri: 'file:///sdcard/movie2.avi', format: 'avi' },
-            { name: 'clip3.mov', size: 12582912, uri: 'file:///sdcard/clip3.mov', format: 'mov' }
-          ],
-          count: 3
-        });
-      },
-      async runBatch({uris,preset,modelPath}) {
-        const id = 'batch-' + Math.random().toString(36).slice(2,10);
-        uris.forEach(uri => {
-          mem.runs.unshift({ jobId:id, uri, rtf: Math.random()*0.8+0.3, sidecarPath:`/mock/whisper/${id}/sidecar.json` });
-        });
-        return id;
-      },
-      async run({uri,preset,modelPath}) {
-        const id = 'mock-' + Math.random().toString(36).slice(2,10);
-        mem.runs.unshift({ jobId:id, uri, rtf: Math.random()*0.8+0.3, sidecarPath:`/mock/whisper/${id}/sidecar.json` });
-        return id;
-      },
-      async export(){ return 'ok'; },
-      async listRuns(){ return mem.runs; }
-    };
+  function showToast(message, isError = false) {
+    console.log(isError ? 'ERROR:' : 'SUCCESS:', message);
+    // In a real app, you'd show a toast notification
   }
 
-  // Enable/disable Process button
+  // Update process button state
   function updateProcessButtonState() {
-    const hasFiles = selectedFiles.length > 0;
-    console.log('updateProcessButtonState called - hasFiles:', hasFiles, 'selectedFiles.length:', selectedFiles.length);
-    processButton.disabled = !hasFiles;
-    processButton.className = hasFiles
-      ? 'w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-semibold py-4 px-6 rounded-xl mb-4 flex items-center justify-center space-x-3 transition-all duration-200 active:scale-95'
-      : 'w-full bg-dark-600 text-gray-400 font-semibold py-4 px-6 rounded-xl mb-4 flex items-center justify-center space-x-3 cursor-not-allowed opacity-60';
-    console.log('Button state updated - disabled:', processButton.disabled);
+    const hasFiles = state.selectedFiles.length > 0;
+    processFilesBtn.disabled = !hasFiles || state.isProcessing;
+    
+    if (state.isProcessing) {
+      processFilesBtn.className = 'w-full bg-purple-600 text-white font-semibold py-4 px-6 rounded-xl mb-4 flex items-center justify-center space-x-3 opacity-60';
+      processFilesBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-xl"></i><span class="text-lg">Processing...</span>';
+    } else if (hasFiles) {
+      processFilesBtn.className = 'w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-semibold py-4 px-6 rounded-xl mb-4 flex items-center justify-center space-x-3 transition-all duration-200 active:scale-95';
+      processFilesBtn.innerHTML = '<i class="fa-solid fa-play text-xl"></i><span class="text-lg">Start Processing</span>';
+    } else {
+      processFilesBtn.className = 'w-full bg-dark-600 text-gray-400 font-semibold py-4 px-6 rounded-xl mb-4 flex items-center justify-center space-x-3 cursor-not-allowed opacity-60';
+      processFilesBtn.innerHTML = '<i class="fa-solid fa-play text-xl"></i><span class="text-lg">Start Processing</span>';
+    }
   }
 
   // Update selected files display
   function renderSelectedFilesList() {
-    if (selectedFiles.length === 0) {
-      selectedFilesSummaryElement.style.display = 'none';
+    if (state.selectedFiles.length === 0) {
+      selectedFilesSummary.style.display = 'none';
       return;
     }
     
-    selectedFilesSummaryElement.style.display = 'block';
-    fileCountElement.textContent = selectedFiles.length;
+    selectedFilesSummary.style.display = 'block';
+    fileCountElement.textContent = state.selectedFiles.length;
     
     filesListElement.innerHTML = '';
-    selectedFiles.forEach((file, index) => {
+    state.selectedFiles.forEach((file, index) => {
       const fileDiv = document.createElement('div');
-      fileDiv.className = 'flex items-center justify-between bg-dark-700 rounded-lg p-2';
+      fileDiv.className = 'flex items-center justify-between bg-dark-700 rounded-lg p-3';
       fileDiv.innerHTML = `
-        <div class="flex items-center space-x-2">
-          <i class="fa-solid fa-video text-purple-400 text-xs"></i>
-          <span class="text-xs text-gray-300 truncate">${file.name}</span>
+        <div class="flex items-center space-x-3">
+          <div class="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
+            <i class="fa-solid fa-video text-purple-400 text-sm"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm text-white font-medium truncate">${file.name}</p>
+            <p class="text-xs text-gray-400">${formatFileSize(file.size)} • ${file.format.toUpperCase()}</p>
+          </div>
         </div>
         <button class="text-gray-400 hover:text-red-400 transition-colors remove-file-btn" data-index="${index}">
-          <i class="fa-solid fa-times text-xs"></i>
+          <i class="fa-solid fa-times text-sm"></i>
         </button>
       `;
       filesListElement.appendChild(fileDiv);
@@ -443,60 +375,60 @@
     filesListElement.querySelectorAll('.remove-file-btn').forEach(btn => {
       btn.onclick = () => {
         const index = parseInt(btn.dataset.index);
-        selectedFiles.splice(index, 1);
+        state.selectedFiles.splice(index, 1);
         renderSelectedFilesList();
         updateProcessButtonState();
-        setStatus(`${selectedFiles.length} files selected`, 'blue', false);
+        setStatus(`${state.selectedFiles.length} files selected`, 'success', false);
+        showToast('File removed');
       };
     });
   }
 
-  // Preset toggles
+  // Update preset selection
   function updatePresetSelection(preset) {
-    selectedPreset = preset;
-    presetElement.textContent = preset;
-    [presetSingleButton, presetAccuracyButton].forEach(btn => btn.classList.remove('ring-1','ring-purple-500','text-white'));
-    const activeButton = preset === 'Single' ? presetSingleButton : presetAccuracyButton;
-    activeButton.classList.add('ring-1','ring-purple-500','text-white');
+    state.selectedPreset = preset;
+    [presetSingleBtn, presetAccuracyBtn].forEach(btn => {
+      btn.classList.remove('ring-1', 'ring-purple-500', 'text-white', 'bg-purple-600');
+      btn.classList.add('bg-dark-700', 'border', 'border-dark-600', 'text-gray-300');
+    });
+    
+    const activeButton = preset === 'Single' ? presetSingleBtn : presetAccuracyBtn;
+    activeButton.classList.remove('bg-dark-700', 'border', 'border-dark-600', 'text-gray-300');
+    activeButton.classList.add('ring-1', 'ring-purple-500', 'text-white', 'bg-purple-600');
   }
 
-  // Combined file selection handler (both file picker and local scan)
-  browseLocalButton.onclick = async () => {
+  // Event Handlers
+  browseFilesBtn.onclick = async () => {
     try {
-      setStatus('Opening file browser...', 'blue', true);
+      setStatus('Opening file browser...', 'processing', true);
       
-      // First try file picker
       const pickerResult = await bridge.openFilePicker();
       console.log('File picker result:', pickerResult);
       
       if (pickerResult === 'file_picker_launched') {
-        setStatus('File picker opened - select your video files', 'green', false);
-        toast('File picker opened - select your video files');
+        setStatus('File picker opened - select your video files', 'success', false);
+        showToast('File picker opened - select your video files');
       } else {
-        // If file picker fails, try local media scan
-        setStatus('Scanning local media...', 'blue', true);
+        setStatus('File picker failed, trying local scan...', 'warning', true);
         
         const result = await bridge.getAllVideoFiles();
-        console.log('Local media scan result:', result);
-        
         const data = JSON.parse(result);
         
-        if (data.success && data.files && data.files.length > 0) {
-          // Add all found files to selection
-          selectedFiles = [...selectedFiles, ...data.files];
+        if (data.files && data.files.length > 0) {
+          state.selectedFiles = [...state.selectedFiles, ...data.files];
           renderSelectedFilesList();
           updateProcessButtonState();
           
-          setStatus(`Found ${data.files.length} video files`, 'green', false);
-          toast(`Found ${data.files.length} video files in local storage`);
+          setStatus(`Found ${data.files.length} video files`, 'success', false);
+          showToast(`Found ${data.files.length} video files in local storage`);
         } else {
-          setStatus('No video files found', 'yellow', false);
-          toast('No video files found in common directories');
+          setStatus('No video files found', 'warning', false);
+          showToast('No video files found in common directories');
         }
       }
     } catch (e) {
-      setStatus('File browser failed', 'red', false);
-      toast(`File browser failed: ${String(e)}`, true);
+      setStatus('File browser failed', 'error', false);
+      showToast(`File browser failed: ${String(e)}`, true);
     }
   };
 
@@ -505,232 +437,124 @@
     try {
       console.log('handleFileSelection called with:', jsonResponse);
       const data = JSON.parse(jsonResponse);
-      console.log('Parsed data:', data);
       
       if (data.success && data.files && data.files.length > 0) {
-        console.log('Success case: adding files to selectedFiles');
-        selectedFiles = [...selectedFiles, ...data.files];
-        console.log('selectedFiles after addition:', selectedFiles);
+        state.selectedFiles = [...state.selectedFiles, ...data.files];
         renderSelectedFilesList();
         updateProcessButtonState();
         
-        setStatus(`${data.files.length} files selected from picker`, 'green', false);
-        toast(`Selected ${data.files.length} files from picker`);
+        setStatus(`${data.files.length} files selected from picker`, 'success', false);
+        showToast(`Selected ${data.files.length} files from picker`);
       } else if (data.error) {
-        console.log('Error case:', data.error);
-        setStatus('File selection failed', 'red', false);
-        toast(`Selection failed: ${data.error}`, true);
+        setStatus('File selection failed', 'error', false);
+        showToast(`Selection failed: ${data.error}`, true);
       } else {
-        console.log('No files case');
-        setStatus('No files selected', 'yellow', false);
-        toast('No files selected');
+        setStatus('No files selected', 'warning', false);
+        showToast('No files selected');
       }
     } catch (e) {
       console.error('Exception in handleFileSelection:', e);
-      setStatus('File selection error', 'red', false);
-      toast(`Selection error: ${String(e)}`, true);
+      setStatus('File selection error', 'error', false);
+      showToast(`Selection error: ${String(e)}`, true);
     }
   };
 
-  // Render runs
-  async function refreshRuns() {
-    const runs = await bridge.listRuns();
-    runsListElement.innerHTML = '';
-    if (!runs || !runs.length) {
-      runsListElement.innerHTML = '<div class="text-sm text-gray-500">No runs yet.</div>';
-        return;
-    }
-    runs.forEach(r => {
-      const row = document.createElement('div');
-      row.className = 'bg-dark-700 rounded-xl p-4 border border-dark-600';
-      row.innerHTML = `
-        <div class="flex items-center space-x-4">
-          <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-            <i class="fa-solid fa-waveform-lines text-white"></i>
-          </div>
-          <div class="flex-1 min-w-0">
-            <h4 class="text-white font-medium truncate">${r.jobId}</h4>
-            <p class="text-gray-400 text-xs truncate">${r.uri || ''}</p>
-          </div>
-          <div class="text-right">
-            <p class="text-green-400 text-sm font-medium">${r.rtf ? `RTF ${Number(r.rtf).toFixed(2)}` : '—'}</p>
-            <p class="text-gray-400 text-xs break-all">${r.sidecarPath || ''}</p>
-          </div>
-        </div>
-        <div class="mt-3 flex justify-end">
-          <button data-job="${r.jobId}" class="export-btn text-xs px-3 py-1 rounded-lg bg-dark-600 border border-dark-500 hover:bg-dark-500">Export</button>
-        </div>
-      `;
-      runsListElement.appendChild(row);
-    });
-
-    // bind export buttons
-    document.querySelectorAll('.export-btn').forEach(btn => {
-      btn.onclick = async () => {
-        const id = btn.getAttribute('data-job');
-        try {
-          await bridge.export(id);
-          toast(`Exported ${id}`);
-        } catch (e) {
-          toast(`Export failed: ${String(e)}`, true);
-        }
-      };
-    });
-  }
-
-  // Tiny toast
-  let toastTimer = null;
-  function toast(msg, err=false) {
-    const t = document.createElement('div');
-    t.className = `fixed bottom-20 left-1/2 -translate-x-1/2 px-4 py-2 rounded-lg text-sm ${err ? 'bg-red-600' : 'bg-dark-600'} border border-dark-500`;
-    t.textContent = msg;
-    document.body.appendChild(t);
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(()=> t.remove(), 1800);
-  }
-
-  // Preset buttons
-  presetSingleButton.onclick = () => updatePresetSelection('Single');
-  presetAccuracyButton.onclick = () => updatePresetSelection('Accuracy');
-
-  // Clear selection button handler
-  clearSelectionButton.onclick = () => {
-    selectedFiles = [];
-    renderSelectedFilesList();
-    updateProcessButtonState();
-    setStatus('Selection cleared', 'yellow', false);
-    toast('Selection cleared');
-  };
-
-  // Process files
-  processButton.onclick = async () => {
-    if (selectedFiles.length === 0) {
-      toast('Please select at least one video file', true);
+  processFilesBtn.onclick = async () => {
+    if (state.selectedFiles.length === 0) {
+      showToast('Please select at least one video file', true);
       return;
     }
     
     try {
-      setStatus('Processing files...', 'purple', true);
+      state.isProcessing = true;
+      updateProcessButtonState();
+      setStatus('Starting processing...', 'processing', true);
       
-      // Extract URIs from selected files
-      const uris = selectedFiles.map(file => file.uri);
+      const uris = state.selectedFiles.map(file => file.uri);
       
-      // Start batch processing
       const batchId = await bridge.runBatch({
         uris: uris,
-        preset: selectedPreset,
-        modelPath: selectedModel
+        preset: state.selectedPreset,
+        modelPath: state.selectedModel
       });
       
-      setStatus(`Processing ${selectedFiles.length} files...`, 'purple', true);
-      toast(`Started processing ${selectedFiles.length} files (Batch: ${batchId})`);
+      setStatus(`Processing ${state.selectedFiles.length} files...`, 'processing', true);
+      showToast(`Started processing ${state.selectedFiles.length} files (Batch: ${batchId})`);
       
       // Navigate to Step 2 after successful submission
-      setTimeout(() => {
+      setTimeout(async () => {
         try {
-          if (hasBridge && window.WhisperBridge && window.WhisperBridge.openWhisperStep2) {
-            window.WhisperBridge.openWhisperStep2();
-          } else if (window.AndroidWhisper && window.AndroidWhisper.openWhisperProcessing) {
-            window.AndroidWhisper.openWhisperProcessing();
-          } else {
-            console.log('Bridge not available, simulating navigation to Processing');
-            toast('Would navigate to Processing');
-            setStatus('Processing started - navigate to Processing', 'green', false);
-          }
+          await bridge.openStep2();
         } catch (err) {
           console.error('Navigation error:', err);
+          setStatus('Processing started - navigate to Processing', 'success', false);
         }
-      }, 800);
+      }, 1000);
       
     } catch (e) {
-      setStatus('Processing failed', 'red', false);
-      toast(`Processing failed: ${String(e)}`, true);
+      state.isProcessing = false;
+      updateProcessButtonState();
+      setStatus('Processing failed', 'error', false);
+      showToast(`Processing failed: ${String(e)}`, true);
     }
   };
 
-  // Manual refresh
-  refreshButton.onclick = refreshRuns;
+  clearSelectionBtn.onclick = () => {
+    state.selectedFiles = [];
+    renderSelectedFilesList();
+    updateProcessButtonState();
+    setStatus('Selection cleared', 'warning', false);
+    showToast('Selection cleared');
+  };
 
-  // Defaults
+  // Preset buttons
+  presetSingleBtn.onclick = () => updatePresetSelection('Single');
+  presetAccuracyBtn.onclick = () => updatePresetSelection('Accuracy');
+
+  // Model picker
+  pickModelBtn.onclick = async () => {
+    try {
+      const modelPath = await bridge.pickModel();
+      if (modelPath) {
+        state.selectedModel = modelPath;
+        selectedModelElement.textContent = modelPath;
+        showToast('Model selected');
+      }
+    } catch (err) {
+      showToast(`Model pick failed: ${String(err)}`, true);
+    }
+  };
+
+  // Resource monitoring
+  async function updateResourceStats() {
+    try {
+      if (!hasBridge || !window.WhisperBridge.getResourceStats) return;
+      const stats = await bridge.getResourceStats();
+      const data = JSON.parse(stats);
+      
+      document.getElementById('stat-cpu').textContent = data.cpu ? data.cpu.toFixed(1) : '—';
+      document.getElementById('stat-mem').textContent = data.memory || '—';
+      document.getElementById('stat-bat').textContent = data.battery || '—';
+      document.getElementById('stat-temp').textContent = data.temperature ? data.temperature.toFixed(1) : '—';
+    } catch (e) {
+      console.error('Resource stats error:', e);
+    }
+  }
+
+  refreshStatsBtn.onclick = updateResourceStats;
+
+  // Initialize
   updatePresetSelection('Single');
   updateProcessButtonState();
   renderSelectedFilesList();
-  refreshRuns();
+  updateResourceStats();
 
-  // Model picker wiring
-  document.addEventListener('click', async (e) => {
-    const target = e.target;
-    if (target && target.id === 'pick-model-btn') {
-      try {
-        if (hasBridge && window.WhisperBridge.pickModel) {
-          const path = window.WhisperBridge.pickModel();
-          if (path) {
-            selectedModel = path;
-            modelElement.textContent = path;
-            toast('Model selected');
-          }
-        } else {
-          toast('Model picker not available');
-        }
-      } catch (err) {
-        toast(`Model pick failed: ${String(err)}`, true);
-      }
-    }
-  });
-
-  // Xiaomi Resource Monitor (Selection)
-  const resourcePanel = document.createElement('div');
-  resourcePanel.className = 'px-6 mb-8';
-  resourcePanel.innerHTML = `
-    <div class="bg-gradient-to-br from-dark-700 to-dark-600 rounded-2xl p-4 border border-dark-600">
-      <div class="flex items-center justify-between mb-3">
-        <div class="flex items-center space-x-2">
-          <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          <h3 class="text-sm font-semibold text-white">Xiaomi Resource Usage</h3>
-        </div>
-        <button id="refresh-stats" class="text-xs px-2 py-1 rounded bg-dark-600 border border-dark-500 hover:border-purple-600">Refresh</button>
-      </div>
-      <div id="stats-body" class="grid grid-cols-2 gap-3 text-xs text-gray-300">
-        <div class="bg-dark-700 rounded-lg p-2 border border-dark-600"><span class="text-gray-400">CPU</span> <span class="float-right text-white" id="stat-cpu">—</span>%</div>
-        <div class="bg-dark-700 rounded-lg p-2 border border-dark-600"><span class="text-gray-400">Memory</span> <span class="float-right text-white" id="stat-mem">—</span>%</div>
-        <div class="bg-dark-700 rounded-lg p-2 border border-dark-600"><span class="text-gray-400">Battery</span> <span class="float-right text-white" id="stat-bat">—</span>%</div>
-        <div class="bg-dark-700 rounded-lg p-2 border border-dark-600"><span class="text-gray-400">Temp</span> <span class="float-right text-white" id="stat-temp">—</span>°C</div>
-        <div class="col-span-2 text-[11px] text-gray-400" id="stat-extra">—</div>
-      </div>
-    </div>`;
-  const recent = document.getElementById('recent-projects');
-  if (recent && recent.parentNode) {
-    recent.parentNode.insertBefore(resourcePanel, recent);
-  }
-
-  async function pullResourceStats() {
-    try {
-      if (!hasBridge || !window.WhisperBridge.getResourceStats) return;
-      const s = window.WhisperBridge.getResourceStats();
-      const data = typeof s === 'string' ? JSON.parse(s) : s;
-      if (!data) return;
-      const q = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = String(v); };
-      q('stat-cpu', (data.cpu ?? '—'));
-      q('stat-mem', (data.memory ?? '—'));
-      q('stat-bat', (data.battery ?? '—'));
-      q('stat-temp', (data.temperature ?? '—'));
-      const extra = document.getElementById('stat-extra');
-      if (extra) extra.textContent = `${data.batteryDetails || ''}${data.threadInfo ? ' | ' + data.threadInfo : ''}`.trim();
-    } catch(e) {
-      // ignore
-    }
-  }
-  const refreshBtn = document.getElementById('refresh-stats');
-  if (refreshBtn) refreshBtn.addEventListener('click', pullResourceStats);
+  // Auto-refresh resource stats
   if (hasBridge) {
-    pullResourceStats();
-    setInterval(pullResourceStats, 2000);
+    setInterval(updateResourceStats, 3000);
   }
 
-  // Keep Tailwind aware of dot colors even if CDN prunes (defensive)
-  const keep = document.createElement('div');
-  keep.className = 'hidden bg-yellow-500 bg-blue-500 bg-purple-500 bg-green-500 bg-gray-500';
-  document.body.appendChild(keep);
+  console.log('Whisper File Selection initialized');
 
 })();
 </script>

@@ -115,8 +115,8 @@ class WhisperMainActivity : ComponentActivity() {
             }
         }
         
-        // Load the one-page Whisper UI
-        webView.loadUrl("file:///android_asset/web/whisper_onepage.html")
+        // Load the file selection page (Step 1 of 3-page flow)
+        webView.loadUrl("file:///android_asset/web/whisper_file_selection.html")
         
         Log.i(TAG, "Whisper interface initialized")
     }

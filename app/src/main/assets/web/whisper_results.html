@@ -4,115 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>* { font-family: 'Inter', sans-serif; } ::-webkit-scrollbar{display:none}</style>
-</head>
-<body class="bg-[#0a0a0a] text-white">
-
-<!-- Live Resource Top Bar -->
-<div id="live-topbar" class="px-4 py-2 bg-[#1a1a1a] border-b border-[#3a3a3a] text-xs flex items-center justify-between">
-  <div class="text-gray-300">Xiaomi Resource</div>
-  <div class="flex items-center space-x-4">
-    <div class="flex items-center space-x-1"><span class="text-gray-400">CPU</span><span id="tb-cpu" class="text-white">—%</span></div>
-    <div class="flex items-center space-x-1"><span class="text-gray-400">Mem</span><span id="tb-mem" class="text-white">—%</span></div>
-    <div class="flex items-center space-x-1"><span class="text-gray-400">Bat</span><span id="tb-bat" class="text-white">—%</span></div>
-    <div class="flex items-center space-x-1"><span class="text-gray-400">Temp</span><span id="tb-temp" class="text-white">—°C</span></div>
-  </div>
-  <div id="tb-dot" class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-  <button id="tb-refresh" class="ml-3 px-2 py-0.5 rounded border border-[#3a3a3a] text-gray-300">Refresh</button>
-  <script>
-    (function(){
-      const hasBridge = typeof window.WhisperBridge !== 'undefined';
-      function updateBar(){
-        try {
-          if (!hasBridge || !window.WhisperBridge.getResourceStats) return;
-          const s = window.WhisperBridge.getResourceStats();
-          const d = typeof s === 'string' ? JSON.parse(s) : s;
-          if (!d) return;
-          const q=(id,v)=>{const el=document.getElementById(id); if(el) el.textContent=String(v)};
-          q('tb-cpu', (d.cpu!=null? Number(d.cpu).toFixed(1):'—')+'%');
-          q('tb-mem', (d.memory!=null? d.memory:'—')+'%');
-          q('tb-bat', (d.battery!=null? d.battery:'—')+'%');
-          q('tb-temp', (d.temperature!=null? Number(d.temperature).toFixed(1):'—')+'°C');
-        } catch(e){}
-      }
-      const btn = document.getElementById('tb-refresh');
-      if (btn) btn.onclick = updateBar;
-      if (hasBridge) { updateBar(); setInterval(updateBar, 2000); }
-    })();
-  </script>
-</div>
-
-<div class="px-6 py-4 bg-[#1a1a1a] border-b border-[#3a3a3a] flex items-center justify-between">
-  <div>
-    <h1 class="text-lg font-semibold">Whisper Results</h1>
-    <p class="text-xs text-gray-400">Transcription complete</p>
-  </div>
-</div>
-
-<div class="px-6 py-6 space-y-4">
-  <div class="bg-[#1a1a1a] rounded-xl p-4 border border-[#3a3a3a]">
-    <div class="grid grid-cols-2 gap-3 text-sm">
-      <div>
-        <div class="text-gray-400">Job ID</div>
-        <div id="job" class="text-white font-medium">—</div>
-      </div>
-      <div>
-        <div class="text-gray-400">RTF</div>
-        <div id="rtf" class="text-white font-medium">—</div>
-      </div>
-      <div class="col-span-2 truncate text-xs text-gray-400">URI: <span id="uri" class="text-gray-300">—</span></div>
-    </div>
-  </div>
-
-  <div class="bg-[#1a1a1a] rounded-xl p-4 border border-[#3a3a3a]">
-    <div class="flex items-center justify-between mb-3">
-      <h3 class="text-white font-semibold">Transcription</h3>
-      <button id="copy" class="text-xs px-2 py-1 rounded bg-[#3a3a3a]">Copy</button>
-    </div>
-    <pre id="tx" class="text-sm text-gray-200 whitespace-pre-wrap max-h-80 overflow-y-auto">Loading...</pre>
-  </div>
-
-  <div class="grid grid-cols-2 gap-3">
-    <button id="new" class="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-semibold py-3 rounded-xl">New Analysis</button>
-    <button id="back" class="bg-[#3a3a3a] text-gray-200 font-semibold py-3 rounded-xl">Back</button>
-  </div>
-</div>
-
-<script>
-(function(){
-  const hasBridge = typeof window.WhisperBridge !== 'undefined';
-  async function load(){
-    try {
-      if (!hasBridge){ document.getElementById('tx').textContent='No bridge'; return; }
-      const sidecar = JSON.parse(window.WhisperBridge.getLatestSidecar());
-      document.getElementById('job').textContent = sidecar.job_id || '—';
-      document.getElementById('rtf').textContent = sidecar.rtf != null ? Number(sidecar.rtf).toFixed(2) : '—';
-      document.getElementById('uri').textContent = sidecar.uri || '—';
-      const txt = window.WhisperBridge.getLatestTranscript();
-      document.getElementById('tx').textContent = txt || 'No transcript found.';
-    } catch(e){ document.getElementById('tx').textContent='Load error'; }
-  }
-  load();
-
-  document.getElementById('copy').onclick = () => {
-    const t = document.getElementById('tx').textContent || '';
-    if (navigator.clipboard) navigator.clipboard.writeText(t);
-  };
-  document.getElementById('new').onclick = () => { if (hasBridge && window.WhisperBridge.newAnalysis) window.WhisperBridge.newAnalysis(); };
-  document.getElementById('back').onclick = () => { if (hasBridge && window.WhisperBridge.goBack) window.WhisperBridge.goBack(); };
-})();
-</script>
-
-</body>
-</html>
-
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script src="https://cdn.tailwindcss.com"></script>
   <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest' };</script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -141,7 +32,7 @@
     <div class="w-1 h-1 bg-white rounded-full"></div>
     <div class="w-1 h-1 bg-white rounded-full"></div>
     <div class="w-1 h-1 bg-gray-600 rounded-full"></div>
-    <span class="ml-2">Verizon</span>
+    <span class="ml-2">Xiaomi Pad</span>
   </div>
   <div class="font-medium">9:41</div>
   <div class="flex items-center space-x-1">
@@ -159,7 +50,7 @@
     </button>
     <div>
       <h1 class="text-lg font-semibold text-white">Whisper Results</h1>
-      <p class="text-xs text-gray-400">Analysis Complete</p>
+      <p class="text-xs text-gray-400">Step 3: Transcription Complete</p>
     </div>
   </div>
   <div class="flex items-center space-x-3">
@@ -173,31 +64,31 @@
 <!-- Main Content -->
 <div class="px-6 py-6 pb-24">
   
-  <!-- Job Summary -->
+  <!-- Completion Status Card -->
   <div class="bg-gradient-to-r from-green-600 to-blue-600 rounded-2xl p-6 mb-6 border border-dark-600">
     <div class="flex items-center justify-between mb-4">
       <h2 class="text-xl font-semibold text-white">Processing Complete</h2>
       <div class="flex items-center space-x-2">
-        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-        <span class="text-sm text-green-400 font-medium">Success</span>
+        <div class="w-2 h-2 bg-white rounded-full"></div>
+        <span class="text-sm text-white font-medium">Step 3/3</span>
       </div>
     </div>
     <div class="grid grid-cols-2 gap-4 text-sm">
       <div>
-        <p class="text-gray-300">Job ID</p>
-        <p class="text-white font-medium" id="job-id-display">job_demo_001</p>
+        <p class="text-gray-300">Batch ID</p>
+        <p class="text-white font-medium" id="batch-id">batch_12345</p>
       </div>
       <div>
         <p class="text-gray-300">Duration</p>
-        <p class="text-white font-medium" id="job-duration">2:34</p>
+        <p class="text-white font-medium" id="total-duration">2:34</p>
       </div>
       <div>
         <p class="text-gray-300">Processing Time</p>
-        <p class="text-white font-medium" id="job-processing">7.2s</p>
+        <p class="text-white font-medium" id="processing-time">7.2s</p>
       </div>
       <div>
-        <p class="text-gray-300">Confidence</p>
-        <p class="text-white font-medium" id="job-confidence">94.7%</p>
+        <p class="text-gray-300">RTF</p>
+        <p class="text-white font-medium" id="rtf-value">0.45</p>
       </div>
     </div>
   </div>
@@ -210,109 +101,22 @@
         <div class="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center mx-auto mb-2">
           <i class="fa-solid fa-file-text text-purple-400 text-lg"></i>
         </div>
-        <p class="text-2xl font-bold text-white" id="stat-segments">12</p>
+        <p class="text-2xl font-bold text-white" id="total-segments">12</p>
         <p class="text-xs text-gray-400">Segments</p>
       </div>
       <div class="text-center">
         <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center mx-auto mb-2">
           <i class="fa-solid fa-clock text-blue-400 text-lg"></i>
         </div>
-        <p class="text-2xl font-bold text-white" id="stat-processing">7.2s</p>
-        <p class="text-xs text-gray-400">Processing</p>
+        <p class="text-2xl font-bold text-white" id="avg-confidence">94.7%</p>
+        <p class="text-xs text-gray-400">Confidence</p>
       </div>
       <div class="text-center">
         <div class="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center mx-auto mb-2">
           <i class="fa-solid fa-check-circle text-green-400 text-lg"></i>
         </div>
-        <p class="text-2xl font-bold text-white" id="stat-confidence">94.7%</p>
-        <p class="text-xs text-gray-400">Confidence</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Xiaomi Resource Stats -->
-  <div class="bg-dark-700 rounded-2xl p-6 border border-dark-600 mb-6">
-    <div class="flex items-center justify-between mb-4">
-      <h3 class="text-lg font-semibold text-white">Xiaomi Resource Usage</h3>
-      <div class="flex items-center space-x-2">
-        <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-        <span class="text-sm text-blue-400 font-medium">Live</span>
-      </div>
-    </div>
-    
-    <!-- Resource Stats Grid -->
-    <div class="grid grid-cols-2 gap-4 mb-4">
-      <div class="bg-dark-600 rounded-xl p-4">
-        <div class="flex items-center justify-between mb-2">
-          <div class="flex items-center space-x-2">
-            <i class="fa-solid fa-memory text-orange-400"></i>
-            <span class="text-sm text-gray-300">Memory</span>
-          </div>
-          <span class="text-lg font-bold text-white" id="resource-memory">0%</span>
-        </div>
-        <div class="w-full bg-dark-500 rounded-full h-2">
-          <div class="bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full transition-all duration-300" id="memory-bar" style="width: 0%"></div>
-        </div>
-      </div>
-      
-      <div class="bg-dark-600 rounded-xl p-4">
-        <div class="flex items-center justify-between mb-2">
-          <div class="flex items-center space-x-2">
-            <i class="fa-solid fa-microchip text-blue-400"></i>
-            <span class="text-sm text-gray-300">CPU</span>
-          </div>
-          <span class="text-lg font-bold text-white" id="resource-cpu">0%</span>
-        </div>
-        <div class="w-full bg-dark-500 rounded-full h-2">
-          <div class="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300" id="cpu-bar" style="width: 0%"></div>
-        </div>
-      </div>
-      
-      <div class="bg-dark-600 rounded-xl p-4">
-        <div class="flex items-center justify-between mb-2">
-          <div class="flex items-center space-x-2">
-            <i class="fa-solid fa-battery-half text-green-400"></i>
-            <span class="text-sm text-gray-300">Battery</span>
-          </div>
-          <span class="text-lg font-bold text-white" id="resource-battery">0%</span>
-        </div>
-        <div class="w-full bg-dark-500 rounded-full h-2">
-          <div class="bg-gradient-to-r from-green-500 to-yellow-500 h-2 rounded-full transition-all duration-300" id="battery-bar" style="width: 0%"></div>
-        </div>
-      </div>
-      
-      <div class="bg-dark-600 rounded-xl p-4">
-        <div class="flex items-center justify-between mb-2">
-          <div class="flex items-center space-x-2">
-            <i class="fa-solid fa-thermometer-half text-red-400"></i>
-            <span class="text-sm text-gray-300">Temperature</span>
-          </div>
-          <span class="text-lg font-bold text-white" id="resource-temperature">0°C</span>
-        </div>
-        <div class="text-xs text-gray-400 mt-1" id="temperature-status">Normal</div>
-      </div>
-    </div>
-    
-    <!-- Detailed Stats -->
-    <div class="bg-dark-600 rounded-xl p-4">
-      <h4 class="text-sm font-semibold text-gray-300 mb-3">System Details</h4>
-      <div class="space-y-2 text-xs">
-        <div class="flex justify-between">
-          <span class="text-gray-400">Battery Details:</span>
-          <span class="text-white" id="battery-details">Loading...</span>
-        </div>
-        <div class="flex justify-between">
-          <span class="text-gray-400">GPU Info:</span>
-          <span class="text-white" id="gpu-info">Loading...</span>
-        </div>
-        <div class="flex justify-between">
-          <span class="text-gray-400">Thread Info:</span>
-          <span class="text-white" id="thread-info">Loading...</span>
-        </div>
-        <div class="flex justify-between">
-          <span class="text-gray-400">Last Update:</span>
-          <span class="text-white" id="last-update">Never</span>
-        </div>
+        <p class="text-2xl font-bold text-white" id="files-processed">3</p>
+        <p class="text-xs text-gray-400">Files</p>
       </div>
     </div>
   </div>
@@ -405,6 +209,93 @@
     </div>
   </div>
 
+  <!-- Xiaomi Resource Stats -->
+  <div class="bg-dark-700 rounded-2xl p-6 border border-dark-600 mb-6">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold text-white">Xiaomi Resource Usage</h3>
+      <div class="flex items-center space-x-2">
+        <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+        <span class="text-sm text-blue-400 font-medium">Live</span>
+      </div>
+    </div>
+    
+    <!-- Resource Stats Grid -->
+    <div class="grid grid-cols-2 gap-4 mb-4">
+      <div class="bg-dark-600 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center space-x-2">
+            <i class="fa-solid fa-memory text-orange-400"></i>
+            <span class="text-sm text-gray-300">Memory</span>
+          </div>
+          <span class="text-lg font-bold text-white" id="resource-memory">0%</span>
+        </div>
+        <div class="w-full bg-dark-500 rounded-full h-2">
+          <div class="bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full transition-all duration-300" id="memory-bar" style="width: 0%"></div>
+        </div>
+      </div>
+      
+      <div class="bg-dark-600 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center space-x-2">
+            <i class="fa-solid fa-microchip text-blue-400"></i>
+            <span class="text-sm text-gray-300">CPU</span>
+          </div>
+          <span class="text-lg font-bold text-white" id="resource-cpu">0%</span>
+        </div>
+        <div class="w-full bg-dark-500 rounded-full h-2">
+          <div class="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300" id="cpu-bar" style="width: 0%"></div>
+        </div>
+      </div>
+      
+      <div class="bg-dark-600 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center space-x-2">
+            <i class="fa-solid fa-battery-half text-green-400"></i>
+            <span class="text-sm text-gray-300">Battery</span>
+          </div>
+          <span class="text-lg font-bold text-white" id="resource-battery">0%</span>
+        </div>
+        <div class="w-full bg-dark-500 rounded-full h-2">
+          <div class="bg-gradient-to-r from-green-500 to-yellow-500 h-2 rounded-full transition-all duration-300" id="battery-bar" style="width: 0%"></div>
+        </div>
+      </div>
+      
+      <div class="bg-dark-600 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center space-x-2">
+            <i class="fa-solid fa-thermometer-half text-red-400"></i>
+            <span class="text-sm text-gray-300">Temperature</span>
+          </div>
+          <span class="text-lg font-bold text-white" id="resource-temperature">0°C</span>
+        </div>
+        <div class="text-xs text-gray-400 mt-1" id="temperature-status">Normal</div>
+      </div>
+    </div>
+    
+    <!-- Detailed Stats -->
+    <div class="bg-dark-600 rounded-xl p-4">
+      <h4 class="text-sm font-semibold text-gray-300 mb-3">System Details</h4>
+      <div class="space-y-2 text-xs">
+        <div class="flex justify-between">
+          <span class="text-gray-400">Battery Details:</span>
+          <span class="text-white" id="battery-details">Loading...</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-400">GPU Info:</span>
+          <span class="text-white" id="gpu-info">Loading...</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-400">Thread Info:</span>
+          <span class="text-white" id="thread-info">Loading...</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-400">Last Update:</span>
+          <span class="text-white" id="last-update">Never</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Quick Actions -->
   <div class="bg-dark-700 rounded-2xl p-6 border border-dark-600 mb-6">
     <h3 class="text-lg font-semibold text-white mb-4">Quick Actions</h3>
@@ -425,21 +316,21 @@
 <!-- Bottom Navigation -->
 <div id="bottom-navigation" class="fixed bottom-0 left-0 right-0 bg-dark-800 border-t border-dark-600 px-6 py-3 pb-[env(safe-area-inset-bottom)]">
   <div class="flex items-center justify-between">
-  <div class="flex items-center space-x-6">
-    <div class="flex items-center space-x-2">
-      <div class="w-2 h-2 bg-gray-600 rounded-full"></div>
-      <span class="text-xs text-gray-500">Select</span>
+    <div class="flex items-center space-x-6">
+      <div class="flex items-center space-x-2">
+        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+        <span class="text-xs text-green-400 font-medium">Select</span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+        <span class="text-xs text-green-400 font-medium">Processing</span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+        <span class="text-xs text-green-400 font-medium">Results</span>
+      </div>
     </div>
-    <div class="flex items-center space-x-2">
-      <div class="w-2 h-2 bg-gray-600 rounded-full"></div>
-      <span class="text-xs text-gray-500">Processing</span>
-    </div>
-    <div class="flex items-center space-x-2">
-      <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-      <span class="text-xs text-green-400 font-medium">Results</span>
-    </div>
-  </div>
-  <div class="text-xs text-gray-500">Whisper Results</div>
+    <div class="text-xs text-gray-500">Whisper Results</div>
   </div>
 </div>
 
@@ -449,11 +340,13 @@
 (() => {
   // State management
   const state = {
-    jobId: 'job_demo_001',
-    duration: '2:34',
+    batchId: 'batch_12345',
+    totalDuration: '2:34',
     processingTime: '7.2s',
-    confidence: '94.7%',
-    segments: 12
+    rtf: 0.45,
+    totalSegments: 12,
+    avgConfidence: 94.7,
+    filesProcessed: 3
   };
 
   // Sample transcript data
@@ -469,11 +362,13 @@
       { start: '01:55', text: 'Thank you for watching our campaign overview.' }
     ],
     metadata: {
-      jobId: state.jobId,
-      duration: state.duration,
+      batchId: state.batchId,
+      totalDuration: state.totalDuration,
       processingTime: state.processingTime,
-      confidence: state.confidence,
-      segments: state.segments,
+      rtf: state.rtf,
+      totalSegments: state.totalSegments,
+      avgConfidence: state.avgConfidence,
+      filesProcessed: state.filesProcessed,
       language: 'English',
       createdAt: new Date().toISOString()
     }
@@ -488,7 +383,9 @@
     async exportAll(jobId) { return window.WhisperBridge.exportAll(jobId); },
     async goBack() { return window.WhisperBridge.goBack(); },
     async newAnalysis() { return window.WhisperBridge.newAnalysis(); },
-    async getResourceStats() { return window.WhisperBridge.getResourceStats(); }
+    async getResourceStats() { return window.WhisperBridge.getResourceStats(); },
+    async getLatestSidecar() { return window.WhisperBridge.getLatestSidecar(); },
+    async getLatestTranscript() { return window.WhisperBridge.getLatestTranscript(); }
   } : {
     // Mock bridge for browser testing
     async exportJson(jobId) { 
@@ -509,20 +406,13 @@
     },
     async goBack() { 
       console.log('Mock: Going back to previous step');
-      if (window.AndroidInterface) {
-        window.AndroidInterface.goBack();
-      }
       return 'ok';
     },
     async newAnalysis() { 
       console.log('Mock: Starting new analysis');
-      if (window.AndroidInterface) {
-        window.AndroidInterface.openWhisperFileSelection();
-      }
       return 'ok';
     },
     async getResourceStats() { 
-      console.log('Mock: Getting resource stats');
       return JSON.stringify({
         memory: Math.floor(Math.random() * 50) + 20,
         cpu: Math.floor(Math.random() * 30) + 10,
@@ -533,6 +423,18 @@
         threadInfo: 'Threads: 45 | Main: main | Active: 12 | CPUs: 8 | Est. Processing: 16',
         timestamp: Date.now()
       });
+    },
+    async getLatestSidecar() {
+      return JSON.stringify({
+        job_id: state.batchId,
+        uri: 'file:///sdcard/video1.mp4',
+        preset: 'Single',
+        rtf: state.rtf,
+        created_at: Date.now()
+      });
+    },
+    async getLatestTranscript() {
+      return transcriptData.segments.map(segment => `${segment.start} - ${segment.text}`).join('\n');
     }
   };
 
@@ -594,7 +496,7 @@
 
   exportJsonBtn.onclick = async () => {
     try {
-      await bridge.exportJson(state.jobId);
+      await bridge.exportJson(state.batchId);
       showToast('JSON export completed');
     } catch (e) {
       console.error('Error exporting JSON:', e);
@@ -604,7 +506,7 @@
 
   exportSrtBtn.onclick = async () => {
     try {
-      await bridge.exportSrt(state.jobId);
+      await bridge.exportSrt(state.batchId);
       showToast('SRT export completed');
     } catch (e) {
       console.error('Error exporting SRT:', e);
@@ -614,7 +516,7 @@
 
   exportTxtBtn.onclick = async () => {
     try {
-      await bridge.exportTxt(state.jobId);
+      await bridge.exportTxt(state.batchId);
       showToast('TXT export completed');
     } catch (e) {
       console.error('Error exporting TXT:', e);
@@ -624,7 +526,7 @@
 
   exportAllBtn.onclick = async () => {
     try {
-      await bridge.exportAll(state.jobId);
+      await bridge.exportAll(state.batchId);
       showToast('All formats exported successfully');
     } catch (e) {
       console.error('Error exporting all:', e);
@@ -707,15 +609,71 @@
     }
   }
 
+  // Load real data from bridge
+  async function loadResultsData() {
+    try {
+      if (hasBridge) {
+        // Load sidecar data
+        const sidecar = await bridge.getLatestSidecar();
+        const sidecarData = JSON.parse(sidecar);
+        
+        if (sidecarData.job_id) {
+          document.getElementById('batch-id').textContent = sidecarData.job_id;
+          state.batchId = sidecarData.job_id;
+        }
+        
+        if (sidecarData.rtf) {
+          document.getElementById('rtf-value').textContent = sidecarData.rtf.toFixed(2);
+          state.rtf = sidecarData.rtf;
+        }
+        
+        // Load transcript data
+        const transcript = await bridge.getLatestTranscript();
+        if (transcript) {
+          // Update transcript display with real data
+          const transcriptContent = document.getElementById('transcript-content');
+          transcriptContent.innerHTML = '';
+          
+          const lines = transcript.split('\n');
+          lines.forEach(line => {
+            if (line.trim()) {
+              const [time, ...textParts] = line.split(' - ');
+              const text = textParts.join(' - ');
+              
+              const segmentDiv = document.createElement('div');
+              segmentDiv.className = 'flex items-start space-x-3';
+              segmentDiv.innerHTML = `
+                <div class="w-16 text-xs text-gray-400 mt-1">${time || '00:00'}</div>
+                <div class="flex-1">
+                  <p class="text-white text-sm">${text}</p>
+                </div>
+              `;
+              transcriptContent.appendChild(segmentDiv);
+            }
+          });
+        }
+      }
+    } catch (e) {
+      console.error('Error loading results data:', e);
+    }
+  }
+
   // Initialize
   console.log('Whisper Results initialized');
   showToast('Results loaded successfully');
   
+  // Load real data
+  loadResultsData();
+  
   // Start resource monitoring
   initializeResourceMonitoring();
+  
+  // Auto-refresh resource stats
+  if (hasBridge) {
+    setInterval(initializeResourceMonitoring, 3000);
+  }
 
 })();
-
 </script>
 
 </body>

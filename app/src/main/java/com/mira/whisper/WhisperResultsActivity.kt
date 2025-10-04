@@ -52,7 +52,7 @@ class WhisperResultsActivity : AppCompatActivity() {
             whisperBridge = AndroidWhisperBridge(this@WhisperResultsActivity)
             addJavascriptInterface(whisperBridge, "WhisperBridge")
             
-            // Load the whisper results HTML file
+            // Load the results page (Step 3 of 3-page flow)
             loadUrl("file:///android_asset/web/whisper_results.html")
         }
         

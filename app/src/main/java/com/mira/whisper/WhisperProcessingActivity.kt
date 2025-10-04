@@ -47,7 +47,7 @@ class WhisperProcessingActivity : AppCompatActivity() {
             // Add the WhisperBridge
             addJavascriptInterface(AndroidWhisperBridge(this@WhisperProcessingActivity), "WhisperBridge")
             
-            // Load the consolidated processing page
+            // Load the processing page (Step 2 of 3-page flow)
             loadUrl("file:///android_asset/web/whisper_processing.html")
         }
         
