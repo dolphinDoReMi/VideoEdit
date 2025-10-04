@@ -1,6 +1,7 @@
 package com.mira.com.feature.whisper.api
 
 import android.content.Context
+import android.util.Log
 import androidx.work.BackoffPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
@@ -44,5 +45,42 @@ object WhisperApi {
                 .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
                 .setInputData(data).build()
         WorkManager.getInstance(ctx).enqueue(work)
+    }
+
+    fun enqueueBatchTranscribe(
+        ctx: Context,
+        uris: List<String>,
+        model: String,
+        threads: Int = 4,
+        beam: Int = 0,
+        lang: String? = null,
+        translate: Boolean = false,
+    ) {
+        Log.d("WhisperApi", "Enqueuing batch transcription for ${uris.size} files")
+        
+        uris.forEachIndexed { index, uri ->
+            val data = workDataOf(
+                "uri" to uri,
+                "model" to model,
+                "threads" to threads,
+                "beam" to beam,
+                "lang" to (lang ?: "auto"),
+                "translate" to translate,
+                "batch_index" to index,
+                "batch_total" to uris.size
+            )
+            
+            val work = OneTimeWorkRequestBuilder<TranscribeWorker>()
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
+                .setInputData(data)
+                .addTag("batch_transcribe")
+                .build()
+                
+            WorkManager.getInstance(ctx).enqueue(work)
+            
+            Log.d("WhisperApi", "Enqueued batch job ${index + 1}/${uris.size} for $uri")
+        }
+        
+        Log.d("WhisperApi", "All ${uris.size} batch jobs enqueued")
     }
 }

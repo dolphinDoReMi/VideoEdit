@@ -55,9 +55,9 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         
-        <!-- Main Activity - Whisper Step 1 (Staging) -->
+        <!-- Main Activity - Whisper File Selection -->
         <activity 
-            android:name="com.mira.com.whisper.WhisperStep1Activity"
+            android:name="com.mira.com.whisper.WhisperFileSelectionActivity"
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Mira">
@@ -95,9 +95,9 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Mira" />
         
-        <!-- Whisper Step-2 Activity -->
+        <!-- Whisper Processing Activity -->
         <activity
-            android:name="com.mira.com.whisper.WhisperStep2Activity"
+            android:name="com.mira.com.whisper.WhisperProcessingActivity"
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Mira" />
@@ -109,9 +109,9 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Mira" />
 
-        <!-- Whisper Step-3 Activity -->
+        <!-- Whisper Results Activity -->
         <activity
-            android:name="com.mira.com.whisper.WhisperStep3Activity"
+            android:name="com.mira.com.whisper.WhisperResultsActivity"
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Mira" />

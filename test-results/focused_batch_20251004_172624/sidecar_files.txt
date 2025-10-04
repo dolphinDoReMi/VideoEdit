@@ -1,0 +1,4 @@
+/sdcard/MiraWhisper/models/whisper-tiny.en-q5_1.bin
+/sdcard/MiraWhisper/sidecars
+/sdcard/MiraWhisper/sidecars/whisper_test_003.json
+/sdcard/MiraWhisper/sidecars/whisper_long_video_001.json

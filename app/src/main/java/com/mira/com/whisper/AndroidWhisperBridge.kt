@@ -109,6 +109,52 @@ class AndroidWhisperBridge(private val context: Context) {
     }
     
     /**
+     * Start batch Whisper processing for multiple files.
+     * 
+     * @param jsonStr JSON string containing batch parameters with uris array
+     * @return batch job ID as string
+     */
+    @JavascriptInterface
+    fun runBatch(jsonStr: String): String {
+        return try {
+            Log.d(TAG, "Received batch run request: $jsonStr")
+            
+            val jsonObj = JSONObject(jsonStr)
+            val urisArray = jsonObj.getJSONArray("uris")
+            val preset = jsonObj.optString("preset", "Single")
+            val modelPath = jsonObj.getString("modelPath")
+            val threads = jsonObj.optInt("threads", 4)
+            
+            val uris = mutableListOf<String>()
+            for (i in 0 until urisArray.length()) {
+                uris.add(urisArray.getString(i))
+            }
+            
+            val batchId = "batch_${UUID.randomUUID().toString().substring(0, 8)}"
+            
+            Log.d(TAG, "Starting batch processing: $batchId for ${uris.size} files")
+            
+            // Use the actual WhisperApi for batch processing
+            com.mira.com.feature.whisper.api.WhisperApi.enqueueBatchTranscribe(
+                ctx = context,
+                uris = uris,
+                model = modelPath,
+                threads = threads,
+                beam = 0,
+                lang = "auto",
+                translate = false
+            )
+            
+            Log.d(TAG, "Enqueued batch processing: $batchId")
+            batchId
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Error in runBatch(): ${e.message}", e)
+            "error_${System.currentTimeMillis()}"
+        }
+    }
+
+    /**
      * Export results for a specific job.
      * 
      * @param jobId Job ID to export
@@ -422,6 +468,63 @@ class AndroidWhisperBridge(private val context: Context) {
     }
     
     /**
+     * Get all video files from common directories for batch selection.
+     * 
+     * @return JSON string with array of video file information
+     */
+    @JavascriptInterface
+    fun getAllVideoFiles(): String {
+        return try {
+            Log.d(TAG, "Getting all video files")
+            
+            val commonPaths = listOf(
+                "/sdcard/DCIM/Camera/",
+                "/sdcard/Movies/",
+                "/sdcard/Download/",
+                "/sdcard/"
+            )
+            
+            // Supported video formats
+            val supportedFormats = listOf("mp4", "avi", "mov", "mkv", "webm", "wmv", "flv", "m4v", "3gp")
+            val videoFiles = mutableListOf<Map<String, Any>>()
+            
+            for (path in commonPaths) {
+                val dir = File(path)
+                if (dir.exists() && dir.isDirectory) {
+                    val files = dir.listFiles { file ->
+                        file.isFile && file.extension.lowercase() in supportedFormats
+                    }
+                    if (files != null) {
+                        for (file in files) {
+                            videoFiles.add(mapOf(
+                                "name" to file.name,
+                                "size" to file.length(),
+                                "uri" to "file://${file.absolutePath}",
+                                "format" to file.extension.lowercase(),
+                                "path" to file.absolutePath
+                            ))
+                        }
+                    }
+                }
+            }
+            
+            Log.d(TAG, "Found ${videoFiles.size} video files")
+            JSONObject().apply {
+                put("files", JSONArray(videoFiles))
+                put("count", videoFiles.size)
+            }.toString()
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Error in getAllVideoFiles(): ${e.message}", e)
+            JSONObject().apply {
+                put("files", JSONArray())
+                put("count", 0)
+                put("error", e.message)
+            }.toString()
+        }
+    }
+    
+    /**
      * Pick a video file URI using Android's file picker.
      * 
      * @return URI string of the selected video file
@@ -450,11 +553,14 @@ class AndroidWhisperBridge(private val context: Context) {
                 "/sdcard/"
             )
             
+            // Supported video formats
+            val supportedFormats = listOf("mp4", "avi", "mov", "mkv", "webm", "wmv", "flv", "m4v", "3gp")
+            
             for (path in commonPaths) {
                 val dir = File(path)
                 if (dir.exists() && dir.isDirectory) {
                     val videoFiles = dir.listFiles { file ->
-                        file.isFile && file.extension.lowercase() in listOf("mp4", "avi", "mov", "mkv", "webm")
+                        file.isFile && file.extension.lowercase() in supportedFormats
                     }
                     if (videoFiles != null && videoFiles.isNotEmpty()) {
                         val selectedFile = videoFiles.first()

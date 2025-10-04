@@ -1,0 +1,10 @@
+Batch Processing Performance Analysis
+====================================
+Test Time: Sat Oct  4 17:30:16 CST 2025
+Videos Processed: 3
+Jobs Submitted: 3
+Jobs Completed: 1
+Output Files Created:        8
+Memory Usage: 0KB
+Error Count:       99
+Processing Duration: ~8 seconds

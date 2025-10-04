@@ -3,6 +3,7 @@ package com.mira.com.feature.whisper.runner
 import android.content.Context
 import android.net.Uri
 import android.os.SystemClock
+import android.util.Log
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.mira.com.core.media.AudioResampler
@@ -25,10 +26,19 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
         val beam = inputData.getInt("beam", 0)
         val lang = inputData.getString("lang") ?: "auto"
         val translate = inputData.getBoolean("translate", false)
+        val batchIndex = inputData.getInt("batch_index", -1)
+        val batchTotal = inputData.getInt("batch_total", -1)
         val ctx = applicationContext
         val dao = AsrDb.get(ctx).dao()
         val fileId = Hash.sha1(uri)
-        val jobId = "wjob_${System.currentTimeMillis()}_${fileId.take(8)}"
+        val jobId = if (batchIndex >= 0) {
+            "batch_${batchIndex}_${System.currentTimeMillis()}_${fileId.take(8)}"
+        } else {
+            "wjob_${System.currentTimeMillis()}_${fileId.take(8)}"
+        }
+        
+        Log.d("TranscribeWorker", "Starting job $jobId for $uri (batch: $batchIndex/$batchTotal)")
+        
         dao.insertJob(
             AsrJob(
                 jobId, fileId, model, threads, beam, lang, translate,
@@ -59,15 +69,33 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
                     rtf = rtf,
                     segmentsJson = JSONObject(json).optJSONArray("segments"),
                 )
-            val outDir = File("/sdcard/Mira/out").apply { mkdirs() }
-            val sidecarPath = File(outDir, "${fileId}_$jobId.json").absolutePath
+            val outDir = File("/sdcard/MiraWhisper/out").apply { mkdirs() }
+            val sidecarDir = File("/sdcard/MiraWhisper/sidecars").apply { mkdirs() }
+            
+            // Generate batch-specific sidecar filename
+            val sidecarFilename = if (batchIndex >= 0) {
+                "batch_${batchIndex}_${fileId}_$jobId.json"
+            } else {
+                "${fileId}_$jobId.json"
+            }
+            
+            val sidecarPath = File(sidecarDir, sidecarFilename).absolutePath
             File(sidecarPath).writeText(sidecar.toString())
+            
+            Log.d("TranscribeWorker", "Generated sidecar: $sidecarPath")
 
             // 4) Persist file state & segments
             dao.updateFile(AsrFile(fileId, uri, null, pcm.durationMs, 16_000, 1, "DONE", System.currentTimeMillis()))
             val segs = Sidecars.segmentsFrom(sidecar, jobId)
             dao.insertSegments(segs)
             dao.finishJob(jobId, inferMs, rtf, "DONE", sidecarPath, null)
+            
+            if (batchIndex >= 0) {
+                Log.d("TranscribeWorker", "Completed batch job $jobId ($batchIndex/$batchTotal) - RTF: $rtf")
+            } else {
+                Log.d("TranscribeWorker", "Completed job $jobId - RTF: $rtf")
+            }
+            
             Result.success()
         } catch (t: Throwable) {
             dao.finishJob(jobId, null, null, "ERROR", null, t.message)

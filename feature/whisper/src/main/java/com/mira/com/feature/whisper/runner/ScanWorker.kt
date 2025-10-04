@@ -38,7 +38,7 @@ class ScanWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, params) {
                     .setInputData(
                         workDataOf(
                             "uri" to uri,
-                            "model" to "/sdcard/Mira/models/ggml-base.en.gguf",
+                            "model" to "/sdcard/MiraWhisper/models/ggml-base.en.gguf",
                             "threads" to 4,
                             "beam" to 0,
                             "lang" to "auto",

@@ -440,9 +440,17 @@ class MainActivity : AppCompatActivity() {
         }
         
         @JavascriptInterface
-        fun openWhisperStep2() {
+        fun openWhisperFileSelection() {
             runOnUiThread {
-                val intent = Intent(this@MainActivity, com.mira.com.whisper.WhisperStep2Activity::class.java)
+                val intent = Intent(this@MainActivity, com.mira.com.whisper.WhisperFileSelectionActivity::class.java)
+                startActivity(intent)
+            }
+        }
+
+        @JavascriptInterface
+        fun openWhisperProcessing() {
+            runOnUiThread {
+                val intent = Intent(this@MainActivity, com.mira.com.whisper.WhisperProcessingActivity::class.java)
                 startActivity(intent)
             }
         }
@@ -458,9 +466,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         @JavascriptInterface
-        fun openWhisperStep3() {
+        fun openWhisperResults() {
             runOnUiThread {
-                val intent = Intent(this@MainActivity, com.mira.com.whisper.WhisperStep3Activity::class.java)
+                val intent = Intent(this@MainActivity, com.mira.com.whisper.WhisperResultsActivity::class.java)
                 startActivity(intent)
             }
         }

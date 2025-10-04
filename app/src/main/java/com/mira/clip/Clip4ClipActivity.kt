@@ -5,7 +5,7 @@ import android.util.Log
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.ComponentActivity
-import com.mira.com.ui.web.StagingJsBridge
+import com.mira.com.whisper.AndroidWhisperBridge
 
 /**
  * Main activity for mira_clip CLIP4Clip service.
@@ -37,8 +37,8 @@ class Clip4ClipActivity : ComponentActivity() {
             allowContentAccess = true
         }
         
-        // Add JavaScript bridge
-        webView.addJavascriptInterface(StagingJsBridge(this), "StagingBridge")
+        // Add JavaScript bridge for whisper functionality
+        webView.addJavascriptInterface(AndroidWhisperBridge(this), "WhisperBridge")
         
         // Set WebView client
         webView.webViewClient = object : WebViewClient() {

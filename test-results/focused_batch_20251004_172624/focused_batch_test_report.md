@@ -1,0 +1,3945 @@
+# Focused Whisper Batch Test Report
+
+**Date**: Sat Oct  4 17:26:42 CST 2025
+**App**: com.mira.com
+**Test Type**: Focused Batch Processing Steps 1-3
+
+## Test Summary
+
+This test focused on verifying the core whisper batch processing functionality across all three steps.
+
+## Screenshots Captured
+
+- `initial_state.png` - Initial app state
+- `step1_ui.png` - Step 1 UI elements
+- `processing_state.png` - Processing state (Step 2)
+- `results_state.png` - Results state (Step 3)
+
+## Files Found
+
+### Available Test Files
+test_video_with_audio.mp4
+video_v1_device.mp4
+video_v1_long.mp4
+
+### Output Files
+/sdcard/MiraWhisper/out/test_audio.json
+/sdcard/MiraWhisper/out/test_audio.srt
+/sdcard/MiraWhisper/out/asr_files.json
+/sdcard/MiraWhisper/out/asr_jobs.json
+/sdcard/MiraWhisper/out/asr_segments.json
+/sdcard/MiraWhisper/out/video_v1.json
+/sdcard/MiraWhisper/out/video_v1.srt
+/sdcard/MiraWhisper/out/video_v1_files.json
+/sdcard/MiraWhisper/out/test_video_with_audio.json
+/sdcard/MiraWhisper/out/test_video_with_audio.srt
+/sdcard/MiraWhisper/out/test_video_files.json
+/sdcard/MiraWhisper/out/video_v1_long.json
+/sdcard/MiraWhisper/out/video_v1_long.srt
+/sdcard/MiraWhisper/out/chinese_transcription_real.json
+/sdcard/MiraWhisper/out/chinese_transcription_real.srt
+/sdcard/MiraWhisper/sidecars/whisper_test_003.json
+/sdcard/MiraWhisper/sidecars/whisper_long_video_001.json
+/sdcard/MiraWhisper/sidecars/chinese_transcription_real.json
+
+### Sidecar Files
+/sdcard/MiraWhisper/models/whisper-tiny.en-q5_1.bin
+/sdcard/MiraWhisper/sidecars
+/sdcard/MiraWhisper/sidecars/whisper_test_003.json
+/sdcard/MiraWhisper/sidecars/whisper_long_video_001.json
+
+## Performance Analysis
+
+Memory Usage: 0KB
+Error Count:       79
+Test Time: Sat Oct  4 17:26:41 CST 2025
+
+## Logs
+
+### Processing Logs
+10-04 16:10:03.024  2448  6586 I ActivityManager: Enqueued broadcast Intent { act=com.mira.whisper.RUN flg=0x400000 }: 0
+10-04 16:10:08.721  2448  3862 I WindowManager: Try to add startingWindow type = STARTING_WINDOW_TYPE_SPLASH_SCREEN this = ActivityRecord{552ab04 u0 com.mira.com/.whisper.WhisperStep2Activity t749} mOccludesParent = true preAllowTaskSnapshot = true afterAllowTaskSnapshot = true newTask = true taskSwitch = true processRunning = true activityCreated = false activityAllDrawn = false isSnapshotCompatible = false resolvedTheme = 2131624202 theme = 2131624202
+10-04 16:10:08.723  3627  3733 I SoScStageCoordinator: Transition requested:TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=749 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep2Activity } baseActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} topActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} origActivity=null realActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} numActivities=1 lastActiveTime=2848596901 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@ae5f18f} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 43, 0) topActivityInfo=ActivityInfo{71b9c1c com.mira.com.whisper.WhisperStep2Activity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=2136 topActivityLetterboxHeight=3200 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}} isImmersive=false mTopActivityRequestOrientation=-2 mBehindAppLockPkg=null mOriginatingUid=0 isEmbedded=false shouldBeVisible=true isCreatedByOrganizer=false mIsCastMode=false mTopActivityMediaSize=Rect(0, 0 - 0, 0) mTopActivityRecordName=ActivityRecord{552ab04 u0 com.mira.com/.whisper.WhisperStep2Activity t749} mTopActivityOrientation=-2}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 2814 } isSoScActive:false triggerTask:TaskInfo{userId=0 taskId=749 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep2Activity } baseActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} topActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} origActivity=null realActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} numActivities=1 lastActiveTime=2848596901 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@ae5f18f} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 43, 0) topActivityInfo=ActivityInfo{71b9c1c com.mira.com.whisper.WhisperStep2Activity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=2136 topActivityLetterboxHeight=3200 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}} isImmersive=
+10-04 16:10:21.341  3627  3733 I SoScStageCoordinator: Transition requested:TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 taskId=749 displayId=0 isRunning=false baseIntent=Intent { flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep2Activity } baseActivity=null topActivity=null origActivity=null realActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} numActivities=0 lastActiveTime=2848596905 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@473d975} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 43, 0) topActivityInfo=null launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}} isImmersive=false mTopActivityRequestOrientation=-2 mBehindAppLockPkg=null mOriginatingUid=0 isEmbedded=false shouldBeVisible=false isCreatedByOrganizer=false mIsCastMode=false mTopActivityMediaSize=null mTopActivityRecordName=null mTopActivityOrientation=-2}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 2815 } isSoScActive:false triggerTask:TaskInfo{userId=0 taskId=749 displayId=0 isRunning=false baseIntent=Intent { flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep2Activity } baseActivity=null topActivity=null origActivity=null realActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} numActivities=0 lastActiveTime=2848596905 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@473d975} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 43, 0) topActivityInfo=null launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}} isImmersive=false mTopActivityRequestOrientation=-2 mBehindAppLockPkg=null mOriginatingUid=0 isEmbedded=false shouldBeVisible=false isCreatedByOrganizer=false mIsCastMode=false mTopActivityMediaSize=null mTopActivityRecordName=null mTopActivityOrientation=-2}
+10-04 16:10:42.603  2448  2507 I WindowManager: Try to add startingWindow type = STARTING_WINDOW_TYPE_SPLASH_SCREEN this = ActivityRecord{aa5c90a u0 com.mira.com/.whisper.WhisperStep2Activity t752} mOccludesParent = true preAllowTaskSnapshot = true afterAllowTaskSnapshot = true newTask = true taskSwitch = true processRunning = false activityCreated = false activityAllDrawn = false isSnapshotCompatible = false resolvedTheme = 2131624202 theme = 2131624202
+10-04 16:10:42.606  3627  3733 I SoScStageCoordinator: Transition requested:TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=752 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep2Activity } baseActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} topActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} origActivity=null realActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} numActivities=1 lastActiveTime=2848630785 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@6d18aef} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 43, 0) topActivityInfo=ActivityInfo{36729fc com.mira.com.whisper.WhisperStep2Activity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=2136 topActivityLetterboxHeight=3200 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}} isImmersive=false mTopActivityRequestOrientation=-2 mBehindAppLockPkg=null mOriginatingUid=0 isEmbedded=false shouldBeVisible=true isCreatedByOrganizer=false mIsCastMode=false mTopActivityMediaSize=Rect(0, 0 - 0, 0) mTopActivityRecordName=ActivityRecord{aa5c90a u0 com.mira.com/.whisper.WhisperStep2Activity t752} mTopActivityOrientation=-2}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 2819 } isSoScActive:false triggerTask:TaskInfo{userId=0 taskId=752 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep2Activity } baseActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} topActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} origActivity=null realActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} numActivities=1 lastActiveTime=2848630785 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@6d18aef} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 43, 0) topActivityInfo=ActivityInfo{36729fc com.mira.com.whisper.WhisperStep2Activity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=2136 topActivityLetterboxHeight=3200 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}} isImmersive=
+10-04 16:10:49.643  2448  2986 I ActivityManager: Enqueued broadcast Intent { act=com.mira.whisper.RUN flg=0x400000 (has extras) }: 0
+10-04 16:11:02.021  2448  6586 I ActivityManager: Enqueued broadcast Intent { act=com.mira.whisper.RUN flg=0x400000 (has extras) }: 0
+10-04 16:11:13.476  2448  3859 I WindowManager: Try to add startingWindow type = STARTING_WINDOW_TYPE_SPLASH_SCREEN this = ActivityRecord{b8da5a3 u0 com.mira.com/.whisper.WhisperStep2Activity t758} mOccludesParent = true preAllowTaskSnapshot = true afterAllowTaskSnapshot = true newTask = true taskSwitch = true processRunning = false activityCreated = false activityAllDrawn = false isSnapshotCompatible = false resolvedTheme = 2131624202 theme = 2131624202
+10-04 16:11:13.482  3627  3733 I SoScStageCoordinator: Transition requested:TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=758 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep2Activity } baseActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} topActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} origActivity=null realActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} numActivities=1 lastActiveTime=2848661658 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@b440713} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 43, 0) topActivityInfo=ActivityInfo{1d0fd50 com.mira.com.whisper.WhisperStep2Activity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=2136 topActivityLetterboxHeight=3200 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}} isImmersive=false mTopActivityRequestOrientation=-2 mBehindAppLockPkg=null mOriginatingUid=0 isEmbedded=false shouldBeVisible=true isCreatedByOrganizer=false mIsCastMode=false mTopActivityMediaSize=Rect(0, 0 - 0, 0) mTopActivityRecordName=ActivityRecord{b8da5a3 u0 com.mira.com/.whisper.WhisperStep2Activity t758} mTopActivityOrientation=-2}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 2831 } isSoScActive:false triggerTask:TaskInfo{userId=0 taskId=758 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep2Activity } baseActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} topActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} origActivity=null realActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} numActivities=1 lastActiveTime=2848661658 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@b440713} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 43, 0) topActivityInfo=ActivityInfo{1d0fd50 com.mira.com.whisper.WhisperStep2Activity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=2136 topActivityLetterboxHeight=3200 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}} isImmersive=
+10-04 16:11:18.768  2448  3516 I ActivityManager: Enqueued broadcast Intent { act=com.mira.whisper.RUN flg=0x400000 (has extras) }: 0
+10-04 16:12:30.877  3627  3733 I SoScStageCoordinator: Transition requested:TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 taskId=758 displayId=0 isRunning=false baseIntent=Intent { flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep2Activity } baseActivity=null topActivity=null origActivity=null realActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} numActivities=0 lastActiveTime=2848738999 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@c9ab693} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 43, 0) topActivityInfo=null launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}} isImmersive=false mTopActivityRequestOrientation=-2 mBehindAppLockPkg=null mOriginatingUid=0 isEmbedded=false shouldBeVisible=false isCreatedByOrganizer=false mIsCastMode=false mTopActivityMediaSize=null mTopActivityRecordName=null mTopActivityOrientation=-2}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 2835 } isSoScActive:false triggerTask:TaskInfo{userId=0 taskId=758 displayId=0 isRunning=false baseIntent=Intent { flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep2Activity } baseActivity=null topActivity=null origActivity=null realActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} numActivities=0 lastActiveTime=2848738999 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@c9ab693} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 43, 0) topActivityInfo=null launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}} isImmersive=false mTopActivityRequestOrientation=-2 mBehindAppLockPkg=null mOriginatingUid=0 isEmbedded=false shouldBeVisible=false isCreatedByOrganizer=false mIsCastMode=false mTopActivityMediaSize=null mTopActivityRecordName=null mTopActivityOrientation=-2}
+10-04 16:17:12.489  2448  4026 I WindowManager: Try to add startingWindow type = STARTING_WINDOW_TYPE_SPLASH_SCREEN this = ActivityRecord{5080f21 u0 com.mira.com/.whisper.WhisperStep1Activity t769} mOccludesParent = true preAllowTaskSnapshot = true afterAllowTaskSnapshot = true newTask = true taskSwitch = true processRunning = false activityCreated = false activityAllDrawn = false isSnapshotCompatible = false resolvedTheme = 2131624202 theme = 2131624202
+10-04 16:17:12.495  3627  3733 I SoScStageCoordinator: Transition requested:TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=769 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep1Activity } baseActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep1Activity} topActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep1Activity} origActivity=null realActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep1Activity} numActivities=1 lastActiveTime=2849020672 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@15d1261} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 43, 0) topActivityInfo=ActivityInfo{8409186 com.mira.com.whisper.WhisperStep1Activity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=2136 topActivityLetterboxHeight=3200 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}} isImmersive=false mTopActivityRequestOrientation=-2 mBehindAppLockPkg=null mOriginatingUid=0 isEmbedded=false shouldBeVisible=true isCreatedByOrganizer=false mIsCastMode=false mTopActivityMediaSize=Rect(0, 0 - 0, 0) mTopActivityRecordName=ActivityRecord{5080f21 u0 com.mira.com/.whisper.WhisperStep1Activity t769} mTopActivityOrientation=-2}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 2854 } isSoScActive:false triggerTask:TaskInfo{userId=0 taskId=769 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep1Activity } baseActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep1Activity} topActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep1Activity} origActivity=null realActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep1Activity} numActivities=1 lastActiveTime=2849020672 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@15d1261} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 43, 0) topActivityInfo=ActivityInfo{8409186 com.mira.com.whisper.WhisperStep1Activity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=2136 topActivityLetterboxHeight=3200 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}} isImmersive=
+10-04 16:18:44.721  3627  3733 I SoScStageCoordinator: Transition requested:TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=769 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep1Activity } baseActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep1Activity} topActivity=ComponentInfo{com.mira.com/com.mira.clip.Clip4ClipActivity} origActivity=null realActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep1Activity} numActivities=2 lastActiveTime=2849112896 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@bee24e9} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 43, 0) topActivityInfo=ActivityInfo{8dae56e com.mira.clip.Clip4ClipActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=2136 topActivityLetterboxHeight=3200 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}} isImmersive=false mTopActivityRequestOrientation=1 mBehindAppLockPkg=null mOriginatingUid=0 isEmbedded=false shouldBeVisible=true isCreatedByOrganizer=false mIsCastMode=false mTopActivityMediaSize=Rect(0, 0 - 0, 0) mTopActivityRecordName=ActivityRecord{e473cc9 u0 com.mira.com/com.mira.clip.Clip4ClipActivity t769} mTopActivityOrientation=-2}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 2855 } isSoScActive:false triggerTask:TaskInfo{userId=0 taskId=769 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep1Activity } baseActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep1Activity} topActivity=ComponentInfo{com.mira.com/com.mira.clip.Clip4ClipActivity} origActivity=null realActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep1Activity} numActivities=2 lastActiveTime=2849112896 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@bee24e9} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 43, 0) topActivityInfo=ActivityInfo{8dae56e com.mira.clip.Clip4ClipActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=2136 topActivityLetterboxHeight=3200 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}} isImmersive=false mTopActivityRequestOrientation=1 mBehin
+10-04 16:20:26.309  2448  3859 I WindowManager: Try to add startingWindow type = STARTING_WINDOW_TYPE_SPLASH_SCREEN this = ActivityRecord{be373ea u0 com.mira.com/.whisper.WhisperStep2Activity t771} mOccludesParent = true preAllowTaskSnapshot = true afterAllowTaskSnapshot = true newTask = true taskSwitch = true processRunning = false activityCreated = false activityAllDrawn = false isSnapshotCompatible = false resolvedTheme = 2131624202 theme = 2131624202
+10-04 16:20:26.313  3627  3733 I SoScStageCoordinator: Transition requested:TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=771 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep2Activity } baseActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} topActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} origActivity=null realActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} numActivities=1 lastActiveTime=2849214489 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@a0b1d92} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 43, 0) topActivityInfo=ActivityInfo{aaa4363 com.mira.com.whisper.WhisperStep2Activity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=2136 topActivityLetterboxHeight=3200 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}} isImmersive=false mTopActivityRequestOrientation=-2 mBehindAppLockPkg=null mOriginatingUid=0 isEmbedded=false shouldBeVisible=true isCreatedByOrganizer=false mIsCastMode=false mTopActivityMediaSize=Rect(0, 0 - 0, 0) mTopActivityRecordName=ActivityRecord{be373ea u0 com.mira.com/.whisper.WhisperStep2Activity t771} mTopActivityOrientation=-2}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 2858 } isSoScActive:false triggerTask:TaskInfo{userId=0 taskId=771 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep2Activity } baseActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} topActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} origActivity=null realActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} numActivities=1 lastActiveTime=2849214489 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@a0b1d92} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 43, 0) topActivityInfo=ActivityInfo{aaa4363 com.mira.com.whisper.WhisperStep2Activity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=2136 topActivityLetterboxHeight=3200 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}} isImmersive=
+10-04 16:20:35.376  2448  6185 I ActivityManager: Enqueued broadcast Intent { act=com.mira.whisper.RUN flg=0x400000 (has extras) }: 0
+10-04 16:23:20.174  2448  4028 I WindowManager: Try to add startingWindow type = STARTING_WINDOW_TYPE_SNAPSHOT this = ActivityRecord{be373ea u0 com.mira.com/.whisper.WhisperStep2Activity t771} mOccludesParent = true preAllowTaskSnapshot = true afterAllowTaskSnapshot = true newTask = false taskSwitch = true processRunning = true activityCreated = true activityAllDrawn = false isSnapshotCompatible = true resolvedTheme = 2131624202 theme = 2131624202
+10-04 16:23:20.178  3627  3733 I SoScStageCoordinator: Transition requested:TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=771 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep2Activity } baseActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} topActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} origActivity=null realActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} numActivities=1 lastActiveTime=2849388354 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@22e4000} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 43, 0) topActivityInfo=ActivityInfo{5317039 com.mira.com.whisper.WhisperStep2Activity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=false isVisibleRequested=true isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=2136 topActivityLetterboxHeight=3200 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}} isImmersive=false mTopActivityRequestOrientation=1 mBehindAppLockPkg=null mOriginatingUid=0 isEmbedded=false shouldBeVisible=true isCreatedByOrganizer=false mIsCastMode=false mTopActivityMediaSize=Rect(0, 0 - 0, 0) mTopActivityRecordName=ActivityRecord{be373ea u0 com.mira.com/.whisper.WhisperStep2Activity t771} mTopActivityOrientation=1}, pipTask = null, remoteTransition = RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@b54567e, appThread = null, debugName = null, hyperRemoteTransition = android.window.IHyperRemoteTransition$Stub$Proxy@8b767df }, displayChange = null, flags = 0, debugId = 2860 } isSoScActive:false triggerTask:TaskInfo{userId=0 taskId=771 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep2Activity } baseActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} topActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} origActivity=null realActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} numActivities=1 lastActiveTime=2849388354 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@22e4000} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 43, 0) topActivityInfo=ActivityInfo{5317039 com.mira.com.whisper.WhisperStep2Activity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=false isVisibleRequested=true isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=2136 topActivityLetterboxHeight=3200 isU
+10-04 16:25:28.684  2448  6705 I WindowManager: Try to add startingWindow type = STARTING_WINDOW_TYPE_NONE this = ActivityRecord{d3f30fb u0 com.mira.com/.whisper.WhisperStep1Activity t771} mOccludesParent = true preAllowTaskSnapshot = true afterAllowTaskSnapshot = true newTask = false taskSwitch = false processRunning = true activityCreated = false activityAllDrawn = false isSnapshotCompatible = false resolvedTheme = 2131624202 theme = 2131624202
+10-04 16:25:28.687  3627  3733 I SoScStageCoordinator: Transition requested:TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=771 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep2Activity } baseActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} topActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep1Activity} origActivity=null realActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} numActivities=2 lastActiveTime=2849516864 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@be5b0a8} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 43, 0) topActivityInfo=ActivityInfo{68f97c1 com.mira.com.whisper.WhisperStep1Activity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=2136 topActivityLetterboxHeight=3200 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}} isImmersive=false mTopActivityRequestOrientation=1 mBehindAppLockPkg=null mOriginatingUid=0 isEmbedded=false shouldBeVisible=true isCreatedByOrganizer=false mIsCastMode=false mTopActivityMediaSize=Rect(0, 0 - 0, 0) mTopActivityRecordName=ActivityRecord{d3f30fb u0 com.mira.com/.whisper.WhisperStep1Activity t771} mTopActivityOrientation=-2}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 2861 } isSoScActive:false triggerTask:TaskInfo{userId=0 taskId=771 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep2Activity } baseActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} topActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep1Activity} origActivity=null realActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} numActivities=2 lastActiveTime=2849516864 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@be5b0a8} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 43, 0) topActivityInfo=ActivityInfo{68f97c1 com.mira.com.whisper.WhisperStep1Activity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=2136 topActivityLetterboxHeight=3200 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}} isImmersive=false m
+10-04 16:43:29.264 24397 24560 D WM-Processor: r: processing WorkGenerationalId(workSpecId=b817c6e0-307a-447b-979f-063b8fc798c7, generation=0)
+10-04 16:43:29.696 24397 24553 D WM-Processor: r: processing WorkGenerationalId(workSpecId=15688c3f-3aff-4939-b540-5ee956435e8d, generation=0)
+10-04 17:02:54.380  4919  5230 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=a8952c22-9515-49c5-b7a3-6c7c15f8ee24, generation=0)
+10-04 17:10:00.370  3627  3627 D KeyguardViewMediator: KeyguardViewMediator queue processing message: SET_OCCLUDED
+10-04 17:10:05.762  4919  5233 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=9a45f0e1-babf-4bb6-801f-264b6815bf8c, generation=0)
+10-04 17:10:07.810  3627  3733 I SoScStageCoordinator: Transition requested:TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=773 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.mira.com/com.mira.clip.Clip4ClipActivity } baseActivity=ComponentInfo{com.mira.com/com.mira.clip.Clip4ClipActivity} topActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} origActivity=null realActivity=ComponentInfo{com.mira.com/com.mira.clip.Clip4ClipActivity} numActivities=2 lastActiveTime=2852195987 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@57be79e} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 43, 0) topActivityInfo=ActivityInfo{887f27f com.mira.com.whisper.WhisperStep2Activity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=false isVisibleRequested=false isSleeping=true locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=2136 topActivityLetterboxHeight=3200 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}} isImmersive=false mTopActivityRequestOrientation=-2 mBehindAppLockPkg=null mOriginatingUid=0 isEmbedded=false shouldBeVisible=true isCreatedByOrganizer=false mIsCastMode=false mTopActivityMediaSize=Rect(0, 0 - 0, 0) mTopActivityRecordName=ActivityRecord{b02a408 u0 com.mira.com/.whisper.WhisperStep2Activity t773} mTopActivityOrientation=-2}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 2868 } isSoScActive:false triggerTask:TaskInfo{userId=0 taskId=773 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.mira.com/com.mira.clip.Clip4ClipActivity } baseActivity=ComponentInfo{com.mira.com/com.mira.clip.Clip4ClipActivity} topActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} origActivity=null realActivity=ComponentInfo{com.mira.com/com.mira.clip.Clip4ClipActivity} numActivities=2 lastActiveTime=2852195987 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@57be79e} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 43, 0) topActivityInfo=ActivityInfo{887f27f com.mira.com.whisper.WhisperStep2Activity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=false isVisibleRequested=false isSleeping=true locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=2136 topActivityLetterboxHeight=3200 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}} isImmersive=false mTopActivityRequestOrientation=-2 
+10-04 17:10:07.864 13198 13198 D VRI[WhisperStep2Activity]: vri.reportNextDraw android.view.ViewRootImpl.performTraversals:4880 android.view.ViewRootImpl.doTraversal:3497 android.view.ViewRootImpl$TraversalRunnable.run:11436 android.view.Choreographer$CallbackRecord.run:1790 android.view.Choreographer$CallbackRecord.run:1799 
+10-04 17:10:13.164  4919  5230 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=332c2daf-47a7-42a4-8f4b-d06808a3d560, generation=0)
+10-04 17:10:15.912  3627  3733 I SoScStageCoordinator: Transition requested:TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=773 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.mira.com/com.mira.clip.Clip4ClipActivity } baseActivity=ComponentInfo{com.mira.com/com.mira.clip.Clip4ClipActivity} topActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep3Activity} origActivity=null realActivity=ComponentInfo{com.mira.com/com.mira.clip.Clip4ClipActivity} numActivities=3 lastActiveTime=2852204091 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@9221738} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 43, 0) topActivityInfo=ActivityInfo{3e72311 com.mira.com.whisper.WhisperStep3Activity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=false isVisibleRequested=false isSleeping=true locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=2136 topActivityLetterboxHeight=3200 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}} isImmersive=false mTopActivityRequestOrientation=-2 mBehindAppLockPkg=null mOriginatingUid=0 isEmbedded=false shouldBeVisible=true isCreatedByOrganizer=false mIsCastMode=false mTopActivityMediaSize=Rect(0, 0 - 0, 0) mTopActivityRecordName=ActivityRecord{f0c66e7 u0 com.mira.com/.whisper.WhisperStep3Activity t773} mTopActivityOrientation=-2}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 2869 } isSoScActive:false triggerTask:TaskInfo{userId=0 taskId=773 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.mira.com/com.mira.clip.Clip4ClipActivity } baseActivity=ComponentInfo{com.mira.com/com.mira.clip.Clip4ClipActivity} topActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep3Activity} origActivity=null realActivity=ComponentInfo{com.mira.com/com.mira.clip.Clip4ClipActivity} numActivities=3 lastActiveTime=2852204091 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@9221738} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 43, 0) topActivityInfo=ActivityInfo{3e72311 com.mira.com.whisper.WhisperStep3Activity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=false isVisibleRequested=false isSleeping=true locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=2136 topActivityLetterboxHeight=3200 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}} isImmersive=false mTopActivityRequestOrientation=-2 
+10-04 17:10:15.944 13198 13198 D VRI[WhisperStep3Activity]: vri.reportNextDraw android.view.ViewRootImpl.performTraversals:4880 android.view.ViewRootImpl.doTraversal:3497 android.view.ViewRootImpl$TraversalRunnable.run:11436 android.view.Choreographer$CallbackRecord.run:1790 android.view.Choreographer$CallbackRecord.run:1799 
+10-04 17:10:21.233  4919  5230 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=2443efd8-3ca3-459e-acca-c9a81083cc46, generation=0)
+10-04 17:19:12.020  2448  6292 I WindowManager: Try to add startingWindow type = STARTING_WINDOW_TYPE_SPLASH_SCREEN this = ActivityRecord{f0c66e7 u0 com.mira.com/.whisper.WhisperStep3Activity t773} mOccludesParent = true preAllowTaskSnapshot = true afterAllowTaskSnapshot = true newTask = false taskSwitch = true processRunning = true activityCreated = true activityAllDrawn = false isSnapshotCompatible = false resolvedTheme = 2131624202 theme = 2131624202
+10-04 17:19:12.031  3627  3627 D KeyguardViewMediator: KeyguardViewMediator queue processing message: NOTIFY_STARTED_WAKING_UP
+10-04 17:19:12.046  3627  3627 D KeyguardViewMediator: KeyguardViewMediator queue processing message: START_KEYGUARD_EXIT_ANIM
+10-04 17:19:12.060 13198 13198 D VRI[WhisperStep3Activity]: vri.reportNextDraw android.view.ViewRootImpl.performTraversals:4880 android.view.ViewRootImpl.doTraversal:3497 android.view.ViewRootImpl$TraversalRunnable.run:11436 android.view.Choreographer$CallbackRecord.run:1790 android.view.Choreographer$CallbackRecord.run:1799 
+10-04 17:19:12.700  3627  3627 D KeyguardViewMediator: KeyguardViewMediator queue processing message: SET_OCCLUDED
+10-04 17:19:27.594 13198 13198 D VRI[WhisperStep2Activity]: vri.reportNextDraw android.view.ViewRootImpl.performTraversals:4880 android.view.ViewRootImpl.doTraversal:3497 android.view.ViewRootImpl$TraversalRunnable.run:11436 android.view.Choreographer$CallbackRecord.run:1790 android.view.Choreographer$CallbackRecord.run:1799 
+10-04 17:20:16.885  3374  3810 D Launcher.LauncherUtils: app(com.mira.com|UserHandle{0}) isDisable=false, backupProcessingPkg=null
+10-04 17:21:15.183  2448  6191 I WindowManager: Try to add startingWindow type = STARTING_WINDOW_TYPE_SPLASH_SCREEN this = ActivityRecord{c143b65 u0 com.mira.com/.whisper.WhisperStep1Activity t776} mOccludesParent = true preAllowTaskSnapshot = true afterAllowTaskSnapshot = true newTask = true taskSwitch = true processRunning = false activityCreated = false activityAllDrawn = false isSnapshotCompatible = false resolvedTheme = 2131624202 theme = 2131624202
+10-04 17:21:15.185  3627  3733 I SoScStageCoordinator: Transition requested:TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=776 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep1Activity } baseActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep1Activity} topActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep1Activity} origActivity=null realActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep1Activity} numActivities=1 lastActiveTime=2852863363 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@5be34db} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 43, 0) topActivityInfo=ActivityInfo{2796b78 com.mira.com.whisper.WhisperStep1Activity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=2136 topActivityLetterboxHeight=3200 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}} isImmersive=false mTopActivityRequestOrientation=-2 mBehindAppLockPkg=null mOriginatingUid=0 isEmbedded=false shouldBeVisible=true isCreatedByOrganizer=false mIsCastMode=false mTopActivityMediaSize=Rect(0, 0 - 0, 0) mTopActivityRecordName=ActivityRecord{c143b65 u0 com.mira.com/.whisper.WhisperStep1Activity t776} mTopActivityOrientation=-2}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 2878 } isSoScActive:false triggerTask:TaskInfo{userId=0 taskId=776 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep1Activity } baseActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep1Activity} topActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep1Activity} origActivity=null realActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep1Activity} numActivities=1 lastActiveTime=2852863363 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@5be34db} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 43, 0) topActivityInfo=ActivityInfo{2796b78 com.mira.com.whisper.WhisperStep1Activity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=2136 topActivityLetterboxHeight=3200 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}} isImmersive=
+10-04 17:21:15.574 25510 25510 D VRI[WhisperStep1Activity]: vri.reportNextDraw android.view.ViewRootImpl.performTraversals:4880 android.view.ViewRootImpl.doTraversal:3497 android.view.ViewRootImpl$TraversalRunnable.run:11436 android.view.Choreographer$CallbackRecord.run:1790 android.view.Choreographer$CallbackRecord.run:1799 
+10-04 17:21:22.689  4919  5136 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=3f2b7f0c-b9d3-473d-a3ad-c6637986e355, generation=0)
+10-04 17:21:22.692  4919  5136 D WM-Processor: Work WorkGenerationalId(workSpecId=3f2b7f0c-b9d3-473d-a3ad-c6637986e355, generation=0) is already enqueued for processing
+10-04 17:21:25.618  2448  2988 I WindowManager: Try to add startingWindow type = STARTING_WINDOW_TYPE_NONE this = ActivityRecord{2b92060 u0 com.mira.com/.whisper.WhisperStep2Activity t776} mOccludesParent = true preAllowTaskSnapshot = true afterAllowTaskSnapshot = true newTask = false taskSwitch = false processRunning = true activityCreated = false activityAllDrawn = false isSnapshotCompatible = false resolvedTheme = 2131624202 theme = 2131624202
+10-04 17:21:25.621  3627  3733 I SoScStageCoordinator: Transition requested:TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=776 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep1Activity } baseActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep1Activity} topActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} origActivity=null realActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep1Activity} numActivities=2 lastActiveTime=2852873798 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@df9b6d9} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 43, 0) topActivityInfo=ActivityInfo{ddf289e com.mira.com.whisper.WhisperStep2Activity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=2136 topActivityLetterboxHeight=3200 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}} isImmersive=false mTopActivityRequestOrientation=1 mBehindAppLockPkg=null mOriginatingUid=0 isEmbedded=false shouldBeVisible=true isCreatedByOrganizer=false mIsCastMode=false mTopActivityMediaSize=Rect(0, 0 - 0, 0) mTopActivityRecordName=ActivityRecord{2b92060 u0 com.mira.com/.whisper.WhisperStep2Activity t776} mTopActivityOrientation=-2}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 2879 } isSoScActive:false triggerTask:TaskInfo{userId=0 taskId=776 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep1Activity } baseActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep1Activity} topActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep2Activity} origActivity=null realActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep1Activity} numActivities=2 lastActiveTime=2852873798 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@df9b6d9} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 43, 0) topActivityInfo=ActivityInfo{ddf289e com.mira.com.whisper.WhisperStep2Activity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=2136 topActivityLetterboxHeight=3200 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}} isImmersive=false m
+10-04 17:21:25.652 25510 25510 D VRI[WhisperStep2Activity]: vri.reportNextDraw android.view.ViewRootImpl.performTraversals:4880 android.view.ViewRootImpl.doTraversal:3497 android.view.ViewRootImpl$TraversalRunnable.run:11436 android.view.Choreographer$CallbackRecord.run:1790 android.view.Choreographer$CallbackRecord.run:1799 
+10-04 17:21:30.165  2448  6185 I WindowManager: Try to add startingWindow type = STARTING_WINDOW_TYPE_NONE this = ActivityRecord{674baab u0 com.mira.com/.whisper.WhisperStep3Activity t776} mOccludesParent = true preAllowTaskSnapshot = true afterAllowTaskSnapshot = true newTask = false taskSwitch = false processRunning = true activityCreated = false activityAllDrawn = false isSnapshotCompatible = false resolvedTheme = 2131624202 theme = 2131624202
+10-04 17:21:30.170  3627  3733 I SoScStageCoordinator: Transition requested:TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=776 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep1Activity } baseActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep1Activity} topActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep3Activity} origActivity=null realActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep1Activity} numActivities=3 lastActiveTime=2852878345 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@983ee50} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 43, 0) topActivityInfo=ActivityInfo{1a90849 com.mira.com.whisper.WhisperStep3Activity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=2136 topActivityLetterboxHeight=3200 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}} isImmersive=false mTopActivityRequestOrientation=1 mBehindAppLockPkg=null mOriginatingUid=0 isEmbedded=false shouldBeVisible=true isCreatedByOrganizer=false mIsCastMode=false mTopActivityMediaSize=Rect(0, 0 - 0, 0) mTopActivityRecordName=ActivityRecord{674baab u0 com.mira.com/.whisper.WhisperStep3Activity t776} mTopActivityOrientation=-2}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 2880 } isSoScActive:false triggerTask:TaskInfo{userId=0 taskId=776 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep1Activity } baseActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep1Activity} topActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep3Activity} origActivity=null realActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep1Activity} numActivities=3 lastActiveTime=2852878345 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@983ee50} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 43, 0) topActivityInfo=ActivityInfo{1a90849 com.mira.com.whisper.WhisperStep3Activity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=2136 topActivityLetterboxHeight=3200 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}} isImmersive=false m
+10-04 17:21:30.191 25510 25510 D VRI[WhisperStep3Activity]: vri.reportNextDraw android.view.ViewRootImpl.performTraversals:4880 android.view.ViewRootImpl.doTraversal:3497 android.view.ViewRootImpl$TraversalRunnable.run:11436 android.view.Choreographer$CallbackRecord.run:1790 android.view.Choreographer$CallbackRecord.run:1799 
+10-04 17:22:55.883  3627  3733 I SoScStageCoordinator: Transition requested:TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=776 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep1Activity } baseActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep1Activity} topActivity=ComponentInfo{com.mira.com/com.mira.clip.Clip4ClipActivity} origActivity=null realActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep1Activity} numActivities=4 lastActiveTime=2852964060 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@56d1ed6} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 43, 0) topActivityInfo=ActivityInfo{e5f8557 com.mira.clip.Clip4ClipActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=2136 topActivityLetterboxHeight=3200 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}} isImmersive=false mTopActivityRequestOrientation=1 mBehindAppLockPkg=null mOriginatingUid=0 isEmbedded=false shouldBeVisible=true isCreatedByOrganizer=false mIsCastMode=false mTopActivityMediaSize=Rect(0, 0 - 0, 0) mTopActivityRecordName=ActivityRecord{33e1808 u0 com.mira.com/com.mira.clip.Clip4ClipActivity t776} mTopActivityOrientation=-2}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 2881 } isSoScActive:false triggerTask:TaskInfo{userId=0 taskId=776 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep1Activity } baseActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep1Activity} topActivity=ComponentInfo{com.mira.com/com.mira.clip.Clip4ClipActivity} origActivity=null realActivity=ComponentInfo{com.mira.com/com.mira.com.whisper.WhisperStep1Activity} numActivities=4 lastActiveTime=2852964060 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=200 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@56d1ed6} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 43, 0) topActivityInfo=ActivityInfo{e5f8557 com.mira.clip.Clip4ClipActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=2136 topActivityLetterboxHeight=3200 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}} isImmersive=false mTopActivityRequestOrientation=1 mBehin
+10-04 17:23:05.498  4919  5233 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=7132fa6e-0e3c-4d76-818d-25774f452909, generation=0)
+10-04 17:23:05.514  4919  5231 D WM-Processor: Work WorkGenerationalId(workSpecId=7132fa6e-0e3c-4d76-818d-25774f452909, generation=0) is already enqueued for processing
+10-04 17:23:37.766  4919  5230 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=210a1667-a1ed-4b62-b23d-3db883c4706d, generation=0)
+10-04 17:23:37.772  4919  5136 D WM-Processor: Work WorkGenerationalId(workSpecId=210a1667-a1ed-4b62-b23d-3db883c4706d, generation=0) is already enqueued for processing
+10-04 17:23:40.466  4919  5231 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=fce1cab9-16e7-4b5d-b3cc-e62f06c9948d, generation=0)
+10-04 17:23:42.946  4919  5231 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=c5427368-5cd8-4294-bdbd-a2d7a78dd015, generation=0)
+10-04 17:23:43.451 20506 20506 I adbd    : in ShellService: screencap -p /sdcard/processing_state.png
+10-04 17:23:43.829  4919  4919 I MediaProvider: receive action = android.intent.action.MEDIA_SCANNER_SCAN_FILE schemeSpecificPart = ///sdcard/processing_state.png
+10-04 17:23:43.906 20506 20506 I adbd    : in ShellService: rm /sdcard/processing_state.png
+10-04 17:23:45.452  4919  5231 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=64c15d5e-c3a2-403e-acdb-291db32a5f78, generation=0)
+10-04 17:23:48.218  4919  5230 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=02d67add-baf1-4257-a476-b05ef3ea2ca7, generation=0)
+10-04 17:26:29.215  4919  5233 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=68acc82d-7270-4eb3-8059-bbfbb7400aaf, generation=0)
+10-04 17:26:31.791  4919  5136 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=ac54a350-6e80-4f4b-a314-82fa644a362e, generation=0)
+10-04 17:26:34.472  4919  5231 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=b81becf6-fcfc-4cdc-9c82-449873df8e50, generation=0)
+10-04 17:26:34.974 20506 20506 I adbd    : in ShellService: screencap -p /sdcard/processing_state.png
+10-04 17:26:35.401  4919  4919 I MediaProvider: receive action = android.intent.action.MEDIA_SCANNER_SCAN_FILE schemeSpecificPart = ///sdcard/processing_state.png
+10-04 17:26:35.496 20506 20506 I adbd    : in ShellService: rm /sdcard/processing_state.png
+10-04 17:26:37.046  4919  5230 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=311f30bf-cfc9-4ef9-9dbc-56c0318b1aae, generation=0)
+
+### Results Logs
+10-04 15:55:56.199  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 15:56:56.252  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 15:57:56.281  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 15:58:30.613  1093 16435 D vold    : idle maintenance completed
+10-04 15:58:56.304  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 15:59:56.320  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:00:05.125 16468 16488 I ActivityThread: TrafficStats init done
+10-04 16:00:05.150 16468 16488 I ActivityThread: Miui Feature Init done
+10-04 16:00:05.279 16503 16523 I ActivityThread: TrafficStats init done
+10-04 16:00:05.298 16503 16523 I ActivityThread: Miui Feature Init done
+10-04 16:00:56.347  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:01:16.923 15782 16566 I ActivityThread: TrafficStats init done
+10-04 16:01:16.942 15782 16566 I ActivityThread: Miui Feature Init done
+10-04 16:01:19.265 16607 16626 I ActivityThread: TrafficStats init done
+10-04 16:01:19.284 16607 16626 I ActivityThread: Miui Feature Init done
+10-04 16:01:20.408 16712 16733 I ActivityThread: TrafficStats init done
+10-04 16:01:20.429 16712 16733 I ActivityThread: Miui Feature Init done
+10-04 16:01:21.025 16752 16773 I ActivityThread: TrafficStats init done
+10-04 16:01:21.050 16752 16773 I ActivityThread: Miui Feature Init done
+10-04 16:01:21.155 16793 16822 I ActivityThread: TrafficStats init done
+10-04 16:01:21.176 16793 16822 I ActivityThread: Miui Feature Init done
+10-04 16:01:23.300 16846 16869 I ActivityThread: TrafficStats init done
+10-04 16:01:23.322 16846 16869 I ActivityThread: Miui Feature Init done
+10-04 16:01:24.486 16930 16949 I ActivityThread: TrafficStats init done
+10-04 16:01:24.502 16930 16949 I ActivityThread: Miui Feature Init done
+10-04 16:01:56.350  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:02:56.414  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:03:21.265 17000 17021 I ActivityThread: TrafficStats init done
+10-04 16:03:21.284 17000 17021 I ActivityThread: Miui Feature Init done
+10-04 16:03:21.397 17049 17083 I ActivityThread: TrafficStats init done
+10-04 16:03:21.410 17049 17083 I ActivityThread: Miui Feature Init done
+10-04 16:03:21.422 17076 17105 I ActivityThread: TrafficStats init done
+10-04 16:03:21.439 17076 17105 I ActivityThread: Miui Feature Init done
+10-04 16:03:21.523 17167 17202 I ActivityThread: TrafficStats init done
+10-04 16:03:21.546 17167 17202 I ActivityThread: Miui Feature Init done
+10-04 16:03:22.372 17271 17291 I ActivityThread: TrafficStats init done
+10-04 16:03:22.380 17271 17291 I ActivityThread: Miui Feature Init done
+10-04 16:03:22.447  2448  2975 I ActivityTaskManager: START u0 {act=android.intent.action.VIEW flg=0x18000000 cmp=com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity (has extras)} with LAUNCH_MULTIPLE from uid 1000 from pid 2448 callingPackage pm callers: com.android.server.wm.ActivityTaskManagerService.startActivity:1454 com.android.server.am.ActivityManagerService.startActivity:3575 com.android.server.pm.PmInjector.installVerify:65 com.android.server.pm.PackageManagerServiceImpl.verifyInstallFromShell:1335  (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+10-04 16:03:22.462 17313 17341 I ActivityThread: TrafficStats init done
+10-04 16:03:22.469 17313 17341 I ActivityThread: Miui Feature Init done
+10-04 16:03:22.486 16012 17369 I ActivityThread: TrafficStats init done
+10-04 16:03:22.493 16012 17369 I ActivityThread: Miui Feature Init done
+10-04 16:03:22.502  2448  6705 D WindowManager: Set transition=TransitionRecord{d854523 id=2784 type=OPEN flags=0x0}, ready=true, SyncId=2784 info=used=true, override=false, defer=0, states=Display{#0 state=OFF size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.ActivityTaskSupervisor.realStartActivityLocked:1056 
+10-04 16:03:22.522  2448  6292 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{8e14a20 u0 com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity t731 f}} isInVideoOrGameScene: false intent: Intent { act=android.intent.action.VIEW flg=0x18800000 cmp=com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity (has extras) }
+10-04 16:03:22.581  2448  4026 I ActivityTaskManager: resumeTopActivity: Going to sleep, even not allPausedComplete, still make sure we have executed any pending transitions
+10-04 16:03:22.586  2448  4026 I ActivityTaskManager: resumeTopActivity: Going to sleep, even not allPausedComplete, still make sure we have executed any pending transitions
+10-04 16:03:22.704 17473 17495 I ActivityThread: TrafficStats init done
+10-04 16:03:22.711 17473 17495 I ActivityThread: Miui Feature Init done
+10-04 16:03:23.214 17526 17564 I ActivityThread: TrafficStats init done
+10-04 16:03:23.233 17526 17564 I ActivityThread: Miui Feature Init done
+10-04 16:03:23.459 17619 17641 I ActivityThread: TrafficStats init done
+10-04 16:03:23.472 17619 17641 I ActivityThread: Miui Feature Init done
+10-04 16:03:24.604 17666 17685 I ActivityThread: TrafficStats init done
+10-04 16:03:24.637 17666 17685 I ActivityThread: Miui Feature Init done
+10-04 16:03:25.518 17770 17796 I ActivityThread: TrafficStats init done
+10-04 16:03:25.536 17770 17796 I ActivityThread: Miui Feature Init done
+10-04 16:03:25.720 17833 17861 I ActivityThread: TrafficStats init done
+10-04 16:03:25.738 17833 17861 I ActivityThread: Miui Feature Init done
+10-04 16:03:27.917 17890 17915 I ActivityThread: TrafficStats init done
+10-04 16:03:27.931 17890 17915 I ActivityThread: Miui Feature Init done
+10-04 16:03:30.001  2448  2975 I ActivityTaskManager: START u0 {act=android.intent.action.VIEW flg=0x18000000 cmp=com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity (has extras)} with LAUNCH_MULTIPLE from uid 1000 from pid 2448 callingPackage pm callers: com.android.server.wm.ActivityTaskManagerService.startActivity:1454 com.android.server.am.ActivityManagerService.startActivity:3575 com.android.server.pm.PmInjector.installVerify:65 com.android.server.pm.PackageManagerServiceImpl.verifyInstallFromShell:1335  (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+10-04 16:03:30.044 16214 18003 I ActivityThread: TrafficStats init done
+10-04 16:03:30.050 16214 18003 I ActivityThread: Miui Feature Init done
+10-04 16:03:30.058  2448  5105 D WindowManager: Set transition=TransitionRecord{b0857d6 id=2785 type=OPEN flags=0x0}, ready=true, SyncId=2785 info=used=true, override=false, defer=0, states=Display{#0 state=OFF size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.ActivityTaskSupervisor.realStartActivityLocked:1056 
+10-04 16:03:30.075  2448  3859 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{2d4ca57 u0 com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity t732 f}} isInVideoOrGameScene: false intent: Intent { act=android.intent.action.VIEW flg=0x18800000 cmp=com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity (has extras) }
+10-04 16:03:30.133  2448  2506 I ActivityTaskManager: resumeTopActivity: Going to sleep, even not allPausedComplete, still make sure we have executed any pending transitions
+10-04 16:03:30.272 18073 18097 I ActivityThread: TrafficStats init done
+10-04 16:03:30.278 18073 18097 I ActivityThread: Miui Feature Init done
+10-04 16:03:32.492 18134 18156 I ActivityThread: TrafficStats init done
+10-04 16:03:32.519 18134 18156 I ActivityThread: Miui Feature Init done
+10-04 16:03:33.339  2448  6705 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com/com.mira.clip.Clip4ClipActivity} with LAUNCH_MULTIPLE from uid 2000 from pid 18234 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 16:03:33.493 16701 18254 I ActivityThread: TrafficStats init done
+10-04 16:03:33.505 16701 18254 I ActivityThread: Miui Feature Init done
+10-04 16:03:33.529  2448  4027 D WindowManager: Set transition=TransitionRecord{81bc969 id=2786 type=OPEN flags=0x0}, ready=true, SyncId=2786 info=used=true, override=false, defer=0, states=Display{#0 state=OFF size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.ActivityTaskSupervisor.realStartActivityLocked:1056 
+10-04 16:03:33.538  2448  6582 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{b68efee u0 com.mira.com/com.mira.clip.Clip4ClipActivity t733 f}} isInVideoOrGameScene: false intent: Intent { flg=0x10000000 cmp=com.mira.com/com.mira.clip.Clip4ClipActivity }
+10-04 16:03:33.546  2448  4027 D WindowManager: Set transition=TransitionRecord{81bc969 id=2786 type=OPEN flags=0x0}, ready=true, SyncId=2786 info=used=true, override=false, defer=0, states=Display{#0 state=OFF size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.TaskFragment.resumeTopActivity:1894 
+10-04 16:03:33.546  2448  4027 I ActivityTaskManager: resumeTopActivity: Going to sleep, even not allPausedComplete, still make sure we have executed any pending transitions
+10-04 16:03:33.599 18280 18303 I ActivityThread: TrafficStats init done
+10-04 16:03:33.604 18280 18303 I ActivityThread: Miui Feature Init done
+10-04 16:03:35.774 18326 18346 I ActivityThread: TrafficStats init done
+10-04 16:03:35.815 18326 18346 I ActivityThread: Miui Feature Init done
+10-04 16:03:48.418  2448  2987 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com/com.mira.clip.Clip4ClipActivity} with LAUNCH_MULTIPLE from uid 2000 from pid 18436 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 16:03:48.575 17776 18457 I ActivityThread: TrafficStats init done
+10-04 16:03:48.597 17776 18457 I ActivityThread: Miui Feature Init done
+10-04 16:03:48.611  2448  3862 D WindowManager: Set transition=TransitionRecord{e4176c5 id=2787 type=OPEN flags=0x0}, ready=true, SyncId=2787 info=used=true, override=false, defer=0, states=Display{#0 state=OFF size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.ActivityTaskSupervisor.realStartActivityLocked:1056 
+10-04 16:03:48.621  2448  6582 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{56dc81a u0 com.mira.com/com.mira.clip.Clip4ClipActivity t734 f}} isInVideoOrGameScene: false intent: Intent { flg=0x10000000 cmp=com.mira.com/com.mira.clip.Clip4ClipActivity }
+10-04 16:03:48.629  2448  6292 D WindowManager: Set transition=TransitionRecord{e4176c5 id=2787 type=OPEN flags=0x0}, ready=true, SyncId=2787 info=used=true, override=false, defer=0, states=Display{#0 state=OFF size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.TaskFragment.resumeTopActivity:1894 
+10-04 16:03:48.630  2448  6292 I ActivityTaskManager: resumeTopActivity: Going to sleep, even not allPausedComplete, still make sure we have executed any pending transitions
+10-04 16:03:48.634  2448  6276 I ActivityTaskManager: resumeTopActivity: Going to sleep, even not allPausedComplete, still make sure we have executed any pending transitions
+10-04 16:03:50.805 18495 18515 I ActivityThread: TrafficStats init done
+10-04 16:03:50.824 18495 18515 I ActivityThread: Miui Feature Init done
+10-04 16:03:51.940 18597 18625 I ActivityThread: TrafficStats init done
+10-04 16:03:51.961 18597 18625 I ActivityThread: Miui Feature Init done
+10-04 16:03:51.978 18618 18644 I ActivityThread: TrafficStats init done
+10-04 16:03:51.996 18618 18644 I ActivityThread: Miui Feature Init done
+10-04 16:03:52.677  2448  6276 I ActivityTaskManager: START u0 {act=android.intent.action.VIEW dat=file:///... flg=0x10000000 cmp=com.qiyi.video.pad/org.iqiyi.video.activity.PlayerActivity} with LAUNCH_MULTIPLE from uid 2000 from pid 18675 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 16:03:52.727 18219 18716 I ActivityThread: TrafficStats init done
+10-04 16:03:52.731 18681 18721 I ActivityThread: TrafficStats init done
+10-04 16:03:52.733 18219 18716 I ActivityThread: Miui Feature Init done
+10-04 16:03:52.737 18681 18721 I ActivityThread: Miui Feature Init done
+10-04 16:03:52.798 18754 18787 I ActivityThread: TrafficStats init done
+10-04 16:03:52.807 18754 18787 I ActivityThread: Miui Feature Init done
+10-04 16:03:52.811 18779 18806 I ActivityThread: TrafficStats init done
+10-04 16:03:52.818 18779 18806 I ActivityThread: Miui Feature Init done
+10-04 16:03:52.986  2448  6191 D WindowManager: Set transition=TransitionRecord{8224aa id=2788 type=OPEN flags=0x0}, ready=true, SyncId=2788 info=used=true, override=false, defer=0, states=Display{#0 state=OFF size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.ActivityTaskSupervisor.realStartActivityLocked:1056 
+10-04 16:03:52.987 18219 18219 W Looper  : Loop again would have the queued messages be executed before this one completed.
+10-04 16:03:53.411 19121 19145 I ActivityThread: TrafficStats init done
+10-04 16:03:53.423 19121 19145 I ActivityThread: Miui Feature Init done
+10-04 16:03:53.591 19121 19121 W Looper  : Loop again would have the queued messages be executed before this one completed.
+10-04 16:03:54.155 19273 19293 I ActivityThread: TrafficStats init done
+10-04 16:03:54.194 19273 19293 I ActivityThread: Miui Feature Init done
+10-04 16:03:56.108 19399 19420 I ActivityThread: TrafficStats init done
+10-04 16:03:56.124 19399 19420 I ActivityThread: Miui Feature Init done
+10-04 16:03:56.245 19457 19514 I ActivityThread: TrafficStats init done
+10-04 16:03:56.260 19503 19535 I ActivityThread: TrafficStats init done
+10-04 16:03:56.260 19457 19514 I ActivityThread: Miui Feature Init done
+10-04 16:03:56.274 19503 19535 I ActivityThread: Miui Feature Init done
+10-04 16:03:56.394 19587 19611 I ActivityThread: TrafficStats init done
+10-04 16:03:56.416  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:03:56.420 19587 19611 I ActivityThread: Miui Feature Init done
+10-04 16:03:58.351 19651 19671 I ActivityThread: TrafficStats init done
+10-04 16:03:58.379 19651 19671 I ActivityThread: Miui Feature Init done
+10-04 16:03:58.855  2448  2975 I ActivityTaskManager: START u0 {act=android.intent.action.VIEW flg=0x18000000 cmp=com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity (has extras)} with LAUNCH_MULTIPLE from uid 1000 from pid 2448 callingPackage pm callers: com.android.server.wm.ActivityTaskManagerService.startActivity:1454 com.android.server.am.ActivityManagerService.startActivity:3575 com.android.server.pm.PmInjector.installVerify:65 com.android.server.pm.PackageManagerServiceImpl.verifyInstallFromShell:1335  (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+10-04 16:03:58.896 18405 19748 I ActivityThread: TrafficStats init done
+10-04 16:03:58.899 18405 19748 I ActivityThread: Miui Feature Init done
+10-04 16:03:58.909  2448  6292 D WindowManager: Set transition=TransitionRecord{6a860d1 id=2789 type=OPEN flags=0x0}, ready=true, SyncId=2789 info=used=true, override=false, defer=0, states=Display{#0 state=OFF size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.ActivityTaskSupervisor.realStartActivityLocked:1056 
+10-04 16:03:58.928  2448  6292 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{5d71736 u0 com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity t736 f}} isInVideoOrGameScene: false intent: Intent { act=android.intent.action.VIEW flg=0x18800000 cmp=com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity (has extras) }
+10-04 16:03:58.985  2448  6292 I ActivityTaskManager: resumeTopActivity: Going to sleep, even not allPausedComplete, still make sure we have executed any pending transitions
+10-04 16:03:58.997  2448  6555 I ActivityTaskManager: resumeTopActivity: Going to sleep, even not allPausedComplete, still make sure we have executed any pending transitions
+10-04 16:03:59.001  2448  2699 I ActivityTaskManager: resumeTopActivity: Going to sleep, even not allPausedComplete, still make sure we have executed any pending transitions
+10-04 16:03:59.125 19835 19858 I ActivityThread: TrafficStats init done
+10-04 16:03:59.130 19835 19858 I ActivityThread: Miui Feature Init done
+10-04 16:03:59.645 19884 19920 I ActivityThread: TrafficStats init done
+10-04 16:03:59.656 19884 19920 I ActivityThread: Miui Feature Init done
+10-04 16:03:59.984  2448  5095 W ContentProviderHelper: Slow operation: 79ms so far, now at getContentProviderImpl: done!
+10-04 16:04:00.142  2448  4026 W ActivityManager: Slow operation: 86ms so far, now at startProcess: done creating new process record
+10-04 16:04:00.143  2448  4026 W ActivityManager: Slow operation: 86ms so far, now at startProcess: done starting proc!
+10-04 16:04:00.149  2448  2700 W ActivityManager: Slow operation: 98ms so far, now at startProcess: done updating battery stats
+10-04 16:04:00.154  2448  2700 W ActivityManager: Slow operation: 103ms so far, now at startProcess: done updating pids map
+10-04 16:04:00.176 19976 20032 I ActivityThread: TrafficStats init done
+10-04 16:04:00.192 19976 20032 I ActivityThread: Miui Feature Init done
+10-04 16:04:00.201 20008 20037 I ActivityThread: TrafficStats init done
+10-04 16:04:00.216 20008 20037 I ActivityThread: Miui Feature Init done
+10-04 16:04:00.236 20039 20077 I ActivityThread: TrafficStats init done
+10-04 16:04:00.249 20039 20077 I ActivityThread: Miui Feature Init done
+10-04 16:04:00.327 20121 20164 I ActivityThread: TrafficStats init done
+10-04 16:04:00.337 20100 20158 I ActivityThread: TrafficStats init done
+10-04 16:04:00.345 20121 20164 I ActivityThread: Miui Feature Init done
+10-04 16:04:00.351 20100 20158 I ActivityThread: Miui Feature Init done
+10-04 16:04:00.368 20167 20194 I ActivityThread: TrafficStats init done
+10-04 16:04:00.381 20167 20194 I ActivityThread: Miui Feature Init done
+10-04 16:04:00.495 20243 20267 I ActivityThread: TrafficStats init done
+10-04 16:04:00.526 20243 20267 I ActivityThread: Miui Feature Init done
+10-04 16:04:00.610 20280 20308 I ActivityThread: TrafficStats init done
+10-04 16:04:00.624 20280 20308 I ActivityThread: Miui Feature Init done
+10-04 16:04:01.292 20359 20378 I ActivityThread: TrafficStats init done
+10-04 16:04:01.328 20359 20378 I ActivityThread: Miui Feature Init done
+10-04 16:04:01.340  2448  6191 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com.debug/com.mira.com.whisper.WhisperStep2Activity} with LAUNCH_MULTIPLE from uid 2000 from pid 20390 callingPackage com.android.shell result code=-92
+10-04 16:04:02.437 20461 20481 I ActivityThread: TrafficStats init done
+10-04 16:04:02.461 20461 20481 I ActivityThread: Miui Feature Init done
+10-04 16:04:02.537  3627  3627 I FingerprintCallback: sendAcquiredResult acquireInfo=6, vendorCode=22
+10-04 16:04:02.581  3627  3627 I FingerprintCallback: sendAcquiredResult acquireInfo=0, vendorCode=0
+10-04 16:04:02.583  2448  3308 D BaseClientMonitor: marking operation as done: {[299] com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintAuthenticationClient, proto=3, owner=com.android.systemui, cookie=0, requestId=118, userId=0}
+10-04 16:04:02.584  2448  3308 W FingerprintServiceInjectorStubImpl: recordAuthResult, packName: com.android.systemui, authen1
+10-04 16:04:02.585  2448  2515 D FingerprintLocalStatisticsData: startLocalStatisticsOneTrackUpload unlock_hal_info:{"quality_score_succ_count":"[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]","quality_score_fail_count":"[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]","weight_score_succ_count":"[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]","weight_score_fail_count":"[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]","retry_count_arr":"[0, 0, 0, 0]","img_area_succ_count":"[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]","img_area_fail_count":"[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]","us_film_cfg_idx_succ_count":"[0, 0, 0, 0]","us_film_cfg_idx_fail_count":"[0, 0, 0, 0]","auth_fail_fake_result_count":"[0, 0]","sub_zero_temperature_succ_count":"[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]","sub_zero_temperature_fail_count":"[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]","above_zero_temperature_succ_count":"[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]","above_zero_temperature_fail_count":"[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]","consecutive_fail_arr":[]}
+10-04 16:04:02.585  2448  2515 D FingerprintLocalStatisticsData: startLocalStatisticsOneTrackUpload auth_time_info:{"auth_fail_time":{"screen_off_auth_time":{"hight_light_auth_time":{"total_auth_count":3,"total_auth_time":486,"total_down_to_capture_time":0,"total_capture_to_result_time":486,"avg_auth_time":162,"avg_down_to_capture_time":0,"avg_capture_to_result_time":162},"low_light_auth_time":{"total_auth_count":0,"total_auth_time":0,"total_down_to_capture_time":0,"total_capture_to_result_time":0,"avg_auth_time":0,"avg_down_to_capture_time":0,"avg_capture_to_result_time":0}},"screen_on_auth_time":{"hight_light_auth_time":{"total_auth_count":0,"total_auth_time":0,"total_down_to_capture_time":0,"total_capture_to_result_time":0,"avg_auth_time":0,"avg_down_to_capture_time":0,"avg_capture_to_result_time":0},"low_light_auth_time":{"total_auth_count":0,"total_auth_time":0,"total_down_to_capture_time":0,"total_capture_to_result_time":0,"avg_auth_time":0,"avg_down_to_capture_time":0,"avg_capture_to_result_time":0}},"screen_doze_auth_time":{"hight_light_auth_time":{"total_auth_count":0,"total_auth_time":0,"total_down_to_capture_time":0,"total_capture_to_result_time":0,"avg_auth_time":0,"avg_down_to_capture_time":0,"avg_capture_to_result_time":0},"low_light_auth_time":{"total_auth_count":0,"total_auth_time":0,"total_down_to_capture_time":0,"total_capture_to_result_time":0,"avg_auth_time":0,"avg_down_to_capture_time":0,"avg_capture_to_result_time":0}}},"auth_success_time":{"screen_off_auth_time":{"hight_light_auth_time":{"total_auth_count":8,"total_auth_time":617,"total_down_to_capture_time":0,"total_capture_to_result_time":617,"avg_auth_time":77,"avg_down_to_capture_time":0,"avg_capture_to_result_time":77},"low_light_auth_time":{"total_auth_count":0,"total_auth_time":0,"total_down_to_capture_time":0,"total_capture_to_result_time":0,"avg_auth_time":0,"avg_down_to_capture_time":0,"avg_capture_to_result_time":0}},"screen_on_auth_time":{"hight_light_auth_time":{"total_auth_count":1,"total_auth_time":56,"total_down_to_capture_time":0,"total_capture_to_result_time":56,"avg_auth_time":56,"avg_down_to_capture_time":0,"avg_capture_to_result_time":56},"low_light_auth_time":{"total_auth_count":0,"total_auth_time":0,"total_down_to_capture_time":0,"total_capture_to_result_time":0,"avg_auth_time":0,"avg_down_to_capture_time":0,"avg_capture_to_result_time":0}},"screen_doze_auth_time":{"hight_light_auth_time":{"total_auth_count":0,"total_auth_time":0,"total_down_to_capture_time":0,"total_capture_to_result_time":0,"avg_auth_time":0,"avg_down_to_capture_time":0,"avg_capture_to_result_time":0},"low_light_auth_time":{"total_auth_count":0,"total_auth_time":0,"total_down_to_capture_time":0,"total_capture_to_result_time":0,"avg_auth_time":0,"avg_down_to_capture_time":0,"avg_capture_to_result_time":0}}}}
+10-04 16:04:02.585  2448  2515 D FingerprintLocalStatisticsData: unlock_hal_info: {"quality_score_succ_count":"[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]","quality_score_fail_count":"[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]","weight_score_succ_count":"[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]","weight_score_fail_count":"[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]","retry_count_arr":"[0, 0, 0, 0]","img_area_succ_count":"[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]","img_area_fail_count":"[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]","us_film_cfg_idx_succ_count":"[0, 0, 0, 0]","us_film_cfg_idx_fail_count":"[0, 0, 0, 0]","auth_fail_fake_result_count":"[0, 0]","sub_zero_temperature_succ_count":"[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]","sub_zero_temperature_fail_count":"[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]","above_zero_temperature_succ_count":"[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]","above_zero_temperature_fail_count":"[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]","consecutive_fail_arr":[]}
+10-04 16:04:02.585  2448  2515 D FingerprintLocalStatisticsData: auth_time_info: {"auth_fail_time":{"screen_off_auth_time":{"hight_light_auth_time":{"total_auth_count":3,"total_auth_time":486,"total_down_to_capture_time":0,"total_capture_to_result_time":486,"avg_auth_time":162,"avg_down_to_capture_time":0,"avg_capture_to_result_time":162},"low_light_auth_time":{"total_auth_count":0,"total_auth_time":0,"total_down_to_capture_time":0,"total_capture_to_result_time":0,"avg_auth_time":0,"avg_down_to_capture_time":0,"avg_capture_to_result_time":0}},"screen_on_auth_time":{"hight_light_auth_time":{"total_auth_count":0,"total_auth_time":0,"total_down_to_capture_time":0,"total_capture_to_result_time":0,"avg_auth_time":0,"avg_down_to_capture_time":0,"avg_capture_to_result_time":0},"low_light_auth_time":{"total_auth_count":0,"total_auth_time":0,"total_down_to_capture_time":0,"total_capture_to_result_time":0,"avg_auth_time":0,"avg_down_to_capture_time":0,"avg_capture_to_result_time":0}},"screen_doze_auth_time":{"hight_light_auth_time":{"total_auth_count":0,"total_auth_time":0,"total_down_to_capture_time":0,"total_capture_to_result_time":0,"avg_auth_time":0,"avg_down_to_capture_time":0,"avg_capture_to_result_time":0},"low_light_auth_time":{"total_auth_count":0,"total_auth_time":0,"total_down_to_capture_time":0,"total_capture_to_result_time":0,"avg_auth_time":0,"avg_down_to_capture_time":0,"avg_capture_to_result_time":0}}},"auth_success_time":{"screen_off_auth_time":{"hight_light_auth_time":{"total_auth_count":8,"total_auth_time":617,"total_down_to_capture_time":0,"total_capture_to_result_time":617,"avg_auth_time":77,"avg_down_to_capture_time":0,"avg_capture_to_result_time":77},"low_light_auth_time":{"total_auth_count":0,"total_auth_time":0,"total_down_to_capture_time":0,"total_capture_to_result_time":0,"avg_auth_time":0,"avg_down_to_capture_time":0,"avg_capture_to_result_time":0}},"screen_on_auth_time":{"hight_light_auth_time":{"total_auth_count":1,"total_auth_time":56,"total_down_to_capture_time":0,"total_capture_to_result_time":56,"avg_auth_time":56,"avg_down_to_capture_time":0,"avg_capture_to_result_time":56},"low_light_auth_time":{"total_auth_count":0,"total_auth_time":0,"total_down_to_capture_time":0,"total_capture_to_result_time":0,"avg_auth_time":0,"avg_down_to_capture_time":0,"avg_capture_to_result_time":0}},"screen_doze_auth_time":{"hight_light_auth_time":{"total_auth_count":0,"total_auth_time":0,"total_down_to_capture_time":0,"total_capture_to_result_time":0,"avg_auth_time":0,"avg_down_to_capture_time":0,"avg_capture_to_result_time":0},"low_light_auth_time":{"total_auth_count":0,"total_auth_time":0,"total_down_to_capture_time":0,"total_capture_to_result_time":0,"avg_auth_time":0,"avg_down_to_capture_time":0,"avg_capture_to_result_time":0}}}}
+10-04 16:04:02.645  2448  2683 W WindowManager: Setting mKeyguardDrawComplete
+10-04 16:04:02.645  2448  2683 I FoldScreenListenerStubImpl: On keyguard drawn complete
+10-04 16:04:02.645  2448  2683 I FoldScreenListenerStubImpl: Keyguard draw complete took 17 ms
+10-04 16:04:02.677 20517 20547 I ActivityThread: TrafficStats init done
+10-04 16:04:02.683 20517 20547 I ActivityThread: Miui Feature Init done
+10-04 16:04:04.512  2448  2699 W BroadcastQueue: Greezer Denial: sending Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }, action: android.net.wifi.SCAN_RESULTS from android (uid=1000) due to receiver ProcessRecord{27b913e 31919:com.tencent.mm/u0a262} (uid 10262) need cached broadcast
+10-04 16:04:04.512  2448  2699 W BroadcastQueue: Greezer Denial: sending Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }, action: android.net.wifi.SCAN_RESULTS from android (uid=1000) due to receiver ProcessRecord{27b913e 31919:com.tencent.mm/u0a262} (uid 10262) need cached broadcast
+10-04 16:04:04.512  2448  2699 W BroadcastQueue: Greezer Denial: sending Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }, action: android.net.wifi.SCAN_RESULTS from android (uid=1000) due to receiver ProcessRecord{22b3ed 32713:com.tencent.mm:push/u0a262} (uid 10262) need cached broadcast
+10-04 16:04:05.074  2448  2699 W BroadcastQueue: Greezer Denial: sending Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }, action: android.net.wifi.SCAN_RESULTS from android (uid=1000) due to receiver ProcessRecord{27b913e 31919:com.tencent.mm/u0a262} (uid 10262) need cached broadcast
+10-04 16:04:05.074  2448  2699 W BroadcastQueue: Greezer Denial: sending Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }, action: android.net.wifi.SCAN_RESULTS from android (uid=1000) due to receiver ProcessRecord{27b913e 31919:com.tencent.mm/u0a262} (uid 10262) need cached broadcast
+10-04 16:04:05.074  2448  2699 W BroadcastQueue: Greezer Denial: sending Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }, action: android.net.wifi.SCAN_RESULTS from android (uid=1000) due to receiver ProcessRecord{22b3ed 32713:com.tencent.mm:push/u0a262} (uid 10262) need cached broadcast
+10-04 16:04:06.242  2448  4026 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{411989b u0 com.qiyi.video.pad/org.iqiyi.video.activity.PlayerActivity t735 f}} isInVideoOrGameScene: false intent: Intent { act=android.intent.action.VIEW dat=file:///... flg=0x10000000 cmp=com.qiyi.video.pad/org.iqiyi.video.activity.PlayerActivity }
+10-04 16:04:06.266  2448  2986 D WindowManager: Set transition=TransitionRecord{527a007 id=2791 type=CLOSE flags=0x0}, ready=true, SyncId=2791 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.TaskFragment.resumeTopActivity:1894 
+10-04 16:04:07.711 20668 20689 I ActivityThread: TrafficStats init done
+10-04 16:04:07.719 20668 20689 I ActivityThread: Miui Feature Init done
+10-04 16:04:07.817  2448  3862 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com.t.xi/com.mira.com.whisper.WhisperStep2Activity} with LAUNCH_MULTIPLE from uid 2000 from pid 20766 callingPackage com.android.shell result code=-92
+10-04 16:04:07.840 20668 20668 W Looper  : Loop again would have the queued messages be executed before this one completed.
+10-04 16:04:09.204  2448  2975 I ActivityTaskManager: START u0 {act=android.intent.action.VIEW flg=0x18000000 cmp=com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity (has extras)} with LAUNCH_MULTIPLE from uid 1000 from pid 2448 callingPackage pm callers: com.android.server.wm.ActivityTaskManagerService.startActivity:1454 com.android.server.am.ActivityManagerService.startActivity:3575 com.android.server.pm.PmInjector.installVerify:65 com.android.server.pm.PackageManagerServiceImpl.verifyInstallFromShell:1335  (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+10-04 16:04:09.251 18579 20805 I ActivityThread: TrafficStats init done
+10-04 16:04:09.265 18579 20805 I ActivityThread: Miui Feature Init done
+10-04 16:04:09.273  2448  5095 D WindowManager: Set transition=TransitionRecord{5fac7f1 id=2792 type=OPEN flags=0x0}, ready=true, SyncId=2792 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.ActivityTaskSupervisor.realStartActivityLocked:1056 
+10-04 16:04:11.437  2448  3864 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{a18bfd6 u0 com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity t737 f}} isInVideoOrGameScene: false intent: Intent { act=android.intent.action.VIEW flg=0x18800000 cmp=com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity (has extras) }
+10-04 16:04:11.450  2448  4035 D WindowManager: Set transition=TransitionRecord{d7e14f6 id=2793 type=CLOSE flags=0x0}, ready=true, SyncId=2793 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.TaskFragment.resumeTopActivity:1894 
+10-04 16:04:11.649  2448  3864 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com/com.mira.clip.Clip4ClipActivity} with LAUNCH_MULTIPLE from uid 2000 from pid 20941 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 16:04:11.708 20914 20959 I ActivityThread: TrafficStats init done
+10-04 16:04:11.733 20914 20959 I ActivityThread: Miui Feature Init done
+10-04 16:04:11.787  5041 13118 W com.miui.daemon: SysPerfTurbo uploadFrameDropResult
+10-04 16:04:11.812 20931 20979 I ActivityThread: TrafficStats init done
+10-04 16:04:11.818 19374 20987 I ActivityThread: TrafficStats init done
+10-04 16:04:11.826 20931 20979 I ActivityThread: Miui Feature Init done
+10-04 16:04:11.844 19374 20987 I ActivityThread: Miui Feature Init done
+10-04 16:04:11.890  2448  6582 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{578c529 u0 com.mira.com/com.mira.clip.Clip4ClipActivity t738 f}} isInVideoOrGameScene: false intent: Intent { flg=0x10000000 cmp=com.mira.com/com.mira.clip.Clip4ClipActivity }
+10-04 16:04:11.899  2448  6277 D WindowManager: Set transition=TransitionRecord{8de868f id=2795 type=CLOSE flags=0x0}, ready=true, SyncId=2795 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.TaskFragment.resumeTopActivity:1894 
+10-04 16:04:11.970 21075 21104 I ActivityThread: TrafficStats init done
+10-04 16:04:11.977 21075 21104 I ActivityThread: Miui Feature Init done
+10-04 16:04:12.075 21129 21159 I ActivityThread: TrafficStats init done
+10-04 16:04:12.083 21129 21159 I ActivityThread: Miui Feature Init done
+10-04 16:04:12.160 21182 21229 I ActivityThread: TrafficStats init done
+10-04 16:04:12.168 21182 21229 I ActivityThread: Miui Feature Init done
+10-04 16:04:12.175 21210 21235 I ActivityThread: TrafficStats init done
+10-04 16:04:12.185 21210 21235 I ActivityThread: Miui Feature Init done
+10-04 16:04:12.264 21269 21306 I ActivityThread: TrafficStats init done
+10-04 16:04:12.273 21269 21306 I ActivityThread: Miui Feature Init done
+10-04 16:04:12.354 21352 21404 I ActivityThread: TrafficStats init done
+10-04 16:04:12.356 21386 21428 I ActivityThread: TrafficStats init done
+10-04 16:04:12.362 21367 21424 I ActivityThread: TrafficStats init done
+10-04 16:04:12.367 21386 21428 I ActivityThread: Miui Feature Init done
+10-04 16:04:12.368 21352 21404 I ActivityThread: Miui Feature Init done
+10-04 16:04:12.375 21367 21424 I ActivityThread: Miui Feature Init done
+10-04 16:04:12.461 21512 21565 I ActivityThread: TrafficStats init done
+10-04 16:04:12.481 21512 21565 I ActivityThread: Miui Feature Init done
+10-04 16:04:12.896  2448  4025 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity} with LAUNCH_MULTIPLE from uid 2000 from pid 21613 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 16:04:12.971 20447 21640 I ActivityThread: TrafficStats init done
+10-04 16:04:12.981 20447 21640 I ActivityThread: Miui Feature Init done
+10-04 16:04:13.018  2448  4026 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{864e383 u0 com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity t739 f}} isInVideoOrGameScene: false intent: Intent { flg=0x10000000 cmp=com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity }
+10-04 16:04:13.029  2448  3516 D WindowManager: Set transition=TransitionRecord{57374b7 id=2797 type=CLOSE flags=0x0}, ready=true, SyncId=2797 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.TaskFragment.resumeTopActivity:1894 
+10-04 16:04:13.532 21673 21695 I ActivityThread: TrafficStats init done
+10-04 16:04:13.537 21673 21695 I ActivityThread: Miui Feature Init done
+10-04 16:04:17.544  2448  3566 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com.t.xi/com.mira.com.whisper.WhisperStep2Activity} with LAUNCH_MULTIPLE from uid 2000 from pid 21792 callingPackage com.android.shell result code=-92
+10-04 16:04:18.090 21817 21839 I ActivityThread: TrafficStats init done
+10-04 16:04:18.096 21817 21839 I ActivityThread: Miui Feature Init done
+10-04 16:04:18.189 21861 21899 I ActivityThread: TrafficStats init done
+10-04 16:04:18.198 21861 21899 I ActivityThread: Miui Feature Init done
+10-04 16:04:18.643 21947 21967 I ActivityThread: TrafficStats init done
+10-04 16:04:18.649 21947 21967 I ActivityThread: Miui Feature Init done
+10-04 16:04:20.214 21995 22015 I ActivityThread: TrafficStats init done
+10-04 16:04:20.218 21995 22015 I ActivityThread: Miui Feature Init done
+10-04 16:04:22.487  2448  6586 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com.t.xi/com.mira.com.whisper.WhisperStep2Activity} with LAUNCH_MULTIPLE from uid 2000 from pid 22084 callingPackage com.android.shell result code=-92
+10-04 16:04:23.591  2448  2699 I SmartPower: com.xiaomi.metoknlp/10143(5351): idle->background(17891ms) R(broadcast start Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }) adj=200.
+10-04 16:04:23.591  2448  2699 W BroadcastQueue: SmartPower Denial: receiving Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) } ordered=false from android (uid 1000) to ProcessRecord{27b913e 31919:com.tencent.mm/u0a262}
+10-04 16:04:23.591  2448  2699 W BroadcastQueue: SmartPower Denial: receiving Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) } ordered=false from android (uid 1000) to ProcessRecord{27b913e 31919:com.tencent.mm/u0a262}
+10-04 16:04:26.592  2448  3279 I SmartPower: com.xiaomi.metoknlp/10143(5351): background->idle(3001ms) R(broadcast start Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }) adj=200.
+10-04 16:04:29.589 22104 22124 I ActivityThread: TrafficStats init done
+10-04 16:04:29.607 22104 22124 I ActivityThread: Miui Feature Init done
+10-04 16:04:56.443  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:05:03.600  2448  2699 W BroadcastQueue: SmartPower Denial: receiving Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) } ordered=false from android (uid 1000) to ProcessRecord{27b913e 31919:com.tencent.mm/u0a262}
+10-04 16:05:03.601  2448  2699 W BroadcastQueue: SmartPower Denial: receiving Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) } ordered=false from android (uid 1000) to ProcessRecord{27b913e 31919:com.tencent.mm/u0a262}
+10-04 16:05:03.607  2448  2699 I SmartPower: com.xiaomi.metoknlp/10143(5351): idle->background(37014ms) R(broadcast start Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }) adj=200.
+10-04 16:05:06.611  2448  3279 I SmartPower: com.xiaomi.metoknlp/10143(5351): background->idle(3005ms) R(broadcast start Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }) adj=200.
+10-04 16:05:53.032  2448  4026 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com/com.mira.clip.Clip4ClipActivity} with LAUNCH_MULTIPLE from uid 2000 from pid 22235 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 16:05:53.047  2448  3864 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{1a38e35 u0 com.mira.com/com.mira.clip.Clip4ClipActivity t740 f}} isInVideoOrGameScene: false intent: Intent { flg=0x10000000 cmp=com.mira.com/com.mira.clip.Clip4ClipActivity }
+10-04 16:05:53.051  2448  5095 D WindowManager: Set transition=TransitionRecord{bf5fd1f id=2798 type=OPEN flags=0x0}, ready=true, SyncId=2798 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.TaskFragment.resumeTopActivity:1894 
+10-04 16:05:56.445  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:06:02.292 22286 22306 I ActivityThread: TrafficStats init done
+10-04 16:06:02.303 22286 22306 I ActivityThread: Miui Feature Init done
+10-04 16:06:04.534 22321 22343 I ActivityThread: TrafficStats init done
+10-04 16:06:04.556 22321 22343 I ActivityThread: Miui Feature Init done
+10-04 16:06:05.745 22406 22428 I ActivityThread: TrafficStats init done
+10-04 16:06:05.765 22406 22428 I ActivityThread: Miui Feature Init done
+10-04 16:06:24.553  2448  2699 I SmartPower: com.xiaomi.metoknlp/10143(5351): idle->background(77942ms) R(broadcast start Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }) adj=200.
+10-04 16:06:24.556  2448  2699 W BroadcastQueue: Greezer Denial: sending Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }, action: android.net.wifi.SCAN_RESULTS from android (uid=1000) due to receiver ProcessRecord{27b913e 31919:com.tencent.mm/u0a262} (uid 10262) need cached broadcast
+10-04 16:06:24.557  2448  2699 W BroadcastQueue: Greezer Denial: sending Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }, action: android.net.wifi.SCAN_RESULTS from android (uid=1000) due to receiver ProcessRecord{27b913e 31919:com.tencent.mm/u0a262} (uid 10262) need cached broadcast
+10-04 16:06:24.557  2448  2699 W BroadcastQueue: Greezer Denial: sending Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }, action: android.net.wifi.SCAN_RESULTS from android (uid=1000) due to receiver ProcessRecord{22b3ed 32713:com.tencent.mm:push/u0a262} (uid 10262) need cached broadcast
+10-04 16:06:24.754  2448  2986 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity} with LAUNCH_MULTIPLE from uid 2000 from pid 22526 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 16:06:24.769  2448  2986 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{a8e0c1f u0 com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity t741 f}} isInVideoOrGameScene: false intent: Intent { flg=0x10000000 cmp=com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity }
+10-04 16:06:24.775  2448  6582 D WindowManager: Set transition=TransitionRecord{dc8e299 id=2800 type=CLOSE flags=0x0}, ready=true, SyncId=2800 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.TaskFragment.resumeTopActivity:1894 
+10-04 16:06:27.556  2448  3279 I SmartPower: com.xiaomi.metoknlp/10143(5351): background->idle(3003ms) R(broadcast start Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }) adj=200.
+10-04 16:06:56.455  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:07:21.164  2448  3864 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com/com.mira.clip.Clip4ClipActivity} with LAUNCH_MULTIPLE from uid 2000 from pid 22613 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 16:07:21.167  2448  6277 D WindowManager: Set transition=TransitionRecord{4e50fbc id=2801 type=OPEN flags=0x0}, ready=true, SyncId=2801 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.ActivityTaskSupervisor.realStartActivityLocked:1056 
+10-04 16:07:21.177  2448  5095 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{7bb2b45 u0 com.mira.com/com.mira.clip.Clip4ClipActivity t742 f}} isInVideoOrGameScene: false intent: Intent { flg=0x10000000 cmp=com.mira.com/com.mira.clip.Clip4ClipActivity }
+10-04 16:07:28.375 22668 22688 I ActivityThread: TrafficStats init done
+10-04 16:07:28.398 22668 22688 I ActivityThread: Miui Feature Init done
+10-04 16:07:30.613 22702 22723 I ActivityThread: TrafficStats init done
+10-04 16:07:30.634 22702 22723 I ActivityThread: Miui Feature Init done
+10-04 16:07:31.816 22792 22812 I ActivityThread: TrafficStats init done
+10-04 16:07:31.841 22792 22812 I ActivityThread: Miui Feature Init done
+10-04 16:07:44.335  2448  2975 I ActivityTaskManager: START u0 {act=android.intent.action.VIEW flg=0x18000000 cmp=com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity (has extras)} with LAUNCH_MULTIPLE from uid 1000 from pid 2448 callingPackage pm callers: com.android.server.wm.ActivityTaskManagerService.startActivity:1454 com.android.server.am.ActivityManagerService.startActivity:3575 com.android.server.pm.PmInjector.installVerify:65 com.android.server.pm.PackageManagerServiceImpl.verifyInstallFromShell:1335  (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+10-04 16:07:44.382 21618 22871 I ActivityThread: TrafficStats init done
+10-04 16:07:44.390 21618 22871 I ActivityThread: Miui Feature Init done
+10-04 16:07:44.397  2448  6185 D WindowManager: Set transition=TransitionRecord{89f25f2 id=2803 type=OPEN flags=0x0}, ready=true, SyncId=2803 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.ActivityTaskSupervisor.realStartActivityLocked:1056 
+10-04 16:07:44.413  2448  6276 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{47f1443 u0 com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity t743 f}} isInVideoOrGameScene: false intent: Intent { act=android.intent.action.VIEW flg=0x18800000 cmp=com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity (has extras) }
+10-04 16:07:44.473  2448  6185 D WindowManager: Set transition=TransitionRecord{89f25f2 id=2803 type=OPEN flags=0x0}, ready=true, SyncId=2803 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.TaskFragment.resumeTopActivity:1894 
+10-04 16:07:45.109 22988 23007 I ActivityThread: TrafficStats init done
+10-04 16:07:45.130 22988 23007 I ActivityThread: Miui Feature Init done
+10-04 16:07:45.538 23033 23064 I ActivityThread: TrafficStats init done
+10-04 16:07:45.561 23033 23064 I ActivityThread: Miui Feature Init done
+10-04 16:07:45.921 23138 23158 I ActivityThread: TrafficStats init done
+10-04 16:07:45.937 23138 23158 I ActivityThread: Miui Feature Init done
+10-04 16:07:46.598 23180 23199 I ActivityThread: TrafficStats init done
+10-04 16:07:46.611 23180 23199 I ActivityThread: Miui Feature Init done
+10-04 16:07:47.764 23280 23300 I ActivityThread: TrafficStats init done
+10-04 16:07:47.793 23280 23300 I ActivityThread: Miui Feature Init done
+10-04 16:07:52.684  2448  5095 W ActivityManager: Slow operation: 65ms so far, now at startProcess: done updating battery stats
+10-04 16:07:52.687  2448  5095 W ActivityManager: Slow operation: 69ms so far, now at startProcess: done updating pids map
+10-04 16:07:52.703  2448  2700 W ActivityManager: Slow operation: 78ms so far, now at startProcess: done updating battery stats
+10-04 16:07:52.703  2448  2700 W ActivityManager: Slow operation: 78ms so far, now at startProcess: done updating pids map
+10-04 16:07:52.709 23408 23433 I ActivityThread: TrafficStats init done
+10-04 16:07:52.725 23388 23437 I ActivityThread: TrafficStats init done
+10-04 16:07:52.733 23408 23433 I ActivityThread: Miui Feature Init done
+10-04 16:07:52.745 23388 23437 I ActivityThread: Miui Feature Init done
+10-04 16:07:52.749 23443 23473 I ActivityThread: TrafficStats init done
+10-04 16:07:52.762 23443 23473 I ActivityThread: Miui Feature Init done
+10-04 16:07:52.889 23515 23539 I ActivityThread: TrafficStats init done
+10-04 16:07:52.916 23515 23539 I ActivityThread: Miui Feature Init done
+10-04 16:07:53.046 23581 23606 I ActivityThread: TrafficStats init done
+10-04 16:07:53.068 23581 23606 I ActivityThread: Miui Feature Init done
+10-04 16:07:53.166 23623 23657 I ActivityThread: TrafficStats init done
+10-04 16:07:53.178 23623 23657 I ActivityThread: Miui Feature Init done
+10-04 16:07:54.938 23704 23725 I ActivityThread: TrafficStats init done
+10-04 16:07:54.959 23704 23725 I ActivityThread: Miui Feature Init done
+10-04 16:07:56.114 23789 23809 I ActivityThread: TrafficStats init done
+10-04 16:07:56.139 23789 23809 I ActivityThread: Miui Feature Init done
+10-04 16:07:56.457  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:08:03.090 23840 23859 I ActivityThread: TrafficStats init done
+10-04 16:08:03.111 23840 23859 I ActivityThread: Miui Feature Init done
+10-04 16:08:04.260 23921 23941 I ActivityThread: TrafficStats init done
+10-04 16:08:04.280 23921 23941 I ActivityThread: Miui Feature Init done
+10-04 16:08:23.264  2448  2506 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com/com.mira.clip.Clip4ClipActivity} with LAUNCH_MULTIPLE from uid 2000 from pid 24109 callingPackage com.android.shell result code=-92
+10-04 16:08:24.390 24115 24135 I ActivityThread: TrafficStats init done
+10-04 16:08:24.416 24115 24135 I ActivityThread: Miui Feature Init done
+10-04 16:08:25.586 24198 24218 I ActivityThread: TrafficStats init done
+10-04 16:08:25.611 24198 24218 I ActivityThread: Miui Feature Init done
+10-04 16:08:28.269  2448  6582 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com/com.mira.clip.Clip4ClipActivity} with LAUNCH_MULTIPLE from uid 2000 from pid 24242 callingPackage com.android.shell result code=-92
+10-04 16:08:34.947  2448  4035 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com/com.mira.clip.Clip4ClipActivity} with LAUNCH_MULTIPLE from uid 2000 from pid 24261 callingPackage com.android.shell result code=-92
+10-04 16:08:38.848  2448  4035 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity} with LAUNCH_MULTIPLE from uid 2000 from pid 24271 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 16:08:38.854  2448  3516 D WindowManager: Set transition=TransitionRecord{54095cc id=2804 type=OPEN flags=0x0}, ready=true, SyncId=2804 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.ActivityTaskSupervisor.realStartActivityLocked:1056 
+10-04 16:08:38.867  2448  3787 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{1ec2015 u0 com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity t744 f}} isInVideoOrGameScene: false intent: Intent { flg=0x10000000 cmp=com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity }
+10-04 16:08:52.135 24312 24332 I ActivityThread: TrafficStats init done
+10-04 16:08:52.156 24312 24332 I ActivityThread: Miui Feature Init done
+10-04 16:08:55.047  1633  2017 I miface-camera: wait for the session to complete the close action
+10-04 16:08:56.461  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:09:04.550  2448  2699 I SmartPower: com.xiaomi.metoknlp/10143(5351): idle->background(156994ms) R(broadcast start Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }) adj=200.
+10-04 16:09:04.553  2448  2699 W BroadcastQueue: SmartPower Denial: receiving Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) } ordered=false from android (uid 1000) to ProcessRecord{27b913e 31919:com.tencent.mm/u0a262}
+10-04 16:09:04.554  2448  2699 W BroadcastQueue: SmartPower Denial: receiving Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) } ordered=false from android (uid 1000) to ProcessRecord{27b913e 31919:com.tencent.mm/u0a262}
+10-04 16:09:07.552  2448  3279 I SmartPower: com.xiaomi.metoknlp/10143(5351): background->idle(3002ms) R(broadcast start Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }) adj=200.
+10-04 16:09:19.144  2448  2506 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity} with LAUNCH_MULTIPLE from uid 2000 from pid 24409 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 16:09:19.159  2448  2507 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{b949ce8 u0 com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity t745 f}} isInVideoOrGameScene: false intent: Intent { flg=0x10000000 cmp=com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity }
+10-04 16:09:38.655  2448  3859 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity} with LAUNCH_MULTIPLE from uid 2000 from pid 24519 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 16:09:38.660  2448  3859 D WindowManager: Set transition=TransitionRecord{e6ba229 id=2808 type=OPEN flags=0x0}, ready=true, SyncId=2808 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.ActivityTaskSupervisor.realStartActivityLocked:1056 
+10-04 16:09:38.670  2448  6276 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{3f2b9ae u0 com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity t746 f}} isInVideoOrGameScene: false intent: Intent { flg=0x10000000 cmp=com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity }
+10-04 16:09:38.741 24544 24569 I ActivityThread: TrafficStats init done
+10-04 16:09:38.745 24544 24569 I ActivityThread: Miui Feature Init done
+10-04 16:09:38.808 24591 24613 I ActivityThread: TrafficStats init done
+10-04 16:09:38.813 24591 24613 I ActivityThread: Miui Feature Init done
+10-04 16:09:38.882 24644 24666 I ActivityThread: TrafficStats init done
+10-04 16:09:38.887 24644 24666 I ActivityThread: Miui Feature Init done
+10-04 16:09:41.014 24731 24774 I ActivityThread: TrafficStats init done
+10-04 16:09:41.026 24731 24774 I ActivityThread: Miui Feature Init done
+10-04 16:09:41.701  2448  2975 I ActivityTaskManager: START u0 {act=android.intent.action.VIEW flg=0x18000000 cmp=com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity (has extras)} with LAUNCH_MULTIPLE from uid 1000 from pid 2448 callingPackage pm callers: com.android.server.wm.ActivityTaskManagerService.startActivity:1454 com.android.server.am.ActivityManagerService.startActivity:3575 com.android.server.pm.PmInjector.installVerify:65 com.android.server.pm.PackageManagerServiceImpl.verifyInstallFromShell:1335  (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+10-04 16:09:41.743 21771 24895 I ActivityThread: TrafficStats init done
+10-04 16:09:41.750 21771 24895 I ActivityThread: Miui Feature Init done
+10-04 16:09:41.757  2448  5095 D WindowManager: Set transition=TransitionRecord{3cbe1e2 id=2810 type=OPEN flags=0x0}, ready=true, SyncId=2810 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.ActivityTaskSupervisor.realStartActivityLocked:1056 
+10-04 16:09:42.109 24982 25008 I ActivityThread: TrafficStats init done
+10-04 16:09:42.136 24982 25008 I ActivityThread: Miui Feature Init done
+10-04 16:09:43.791  2448  2506 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{36e3973 u0 com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity t747 f}} isInVideoOrGameScene: false intent: Intent { act=android.intent.action.VIEW flg=0x18800000 cmp=com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity (has extras) }
+10-04 16:09:44.007 25083 25103 I ActivityThread: TrafficStats init done
+10-04 16:09:44.013 25083 25103 I ActivityThread: Miui Feature Init done
+10-04 16:09:44.118  2448  6185 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com/com.mira.clip.Clip4ClipActivity} with LAUNCH_MULTIPLE from uid 2000 from pid 25144 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 16:09:44.151  2448  2700 W ActivityManager: Slow operation: 70ms so far, now at startProcess: done updating battery stats
+10-04 16:09:44.156  2448  2700 W ActivityManager: Slow operation: 74ms so far, now at startProcess: done updating pids map
+10-04 16:09:44.210 25145 25183 I ActivityThread: TrafficStats init done
+10-04 16:09:44.225 25168 25214 I ActivityThread: TrafficStats init done
+10-04 16:09:44.228 25145 25183 I ActivityThread: Miui Feature Init done
+10-04 16:09:44.244 25168 25214 I ActivityThread: Miui Feature Init done
+10-04 16:09:44.313 21772 25219 I ActivityThread: TrafficStats init done
+10-04 16:09:44.330 21772 25219 I ActivityThread: Miui Feature Init done
+10-04 16:09:44.375  2448  6733 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{38cec0d u0 com.mira.com/com.mira.clip.Clip4ClipActivity t748 f}} isInVideoOrGameScene: false intent: Intent { flg=0x10000000 cmp=com.mira.com/com.mira.clip.Clip4ClipActivity }
+10-04 16:09:44.385  2448  4035 D WindowManager: Set transition=TransitionRecord{c539fea id=2813 type=CLOSE flags=0x0}, ready=true, SyncId=2813 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.TaskFragment.resumeTopActivity:1894 
+10-04 16:09:44.437 25291 25332 I ActivityThread: TrafficStats init done
+10-04 16:09:44.445 25291 25332 I ActivityThread: Miui Feature Init done
+10-04 16:09:44.556 25359 25386 I ActivityThread: TrafficStats init done
+10-04 16:09:44.565 25359 25386 I ActivityThread: Miui Feature Init done
+10-04 16:09:44.634 25395 25442 I ActivityThread: TrafficStats init done
+10-04 16:09:44.643 25395 25442 I ActivityThread: Miui Feature Init done
+10-04 16:09:44.649 25404 25451 I ActivityThread: TrafficStats init done
+10-04 16:09:44.662 25404 25451 I ActivityThread: Miui Feature Init done
+10-04 16:09:44.674 25444 25489 I ActivityThread: TrafficStats init done
+10-04 16:09:44.682 25444 25489 I ActivityThread: Miui Feature Init done
+10-04 16:09:44.721 25504 25545 I ActivityThread: TrafficStats init done
+10-04 16:09:44.729 25504 25545 I ActivityThread: Miui Feature Init done
+10-04 16:09:44.843 25605 25666 I ActivityThread: TrafficStats init done
+10-04 16:09:44.846 25624 25669 I ActivityThread: TrafficStats init done
+10-04 16:09:44.860 25624 25669 I ActivityThread: Miui Feature Init done
+10-04 16:09:44.861 25605 25666 I ActivityThread: Miui Feature Init done
+10-04 16:09:44.893 25672 25708 I ActivityThread: TrafficStats init done
+10-04 16:09:44.911 25672 25708 I ActivityThread: Miui Feature Init done
+10-04 16:09:45.033 25840 25881 I ActivityThread: TrafficStats init done
+10-04 16:09:45.039 25791 25876 I ActivityThread: TrafficStats init done
+10-04 16:09:45.043 25776 25874 I ActivityThread: TrafficStats init done
+10-04 16:09:45.049 25840 25881 I ActivityThread: Miui Feature Init done
+10-04 16:09:45.053 25791 25876 I ActivityThread: Miui Feature Init done
+10-04 16:09:45.059 25776 25874 I ActivityThread: Miui Feature Init done
+10-04 16:09:45.820 25997 26017 I ActivityThread: TrafficStats init done
+10-04 16:09:45.827 25997 26017 I ActivityThread: Miui Feature Init done
+10-04 16:09:45.914 26037 26064 I ActivityThread: TrafficStats init done
+10-04 16:09:45.925 26037 26064 I ActivityThread: Miui Feature Init done
+10-04 16:09:45.953 26066 26103 I ActivityThread: TrafficStats init done
+10-04 16:09:45.962 26066 26103 I ActivityThread: Miui Feature Init done
+10-04 16:09:48.225 26200 26221 I ActivityThread: TrafficStats init done
+10-04 16:09:48.245 26200 26221 I ActivityThread: Miui Feature Init done
+10-04 16:09:51.295 26301 26321 I ActivityThread: TrafficStats init done
+10-04 16:09:51.321 26301 26321 I ActivityThread: Miui Feature Init done
+10-04 16:09:53.542 26347 26367 I ActivityThread: TrafficStats init done
+10-04 16:09:53.564 26347 26367 I ActivityThread: Miui Feature Init done
+10-04 16:09:56.465  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:10:00.862 26447 26466 I ActivityThread: TrafficStats init done
+10-04 16:10:00.872 26447 26466 I ActivityThread: Miui Feature Init done
+10-04 16:10:03.086 26480 26504 I ActivityThread: TrafficStats init done
+10-04 16:10:03.111 26480 26504 I ActivityThread: Miui Feature Init done
+10-04 16:10:08.722  2448  3862 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep2Activity} with LAUNCH_MULTIPLE from uid 2000 from pid 26575 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 16:10:08.726  2448  3862 D WindowManager: Set transition=TransitionRecord{6f5cb17 id=2814 type=OPEN flags=0x0}, ready=true, SyncId=2814 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.ActivityTaskSupervisor.realStartActivityLocked:1056 
+10-04 16:10:08.897 26610 26610 W ActivityThread: registerApplicationScoutThread result:false
+10-04 16:10:08.915 26604 26646 I ActivityThread: TrafficStats init done
+10-04 16:10:08.929 26604 26646 I ActivityThread: Miui Feature Init done
+10-04 16:10:08.933 26610 26653 I ActivityThread: Miui Feature Init done
+10-04 16:10:08.954 26636 26687 I ActivityThread: TrafficStats init done
+10-04 16:10:08.976 26636 26687 I ActivityThread: Miui Feature Init done
+10-04 16:10:09.027 26703 26743 I ActivityThread: TrafficStats init done
+10-04 16:10:09.036 26703 26743 I ActivityThread: Miui Feature Init done
+10-04 16:10:11.081 26825 26844 I ActivityThread: TrafficStats init done
+10-04 16:10:11.105 26825 26844 I ActivityThread: Miui Feature Init done
+10-04 16:10:11.751 26858 26877 I ActivityThread: TrafficStats init done
+10-04 16:10:11.781 26858 26877 I ActivityThread: Miui Feature Init done
+10-04 16:10:12.917 26944 26964 I ActivityThread: TrafficStats init done
+10-04 16:10:12.945 26944 26964 I ActivityThread: Miui Feature Init done
+10-04 16:10:23.533 27044 27064 I ActivityThread: TrafficStats init done
+10-04 16:10:23.559 27044 27064 I ActivityThread: Miui Feature Init done
+10-04 16:10:24.764 27133 27152 I ActivityThread: TrafficStats init done
+10-04 16:10:24.783 27133 27152 I ActivityThread: Miui Feature Init done
+10-04 16:10:25.700  2448  3864 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity} with LAUNCH_MULTIPLE from uid 2000 from pid 27173 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 16:10:25.761 23267 27206 I ActivityThread: TrafficStats init done
+10-04 16:10:25.770 23267 27206 I ActivityThread: Miui Feature Init done
+10-04 16:10:25.792  2448  2507 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{6c328ad u0 com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity t750 f}} isInVideoOrGameScene: false intent: Intent { flg=0x10000000 cmp=com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity }
+10-04 16:10:25.804  2448  5107 D WindowManager: Set transition=TransitionRecord{fe33677 id=2817 type=CLOSE flags=0x0}, ready=true, SyncId=2817 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.TaskFragment.resumeTopActivity:1894 
+10-04 16:10:26.875 27245 27265 I ActivityThread: TrafficStats init done
+10-04 16:10:26.879 27245 27265 I ActivityThread: Miui Feature Init done
+10-04 16:10:27.923 27326 27349 I ActivityThread: TrafficStats init done
+10-04 16:10:27.927 27326 27349 I ActivityThread: Miui Feature Init done
+10-04 16:10:29.989 27382 27402 I ActivityThread: TrafficStats init done
+10-04 16:10:29.993 27382 27402 I ActivityThread: Miui Feature Init done
+10-04 16:10:31.042 27473 27493 I ActivityThread: TrafficStats init done
+10-04 16:10:31.046 27473 27493 I ActivityThread: Miui Feature Init done
+10-04 16:10:33.119 27513 27534 I ActivityThread: TrafficStats init done
+10-04 16:10:33.125 27513 27534 I ActivityThread: Miui Feature Init done
+10-04 16:10:33.792 27600 27620 I ActivityThread: TrafficStats init done
+10-04 16:10:33.796 27600 27620 I ActivityThread: Miui Feature Init done
+10-04 16:10:35.866 27633 27653 I ActivityThread: TrafficStats init done
+10-04 16:10:35.871 27633 27653 I ActivityThread: Miui Feature Init done
+10-04 16:10:36.922 27721 27743 I ActivityThread: TrafficStats init done
+10-04 16:10:36.926 27721 27743 I ActivityThread: Miui Feature Init done
+10-04 16:10:38.989 27761 27781 I ActivityThread: TrafficStats init done
+10-04 16:10:38.994 27761 27781 I ActivityThread: Miui Feature Init done
+10-04 16:10:39.483  2448  2975 I ActivityTaskManager: START u0 {act=android.intent.action.VIEW flg=0x18000000 cmp=com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity (has extras)} with LAUNCH_MULTIPLE from uid 1000 from pid 2448 callingPackage pm callers: com.android.server.wm.ActivityTaskManagerService.startActivity:1454 com.android.server.am.ActivityManagerService.startActivity:3575 com.android.server.pm.PmInjector.installVerify:65 com.android.server.pm.PackageManagerServiceImpl.verifyInstallFromShell:1335  (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+10-04 16:10:39.519 26185 27863 I ActivityThread: TrafficStats init done
+10-04 16:10:39.525 26185 27863 I ActivityThread: Miui Feature Init done
+10-04 16:10:39.533  2448  6582 D WindowManager: Set transition=TransitionRecord{9a3535d id=2818 type=OPEN flags=0x0}, ready=true, SyncId=2818 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.ActivityTaskSupervisor.realStartActivityLocked:1056 
+10-04 16:10:39.550  2448  6705 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{4df04d2 u0 com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity t751 f}} isInVideoOrGameScene: false intent: Intent { act=android.intent.action.VIEW flg=0x18800000 cmp=com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity (has extras) }
+10-04 16:10:39.604  2448  6705 D WindowManager: Set transition=TransitionRecord{9a3535d id=2818 type=OPEN flags=0x0}, ready=true, SyncId=2818 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.TaskFragment.resumeTopActivity:1894 
+10-04 16:10:40.112 27947 27969 I ActivityThread: TrafficStats init done
+10-04 16:10:40.123 27947 27969 I ActivityThread: Miui Feature Init done
+10-04 16:10:40.627 28016 28050 I ActivityThread: TrafficStats init done
+10-04 16:10:40.633 28016 28050 I ActivityThread: Miui Feature Init done
+10-04 16:10:41.729 28132 28175 I ActivityThread: TrafficStats init done
+10-04 16:10:41.749 28132 28175 I ActivityThread: Miui Feature Init done
+10-04 16:10:42.606  2448  2507 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep2Activity} with LAUNCH_MULTIPLE from uid 2000 from pid 28246 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 16:10:42.761 26186 28299 I ActivityThread: TrafficStats init done
+10-04 16:10:42.772 26186 28299 I ActivityThread: Miui Feature Init done
+10-04 16:10:42.838 28333 28373 I ActivityThread: TrafficStats init done
+10-04 16:10:42.850  2448  6281 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10000000 cmp=com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity} with LAUNCH_MULTIPLE from uid 2000 from pid 28379 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 16:10:42.852 28333 28373 I ActivityThread: Miui Feature Init done
+10-04 16:10:42.907 28419 28419 W ActivityThread: registerApplicationScoutThread result:false
+10-04 16:10:42.924 28419 28447 I ActivityThread: Miui Feature Init done
+10-04 16:10:42.952 28450 28476 I ActivityThread: TrafficStats init done
+10-04 16:10:42.963 28450 28476 I ActivityThread: Miui Feature Init done
+10-04 16:10:43.020  2448  2507 D WindowManager: Set transition=TransitionRecord{f80168a id=2820 type=OPEN flags=0x0}, ready=true, SyncId=2820 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.ActivityTaskSupervisor.realStartActivityLocked:1056 
+10-04 16:10:43.052  2448  5095 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{923d4fb u0 com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity t753 f}} isInVideoOrGameScene: false intent: Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10000000 cmp=com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity }
+10-04 16:10:44.802 28578 28598 I ActivityThread: TrafficStats init done
+10-04 16:10:44.805 28578 28598 I ActivityThread: Miui Feature Init done
+10-04 16:10:45.140 28612 28633 I ActivityThread: TrafficStats init done
+10-04 16:10:45.146 28612 28633 I ActivityThread: Miui Feature Init done
+10-04 16:10:46.197 28710 28730 I ActivityThread: TrafficStats init done
+10-04 16:10:46.203 28710 28730 I ActivityThread: Miui Feature Init done
+10-04 16:10:48.485 28766 28787 I ActivityThread: TrafficStats init done
+10-04 16:10:48.489 28766 28787 I ActivityThread: Miui Feature Init done
+10-04 16:10:50.559 28805 28825 I ActivityThread: TrafficStats init done
+10-04 16:10:50.563 28805 28825 I ActivityThread: Miui Feature Init done
+10-04 16:10:51.617 28898 28918 I ActivityThread: TrafficStats init done
+10-04 16:10:51.622 28898 28918 I ActivityThread: Miui Feature Init done
+10-04 16:10:53.694  2448  2986 I ActivityTaskManager: START u0 {act=android.intent.action.VIEW dat=file:///... flg=0x10000000 xflg=0x1 cmp=com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity} with LAUNCH_MULTIPLE from uid 2000 from pid 28938 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 16:10:53.719  2448  6586 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{ce9fe69 u0 com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity t754 f}} isInVideoOrGameScene: false intent: Intent { act=android.intent.action.VIEW dat=file:///... flg=0x10000000 xflg=0x1 cmp=com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity }
+10-04 16:10:55.687  2448  3030 D WindowManager: All the checks have been done, return STARTING_WINDOW_TYPE_NONE. this = ActivityRecord{cfb5881 u0 com.miui.home/.launcher.Launcher t2}
+10-04 16:10:55.690  2448  3030 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.HOME] flg=0x10000100 cmp=com.miui.home/.launcher.Launcher (has extras)} with LAUNCH_SINGLE_TASK from uid 0 from pid 0 callingPackage null callers: com.android.server.wm.RootWindowContainer.lambda$startHomeOnDisplay$11:1604 com.android.server.wm.RootWindowContainer.$r8$lambda$DFaa7QLApF8rlf4uiy_4K0Hxf2Y:0 com.android.server.wm.RootWindowContainer$$ExternalSyntheticLambda50.apply:0 com.android.server.wm.TaskDisplayArea.reduceOnAllTaskDisplayAreas:524  (BAL_ALLOW_ALLOWLISTED_UID) result code=2
+10-04 16:10:56.466  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:10:56.751  2448  6586 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity} with LAUNCH_MULTIPLE from uid 2000 from pid 29004 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 16:10:56.760  2448  6586 D WindowManager: Set transition=TransitionRecord{bcfa91b id=2825 type=OPEN flags=0x0}, ready=true, SyncId=2825 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.ActivityTaskSupervisor.realStartActivityLocked:1056 
+10-04 16:10:56.774  2448  5107 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{2d36ab8 u0 com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity t755 f}} isInVideoOrGameScene: false intent: Intent { flg=0x10000000 cmp=com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity }
+10-04 16:11:00.336 29063 29083 I ActivityThread: TrafficStats init done
+10-04 16:11:00.359 29063 29083 I ActivityThread: Miui Feature Init done
+10-04 16:11:01.493 29147 29167 I ActivityThread: TrafficStats init done
+10-04 16:11:01.513 29147 29167 I ActivityThread: Miui Feature Init done
+10-04 16:11:09.909  2448  6191 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity} with LAUNCH_MULTIPLE from uid 2000 from pid 29220 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 16:11:09.927  2448  6586 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{5af8e63 u0 com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity t756 f}} isInVideoOrGameScene: false intent: Intent { flg=0x10000000 cmp=com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity }
+10-04 16:11:12.020  2448  3864 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10000000 cmp=com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity} with LAUNCH_MULTIPLE from uid 2000 from pid 29260 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 16:11:12.030  2448  2987 D WindowManager: Set transition=TransitionRecord{1bc2502 id=2829 type=OPEN flags=0x0}, ready=true, SyncId=2829 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.ActivityTaskSupervisor.realStartActivityLocked:1056 
+10-04 16:11:12.038  2448  6292 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{1ee8e13 u0 com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity t757 f}} isInVideoOrGameScene: false intent: Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10000000 cmp=com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity }
+10-04 16:11:13.479  2448  3859 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep2Activity} with LAUNCH_MULTIPLE from uid 2000 from pid 29306 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 16:11:13.620 27364 29332 I ActivityThread: TrafficStats init done
+10-04 16:11:13.629 27364 29332 I ActivityThread: Miui Feature Init done
+10-04 16:11:13.754 29364 29364 W ActivityThread: registerApplicationScoutThread result:false
+10-04 16:11:13.786 29364 29401 I ActivityThread: Miui Feature Init done
+10-04 16:11:13.797 29385 29437 I ActivityThread: TrafficStats init done
+10-04 16:11:13.810 29385 29437 I ActivityThread: Miui Feature Init done
+10-04 16:11:13.828 29404 29449 I ActivityThread: TrafficStats init done
+10-04 16:11:13.841 29404 29449 I ActivityThread: Miui Feature Init done
+10-04 16:11:14.087  2448  6185 I ActivityTaskManager: START u0 {act=android.intent.action.VIEW dat=file:///... flg=0x10000000 xflg=0x1 cmp=com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity} with LAUNCH_MULTIPLE from uid 2000 from pid 29525 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 16:11:14.092  2448  4028 D WindowManager: Set transition=TransitionRecord{e2e0b0b id=2832 type=OPEN flags=0x0}, ready=true, SyncId=2832 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.ActivityTaskSupervisor.realStartActivityLocked:1056 
+10-04 16:11:14.104  2448  6705 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{67a3de8 u0 com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity t759 f}} isInVideoOrGameScene: false intent: Intent { act=android.intent.action.VIEW dat=file:///... flg=0x10000000 xflg=0x1 cmp=com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity }
+10-04 16:11:14.109  2448  6191 D WindowManager: Set transition=TransitionRecord{1360e3a id=2833 type=CLOSE flags=0x0}, ready=true, SyncId=2833 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.TaskFragment.resumeTopActivity:1894 
+10-04 16:11:14.455 29565 29585 I ActivityThread: TrafficStats init done
+10-04 16:11:14.460 29565 29585 I ActivityThread: Miui Feature Init done
+10-04 16:11:15.954 29610 29631 I ActivityThread: TrafficStats init done
+10-04 16:11:15.959 29610 29631 I ActivityThread: Miui Feature Init done
+10-04 16:11:17.010 29705 29725 I ActivityThread: TrafficStats init done
+10-04 16:11:17.015 29705 29725 I ActivityThread: Miui Feature Init done
+10-04 16:11:28.605 29769 29789 I ActivityThread: TrafficStats init done
+10-04 16:11:28.633 29769 29789 I ActivityThread: Miui Feature Init done
+10-04 16:11:30.832 29803 29850 I ActivityThread: TrafficStats init done
+10-04 16:11:30.857 29803 29850 I ActivityThread: Miui Feature Init done
+10-04 16:11:31.990 29928 29948 I ActivityThread: TrafficStats init done
+10-04 16:11:32.007 29928 29948 I ActivityThread: Miui Feature Init done
+10-04 16:11:34.988  2448  6582 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com.t.xi/com.mira.videoeditor.MainActivity} with LAUNCH_MULTIPLE from uid 2000 from pid 29978 callingPackage com.android.shell result code=-92
+10-04 16:11:39.544  2448  6582 I ActivityManager: Enqueued broadcast Intent { act=com.mira.whisper.EXPORT flg=0x400000 (has extras) }: 0
+10-04 16:11:44.544  2448  2699 I SmartPower: com.xiaomi.metoknlp/10143(5351): idle->background(156993ms) R(broadcast start Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }) adj=200.
+10-04 16:11:44.548  2448  2699 W BroadcastQueue: SmartPower Denial: receiving Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) } ordered=false from android (uid 1000) to ProcessRecord{27b913e 31919:com.tencent.mm/u0a262}
+10-04 16:11:44.548  2448  2699 W BroadcastQueue: SmartPower Denial: receiving Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) } ordered=false from android (uid 1000) to ProcessRecord{27b913e 31919:com.tencent.mm/u0a262}
+10-04 16:11:47.545  2448  3279 I SmartPower: com.xiaomi.metoknlp/10143(5351): background->idle(3000ms) R(broadcast start Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }) adj=200.
+10-04 16:11:56.470  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:12:01.594  2448  4025 I ActivityManager: Enqueued broadcast Intent { act=com.mira.whisper.EXPORT flg=0x400000 (has extras) }: 0
+10-04 16:12:10.352 30032 30051 I ActivityThread: TrafficStats init done
+10-04 16:12:10.363 30032 30051 I ActivityThread: Miui Feature Init done
+10-04 16:12:12.583 30066 30085 I ActivityThread: TrafficStats init done
+10-04 16:12:12.599 30066 30085 I ActivityThread: Miui Feature Init done
+10-04 16:12:13.728 30149 30169 I ActivityThread: TrafficStats init done
+10-04 16:12:13.751 30149 30169 I ActivityThread: Miui Feature Init done
+10-04 16:12:21.055 30188 30208 I ActivityThread: TrafficStats init done
+10-04 16:12:21.082 30188 30208 I ActivityThread: Miui Feature Init done
+10-04 16:12:21.393 30188 30188 W Looper  : Loop again would have the queued messages be executed before this one completed.
+10-04 16:12:21.412 30241 30268 I ActivityThread: TrafficStats init done
+10-04 16:12:21.425 30241 30268 I ActivityThread: Miui Feature Init done
+10-04 16:12:21.471 30281 30312 I ActivityThread: TrafficStats init done
+10-04 16:12:21.488 30281 30312 I ActivityThread: Miui Feature Init done
+10-04 16:12:22.392  2448  6292 D AuthService: canAuthenticate, userId: 0, callingUserId: 0, authenticators: 33023, result: 0
+10-04 16:12:23.346 30379 30399 I ActivityThread: TrafficStats init done
+10-04 16:12:23.374 30379 30399 I ActivityThread: Miui Feature Init done
+10-04 16:12:23.556 30441 30507 I ActivityThread: TrafficStats init done
+10-04 16:12:23.582 30441 30507 I ActivityThread: Miui Feature Init done
+10-04 16:12:23.630 30516 30583 I ActivityThread: TrafficStats init done
+10-04 16:12:23.647 30516 30583 I ActivityThread: Miui Feature Init done
+10-04 16:12:24.607 30629 30652 I ActivityThread: TrafficStats init done
+10-04 16:12:24.625 30629 30652 I ActivityThread: Miui Feature Init done
+10-04 16:12:24.672 30659 30692 I ActivityThread: TrafficStats init done
+10-04 16:12:24.687 30659 30692 I ActivityThread: Miui Feature Init done
+10-04 16:12:24.716 30629 30629 W Looper  : Loop again would have the queued messages be executed before this one completed.
+10-04 16:12:24.802 30730 30769 I ActivityThread: TrafficStats init done
+10-04 16:12:24.809 30753 30780 I ActivityThread: TrafficStats init done
+10-04 16:12:24.813 30730 30769 I ActivityThread: Miui Feature Init done
+10-04 16:12:24.830 30753 30780 I ActivityThread: Miui Feature Init done
+10-04 16:12:25.729  2448  5095 D AuthService: canAuthenticate, userId: 0, callingUserId: 0, authenticators: 33023, result: 0
+10-04 16:12:25.863 30839 30859 I ActivityThread: TrafficStats init done
+10-04 16:12:25.884 30839 30859 I ActivityThread: Miui Feature Init done
+10-04 16:12:26.843 30874 30894 I ActivityThread: TrafficStats init done
+10-04 16:12:26.858 30874 30894 I ActivityThread: Miui Feature Init done
+10-04 16:12:27.046 30938 30966 I ActivityThread: TrafficStats init done
+10-04 16:12:27.078 30938 30966 I ActivityThread: Miui Feature Init done
+10-04 16:12:27.167 30938 30938 W Looper  : Loop again would have the queued messages be executed before this one completed.
+10-04 16:12:27.237 31000 31029 I ActivityThread: TrafficStats init done
+10-04 16:12:27.255 31000 31029 I ActivityThread: Miui Feature Init done
+10-04 16:12:28.054 31073 31092 I ActivityThread: TrafficStats init done
+10-04 16:12:28.086 31073 31092 I ActivityThread: Miui Feature Init done
+10-04 16:12:29.276 31106 31126 I ActivityThread: TrafficStats init done
+10-04 16:12:29.309 31106 31126 I ActivityThread: Miui Feature Init done
+10-04 16:12:29.394 31106 31106 W Looper  : Loop again would have the queued messages be executed before this one completed.
+10-04 16:12:29.441 31155 31187 I ActivityThread: TrafficStats init done
+10-04 16:12:29.461 31155 31187 I ActivityThread: Miui Feature Init done
+10-04 16:12:29.479 31192 31230 I ActivityThread: TrafficStats init done
+10-04 16:12:29.496 31192 31230 I ActivityThread: Miui Feature Init done
+10-04 16:12:30.492 31296 31318 I ActivityThread: TrafficStats init done
+10-04 16:12:30.500 31296 31318 I ActivityThread: Miui Feature Init done
+10-04 16:12:30.513 31320 31345 I ActivityThread: TrafficStats init done
+10-04 16:12:30.520 31320 31345 I ActivityThread: Miui Feature Init done
+10-04 16:12:30.581 31364 31386 I ActivityThread: TrafficStats init done
+10-04 16:12:30.589 31364 31386 I ActivityThread: Miui Feature Init done
+10-04 16:12:30.651 31364 31364 W Looper  : Loop again would have the queued messages be executed before this one completed.
+10-04 16:12:30.675  2448  2975 I ActivityTaskManager: START u0 {act=android.intent.action.VIEW flg=0x18000000 cmp=com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity (has extras)} with LAUNCH_MULTIPLE from uid 1000 from pid 2448 callingPackage pm callers: com.android.server.wm.ActivityTaskManagerService.startActivity:1454 com.android.server.am.ActivityManagerService.startActivity:3575 com.android.server.pm.PmInjector.installVerify:65 com.android.server.pm.PackageManagerServiceImpl.verifyInstallFromShell:1335  (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+10-04 16:12:30.680 31414 31440 I ActivityThread: TrafficStats init done
+10-04 16:12:30.692 31414 31440 I ActivityThread: Miui Feature Init done
+10-04 16:12:30.724 28238 31498 I ActivityThread: TrafficStats init done
+10-04 16:12:30.728 31448 31505 I ActivityThread: TrafficStats init done
+10-04 16:12:30.734 28238 31498 I ActivityThread: Miui Feature Init done
+10-04 16:12:30.736 31448 31505 I ActivityThread: Miui Feature Init done
+10-04 16:12:30.741  2448  6292 D WindowManager: Set transition=TransitionRecord{574fb85 id=2834 type=OPEN flags=0x0}, ready=true, SyncId=2834 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.ActivityTaskSupervisor.realStartActivityLocked:1056 
+10-04 16:12:30.759  2448  6284 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{54fcdda u0 com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity t760 f}} isInVideoOrGameScene: false intent: Intent { act=android.intent.action.VIEW flg=0x18800000 cmp=com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity (has extras) }
+10-04 16:12:30.821  2448  4028 D WindowManager: Set transition=TransitionRecord{574fb85 id=2834 type=OPEN flags=0x0}, ready=true, SyncId=2834 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.TaskFragment.resumeTopActivity:1894 
+10-04 16:12:31.034 31607 31629 I ActivityThread: TrafficStats init done
+10-04 16:12:31.046 31607 31629 I ActivityThread: Miui Feature Init done
+10-04 16:12:31.507 31653 31681 I ActivityThread: TrafficStats init done
+10-04 16:12:31.519 31653 31681 I ActivityThread: Miui Feature Init done
+10-04 16:12:31.775 31724 31745 I ActivityThread: TrafficStats init done
+10-04 16:12:31.783 31724 31745 I ActivityThread: Miui Feature Init done
+10-04 16:12:31.859 31762 31782 I ActivityThread: TrafficStats init done
+10-04 16:12:31.866 31762 31782 I ActivityThread: Miui Feature Init done
+10-04 16:12:32.018 31794 31813 I ActivityThread: TrafficStats init done
+10-04 16:12:32.032 31794 31813 I ActivityThread: Miui Feature Init done
+10-04 16:12:32.113 31794 31794 W Looper  : Loop again would have the queued messages be executed before this one completed.
+10-04 16:12:32.181 31861 31883 I ActivityThread: TrafficStats init done
+10-04 16:12:32.189 31861 31883 I ActivityThread: Miui Feature Init done
+10-04 16:12:32.604 31909 31934 I ActivityThread: TrafficStats init done
+10-04 16:12:32.615 31909 31934 I ActivityThread: Miui Feature Init done
+10-04 16:12:33.129  2448  3566 D AuthService: canAuthenticate, userId: 0, callingUserId: 0, authenticators: 33023, result: 0
+10-04 16:12:33.736 32046 32082 I ActivityThread: TrafficStats init done
+10-04 16:12:33.743 32034 32078 I ActivityThread: TrafficStats init done
+10-04 16:12:33.748 32046 32082 I ActivityThread: Miui Feature Init done
+10-04 16:12:33.754 32034 32078 I ActivityThread: Miui Feature Init done
+10-04 16:12:34.949 32132 32153 I ActivityThread: TrafficStats init done
+10-04 16:12:34.962 32132 32153 I ActivityThread: Miui Feature Init done
+10-04 16:12:35.039 32132 32132 W Looper  : Loop again would have the queued messages be executed before this one completed.
+10-04 16:12:35.948 32243 32270 I ActivityThread: TrafficStats init done
+10-04 16:12:35.964 32243 32270 I ActivityThread: Miui Feature Init done
+10-04 16:12:36.034  2448  6582 D AuthService: canAuthenticate, userId: 0, callingUserId: 0, authenticators: 33023, result: 0
+10-04 16:12:36.148 32334 32367 I ActivityThread: TrafficStats init done
+10-04 16:12:36.161 32334 32367 I ActivityThread: Miui Feature Init done
+10-04 16:12:36.582  2448  6555 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity} with LAUNCH_MULTIPLE from uid 2000 from pid 32384 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 16:12:36.648 28690 32416 I ActivityThread: TrafficStats init done
+10-04 16:12:36.657 28690 32416 I ActivityThread: Miui Feature Init done
+10-04 16:12:36.676  2448  6555 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{309d462 u0 com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity t761 f}} isInVideoOrGameScene: false intent: Intent { flg=0x10000000 cmp=com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity }
+10-04 16:12:36.690  2448  3862 D WindowManager: Set transition=TransitionRecord{dd060ff id=2837 type=CLOSE flags=0x0}, ready=true, SyncId=2837 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.TaskFragment.resumeTopActivity:1894 
+10-04 16:12:37.342 32484 32503 I ActivityThread: TrafficStats init done
+10-04 16:12:37.348 32484 32503 I ActivityThread: Miui Feature Init done
+10-04 16:12:37.417 32484 32484 W Looper  : Loop again would have the queued messages be executed before this one completed.
+10-04 16:12:38.353 32574 32597 I ActivityThread: TrafficStats init done
+10-04 16:12:38.357 32574 32597 I ActivityThread: Miui Feature Init done
+10-04 16:12:38.409  2448  5105 D AuthService: canAuthenticate, userId: 0, callingUserId: 0, authenticators: 33023, result: 0
+10-04 16:12:38.472 32666 32721 I ActivityThread: TrafficStats init done
+10-04 16:12:38.476 32666 32721 I ActivityThread: Miui Feature Init done
+10-04 16:12:39.562   355   415 I ActivityThread: TrafficStats init done
+10-04 16:12:39.566   355   415 I ActivityThread: Miui Feature Init done
+10-04 16:12:39.619   355   355 W Looper  : Loop again would have the queued messages be executed before this one completed.
+10-04 16:12:40.561   572   596 I ActivityThread: TrafficStats init done
+10-04 16:12:40.565   572   596 I ActivityThread: Miui Feature Init done
+10-04 16:12:40.622  2448  5105 D AuthService: canAuthenticate, userId: 0, callingUserId: 0, authenticators: 33023, result: 0
+10-04 16:12:40.682   660   683 I ActivityThread: TrafficStats init done
+10-04 16:12:40.686   660   683 I ActivityThread: Miui Feature Init done
+10-04 16:12:41.777   700   720 I ActivityThread: TrafficStats init done
+10-04 16:12:41.782   700   720 I ActivityThread: Miui Feature Init done
+10-04 16:12:41.834   700   700 W Looper  : Loop again would have the queued messages be executed before this one completed.
+10-04 16:12:42.772   785   806 I ActivityThread: TrafficStats init done
+10-04 16:12:42.776   785   806 I ActivityThread: Miui Feature Init done
+10-04 16:12:42.836  2448  6733 D AuthService: canAuthenticate, userId: 0, callingUserId: 0, authenticators: 33023, result: 0
+10-04 16:12:42.901   880   901 I ActivityThread: TrafficStats init done
+10-04 16:12:42.905   880   901 I ActivityThread: Miui Feature Init done
+10-04 16:12:43.996   919   938 I ActivityThread: TrafficStats init done
+10-04 16:12:44.001   919   938 I ActivityThread: Miui Feature Init done
+10-04 16:12:44.054   919   919 W Looper  : Loop again would have the queued messages be executed before this one completed.
+10-04 16:12:44.987  1095  1133 I ActivityThread: TrafficStats init done
+10-04 16:12:44.992  1095  1133 I ActivityThread: Miui Feature Init done
+10-04 16:12:45.055  2448  4025 D AuthService: canAuthenticate, userId: 0, callingUserId: 0, authenticators: 33023, result: 0
+10-04 16:12:45.114  1237  1298 I ActivityThread: TrafficStats init done
+10-04 16:12:45.118  1237  1298 I ActivityThread: Miui Feature Init done
+10-04 16:12:46.215  1316  1419 I ActivityThread: TrafficStats init done
+10-04 16:12:46.221  1316  1419 I ActivityThread: Miui Feature Init done
+10-04 16:12:46.277  1316  1316 W Looper  : Loop again would have the queued messages be executed before this one completed.
+10-04 16:12:46.545  1624  1695 I ActivityThread: TrafficStats init done
+10-04 16:12:46.548  1624  1695 I ActivityThread: Miui Feature Init done
+10-04 16:12:46.780  1750  1782 I ActivityThread: TrafficStats init done
+10-04 16:12:46.784  1750  1782 I ActivityThread: Miui Feature Init done
+10-04 16:12:46.846  1814  1874 I ActivityThread: TrafficStats init done
+10-04 16:12:46.851  1814  1874 I ActivityThread: Miui Feature Init done
+10-04 16:12:46.852  1843  1882 I ActivityThread: TrafficStats init done
+10-04 16:12:46.860  1843  1882 I ActivityThread: Miui Feature Init done
+10-04 16:12:47.199  2024  2052 I ActivityThread: TrafficStats init done
+10-04 16:12:47.203  2024  2052 I ActivityThread: Miui Feature Init done
+10-04 16:12:47.332  2139  2159 I ActivityThread: TrafficStats init done
+10-04 16:12:47.337  2139  2159 I ActivityThread: Miui Feature Init done
+10-04 16:12:47.845  2202  2225 I ActivityThread: TrafficStats init done
+10-04 16:12:47.846  2179  2209 I ActivityThread: TrafficStats init done
+10-04 16:12:47.851  2202  2225 I ActivityThread: Miui Feature Init done
+10-04 16:12:47.854  2179  2209 I ActivityThread: Miui Feature Init done
+10-04 16:12:47.937  2179  2179 W Looper  : Loop again would have the queued messages be executed before this one completed.
+10-04 16:12:47.940  2305  2354 I ActivityThread: TrafficStats init done
+10-04 16:12:47.950  2305  2354 I ActivityThread: Miui Feature Init done
+10-04 16:12:47.970  2357  2394 I ActivityThread: TrafficStats init done
+10-04 16:12:47.982  2357  2394 I ActivityThread: Miui Feature Init done
+10-04 16:12:48.006  2398  2431 I ActivityThread: TrafficStats init done
+10-04 16:12:48.015  2398  2431 I ActivityThread: Miui Feature Init done
+10-04 16:12:48.065  2450  2520 I ActivityThread: TrafficStats init done
+10-04 16:12:48.071  2450  2520 I ActivityThread: Miui Feature Init done
+10-04 16:12:49.026  2544  2565 I ActivityThread: TrafficStats init done
+10-04 16:12:49.030  2544  2565 I ActivityThread: Miui Feature Init done
+10-04 16:12:49.149  2579  2603 I ActivityThread: TrafficStats init done
+10-04 16:12:49.156  2579  2603 I ActivityThread: Miui Feature Init done
+10-04 16:12:49.222  2579  2579 W Looper  : Loop again would have the queued messages be executed before this one completed.
+10-04 16:12:49.247  2636  2670 I ActivityThread: TrafficStats init done
+10-04 16:12:49.255  2636  2670 I ActivityThread: Miui Feature Init done
+10-04 16:12:49.964  2766  2787 I ActivityThread: TrafficStats init done
+10-04 16:12:49.970  2766  2787 I ActivityThread: Miui Feature Init done
+10-04 16:12:50.382  2856  2876 I ActivityThread: TrafficStats init done
+10-04 16:12:50.389  2856  2876 I ActivityThread: Miui Feature Init done
+10-04 16:12:51.026  2896  2916 I ActivityThread: TrafficStats init done
+10-04 16:12:51.033  2896  2916 I ActivityThread: Miui Feature Init done
+10-04 16:12:53.185  2945  2968 I ActivityThread: TrafficStats init done
+10-04 16:12:53.203  2945  2968 I ActivityThread: Miui Feature Init done
+10-04 16:12:55.045  2448  3030 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.HOME] flg=0x10000100 cmp=com.miui.home/.launcher.Launcher (has extras)} with LAUNCH_SINGLE_TASK from uid 0 from pid 0 callingPackage null callers: com.android.server.wm.RootWindowContainer.lambda$startHomeOnDisplay$11:1604 com.android.server.wm.RootWindowContainer.$r8$lambda$DFaa7QLApF8rlf4uiy_4K0Hxf2Y:0 com.android.server.wm.RootWindowContainer$$ExternalSyntheticLambda50.apply:0 com.android.server.wm.TaskDisplayArea.reduceOnAllTaskDisplayAreas:524  (BAL_ALLOW_ALLOWLISTED_UID) result code=3
+10-04 16:12:55.135  3187  3353 I ActivityThread: TrafficStats init done
+10-04 16:12:55.137  3165  3246 I ActivityThread: TrafficStats init done
+10-04 16:12:55.144  3187  3353 I ActivityThread: Miui Feature Init done
+10-04 16:12:55.158  3165  3246 I ActivityThread: Miui Feature Init done
+10-04 16:12:55.739  3393  3424 I ActivityThread: TrafficStats init done
+10-04 16:12:55.766  3393  3424 I ActivityThread: Miui Feature Init done
+10-04 16:12:55.859  3460  3486 I ActivityThread: TrafficStats init done
+10-04 16:12:55.877  3460  3486 I ActivityThread: Miui Feature Init done
+10-04 16:12:55.951  3510  3583 I ActivityThread: TrafficStats init done
+10-04 16:12:55.967  3510  3583 I ActivityThread: Miui Feature Init done
+10-04 16:12:56.138  2448  6276 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity} with LAUNCH_MULTIPLE from uid 2000 from pid 3641 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 16:12:56.146  2448  6733 D WindowManager: Set transition=TransitionRecord{61b3535 id=2839 type=OPEN flags=0x0}, ready=true, SyncId=2839 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.ActivityTaskSupervisor.realStartActivityLocked:1056 
+10-04 16:12:56.158  2448  4035 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{fc9fdca u0 com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity t762 f}} isInVideoOrGameScene: false intent: Intent { flg=0x10000000 cmp=com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity }
+10-04 16:12:56.258  3710  3735 I ActivityThread: TrafficStats init done
+10-04 16:12:56.263  3710  3735 I ActivityThread: Miui Feature Init done
+10-04 16:12:56.471  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:12:59.679  3818  3860 I ActivityThread: TrafficStats init done
+10-04 16:12:59.698  3818  3860 I ActivityThread: Miui Feature Init done
+10-04 16:13:00.797  3959  3998 I ActivityThread: TrafficStats init done
+10-04 16:13:00.810  3959  3998 I ActivityThread: Miui Feature Init done
+10-04 16:13:06.924  4045  4085 I ActivityThread: TrafficStats init done
+10-04 16:13:06.950  4045  4085 I ActivityThread: Miui Feature Init done
+10-04 16:13:08.064  4221  4263 I ActivityThread: TrafficStats init done
+10-04 16:13:08.089  4221  4263 I ActivityThread: Miui Feature Init done
+10-04 16:13:15.210  4313  4352 I ActivityThread: TrafficStats init done
+10-04 16:13:15.229  4313  4352 I ActivityThread: Miui Feature Init done
+10-04 16:13:17.433  4424  4455 I ActivityThread: TrafficStats init done
+10-04 16:13:17.457  4424  4455 I ActivityThread: Miui Feature Init done
+10-04 16:13:18.582  4586  4627 I ActivityThread: TrafficStats init done
+10-04 16:13:18.599  4586  4627 I ActivityThread: Miui Feature Init done
+10-04 16:13:36.825  2448  6276 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.mira.com/com.mira.clip.Clip4ClipActivity bnds=[15,7][170,162] (has extras)} with LAUNCH_MULTIPLE from uid 10119 from pid 3374 callingPackage com.miui.home (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+10-04 16:13:36.936 29695  4730 I ActivityThread: TrafficStats init done
+10-04 16:13:36.982 29695  4730 I ActivityThread: Miui Feature Init done
+10-04 16:13:37.095  4799  4799 W ActivityThread: registerApplicationScoutThread result:false
+10-04 16:13:37.134  4799  4897 I ActivityThread: Miui Feature Init done
+10-04 16:13:37.169  4849  4913 I ActivityThread: TrafficStats init done
+10-04 16:13:37.181  4915  4986 I ActivityThread: TrafficStats init done
+10-04 16:13:37.185  4849  4913 I ActivityThread: Miui Feature Init done
+10-04 16:13:37.200  4915  4986 I ActivityThread: Miui Feature Init done
+10-04 16:13:39.393  5161  5197 I ActivityThread: TrafficStats init done
+10-04 16:13:39.404  5161  5197 I ActivityThread: Miui Feature Init done
+10-04 16:13:40.508  5378  5421 I ActivityThread: TrafficStats init done
+10-04 16:13:40.518  5378  5421 I ActivityThread: Miui Feature Init done
+10-04 16:13:54.497  5513  5543 I ActivityThread: TrafficStats init done
+10-04 16:13:54.507  5513  5543 I ActivityThread: Miui Feature Init done
+10-04 16:13:55.654  5633  5667 I ActivityThread: TrafficStats init done
+10-04 16:13:55.688  5633  5667 I ActivityThread: Miui Feature Init done
+10-04 16:13:56.472  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:13:59.665  2448  2699 I SmartPower: com.xiaomi.metoknlp/10143(5351): idle->background(132120ms) R(broadcast start Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }) adj=200.
+10-04 16:13:59.665  2448  2699 W BroadcastQueue: SmartPower Denial: receiving Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) } ordered=false from android (uid 1000) to ProcessRecord{27b913e 31919:com.tencent.mm/u0a262}
+10-04 16:13:59.666  2448  2699 W BroadcastQueue: SmartPower Denial: receiving Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) } ordered=false from android (uid 1000) to ProcessRecord{27b913e 31919:com.tencent.mm/u0a262}
+10-04 16:14:02.040  2448  3566 I ActivityTaskManager: START u0 {act=android.intent.action.OPEN_DOCUMENT_TREE cmp=com.google.android.documentsui/com.android.documentsui.picker.PickActivity} with LAUNCH_MULTIPLE from uid 10298 from pid 29695 callingPackage com.mira.com (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+10-04 16:14:02.076 32055  5753 I ActivityThread: TrafficStats init done
+10-04 16:14:02.084 32055  5753 I ActivityThread: Miui Feature Init done
+10-04 16:14:02.218  5807  5850 I ActivityThread: TrafficStats init done
+10-04 16:14:02.225  5807  5850 I ActivityThread: Miui Feature Init done
+10-04 16:14:02.666  2448  3279 I SmartPower: com.xiaomi.metoknlp/10143(5351): background->idle(3002ms) R(broadcast start Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }) adj=200.
+10-04 16:14:10.078  5041 13118 W com.miui.daemon: SysPerfTurbo uploadFrameDropResult
+10-04 16:14:26.300  2448  6276 D WindowManager: Set transition=TransitionRecord{c7829d0 id=2843 type=TO_FRONT flags=0x80}, ready=false, SyncId=2843 info=used=true, override=false, defer=1, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.TaskFragment.resumeTopActivity:1894 
+10-04 16:14:26.373  5992  6029 I ActivityThread: TrafficStats init done
+10-04 16:14:26.385  5992  6029 I ActivityThread: Miui Feature Init done
+10-04 16:14:26.391  5999  6054 I ActivityThread: TrafficStats init done
+10-04 16:14:26.398  5999  6054 I ActivityThread: Miui Feature Init done
+10-04 16:14:26.539  6113  6148 I ActivityThread: TrafficStats init done
+10-04 16:14:26.545  6113  6148 I ActivityThread: Miui Feature Init done
+10-04 16:14:27.470  6286  6309 I ActivityThread: TrafficStats init done
+10-04 16:14:27.481  6286  6309 I ActivityThread: Miui Feature Init done
+10-04 16:14:28.856   502  6386 I ActivityThread: TrafficStats init done
+10-04 16:14:28.864   502  6386 I ActivityThread: Miui Feature Init done
+10-04 16:14:29.072  6533  6558 I ActivityThread: TrafficStats init done
+10-04 16:14:29.085  6533  6558 I ActivityThread: Miui Feature Init done
+10-04 16:14:29.622  6622  6646 I ActivityThread: TrafficStats init done
+10-04 16:14:29.630  6622  6646 I ActivityThread: Miui Feature Init done
+10-04 16:14:30.101  6723  6744 I ActivityThread: TrafficStats init done
+10-04 16:14:30.111  6723  6744 I ActivityThread: Miui Feature Init done
+10-04 16:14:30.994  2448  2506 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.mira.com/com.mira.clip.Clip4ClipActivity bnds=[91,7][246,162] (has extras)} with LAUNCH_MULTIPLE from uid 10119 from pid 3374 callingPackage com.miui.home (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+10-04 16:14:31.118  5344  6816 I ActivityThread: TrafficStats init done
+10-04 16:14:31.133  5344  6816 I ActivityThread: Miui Feature Init done
+10-04 16:14:31.273  6859  6859 W ActivityThread: registerApplicationScoutThread result:false
+10-04 16:14:31.309  6859  6943 I ActivityThread: Miui Feature Init done
+10-04 16:14:31.322  6893  6949 I ActivityThread: TrafficStats init done
+10-04 16:14:31.340  6910  6957 I ActivityThread: TrafficStats init done
+10-04 16:14:31.341  6893  6949 I ActivityThread: Miui Feature Init done
+10-04 16:14:31.350  6910  6957 I ActivityThread: Miui Feature Init done
+10-04 16:14:32.390  7044  7067 I ActivityThread: TrafficStats init done
+10-04 16:14:32.402  7044  7067 I ActivityThread: Miui Feature Init done
+10-04 16:14:33.495  7137  7157 I ActivityThread: TrafficStats init done
+10-04 16:14:33.508  7137  7157 I ActivityThread: Miui Feature Init done
+10-04 16:14:47.824  7254  7273 I ActivityThread: TrafficStats init done
+10-04 16:14:47.846  7254  7273 I ActivityThread: Miui Feature Init done
+10-04 16:14:48.935  7355  7379 I ActivityThread: TrafficStats init done
+10-04 16:14:48.945  7355  7379 I ActivityThread: Miui Feature Init done
+10-04 16:14:56.480  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:15:17.144  2448  6586 I ActivityTaskManager: START u0 {act=android.intent.action.OPEN_DOCUMENT_TREE cmp=com.google.android.documentsui/com.android.documentsui.picker.PickActivity} with LAUNCH_MULTIPLE from uid 10298 from pid 5344 callingPackage com.mira.com (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+10-04 16:15:17.184  5879  7489 I ActivityThread: TrafficStats init done
+10-04 16:15:17.190  5879  7489 I ActivityThread: Miui Feature Init done
+10-04 16:15:17.295  7544  7577 I ActivityThread: TrafficStats init done
+10-04 16:15:17.300  7544  7577 I ActivityThread: Miui Feature Init done
+10-04 16:15:27.753  2448  6555 D WindowManager: Set transition=TransitionRecord{a271205 id=2846 type=TO_FRONT flags=0x80}, ready=false, SyncId=2846 info=used=true, override=false, defer=1, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.TaskFragment.resumeTopActivity:1894 
+10-04 16:15:29.520  2448  3566 I ActivityTaskManager: START u0 {flg=0x10100000 cmp=com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity} with LAUNCH_MULTIPLE from uid 2000 from pid -1 callingPackage com.android.shell (realCallingUid=10119) (BAL_ALLOW_PERMISSION) result code=0
+10-04 16:15:29.529  2448  6277 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{d6cf486 u0 com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity t762 f}} isInVideoOrGameScene: false intent: Intent { flg=0x10100000 cmp=com.mira.com.t.xi/com.mira.clip.Clip4ClipActivity }
+10-04 16:15:29.534  2448  2506 D WindowManager: Set transition=TransitionRecord{5c12161 id=2847 type=OPEN flags=0x0}, ready=true, SyncId=2847 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.TaskFragment.resumeTopActivity:1894 
+10-04 16:15:31.508  7835  7855 I ActivityThread: TrafficStats init done
+10-04 16:15:31.532  7835  7855 I ActivityThread: Miui Feature Init done
+10-04 16:15:32.615  7925  7949 I ActivityThread: TrafficStats init done
+10-04 16:15:32.625  7925  7949 I ActivityThread: Miui Feature Init done
+10-04 16:15:32.834  7181  8046 I ActivityThread: TrafficStats init done
+10-04 16:15:32.845  7181  8046 I ActivityThread: Miui Feature Init done
+10-04 16:15:33.119  8193  8231 I ActivityThread: TrafficStats init done
+10-04 16:15:33.145  8193  8231 I ActivityThread: Miui Feature Init done
+10-04 16:15:33.581  8326  8359 I ActivityThread: TrafficStats init done
+10-04 16:15:33.597  8326  8359 I ActivityThread: Miui Feature Init done
+10-04 16:15:33.606  8335  8400 I ActivityThread: TrafficStats init done
+10-04 16:15:33.616  8335  8400 I ActivityThread: Miui Feature Init done
+10-04 16:15:33.677  8415  8456 I ActivityThread: TrafficStats init done
+10-04 16:15:33.692  8415  8456 I ActivityThread: Miui Feature Init done
+10-04 16:15:33.751  8458  8503 I ActivityThread: TrafficStats init done
+10-04 16:15:33.758  8458  8503 I ActivityThread: Miui Feature Init done
+10-04 16:15:33.800  8537  8564 I ActivityThread: TrafficStats init done
+10-04 16:15:33.808  8537  8564 I ActivityThread: Miui Feature Init done
+10-04 16:15:33.966  2448  2975 I ActivityTaskManager: START u0 {act=android.intent.action.VIEW flg=0x18000000 cmp=com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity (has extras)} with LAUNCH_MULTIPLE from uid 1000 from pid 2448 callingPackage pm callers: com.android.server.wm.ActivityTaskManagerService.startActivity:1454 com.android.server.am.ActivityManagerService.startActivity:3575 com.android.server.pm.PmInjector.installVerify:65 com.android.server.pm.PackageManagerServiceImpl.verifyInstallFromShell:1335  (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+10-04 16:15:34.023  7182  8632 I ActivityThread: TrafficStats init done
+10-04 16:15:34.030  7182  8632 I ActivityThread: Miui Feature Init done
+10-04 16:15:34.051  2448  2506 D WindowManager: Set transition=TransitionRecord{74dafdb id=2849 type=OPEN flags=0x0}, ready=true, SyncId=2849 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.ActivityTaskSupervisor.realStartActivityLocked:1056 
+10-04 16:15:34.085  2448  6555 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{60aca78 u0 com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity t765 f}} isInVideoOrGameScene: false intent: Intent { act=android.intent.action.VIEW flg=0x18800000 cmp=com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity (has extras) }
+10-04 16:15:34.174  2448  5105 D WindowManager: Set transition=TransitionRecord{74dafdb id=2849 type=OPEN flags=0x0}, ready=true, SyncId=2849 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.TaskFragment.resumeTopActivity:1894 
+10-04 16:15:34.360  8734  8762 I ActivityThread: TrafficStats init done
+10-04 16:15:34.367  8734  8762 I ActivityThread: Miui Feature Init done
+10-04 16:15:35.041  8813  8834 I ActivityThread: TrafficStats init done
+10-04 16:15:35.065  8813  8834 I ActivityThread: Miui Feature Init done
+10-04 16:15:39.575  2448  3787 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com.t.xi/com.mira.com.whisper.WhisperStep1Activity} with LAUNCH_MULTIPLE from uid 2000 from pid 8884 callingPackage com.android.shell result code=-92
+10-04 16:15:43.682  2448  5107 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10000000 cmp=com.mira.com.t.xi/com.mira.com.whisper.WhisperStep1Activity} with LAUNCH_MULTIPLE from uid 2000 from pid 8895 callingPackage com.android.shell result code=-92
+10-04 16:15:56.483  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:16:07.610  2448  2975 I ActivityTaskManager: START u0 {act=android.intent.action.VIEW flg=0x18000000 cmp=com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity (has extras)} with LAUNCH_MULTIPLE from uid 1000 from pid 2448 callingPackage pm callers: com.android.server.wm.ActivityTaskManagerService.startActivity:1454 com.android.server.am.ActivityManagerService.startActivity:3575 com.android.server.pm.PmInjector.installVerify:65 com.android.server.pm.PackageManagerServiceImpl.verifyInstallFromShell:1335  (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+10-04 16:16:07.656  7592  8956 I ActivityThread: TrafficStats init done
+10-04 16:16:07.666  7592  8956 I ActivityThread: Miui Feature Init done
+10-04 16:16:07.674  2448  6705 D WindowManager: Set transition=TransitionRecord{bd4d18f id=2850 type=OPEN flags=0x0}, ready=true, SyncId=2850 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.ActivityTaskSupervisor.realStartActivityLocked:1056 
+10-04 16:16:07.694  2448  3862 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{510fc1c u0 com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity t766 f}} isInVideoOrGameScene: false intent: Intent { act=android.intent.action.VIEW flg=0x18800000 cmp=com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity (has extras) }
+10-04 16:16:07.751  2448  6281 D WindowManager: Set transition=TransitionRecord{bd4d18f id=2850 type=OPEN flags=0x0}, ready=true, SyncId=2850 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.TaskFragment.resumeTopActivity:1894 
+10-04 16:16:07.908  9040  9065 I ActivityThread: TrafficStats init done
+10-04 16:16:07.916  9040  9065 I ActivityThread: Miui Feature Init done
+10-04 16:16:08.435  9086  9116 I ActivityThread: TrafficStats init done
+10-04 16:16:08.451  9086  9116 I ActivityThread: Miui Feature Init done
+10-04 16:16:08.736  9159  9180 I ActivityThread: TrafficStats init done
+10-04 16:16:08.751  9159  9180 I ActivityThread: Miui Feature Init done
+10-04 16:16:09.978  9203  9222 I ActivityThread: TrafficStats init done
+10-04 16:16:10.006  9203  9222 I ActivityThread: Miui Feature Init done
+10-04 16:16:11.165  9302  9322 I ActivityThread: TrafficStats init done
+10-04 16:16:11.192  9302  9322 I ActivityThread: Miui Feature Init done
+10-04 16:16:24.038  2448  2700 W ActivityManager: Slow operation: 64ms so far, now at startProcess: done updating battery stats
+10-04 16:16:24.038  2448  2700 W ActivityManager: Slow operation: 64ms so far, now at startProcess: done updating pids map
+10-04 16:16:24.046  2448  2700 W ActivityManager: Slow operation: 67ms so far, now at startProcess: done updating battery stats
+10-04 16:16:24.046  2448  2700 W ActivityManager: Slow operation: 67ms so far, now at startProcess: done updating pids map
+10-04 16:16:24.062  9387  9412 I ActivityThread: TrafficStats init done
+10-04 16:16:24.072  9387  9412 I ActivityThread: Miui Feature Init done
+10-04 16:16:24.075  9363  9408 I ActivityThread: TrafficStats init done
+10-04 16:16:24.083  9363  9408 I ActivityThread: Miui Feature Init done
+10-04 16:16:24.093  9414  9451 I ActivityThread: TrafficStats init done
+10-04 16:16:24.103  9414  9451 I ActivityThread: Miui Feature Init done
+10-04 16:16:24.198  9523  9575 I ActivityThread: TrafficStats init done
+10-04 16:16:24.222  9523  9575 I ActivityThread: Miui Feature Init done
+10-04 16:16:24.316  9648  9669 I ActivityThread: TrafficStats init done
+10-04 16:16:24.341  9648  9669 I ActivityThread: Miui Feature Init done
+10-04 16:16:24.474  9677  9703 I ActivityThread: TrafficStats init done
+10-04 16:16:24.498  9677  9703 I ActivityThread: Miui Feature Init done
+10-04 16:16:24.530  9725  9752 I ActivityThread: TrafficStats init done
+10-04 16:16:24.549  9725  9752 I ActivityThread: Miui Feature Init done
+10-04 16:16:24.611  9774  9807 I ActivityThread: TrafficStats init done
+10-04 16:16:24.627  9774  9807 I ActivityThread: Miui Feature Init done
+10-04 16:16:25.881  9891  9913 I ActivityThread: TrafficStats init done
+10-04 16:16:25.905  9891  9913 I ActivityThread: Miui Feature Init done
+10-04 16:16:27.037  9976  9995 I ActivityThread: TrafficStats init done
+10-04 16:16:27.057  9976  9995 I ActivityThread: Miui Feature Init done
+10-04 16:16:34.146  2448  2975 I ActivityTaskManager: START u0 {act=android.intent.action.VIEW flg=0x18000000 cmp=com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity (has extras)} with LAUNCH_MULTIPLE from uid 1000 from pid 2448 callingPackage pm callers: com.android.server.wm.ActivityTaskManagerService.startActivity:1454 com.android.server.am.ActivityManagerService.startActivity:3575 com.android.server.pm.PmInjector.installVerify:65 com.android.server.pm.PackageManagerServiceImpl.verifyInstallFromShell:1335  (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+10-04 16:16:34.191  8858 10042 I ActivityThread: TrafficStats init done
+10-04 16:16:34.198  8858 10042 I ActivityThread: Miui Feature Init done
+10-04 16:16:34.204  2448  2987 D WindowManager: Set transition=TransitionRecord{adc7947 id=2851 type=OPEN flags=0x0}, ready=true, SyncId=2851 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.ActivityTaskSupervisor.realStartActivityLocked:1056 
+10-04 16:16:34.221  2448  3516 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{bd7574 u0 com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity t767 f}} isInVideoOrGameScene: false intent: Intent { act=android.intent.action.VIEW flg=0x18800000 cmp=com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity (has extras) }
+10-04 16:16:34.278  2448  4027 D WindowManager: Set transition=TransitionRecord{adc7947 id=2851 type=OPEN flags=0x0}, ready=true, SyncId=2851 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.TaskFragment.resumeTopActivity:1894 
+10-04 16:16:34.429 10117 10143 I ActivityThread: TrafficStats init done
+10-04 16:16:34.437 10117 10143 I ActivityThread: Miui Feature Init done
+10-04 16:16:36.408 10185 10207 I ActivityThread: TrafficStats init done
+10-04 16:16:36.427 10185 10207 I ActivityThread: Miui Feature Init done
+10-04 16:16:37.555 10290 10311 I ActivityThread: TrafficStats init done
+10-04 16:16:37.570 10290 10311 I ActivityThread: Miui Feature Init done
+10-04 16:16:52.141 10375 10396 I ActivityThread: TrafficStats init done
+10-04 16:16:52.163 10375 10396 I ActivityThread: Miui Feature Init done
+10-04 16:16:53.311 10461 10481 I ActivityThread: TrafficStats init done
+10-04 16:16:53.324 10461 10481 I ActivityThread: Miui Feature Init done
+10-04 16:16:53.937  2448  6191 D WindowManager: Set transition=TransitionRecord{b6e0e69 id=2852 type=TO_FRONT flags=0x80}, ready=false, SyncId=2852 info=used=true, override=false, defer=1, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.TaskFragment.resumeTopActivity:1894 
+10-04 16:16:56.486  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:16:58.711  2448  2975 I ActivityTaskManager: START u0 {act=android.intent.action.VIEW flg=0x18000000 cmp=com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity (has extras)} with LAUNCH_MULTIPLE from uid 1000 from pid 2448 callingPackage pm callers: com.android.server.wm.ActivityTaskManagerService.startActivity:1454 com.android.server.am.ActivityManagerService.startActivity:3575 com.android.server.pm.PmInjector.installVerify:65 com.android.server.pm.PackageManagerServiceImpl.verifyInstallFromShell:1335  (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+10-04 16:16:58.747  8860 10557 I ActivityThread: TrafficStats init done
+10-04 16:16:58.758  8860 10557 I ActivityThread: Miui Feature Init done
+10-04 16:16:58.766  2448  6277 D WindowManager: Set transition=TransitionRecord{9d5f50c id=2853 type=OPEN flags=0x0}, ready=true, SyncId=2853 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.ActivityTaskSupervisor.realStartActivityLocked:1056 
+10-04 16:16:58.783  2448  4035 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{40b2e55 u0 com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity t768 f}} isInVideoOrGameScene: false intent: Intent { act=android.intent.action.VIEW flg=0x18800000 cmp=com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity (has extras) }
+10-04 16:16:58.836  2448  3787 D WindowManager: Set transition=TransitionRecord{9d5f50c id=2853 type=OPEN flags=0x0}, ready=true, SyncId=2853 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.TaskFragment.resumeTopActivity:1894 
+10-04 16:16:59.306 10640 10661 I ActivityThread: TrafficStats init done
+10-04 16:16:59.324 10640 10661 I ActivityThread: Miui Feature Init done
+10-04 16:16:59.844 10686 10714 I ActivityThread: TrafficStats init done
+10-04 16:16:59.861 10686 10714 I ActivityThread: Miui Feature Init done
+10-04 16:17:00.176 10761 10781 I ActivityThread: TrafficStats init done
+10-04 16:17:00.196 10761 10781 I ActivityThread: Miui Feature Init done
+10-04 16:17:01.027 10804 10825 I ActivityThread: TrafficStats init done
+10-04 16:17:01.053 10804 10825 I ActivityThread: Miui Feature Init done
+10-04 16:17:02.231 10907 10928 I ActivityThread: TrafficStats init done
+10-04 16:17:02.248 10907 10928 I ActivityThread: Miui Feature Init done
+10-04 16:17:04.556  2448  2699 I SmartPower: com.xiaomi.metoknlp/10143(5351): idle->background(181890ms) R(broadcast start Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }) adj=200.
+10-04 16:17:04.562  2448  2699 W BroadcastQueue: SmartPower Denial: receiving Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) } ordered=false from android (uid 1000) to ProcessRecord{27b913e 31919:com.tencent.mm/u0a262}
+10-04 16:17:04.562  2448  2699 W BroadcastQueue: SmartPower Denial: receiving Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) } ordered=false from android (uid 1000) to ProcessRecord{27b913e 31919:com.tencent.mm/u0a262}
+10-04 16:17:07.557  2448  3279 I SmartPower: com.xiaomi.metoknlp/10143(5351): background->idle(3000ms) R(broadcast start Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }) adj=200.
+10-04 16:17:12.493  2448  4026 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep1Activity} with LAUNCH_MULTIPLE from uid 2000 from pid 10962 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 16:17:12.652  9285 10985 I ActivityThread: TrafficStats init done
+10-04 16:17:12.664  9285 10985 I ActivityThread: Miui Feature Init done
+10-04 16:17:12.819 11012 11012 W ActivityThread: registerApplicationScoutThread result:false
+10-04 16:17:12.854 11012 11045 I ActivityThread: Miui Feature Init done
+10-04 16:17:12.869 11048 11074 I ActivityThread: TrafficStats init done
+10-04 16:17:12.878 11048 11074 I ActivityThread: Miui Feature Init done
+10-04 16:17:15.095 11137 11158 I ActivityThread: TrafficStats init done
+10-04 16:17:15.112 11137 11158 I ActivityThread: Miui Feature Init done
+10-04 16:17:16.235 11263 11283 I ActivityThread: TrafficStats init done
+10-04 16:17:16.248 11263 11283 I ActivityThread: Miui Feature Init done
+10-04 16:17:20.543 11333 11365 I ActivityThread: TrafficStats init done
+10-04 16:17:20.549 11333 11365 I ActivityThread: Miui Feature Init done
+10-04 16:17:22.694 11400 11426 I ActivityThread: TrafficStats init done
+10-04 16:17:22.723 11400 11426 I ActivityThread: Miui Feature Init done
+10-04 16:17:23.841 11505 11527 I ActivityThread: TrafficStats init done
+10-04 16:17:23.858 11505 11527 I ActivityThread: Miui Feature Init done
+10-04 16:17:30.165 11561 11586 I ActivityThread: TrafficStats init done
+10-04 16:17:30.172 11561 11586 I ActivityThread: Miui Feature Init done
+10-04 16:17:31.313 11660 11680 I ActivityThread: TrafficStats init done
+10-04 16:17:31.328 11660 11680 I ActivityThread: Miui Feature Init done
+10-04 16:17:32.759 11727 11748 I ActivityThread: TrafficStats init done
+10-04 16:17:32.780 11727 11748 I ActivityThread: Miui Feature Init done
+10-04 16:17:34.966 11761 11780 I ActivityThread: TrafficStats init done
+10-04 16:17:34.984 11761 11780 I ActivityThread: Miui Feature Init done
+10-04 16:17:36.084 11846 11868 I ActivityThread: TrafficStats init done
+10-04 16:17:36.104 11846 11868 I ActivityThread: Miui Feature Init done
+10-04 16:17:56.508  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:18:44.717  2448  6292 D WindowManager: All the checks have been done, return STARTING_WINDOW_TYPE_NONE. this = ActivityRecord{e473cc9 u0 com.mira.com/com.mira.clip.Clip4ClipActivity t769}
+10-04 16:18:44.719  2448  6292 I ActivityTaskManager: START u0 {flg=0x10000000 xflg=0x1 cmp=com.mira.com/com.mira.clip.Clip4ClipActivity} with LAUNCH_MULTIPLE from uid 2000 from pid 11933 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 16:18:50.826 11962 11982 I ActivityThread: TrafficStats init done
+10-04 16:18:50.846 11962 11982 I ActivityThread: Miui Feature Init done
+10-04 16:18:53.026 12010 12042 I ActivityThread: TrafficStats init done
+10-04 16:18:53.036 12010 12042 I ActivityThread: Miui Feature Init done
+10-04 16:18:54.169 12113 12143 I ActivityThread: TrafficStats init done
+10-04 16:18:54.188 12113 12143 I ActivityThread: Miui Feature Init done
+10-04 16:18:56.508  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:19:15.954 12185 12204 I ActivityThread: TrafficStats init done
+10-04 16:19:15.978 12185 12204 I ActivityThread: Miui Feature Init done
+10-04 16:19:18.194 12219 12245 I ActivityThread: TrafficStats init done
+10-04 16:19:18.207 12219 12245 I ActivityThread: Miui Feature Init done
+10-04 16:19:19.335 12315 12334 I ActivityThread: TrafficStats init done
+10-04 16:19:19.359 12315 12334 I ActivityThread: Miui Feature Init done
+10-04 16:19:25.716 12364 12384 I ActivityThread: TrafficStats init done
+10-04 16:19:25.730 12364 12384 I ActivityThread: Miui Feature Init done
+10-04 16:19:27.906 12400 12420 I ActivityThread: TrafficStats init done
+10-04 16:19:27.933 12400 12420 I ActivityThread: Miui Feature Init done
+10-04 16:19:29.050 12489 12509 I ActivityThread: TrafficStats init done
+10-04 16:19:29.070 12489 12509 I ActivityThread: Miui Feature Init done
+10-04 16:19:44.563  2448  2699 I SmartPower: com.xiaomi.metoknlp/10143(5351): idle->background(157006ms) R(broadcast start Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }) adj=200.
+10-04 16:19:44.565  2448  2699 W BroadcastQueue: Greezer Denial: sending Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }, action: android.net.wifi.SCAN_RESULTS from android (uid=1000) due to receiver ProcessRecord{27b913e 31919:com.tencent.mm/u0a262} (uid 10262) need cached broadcast
+10-04 16:19:44.565  2448  2699 W BroadcastQueue: Greezer Denial: sending Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }, action: android.net.wifi.SCAN_RESULTS from android (uid=1000) due to receiver ProcessRecord{27b913e 31919:com.tencent.mm/u0a262} (uid 10262) need cached broadcast
+10-04 16:19:44.565  2448  2699 W BroadcastQueue: Greezer Denial: sending Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }, action: android.net.wifi.SCAN_RESULTS from android (uid=1000) due to receiver ProcessRecord{22b3ed 32713:com.tencent.mm:push/u0a262} (uid 10262) need cached broadcast
+10-04 16:19:47.564  2448  3279 I SmartPower: com.xiaomi.metoknlp/10143(5351): background->idle(3002ms) R(broadcast start Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }) adj=200.
+10-04 16:19:56.512  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:20:23.706  2448  2975 I ActivityTaskManager: START u0 {act=android.intent.action.VIEW flg=0x18000000 cmp=com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity (has extras)} with LAUNCH_MULTIPLE from uid 1000 from pid 2448 callingPackage pm callers: com.android.server.wm.ActivityTaskManagerService.startActivity:1454 com.android.server.am.ActivityManagerService.startActivity:3575 com.android.server.pm.PmInjector.installVerify:65 com.android.server.pm.PackageManagerServiceImpl.verifyInstallFromShell:1335  (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+10-04 16:20:23.750 10273 12594 I ActivityThread: TrafficStats init done
+10-04 16:20:23.759 10273 12594 I ActivityThread: Miui Feature Init done
+10-04 16:20:23.767  2448  6277 D WindowManager: Set transition=TransitionRecord{97d305c id=2856 type=OPEN flags=0x0}, ready=true, SyncId=2856 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.ActivityTaskSupervisor.realStartActivityLocked:1056 
+10-04 16:20:23.785  2448  3566 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{231cf65 u0 com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity t770 f}} isInVideoOrGameScene: false intent: Intent { act=android.intent.action.VIEW flg=0x18800000 cmp=com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity (has extras) }
+10-04 16:20:23.843  2448  4026 D WindowManager: Set transition=TransitionRecord{97d305c id=2856 type=OPEN flags=0x0}, ready=true, SyncId=2856 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.TaskFragment.resumeTopActivity:1894 
+10-04 16:20:24.036 12685 12708 I ActivityThread: TrafficStats init done
+10-04 16:20:24.045 12685 12708 I ActivityThread: Miui Feature Init done
+10-04 16:20:24.519 12733 12761 I ActivityThread: TrafficStats init done
+10-04 16:20:24.527 12733 12761 I ActivityThread: Miui Feature Init done
+10-04 16:20:24.792 12807 12829 I ActivityThread: TrafficStats init done
+10-04 16:20:24.801 12807 12829 I ActivityThread: Miui Feature Init done
+10-04 16:20:25.999 12856 12877 I ActivityThread: TrafficStats init done
+10-04 16:20:26.018 12856 12877 I ActivityThread: Miui Feature Init done
+10-04 16:20:26.312  2448  3859 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep2Activity} with LAUNCH_MULTIPLE from uid 2000 from pid 12964 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 16:20:26.473 10892 12986 I ActivityThread: TrafficStats init done
+10-04 16:20:26.485 10892 12986 I ActivityThread: Miui Feature Init done
+10-04 16:20:26.603 13026 13026 W ActivityThread: registerApplicationScoutThread result:false
+10-04 16:20:26.620 13026 13053 I ActivityThread: Miui Feature Init done
+10-04 16:20:26.673 13056 13097 I ActivityThread: TrafficStats init done
+10-04 16:20:26.684 13056 13097 I ActivityThread: Miui Feature Init done
+10-04 16:20:27.096 13157 13177 I ActivityThread: TrafficStats init done
+10-04 16:20:27.110 13157 13177 I ActivityThread: Miui Feature Init done
+10-04 16:20:32.094 13229 13262 I ActivityThread: TrafficStats init done
+10-04 16:20:32.106 13229 13262 I ActivityThread: Miui Feature Init done
+10-04 16:20:34.236 13289 13315 I ActivityThread: TrafficStats init done
+10-04 16:20:34.247 13289 13315 I ActivityThread: Miui Feature Init done
+10-04 16:20:35.400 13378 13403 I ActivityThread: TrafficStats init done
+10-04 16:20:35.413 13378 13403 I ActivityThread: Miui Feature Init done
+10-04 16:20:43.987 13433 13453 I ActivityThread: TrafficStats init done
+10-04 16:20:44.010 13433 13453 I ActivityThread: Miui Feature Init done
+10-04 16:20:45.135 13521 13542 I ActivityThread: TrafficStats init done
+10-04 16:20:45.156 13521 13542 I ActivityThread: Miui Feature Init done
+10-04 16:20:56.512  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:20:58.460  2448  6185 I ActivityManager: Enqueued broadcast Intent { act=com.mira.whisper.EXPORT flg=0x400000 (has extras) }: 0
+10-04 16:21:08.860 13600 13620 I ActivityThread: TrafficStats init done
+10-04 16:21:08.875 13600 13620 I ActivityThread: Miui Feature Init done
+10-04 16:21:11.166 13633 13654 I ActivityThread: TrafficStats init done
+10-04 16:21:11.196 13633 13654 I ActivityThread: Miui Feature Init done
+10-04 16:21:12.348 13720 13740 I ActivityThread: TrafficStats init done
+10-04 16:21:12.379 13720 13740 I ActivityThread: Miui Feature Init done
+10-04 16:21:26.894 13779 13799 I ActivityThread: TrafficStats init done
+10-04 16:21:26.918 13779 13799 I ActivityThread: Miui Feature Init done
+10-04 16:21:28.091 13862 13881 I ActivityThread: TrafficStats init done
+10-04 16:21:28.113 13862 13881 I ActivityThread: Miui Feature Init done
+10-04 16:21:56.526  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:22:03.261 13908 13928 I ActivityThread: TrafficStats init done
+10-04 16:22:03.277 13908 13928 I ActivityThread: Miui Feature Init done
+10-04 16:22:03.957 14033 14054 I ActivityThread: TrafficStats init done
+10-04 16:22:03.978 14033 14054 I ActivityThread: Miui Feature Init done
+10-04 16:22:04.760 14097 14117 I ActivityThread: TrafficStats init done
+10-04 16:22:04.782 14097 14117 I ActivityThread: Miui Feature Init done
+10-04 16:22:05.015  2448  2700 W ActivityManager: Slow operation: 56ms so far, now at startProcess: done updating battery stats
+10-04 16:22:05.016  2448  2700 W ActivityManager: Slow operation: 57ms so far, now at startProcess: done updating pids map
+10-04 16:22:05.084 14140 14179 I ActivityThread: TrafficStats init done
+10-04 16:22:05.088 14146 14184 I ActivityThread: TrafficStats init done
+10-04 16:22:05.099 14140 14179 I ActivityThread: Miui Feature Init done
+10-04 16:22:05.105 14146 14184 I ActivityThread: Miui Feature Init done
+10-04 16:22:05.191 14209 14255 I ActivityThread: TrafficStats init done
+10-04 16:22:05.202 14209 14255 I ActivityThread: Miui Feature Init done
+10-04 16:22:06.346 14313 14333 I ActivityThread: TrafficStats init done
+10-04 16:22:06.374 14313 14333 I ActivityThread: Miui Feature Init done
+10-04 16:22:24.735  2448  2699 I SmartPower: com.xiaomi.metoknlp/10143(5351): idle->background(157170ms) R(broadcast start Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }) adj=200.
+10-04 16:22:24.736  2448  2699 I SmartPower: com.xiaomi.aicr:cognitionService/10109(6645): idle->background(14622ms) R(broadcast start Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }) adj=200.
+10-04 16:22:24.738  2448  2699 W BroadcastQueue: Greezer Denial: sending Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }, action: android.net.wifi.SCAN_RESULTS from android (uid=1000) due to receiver ProcessRecord{27b913e 31919:com.tencent.mm/u0a262} (uid 10262) need cached broadcast
+10-04 16:22:24.738  2448  2699 W BroadcastQueue: Greezer Denial: sending Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }, action: android.net.wifi.SCAN_RESULTS from android (uid=1000) due to receiver ProcessRecord{27b913e 31919:com.tencent.mm/u0a262} (uid 10262) need cached broadcast
+10-04 16:22:24.738  2448  2699 W BroadcastQueue: Greezer Denial: sending Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }, action: android.net.wifi.SCAN_RESULTS from android (uid=1000) due to receiver ProcessRecord{22b3ed 32713:com.tencent.mm:push/u0a262} (uid 10262) need cached broadcast
+10-04 16:22:27.737  2448  3279 I SmartPower: com.xiaomi.metoknlp/10143(5351): background->idle(3002ms) R(broadcast start Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }) adj=200.
+10-04 16:22:56.552  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:22:56.980  2448  2986 D WindowManager: Set transition=TransitionRecord{353d5bb id=2859 type=TO_FRONT flags=0x80}, ready=false, SyncId=2859 info=used=true, override=false, defer=1, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.TaskFragment.resumeTopActivity:1894 
+10-04 16:23:20.178  2448  4028 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.mira.com/.whisper.WhisperStep1Activity bnds=[15,7][170,162] (has extras)} with LAUNCH_MULTIPLE from uid 10119 from pid 3374 callingPackage com.miui.home (BAL_ALLOW_VISIBLE_WINDOW) result code=2
+10-04 16:23:56.587  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:24:06.333  2448  2699 I SmartPower: com.xiaomi.metoknlp/10143(5351): idle->background(98597ms) R(broadcast start Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }) adj=200.
+10-04 16:24:06.335  2448  2699 W BroadcastQueue: SmartPower Denial: receiving Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) } ordered=false from android (uid 1000) to ProcessRecord{27b913e 31919:com.tencent.mm/u0a262}
+10-04 16:24:06.337  2448  2699 W BroadcastQueue: SmartPower Denial: receiving Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) } ordered=false from android (uid 1000) to ProcessRecord{27b913e 31919:com.tencent.mm/u0a262}
+10-04 16:24:09.335  2448  3279 I SmartPower: com.xiaomi.metoknlp/10143(5351): background->idle(3001ms) R(broadcast start Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }) adj=200.
+10-04 16:24:28.548 14496 14516 I ActivityThread: TrafficStats init done
+10-04 16:24:28.567 14496 14516 I ActivityThread: Miui Feature Init done
+10-04 16:24:30.788 14557 14577 I ActivityThread: TrafficStats init done
+10-04 16:24:30.812 14557 14577 I ActivityThread: Miui Feature Init done
+10-04 16:24:31.982 14642 14662 I ActivityThread: TrafficStats init done
+10-04 16:24:31.999 14642 14662 I ActivityThread: Miui Feature Init done
+10-04 16:24:33.197 14680 14700 I ActivityThread: TrafficStats init done
+10-04 16:24:33.225 14680 14700 I ActivityThread: Miui Feature Init done
+10-04 16:24:35.526 14738 14757 I ActivityThread: TrafficStats init done
+10-04 16:24:35.559 14738 14757 I ActivityThread: Miui Feature Init done
+10-04 16:24:36.684 14821 14841 I ActivityThread: TrafficStats init done
+10-04 16:24:36.706 14821 14841 I ActivityThread: Miui Feature Init done
+10-04 16:24:37.953 14856 14875 I ActivityThread: TrafficStats init done
+10-04 16:24:37.974 14856 14875 I ActivityThread: Miui Feature Init done
+10-04 16:24:40.216 14916 14937 I ActivityThread: TrafficStats init done
+10-04 16:24:40.243 14916 14937 I ActivityThread: Miui Feature Init done
+10-04 16:24:41.408 15003 15023 I ActivityThread: TrafficStats init done
+10-04 16:24:41.433 15003 15023 I ActivityThread: Miui Feature Init done
+10-04 16:24:42.664 15042 15062 I ActivityThread: TrafficStats init done
+10-04 16:24:42.686 15042 15062 I ActivityThread: Miui Feature Init done
+10-04 16:24:44.928 15104 15124 I ActivityThread: TrafficStats init done
+10-04 16:24:44.950 15104 15124 I ActivityThread: Miui Feature Init done
+10-04 16:24:46.097 15189 15209 I ActivityThread: TrafficStats init done
+10-04 16:24:46.111 15189 15209 I ActivityThread: Miui Feature Init done
+10-04 16:24:47.351 15223 15244 I ActivityThread: TrafficStats init done
+10-04 16:24:47.380 15223 15244 I ActivityThread: Miui Feature Init done
+10-04 16:24:49.602 15280 15301 I ActivityThread: TrafficStats init done
+10-04 16:24:49.626 15280 15301 I ActivityThread: Miui Feature Init done
+10-04 16:24:50.805 15366 15386 I ActivityThread: TrafficStats init done
+10-04 16:24:50.836 15366 15386 I ActivityThread: Miui Feature Init done
+10-04 16:24:52.059 15403 15422 I ActivityThread: TrafficStats init done
+10-04 16:24:52.081 15403 15422 I ActivityThread: Miui Feature Init done
+10-04 16:24:54.326 15462 15482 I ActivityThread: TrafficStats init done
+10-04 16:24:54.349 15462 15482 I ActivityThread: Miui Feature Init done
+10-04 16:24:55.496 15547 15568 I ActivityThread: TrafficStats init done
+10-04 16:24:55.518 15547 15568 I ActivityThread: Miui Feature Init done
+10-04 16:24:56.590  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:24:56.738 15582 15601 I ActivityThread: TrafficStats init done
+10-04 16:24:56.760 15582 15601 I ActivityThread: Miui Feature Init done
+10-04 16:24:59.043 15638 15658 I ActivityThread: TrafficStats init done
+10-04 16:24:59.076 15638 15658 I ActivityThread: Miui Feature Init done
+10-04 16:25:00.257 15723 15742 I ActivityThread: TrafficStats init done
+10-04 16:25:00.274 15723 15742 I ActivityThread: Miui Feature Init done
+10-04 16:25:03.686  2448  2699 I SmartPower: com.xiaomi.metoknlp/10143(5351): idle->background(54351ms) R(broadcast start Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }) adj=200.
+10-04 16:25:03.692  2448  2699 W BroadcastQueue: SmartPower Denial: receiving Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) } ordered=false from android (uid 1000) to ProcessRecord{27b913e 31919:com.tencent.mm/u0a262}
+10-04 16:25:03.693  2448  2699 W BroadcastQueue: SmartPower Denial: receiving Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) } ordered=false from android (uid 1000) to ProcessRecord{27b913e 31919:com.tencent.mm/u0a262}
+10-04 16:25:04.812  2448  4026 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.videoeditor/.com.whisper.WhisperStep2Activity} with LAUNCH_MULTIPLE from uid 2000 from pid 15767 callingPackage com.android.shell result code=-92
+10-04 16:25:06.586  2448  5105 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.videoeditor/com.mira.com.whisper.WhisperStep2Activity} with LAUNCH_MULTIPLE from uid 2000 from pid 15772 callingPackage com.android.shell result code=-92
+10-04 16:25:06.687  2448  3279 I SmartPower: com.xiaomi.metoknlp/10143(5351): background->idle(3001ms) R(broadcast start Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }) adj=200.
+10-04 16:25:09.902  2448  5105 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.videoeditor/com.mira.com.whisper.WhisperStep2Activity} with LAUNCH_MULTIPLE from uid 2000 from pid 15777 callingPackage com.android.shell result code=-92
+10-04 16:25:11.219  2448  5105 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.videoeditor/.MainActivity} with LAUNCH_MULTIPLE from uid 2000 from pid 15782 callingPackage com.android.shell result code=-92
+10-04 16:25:24.550  2448  5105 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.videoeditor/com.mira.com.whisper.WhisperStep1Activity} with LAUNCH_MULTIPLE from uid 2000 from pid 15787 callingPackage com.android.shell result code=-92
+10-04 16:25:28.684  2448  6705 D WindowManager: All the checks have been done, return STARTING_WINDOW_TYPE_NONE. this = ActivityRecord{d3f30fb u0 com.mira.com/.whisper.WhisperStep1Activity t771}
+10-04 16:25:28.685  2448  6705 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep1Activity} with LAUNCH_MULTIPLE from uid 2000 from pid 15797 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 16:25:31.859 15821 15840 I ActivityThread: TrafficStats init done
+10-04 16:25:31.875 15821 15840 I ActivityThread: Miui Feature Init done
+10-04 16:25:33.785  2448  2506 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep2Activity} with LAUNCH_MULTIPLE from uid 2000 from pid 15859 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=3
+10-04 16:25:34.024 15862 15881 I ActivityThread: TrafficStats init done
+10-04 16:25:34.032 15862 15881 I ActivityThread: Miui Feature Init done
+10-04 16:25:35.117 15955 15976 I ActivityThread: TrafficStats init done
+10-04 16:25:35.125 15955 15976 I ActivityThread: Miui Feature Init done
+10-04 16:25:36.323 16023 16047 I ActivityThread: TrafficStats init done
+10-04 16:25:36.331 16023 16047 I ActivityThread: Miui Feature Init done
+10-04 16:25:38.459 16068 16088 I ActivityThread: TrafficStats init done
+10-04 16:25:38.468 16068 16088 I ActivityThread: Miui Feature Init done
+10-04 16:25:39.592 16151 16171 I ActivityThread: TrafficStats init done
+10-04 16:25:39.615 16151 16171 I ActivityThread: Miui Feature Init done
+10-04 16:25:56.604  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:26:09.412 16245 16265 I ActivityThread: TrafficStats init done
+10-04 16:26:09.423 16245 16265 I ActivityThread: Miui Feature Init done
+10-04 16:26:11.583 16279 16299 I ActivityThread: TrafficStats init done
+10-04 16:26:11.595 16279 16299 I ActivityThread: Miui Feature Init done
+10-04 16:26:12.734 16364 16383 I ActivityThread: TrafficStats init done
+10-04 16:26:12.752 16364 16383 I ActivityThread: Miui Feature Init done
+10-04 16:26:17.793  2448  2975 I ActivityTaskManager: START u0 {act=android.intent.action.VIEW flg=0x18000000 cmp=com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity (has extras)} with LAUNCH_MULTIPLE from uid 1000 from pid 2448 callingPackage pm callers: com.android.server.wm.ActivityTaskManagerService.startActivity:1454 com.android.server.am.ActivityManagerService.startActivity:3575 com.android.server.pm.PmInjector.installVerify:65 com.android.server.pm.PackageManagerServiceImpl.verifyInstallFromShell:1335  (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+10-04 16:26:17.835 11239 16423 I ActivityThread: TrafficStats init done
+10-04 16:26:17.840 11239 16423 I ActivityThread: Miui Feature Init done
+10-04 16:26:17.849  2448  6555 D WindowManager: Set transition=TransitionRecord{38b6210 id=2863 type=OPEN flags=0x0}, ready=true, SyncId=2863 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.ActivityTaskSupervisor.realStartActivityLocked:1056 
+10-04 16:26:17.869  2448  2988 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{299d109 u0 com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity t772 f}} isInVideoOrGameScene: false intent: Intent { act=android.intent.action.VIEW flg=0x18800000 cmp=com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity (has extras) }
+10-04 16:26:17.930  2448  3859 D WindowManager: Set transition=TransitionRecord{38b6210 id=2863 type=OPEN flags=0x0}, ready=true, SyncId=2863 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.TaskFragment.resumeTopActivity:1894 
+10-04 16:26:18.127 16510 16538 I ActivityThread: TrafficStats init done
+10-04 16:26:18.135 16510 16538 I ActivityThread: Miui Feature Init done
+10-04 16:26:18.264 16575 16618 I ActivityThread: TrafficStats init done
+10-04 16:26:18.277 16575 16618 I ActivityThread: Miui Feature Init done
+10-04 16:26:18.278 16587 16622 I ActivityThread: TrafficStats init done
+10-04 16:26:18.291 16587 16622 I ActivityThread: Miui Feature Init done
+10-04 16:26:18.382 16680 16720 I ActivityThread: TrafficStats init done
+10-04 16:26:18.394 16680 16720 I ActivityThread: Miui Feature Init done
+10-04 16:26:18.561 16778 16822 I ActivityThread: TrafficStats init done
+10-04 16:26:18.570 16785 16831 I ActivityThread: TrafficStats init done
+10-04 16:26:18.572 16778 16822 I ActivityThread: Miui Feature Init done
+10-04 16:26:18.585 16785 16831 I ActivityThread: Miui Feature Init done
+10-04 16:26:18.695 16873 16908 I ActivityThread: TrafficStats init done
+10-04 16:26:18.709 16873 16908 I ActivityThread: Miui Feature Init done
+10-04 16:26:18.886 16962 16983 I ActivityThread: TrafficStats init done
+10-04 16:26:18.902 16962 16983 I ActivityThread: Miui Feature Init done
+10-04 16:26:18.979 16988 17029 I ActivityThread: TrafficStats init done
+10-04 16:26:18.997 16988 17029 I ActivityThread: Miui Feature Init done
+10-04 16:26:19.335 17087 17109 I ActivityThread: TrafficStats init done
+10-04 16:26:19.342 17087 17109 I ActivityThread: Miui Feature Init done
+10-04 16:26:20.178  2448  4028 I ActivityTaskManager: START u0 {flg=0x10000000 xflg=0x1 cmp=com.mira.com/com.mira.clip.Clip4ClipActivity} with LAUNCH_MULTIPLE from uid 2000 from pid 17139 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 16:26:20.295  5041 13118 W com.miui.daemon: SysPerfTurbo uploadFrameDropResult
+10-04 16:26:20.337 13198 17168 I ActivityThread: TrafficStats init done
+10-04 16:26:20.350 13198 17168 I ActivityThread: Miui Feature Init done
+10-04 16:26:20.459 17204 17204 W ActivityThread: registerApplicationScoutThread result:false
+10-04 16:26:20.489 17204 17231 I ActivityThread: Miui Feature Init done
+10-04 16:26:20.519 17233 17260 I ActivityThread: TrafficStats init done
+10-04 16:26:20.539 17233 17260 I ActivityThread: Miui Feature Init done
+10-04 16:26:26.314 17396 17416 I ActivityThread: TrafficStats init done
+10-04 16:26:26.322 17396 17416 I ActivityThread: Miui Feature Init done
+10-04 16:26:51.529  3627  3627 I FingerprintCallback: sendAcquiredResult acquireInfo=6, vendorCode=21
+10-04 16:26:51.873  2448  2750 I DisplayPowerControllerImpl: Wait screen off animator complete
+10-04 16:26:52.288 17491 17514 I ActivityThread: TrafficStats init done
+10-04 16:26:52.298 17491 17514 I ActivityThread: Miui Feature Init done
+10-04 16:26:52.845 17543 17564 I ActivityThread: TrafficStats init done
+10-04 16:26:52.858 17543 17564 I ActivityThread: Miui Feature Init done
+10-04 16:26:52.990 17578 17598 I ActivityThread: TrafficStats init done
+10-04 16:26:53.019 17578 17598 I ActivityThread: Miui Feature Init done
+10-04 16:26:53.629 17652 17671 I ActivityThread: TrafficStats init done
+10-04 16:26:53.641 17652 17671 I ActivityThread: Miui Feature Init done
+10-04 16:26:53.643 17627 17649 I ActivityThread: TrafficStats init done
+10-04 16:26:53.663 17627 17649 I ActivityThread: Miui Feature Init done
+10-04 16:26:53.790 17732 17766 I ActivityThread: TrafficStats init done
+10-04 16:26:53.806 17732 17766 I ActivityThread: Miui Feature Init done
+10-04 16:26:53.920 17783 17804 I ActivityThread: TrafficStats init done
+10-04 16:26:53.936 17783 17804 I ActivityThread: Miui Feature Init done
+10-04 16:26:54.004 17824 17848 I ActivityThread: TrafficStats init done
+10-04 16:26:54.017 17824 17848 I ActivityThread: Miui Feature Init done
+10-04 16:26:54.107 17860 17880 I ActivityThread: TrafficStats init done
+10-04 16:26:54.121 17860 17880 I ActivityThread: Miui Feature Init done
+10-04 16:26:54.771 17911 17933 I ActivityThread: TrafficStats init done
+10-04 16:26:54.790 17911 17933 I ActivityThread: Miui Feature Init done
+10-04 16:26:56.605  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:27:02.206  1093 17482 D vold    : idle maintenance completed
+10-04 16:27:55.336 19642 19665 I ActivityThread: TrafficStats init done
+10-04 16:27:55.358 19642 19665 I ActivityThread: Miui Feature Init done
+10-04 16:27:55.595 19730 19749 I ActivityThread: TrafficStats init done
+10-04 16:27:55.614 19730 19749 I ActivityThread: Miui Feature Init done
+10-04 16:27:56.484 19797 19819 I ActivityThread: TrafficStats init done
+10-04 16:27:56.512 19797 19819 I ActivityThread: Miui Feature Init done
+10-04 16:27:56.605  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:28:36.015 20575 20595 I ActivityThread: TrafficStats init done
+10-04 16:28:36.043 20575 20595 I ActivityThread: Miui Feature Init done
+10-04 16:28:56.611  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:29:56.652  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:30:02.296  2448  2530 I SSRU-ResourceUsageProxy: Would result in becoming too rich. Decreasing transaction AW_NOTIFICATION_SEEN for u:0 pkg:com.taobao.taobao by 4u
+10-04 16:30:56.668  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:31:09.580  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:31:09.629  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:31:09.647  1646 27824 D CCodecBufferChannel: [c2.xring.avc.decoder#308] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:31:09.726  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:31:09.749  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:31:18.606  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:31:18.648  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:31:18.680  1646 27824 D CCodecBufferChannel: [c2.xring.avc.decoder#285] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:31:18.781  1382 21119 W X_VPU   : [VPU ][DAEMON][vsi_dec_msg_done:439] Inst[2ea700000001]: streamoff capture done
+10-04 16:31:18.790  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:31:18.821  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:31:27.364  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:31:27.413  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:31:27.442  1646  8671 D CCodecBufferChannel: [c2.xring.avc.decoder#285] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:31:27.515  1382 21138 W X_VPU   : [VPU ][DAEMON][vsi_dec_msg_done:439] Inst[2ea800000001]: streamoff capture done
+10-04 16:31:27.525  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:31:27.567  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:31:36.324  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:31:36.361  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:31:36.385  1646 27824 D CCodecBufferChannel: [c2.xring.avc.decoder#385] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:31:36.475  1382 21158 W X_VPU   : [VPU ][DAEMON][vsi_dec_msg_done:439] Inst[2ea900000001]: streamoff capture done
+10-04 16:31:36.484  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:31:36.514  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:31:36.541  1646  9590 D CCodecBufferChannel: [c2.android.avc.decoder#438] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:31:44.855  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:31:44.919  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:31:44.962  1646 27824 D CCodecBufferChannel: [c2.xring.avc.decoder#357] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:31:45.092  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:31:45.128  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:31:53.661  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:31:53.724  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:31:53.891  1382 21199 W X_VPU   : [VPU ][DAEMON][vsi_dec_msg_done:439] Inst[2eab00000001]: streamoff capture done
+10-04 16:31:53.899  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:31:53.934  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:31:56.669  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:32:01.832  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:01.882  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:01.920  1646  1804 D CCodecBufferChannel: [c2.xring.avc.decoder#801] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:32:01.989  1382 21222 W X_VPU   : [VPU ][DAEMON][vsi_dec_msg_done:439] Inst[2eac00000001]: streamoff capture done
+10-04 16:32:01.998  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:02.031  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:02.056  1646  8671 D CCodecBufferChannel: [c2.android.avc.decoder#801] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:32:05.067 21231 21252 I ActivityThread: TrafficStats init done
+10-04 16:32:05.090  6645 19362 I AiCrEngine_CognitionMainController: listen RESULT_OK
+10-04 16:32:05.090 21231 21252 I ActivityThread: Miui Feature Init done
+10-04 16:32:05.091  6645 27464 I AiCrEngine_CognitionMainController: listen RESULT_OK
+10-04 16:32:05.096  6645 27464 I AiCrEngine_CognitionMainController: listen RESULT_OK
+10-04 16:32:05.102  6645 19362 I AiCrEngine_CognitionMainController: listen RESULT_OK
+10-04 16:32:05.182 21269 21291 I ActivityThread: TrafficStats init done
+10-04 16:32:05.203 21269 21291 I ActivityThread: Miui Feature Init done
+10-04 16:32:09.401  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:09.465  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:09.485  1646  1804 D CCodecBufferChannel: [c2.xring.avc.decoder#521] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:32:09.555  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:09.581  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:17.258  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:17.303  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:17.330  1646  9590 D CCodecBufferChannel: [c2.xring.avc.decoder#47] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:32:17.396  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:17.424  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:17.457  1646  9590 D CCodecBufferChannel: [c2.android.avc.decoder#521] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:32:24.865  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:24.927  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:24.958  1646 27824 D CCodecBufferChannel: [c2.xring.avc.decoder#773] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:32:25.015  1382 21355 W X_VPU   : [VPU ][DAEMON][vsi_dec_msg_done:439] Inst[2eaf00000001]: streamoff capture done
+10-04 16:32:25.020  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:25.047  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:25.075  1646  1804 D CCodecBufferChannel: [c2.android.avc.decoder#773] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:32:31.726  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:31.780  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:31.824  1646  1804 D CCodecBufferChannel: [c2.xring.avc.decoder#903] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:32:31.877  1382 21375 W X_VPU   : [VPU ][DAEMON][vsi_dec_msg_done:439] Inst[2eb000000001]: streamoff capture done
+10-04 16:32:31.886  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:31.910  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:31.962  1646 27824 D CCodecBufferChannel: [c2.android.avc.decoder#773] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:32:38.542  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:38.597  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:38.619  1646  8671 D CCodecBufferChannel: [c2.xring.avc.decoder#676] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:32:38.661  1382 21400 W X_VPU   : [VPU ][DAEMON][vsi_dec_msg_done:439] Inst[2eb100000001]: streamoff capture done
+10-04 16:32:38.668  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:38.694  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:45.492  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:45.535  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:45.557  1646 27824 D CCodecBufferChannel: [c2.xring.avc.decoder#604] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:32:45.590  1382 21430 W X_VPU   : [VPU ][DAEMON][vsi_dec_msg_done:439] Inst[2eb200000001]: streamoff capture done
+10-04 16:32:45.596  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:45.616  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:51.398  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:51.455  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:51.487  1646  8467 D CCodecBufferChannel: [c2.xring.avc.decoder#579] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:32:51.527  1382 21450 W X_VPU   : [VPU ][DAEMON][vsi_dec_msg_done:439] Inst[2eb300000001]: streamoff capture done
+10-04 16:32:51.532  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:51.559  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:51.593  1646  8467 D CCodecBufferChannel: [c2.android.avc.decoder#676] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:32:51.916  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:52.237  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:52.270  1646  8671 D CCodecBufferChannel: [c2.xring.avc.decoder#521] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:32:52.312  1382 21477 W X_VPU   : [VPU ][DAEMON][vsi_dec_msg_done:439] Inst[2eb400000001]: streamoff capture done
+10-04 16:32:52.318  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:52.343  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:56.716  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:32:57.724  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:57.803  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:57.880  1382 21496 W X_VPU   : [VPU ][DAEMON][vsi_dec_msg_done:439] Inst[2eb500000001]: streamoff capture done
+10-04 16:32:57.888  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:32:57.914  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:03.593  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:03.647  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:03.666  1646  8671 D CCodecBufferChannel: [c2.xring.avc.decoder#454] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:33:03.696  1382 21518 W X_VPU   : [VPU ][DAEMON][vsi_dec_msg_done:439] Inst[2eb600000001]: streamoff capture done
+10-04 16:33:03.701  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:08.835  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:08.897  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:08.975  1382 21544 W X_VPU   : [VPU ][DAEMON][vsi_dec_msg_done:439] Inst[2eb700000001]: streamoff capture done
+10-04 16:33:08.981  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:09.012  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:14.221  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:14.275  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:14.310  1646  8671 D CCodecBufferChannel: [c2.xring.avc.decoder#19] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:33:14.359  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:14.383  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:14.408  1646 27824 D CCodecBufferChannel: [c2.android.avc.decoder#491] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:33:18.920  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:18.980  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:19.011  1646  9590 D CCodecBufferChannel: [c2.xring.avc.decoder#940] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:33:19.042  1382 21584 W X_VPU   : [VPU ][DAEMON][vsi_dec_msg_done:439] Inst[2eb900000001]: streamoff capture done
+10-04 16:33:19.049  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:19.072  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:23.591  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:23.642  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:23.673  1646  9590 D CCodecBufferChannel: [c2.xring.avc.decoder#489] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:33:23.785  1382 21604 W X_VPU   : [VPU ][DAEMON][vsi_dec_msg_done:439] Inst[2eba00000001]: streamoff capture done
+10-04 16:33:23.792  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:23.828  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:23.860  1646  9592 D CCodecBufferChannel: [c2.android.avc.decoder#489] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:33:28.150  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:28.205  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:28.244  1646 27824 D CCodecBufferChannel: [c2.xring.avc.decoder#949] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:33:28.343  1382 21624 W X_VPU   : [VPU ][DAEMON][vsi_dec_msg_done:439] Inst[2ebb00000001]: streamoff capture done
+10-04 16:33:28.353  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:28.371  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:32.529  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:32.584  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:32.604  1646  9592 D CCodecBufferChannel: [c2.xring.avc.decoder#248] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:33:32.745  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:32.782  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:38.919  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:38.986  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:39.014  1646  9592 D CCodecBufferChannel: [c2.xring.avc.decoder#618] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:33:39.117  1382 21662 W X_VPU   : [VPU ][DAEMON][vsi_dec_msg_done:439] Inst[2ebd00000001]: streamoff capture done
+10-04 16:33:39.126  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:39.151  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:45.317  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:45.399  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:45.434  1646  8671 D CCodecBufferChannel: [c2.xring.avc.decoder#35] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:33:45.533  1382 21681 W X_VPU   : [VPU ][DAEMON][vsi_dec_msg_done:439] Inst[2ebe00000001]: streamoff capture done
+10-04 16:33:45.543  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:45.580  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:45.651  1646  9590 D CCodecBufferChannel: [c2.android.avc.decoder#297] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:33:51.096  1646 21685 D PipelineWatcher: onWorkDone: frameIndex not found (485); ignored
+10-04 16:33:51.125  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:51.187  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:51.221  1646  1804 D CCodecBufferChannel: [c2.xring.avc.decoder#158] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:33:51.349  1382 21707 W X_VPU   : [VPU ][DAEMON][vsi_dec_msg_done:439] Inst[2ebf00000001]: streamoff capture done
+10-04 16:33:51.358  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:51.382  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:56.721  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:33:57.681  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:57.732  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:57.760  1646  9590 D CCodecBufferChannel: [c2.xring.avc.decoder#940] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:33:57.874  1382 21731 W X_VPU   : [VPU ][DAEMON][vsi_dec_msg_done:439] Inst[2ec000000001]: streamoff capture done
+10-04 16:33:57.884  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:33:57.914  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:34:04.902  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:34:04.953  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:34:04.977  1646 27824 D CCodecBufferChannel: [c2.xring.avc.decoder#792] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:34:05.102  1382 21750 W X_VPU   : [VPU ][DAEMON][vsi_dec_msg_done:439] Inst[2ec100000001]: streamoff capture done
+10-04 16:34:05.110  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:34:05.137  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:34:11.447  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:34:11.490  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:34:11.516  1646  1804 D CCodecBufferChannel: [c2.xring.avc.decoder#190] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:34:11.658  1382 21769 W X_VPU   : [VPU ][DAEMON][vsi_dec_msg_done:439] Inst[2ec200000001]: streamoff capture done
+10-04 16:34:11.667  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:34:11.696  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:34:11.754  1646  9590 D CCodecBufferChannel: [c2.android.avc.decoder#190] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:34:19.563  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:34:19.613  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:34:19.633  1646  1804 D CCodecBufferChannel: [c2.xring.avc.decoder#174] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:34:19.789  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:34:19.830  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:34:28.274  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:34:28.331  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:34:28.374  1646  9592 D CCodecBufferChannel: [c2.xring.avc.decoder#105] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:34:28.433  1382 21810 W X_VPU   : [VPU ][DAEMON][vsi_dec_msg_done:439] Inst[2ec400000001]: streamoff capture done
+10-04 16:34:28.443  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:34:28.465  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:34:36.517  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:34:36.560  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:34:36.579  1646  9590 D CCodecBufferChannel: [c2.xring.avc.decoder#914] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:34:36.671  1382 21829 W X_VPU   : [VPU ][DAEMON][vsi_dec_msg_done:439] Inst[2ec500000001]: streamoff capture done
+10-04 16:34:36.678  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:34:36.700  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:34:43.863  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:34:43.901  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:34:43.920  1646  8671 D CCodecBufferChannel: [c2.xring.avc.decoder#403] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:34:44.004  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:34:44.033  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:34:53.406  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:34:53.449  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:34:53.480  1646 27824 D CCodecBufferChannel: [c2.xring.avc.decoder#426] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:34:53.625  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:34:53.655  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:34:56.760  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:35:01.590  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:35:01.641  1406 27837 I VideoService: reportCodecStatus result status: 2
+10-04 16:35:01.668  1646  8671 D CCodecBufferChannel: [c2.xring.avc.decoder#454] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:35:01.781  1382 21890 W X_VPU   : [VPU ][DAEMON][vsi_dec_msg_done:439] Inst[2ec800000001]: streamoff capture done
+10-04 16:35:01.789  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:35:01.825  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:35:09.709  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:35:09.770  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:35:09.810  1646  8376 D CCodecBufferChannel: [c2.xring.avc.decoder#981] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:35:09.908  1382 21909 W X_VPU   : [VPU ][DAEMON][vsi_dec_msg_done:439] Inst[2ec900000001]: streamoff capture done
+10-04 16:35:09.918  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:35:09.948  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:35:09.976  1646  8376 D CCodecBufferChannel: [c2.android.avc.decoder#757] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:35:17.957  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:35:18.004  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:35:18.024  1646  1804 D CCodecBufferChannel: [c2.xring.avc.decoder#519] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:35:18.084  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:35:18.111  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:35:18.149  1646  8376 D CCodecBufferChannel: [c2.android.avc.decoder#718] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:35:25.287  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:35:25.331  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:35:25.345  1646  9592 D CCodecBufferChannel: [c2.xring.avc.decoder#718] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:35:25.400  1382 21947 W X_VPU   : [VPU ][DAEMON][vsi_dec_msg_done:439] Inst[2ecb00000001]: streamoff capture done
+10-04 16:35:25.409  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:35:25.441  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:35:33.343  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:35:33.397  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:35:33.430  1646  9590 D CCodecBufferChannel: [c2.xring.avc.decoder#271] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:35:33.482  1382 21966 W X_VPU   : [VPU ][DAEMON][vsi_dec_msg_done:439] Inst[2ecc00000001]: streamoff capture done
+10-04 16:35:33.493  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:35:33.517  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:35:40.790  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:35:40.859  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:35:40.917  1646  8376 D CCodecBufferChannel: [c2.xring.avc.decoder#551] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:35:40.961  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:35:40.983  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:35:41.008  1646  9590 D CCodecBufferChannel: [c2.android.avc.decoder#535] Ignoring stale input buffer done callback: last flush index = 0, frameIndex = 0
+10-04 16:35:47.760  1406  1434 I VideoService: reportCodecStatus result status: 2
+10-04 16:35:52.844 21994 22014 I ActivityThread: TrafficStats init done
+10-04 16:35:52.865  6645 19362 I AiCrEngine_CognitionMainController: listen RESULT_OK
+10-04 16:35:52.870 21994 22014 I ActivityThread: Miui Feature Init done
+10-04 16:35:52.989 22028 22047 I ActivityThread: TrafficStats init done
+10-04 16:35:53.010 22028 22047 I ActivityThread: Miui Feature Init done
+10-04 16:35:53.099  6645 19362 I AiCrEngine_CognitionMainController: listen RESULT_OK
+10-04 16:35:53.283 22059 22079 I ActivityThread: TrafficStats init done
+10-04 16:35:53.300 22059 22079 I ActivityThread: Miui Feature Init done
+10-04 16:35:53.473 22097 22116 I ActivityThread: TrafficStats init done
+10-04 16:35:53.488 22097 22116 I ActivityThread: Miui Feature Init done
+10-04 16:35:53.499 22097 22115 D SoundRecorder:RecorderProvider: verifyRecordPermission callingPackageName: com.xiaomi.aicr, requestedPermission result: true
+10-04 16:35:53.517 22097 22124 D SoundRecorder:ClearExpiredRecordsService:  we have done clear task today, skip it.
+10-04 16:35:53.519  6645 19362 I AiCrEngine_CognitionMainController: listen RESULT_OK
+10-04 16:35:53.580 22131 22164 I ActivityThread: TrafficStats init done
+10-04 16:35:53.601 22142 22175 I ActivityThread: TrafficStats init done
+10-04 16:35:53.602 22131 22164 I ActivityThread: Miui Feature Init done
+10-04 16:35:53.615 22142 22175 I ActivityThread: Miui Feature Init done
+10-04 16:35:53.627 22142 22142 I AIRC_MainAirecoEngine: init completed
+10-04 16:35:53.650  1154  1154 I TEEC    : invoke, command=0x00000004, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 16:35:53.656  1154  1154 I TEEC    : invoke, command=0x00000004, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 16:35:53.658  1154  1154 I TEEC    : invoke, command=0x00000008, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 16:35:53.660  1154  1154 I TEEC    : invoke, command=0x0000000C, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 16:35:53.729 22097 22115 D SoundRecorder:RecorderProvider: verifyRecordPermission callingPackageName: com.xiaomi.aicr, requestedPermission result: true
+10-04 16:35:53.784 22142 22194 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=9e05791b-5879-4c23-b590-1b90d2f31285, tags={ com.xiaomi.aicr.searchpro.worker.AISearchDataTask } ]
+10-04 16:35:54.685 22097 22115 D SoundRecorder:RecorderProvider: verifyRecordPermission callingPackageName: com.xiaomi.aicr, requestedPermission result: true
+10-04 16:35:54.699 22097 22115 D SoundRecorder:RecorderProvider: verifyRecordPermission callingPackageName: com.xiaomi.aicr, requestedPermission result: true
+10-04 16:35:56.763  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:36:22.432  1154  1154 I TEEC    : invoke, command=0x00000010, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 16:36:56.770  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:36:59.793 22231 22250 I ActivityThread: TrafficStats init done
+10-04 16:36:59.807 22231 22250 I ActivityThread: Miui Feature Init done
+10-04 16:36:59.836 22231 22281 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 16:36:59.857 22231 22280 D CameraInjector: waitForResult: 
+10-04 16:36:59.861 22231 22280 D CameraInjector: waitForResult: 
+10-04 16:36:59.861 22231 22280 D CameraInjector: waitForResult: 
+10-04 16:36:59.861 22231 22280 D CameraInjector: waitForResult: 
+10-04 16:36:59.861 22231 22280 D CameraInjector: waitForResult: 
+10-04 16:37:00.366 22231 22319 W XMPush-22231: [Tid:51995] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 16:37:00.366 22231 22319 I MiPushMessageReceiver: onCommandResult: register
+10-04 16:37:00.366 22231 22319 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 16:37:00.366 22231 22319 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 16:37:00.366 22231 22319 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 16:37:00.369 22231 22319 W XMPush-22231: [Tid:51995] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 16:37:00.369 22231 22319 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 16:37:00.369 22231 22319 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 16:37:00.996 22322 22344 I ActivityThread: TrafficStats init done
+10-04 16:37:01.013 22322 22344 I ActivityThread: Miui Feature Init done
+10-04 16:37:01.031 22322 22357 W XMPush-22322: [Tid:51956] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 16:37:01.034 22322 22357 W XMPush-22322: [Tid:51956] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 16:37:56.774  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:38:05.114 22371 22391 I ActivityThread: TrafficStats init done
+10-04 16:38:05.139 22371 22391 I ActivityThread: Miui Feature Init done
+10-04 16:38:05.142  6645 19362 I AiCrEngine_CognitionMainController: listen RESULT_OK
+10-04 16:38:05.145  6645 27464 I AiCrEngine_CognitionMainController: listen RESULT_OK
+10-04 16:38:05.149  6645 19362 I AiCrEngine_CognitionMainController: listen RESULT_OK
+10-04 16:38:05.152  6645 27464 I AiCrEngine_CognitionMainController: listen RESULT_OK
+10-04 16:38:05.282 22407 22427 I ActivityThread: TrafficStats init done
+10-04 16:38:05.307 22407 22427 I ActivityThread: Miui Feature Init done
+10-04 16:38:27.943 11290 22444 I NetworkScheduler.Stats: (REDACTED) Task %s/%s finished executing. cause:%s result: %s elapsed_millis: %s uptime_millis: %s exec_start_elapsed_seconds: %s
+10-04 16:38:28.015 22447 22466 I ActivityThread: TrafficStats init done
+10-04 16:38:28.041 22447 22466 I ActivityThread: Miui Feature Init done
+10-04 16:38:28.136 11290 20548 I NetworkScheduler.Stats: (REDACTED) Task %s/%s finished executing. cause:%s result: %s elapsed_millis: %s uptime_millis: %s exec_start_elapsed_seconds: %s
+10-04 16:38:37.363 22522 22542 I ActivityThread: TrafficStats init done
+10-04 16:38:37.386 22522 22542 I ActivityThread: Miui Feature Init done
+10-04 16:38:37.411 22522 22566 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 16:38:37.420 22522 22569 D CameraInjector: waitForResult: 
+10-04 16:38:37.424 22522 22569 D CameraInjector: waitForResult: 
+10-04 16:38:37.424 22522 22569 D CameraInjector: waitForResult: 
+10-04 16:38:37.424 22522 22569 D CameraInjector: waitForResult: 
+10-04 16:38:37.424 22522 22569 D CameraInjector: waitForResult: 
+10-04 16:38:37.950 22522 22607 W XMPush-22522: [Tid:52020] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 16:38:37.951 22522 22607 I MiPushMessageReceiver: onCommandResult: register
+10-04 16:38:37.951 22522 22607 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 16:38:37.951 22522 22607 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 16:38:37.951 22522 22607 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 16:38:37.956 22522 22607 W XMPush-22522: [Tid:52020] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 16:38:37.956 22522 22607 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 16:38:37.956 22522 22607 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 16:38:38.556 22609 22631 I ActivityThread: TrafficStats init done
+10-04 16:38:38.579 22609 22631 I ActivityThread: Miui Feature Init done
+10-04 16:38:38.599 22609 22645 W XMPush-22609: [Tid:51981] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 16:38:38.605 22609 22645 W XMPush-22609: [Tid:51981] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 16:38:56.792  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:39:27.472 30403 30451 I bluetooth: le_address_manager.cc:614 OnCommandComplete: Received command complete with op_code LE_SET_RANDOM_ADDRESS
+10-04 16:39:27.473 30403 30451 I bluetooth: le_address_manager.cc:635 OnCommandComplete: update random address : xx:xx:xx:xx:e6:79
+10-04 16:39:56.824  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:40:56.845  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:41:56.898  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:42:56.936  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:43:29.409 22686 22706 I ActivityThread: TrafficStats init done
+10-04 16:43:29.437 22686 22706 I ActivityThread: Miui Feature Init done
+10-04 16:43:29.473 22686 22712 D prefetch: [XMS][Prefetch] updatePrefetchResults type: 1, prefetchConfigs: []
+10-04 16:43:29.473 22686 22712 W prefetch: [XMS][Prefetch] updatePrefetchResults prefetchConfigs is empty
+10-04 16:43:29.475 24397 24562 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=b817c6e0-307a-447b-979f-063b8fc798c7, tags={ com.xiaomi.xms.prefetch.work.PeriodicTypeWorker } ]
+10-04 16:43:29.717 22686 22744 D prefetch: [XMS][Prefetch] updatePrefetchResults type: 1, prefetchConfigs: []
+10-04 16:43:29.717 22686 22744 W prefetch: [XMS][Prefetch] updatePrefetchResults prefetchConfigs is empty
+10-04 16:43:29.721 24397 24536 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=15688c3f-3aff-4939-b540-5ee956435e8d, tags={ com.xiaomi.xms.prefetch.work.PeriodicTypeWorker } ]
+10-04 16:43:31.692 22748 22769 I ActivityThread: TrafficStats init done
+10-04 16:43:31.713 22748 22769 I ActivityThread: Miui Feature Init done
+10-04 16:43:31.751 22748 22794 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 16:43:31.757 22748 22793 D CameraInjector: waitForResult: 
+10-04 16:43:31.760 22748 22793 D CameraInjector: waitForResult: 
+10-04 16:43:31.760 22748 22793 D CameraInjector: waitForResult: 
+10-04 16:43:31.760 22748 22793 D CameraInjector: waitForResult: 
+10-04 16:43:31.760 22748 22793 D CameraInjector: waitForResult: 
+10-04 16:43:32.284 22748 22829 W XMPush-22748: [Tid:52034] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 16:43:32.284 22748 22829 I MiPushMessageReceiver: onCommandResult: register
+10-04 16:43:32.284 22748 22829 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 16:43:32.284 22748 22829 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 16:43:32.284 22748 22829 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 16:43:32.289 22748 22829 W XMPush-22748: [Tid:52034] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 16:43:32.289 22748 22829 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 16:43:32.289 22748 22829 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 16:43:32.888 22832 22852 I ActivityThread: TrafficStats init done
+10-04 16:43:32.901 22832 22852 I ActivityThread: Miui Feature Init done
+10-04 16:43:32.916 22832 22871 W XMPush-22832: [Tid:51996] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 16:43:32.917 22832 22871 W XMPush-22832: [Tid:51996] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 16:43:56.948  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:44:05.052 22908 22930 I ActivityThread: TrafficStats init done
+10-04 16:44:05.079  6645  6699 I AiCrEngine_CognitionMainController: listen RESULT_OK
+10-04 16:44:05.085 22908 22930 I ActivityThread: Miui Feature Init done
+10-04 16:44:05.089  6645 27464 I AiCrEngine_CognitionMainController: listen RESULT_OK
+10-04 16:44:05.092  6645  6699 I AiCrEngine_CognitionMainController: listen RESULT_OK
+10-04 16:44:05.096  6645  6699 I AiCrEngine_CognitionMainController: listen RESULT_OK
+10-04 16:44:05.197 22949 22970 I ActivityThread: TrafficStats init done
+10-04 16:44:05.219 22949 22970 I ActivityThread: Miui Feature Init done
+10-04 16:44:25.028 11290 20548 I NetworkScheduler.Stats: (REDACTED) Task %s/%s finished executing. cause:%s result: %s elapsed_millis: %s uptime_millis: %s exec_start_elapsed_seconds: %s
+10-04 16:44:25.048 11290 20548 I NetworkScheduler.Stats: (REDACTED) Task %s/%s finished executing. cause:%s result: %s elapsed_millis: %s uptime_millis: %s exec_start_elapsed_seconds: %s
+10-04 16:44:56.968  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:45:02.240  4843  4843 D plgin_MiuiAudioPlaybackManager: AudioFocusMonitor: onAudioFocusGrant, pkg: ,com.tencent.mm uid: ,10262 requestResult: 1
+10-04 16:45:02.375 31919 23009 I flutter : [I][MicroMsg.Flutter.Emoji.SystemEmojiProcessor]: emojiheader parse done, emoji item count:4084 , softbankItem count:470, nameIdxItem count:467
+10-04 16:45:56.993  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:46:57.014  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:47:10.361 23078 23104 I ActivityThread: TrafficStats init done
+10-04 16:47:10.376 23078 23104 I ActivityThread: Miui Feature Init done
+10-04 16:47:10.506 23161 23187 I ActivityThread: TrafficStats init done
+10-04 16:47:10.508 23133 23180 I ActivityThread: TrafficStats init done
+10-04 16:47:10.522 23133 23180 I ActivityThread: Miui Feature Init done
+10-04 16:47:10.525 23161 23187 I ActivityThread: Miui Feature Init done
+10-04 16:47:10.530 23133 23166 I common  : milink::common::ClassLoader::LoadClasses name: com/milink/base/itf/Result (class_loader.cpp:55)
+10-04 16:47:10.530 23133 23166 I common  : milink::common::ClassLoader::LoadClasses name: com/milink/base/itf/Result load over (class_loader.cpp:57)
+10-04 16:47:10.534 23078 23130 I common  : milink::common::ClassLoader::LoadClasses name: com/milink/base/itf/Result (class_loader.cpp:55)
+10-04 16:47:10.534 23078 23130 I common  : milink::common::ClassLoader::LoadClasses name: com/milink/base/itf/Result load over (class_loader.cpp:57)
+10-04 16:47:10.539 23078 23123 I com.xiaomi.market:new_milink:MiLinkContext: call messenger_client.init done, next call native_core.install
+10-04 16:47:10.586 23133 23247 I com.milink.runtime:new_milink:idm_framework: milink::idm_framework::MilinkClientImpl::OnProcessConnected RegisterIDM result : 0 (milink_client_impl.cpp:348)
+10-04 16:47:10.588  4476  4635 E IDM-ClientProcV2: HandleStartDiscovery: check_permission_by_block_list_result.is_block_ == false
+10-04 16:47:10.593  4476  4667 I SMGR_IDMClientAgent: onDiscoveryResult: appId 7 result -9
+10-04 16:47:10.593  4476  4667 I IDM-ClientProcV2: client:EPntKeXF, OnDiscoveryResult
+10-04 16:47:10.594 23133 23247 I IDM-ClientImpl: OnDiscoveryResultInWorkThread...
+10-04 16:47:10.594 23133 23247 I com.milink.runtime:new_milink:idm_framework: milink::idm_framework::MilinkClientImpl::OnDiscoveryResult discovery result : -9 (milink_client_impl.cpp:32)
+10-04 16:47:10.609 23228 23275 I ActivityThread: TrafficStats init done
+10-04 16:47:10.633 23228 23275 I ActivityThread: Miui Feature Init done
+10-04 16:47:11.177 23228 23228 I DMS_Log : Logger init completed!
+10-04 16:47:12.571 23133 23244 I com.milink.runtime:new_milink:device_manager: milink::device_manager::SoftbusIdmImpl::OnMessage reset client result: 1 (softbus_idm_impl.cpp:665)
+10-04 16:47:12.578 23133 23247 I com.milink.runtime:new_milink:idm_framework: milink::idm_framework::MilinkClientImpl::OnProcessConnected RegisterIDM result : 0 (milink_client_impl.cpp:348)
+10-04 16:47:12.739 23333 23353 I ActivityThread: TrafficStats init done
+10-04 16:47:12.762 23333 23353 I ActivityThread: Miui Feature Init done
+10-04 16:47:12.788 23333 23377 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 16:47:12.793 23333 23379 D CameraInjector: waitForResult: 
+10-04 16:47:12.798 23333 23379 D CameraInjector: waitForResult: 
+10-04 16:47:12.798 23333 23379 D CameraInjector: waitForResult: 
+10-04 16:47:12.798 23333 23379 D CameraInjector: waitForResult: 
+10-04 16:47:12.798 23333 23379 D CameraInjector: waitForResult: 
+10-04 16:47:13.324 23333 23417 W XMPush-23333: [Tid:52075] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 16:47:13.324 23333 23417 I MiPushMessageReceiver: onCommandResult: register
+10-04 16:47:13.324 23333 23417 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 16:47:13.325 23333 23417 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 16:47:13.329 23333 23417 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 16:47:13.332 23333 23417 W XMPush-23333: [Tid:52075] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 16:47:13.332 23333 23417 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 16:47:13.332 23333 23417 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 16:47:57.021  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:48:57.036  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:49:48.509 30403 30451 I bluetooth: le_address_manager.cc:614 OnCommandComplete: Received command complete with op_code LE_SET_RANDOM_ADDRESS
+10-04 16:49:48.510 30403 30451 I bluetooth: le_address_manager.cc:635 OnCommandComplete: update random address : xx:xx:xx:xx:3f:20
+10-04 16:49:57.092  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:50:49.707  3332  3340 I WifiHAL : Done!
+10-04 16:50:49.730  3332  3340 I WifiHAL : Done!
+10-04 16:50:49.734  3332  3340 I WifiHAL : Done!
+10-04 16:50:57.122  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:51:05.089 23459 23479 I ActivityThread: TrafficStats init done
+10-04 16:51:05.107 23459 23479 I ActivityThread: Miui Feature Init done
+10-04 16:51:05.110  6645 27464 I AiCrEngine_CognitionMainController: listen RESULT_OK
+10-04 16:51:05.111  6645  6699 I AiCrEngine_CognitionMainController: listen RESULT_OK
+10-04 16:51:05.116  6645  6699 I AiCrEngine_CognitionMainController: listen RESULT_OK
+10-04 16:51:05.116  6645 27464 I AiCrEngine_CognitionMainController: listen RESULT_OK
+10-04 16:51:05.272 23495 23517 I ActivityThread: TrafficStats init done
+10-04 16:51:05.301 23495 23517 I ActivityThread: Miui Feature Init done
+10-04 16:51:44.432  4490  4508 I TEEC    : invoke, command=0x00000300, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 16:51:44.491  4490  4508 I TEEC    : invoke, command=0x00000300, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 16:51:44.548  4490  4508 I TEEC    : invoke, command=0x00000300, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 16:51:57.141  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:52:13.463 23543 23562 I ActivityThread: TrafficStats init done
+10-04 16:52:13.484 23543 23562 I ActivityThread: Miui Feature Init done
+10-04 16:52:13.513 23543 23588 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 16:52:13.525 23543 23590 D CameraInjector: waitForResult: 
+10-04 16:52:13.532 23543 23590 D CameraInjector: waitForResult: 
+10-04 16:52:13.532 23543 23590 D CameraInjector: waitForResult: 
+10-04 16:52:13.532 23543 23590 D CameraInjector: waitForResult: 
+10-04 16:52:13.532 23543 23590 D CameraInjector: waitForResult: 
+10-04 16:52:14.052 23543 23631 W XMPush-23543: [Tid:52089] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 16:52:14.052 23543 23631 I MiPushMessageReceiver: onCommandResult: register
+10-04 16:52:14.052 23543 23631 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 16:52:14.052 23543 23631 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 16:52:14.052 23543 23631 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 16:52:14.060 23543 23631 W XMPush-23543: [Tid:52089] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 16:52:14.060 23543 23631 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 16:52:14.060 23543 23631 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 16:52:14.655 23634 23657 I ActivityThread: TrafficStats init done
+10-04 16:52:14.672 23634 23657 I ActivityThread: Miui Feature Init done
+10-04 16:52:14.692 23634 23674 W XMPush-23634: [Tid:52051] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 16:52:14.693 23634 23674 W XMPush-23634: [Tid:52051] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 16:52:57.164  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:53:57.179  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:54:26.054  3601  4369 I MiTelephonyStatistic: clearTelephonyStatisticData done.
+10-04 16:54:26.072  3601  4369 D CloudDataSource: syncAllCloudData done
+10-04 16:54:26.078 23695 23726 I ActivityThread: TrafficStats init done
+10-04 16:54:26.086 23695 23726 I ActivityThread: Miui Feature Init done
+10-04 16:54:26.121 23715 23755 I ActivityThread: TrafficStats init done
+10-04 16:54:26.130 23715 23755 I ActivityThread: Miui Feature Init done
+10-04 16:54:26.135  8222  8222 I SmartPhoneTag_Utils: device_provisioned:1, user_setup_complete:1
+10-04 16:54:26.149 23745 23794 I ActivityThread: TrafficStats init done
+10-04 16:54:26.156 23745 23794 I ActivityThread: Miui Feature Init done
+10-04 16:54:26.183 23773 23819 I ActivityThread: TrafficStats init done
+10-04 16:54:26.198 23825 23849 I ActivityThread: TrafficStats init done
+10-04 16:54:26.203  2448  2696 E XQos    : fail to set tid 23714 qos 1, result: Invalid argument
+10-04 16:54:26.203  2448  2696 E XQos    : fail to set tid 23721 qos 1, result: Invalid argument
+10-04 16:54:26.205 23773 23773 D StartupTrack: Block printing(1):TopologySort result: 
+10-04 16:54:26.205 23773 23819 I ActivityThread: Miui Feature Init done
+10-04 16:54:26.207 23773 23773 I VA_Ahead_CpuDispatcherInitialize: create complete
+10-04 16:54:26.208 23773 23867 D StartupTrack: MMKVInitializer was completed.
+10-04 16:54:26.208 23773 23773 D StartupTrack: CpuDispatcherInitializer was completed.
+10-04 16:54:26.209 23773 23868 D StartupTrack: AppIconInitializer was completed.
+10-04 16:54:26.210 23773 23773 I VA_Ahead_ContextInitializer: create complete
+10-04 16:54:26.210 23773 23773 D StartupTrack: ContextInitializer was completed.
+10-04 16:54:26.210 23773 23773 D StartupTrack: StrictModeInitializer was completed.
+10-04 16:54:26.210 23773 23773 D StartupTrack: BluetoothInitializer was completed.
+10-04 16:54:26.211 23773 23867 D StartupTrack: AccessibilityShortcutRemoveInitializer was completed.
+10-04 16:54:26.211 23773 23867 D StartupTrack: VoiceTriggerInitializer was completed.
+10-04 16:54:26.211 23773 23868 D StartupTrack: RxJavaInitializer was completed.
+10-04 16:54:26.214 23773 23773 D StartupTrack: LibraryInjectInitializer was completed.
+10-04 16:54:26.214 23773 23773 D StartupTrack: CrashHandlerInitializer was completed.
+10-04 16:54:26.215 23773 23869 D StartupTrack: ViewCacheInitializer was completed.
+10-04 16:54:26.215 23773 23867 D StartupTrack: DexMemoryOptInitializer was completed.
+10-04 16:54:26.215 23825 23849 I ActivityThread: Miui Feature Init done
+10-04 16:54:26.217 23773 23868 D StartupTrack: CtaBootControlInitializer was completed.
+10-04 16:54:26.226 23715 23900 W XMPush-23715: [Tid:52073] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 16:54:26.226 23715 23900 I ##XLogger##: com.miui.cloudservice.push.MiPushMessageReceiver::onCommandResult@SourceFile:7, thread:52073--onCommandResult is called, command: register, resultCode: 0, reason: null, category: null
+10-04 16:54:26.233 23715 23900 I ##XLogger##: com.miui.cloudservice.push.MiPushMessageReceiver::onCommandResult@SourceFile:37, thread:52073--register_success
+10-04 16:54:26.238 23773 23773 D StartupTrack: Block printing(1):TopologySort result: 
+10-04 16:54:26.238 23773 23773 D StartupTrack: MMKVInitializer was completed, result from cache.
+10-04 16:54:26.238 23773 23773 D StartupTrack: AppIconInitializer was completed, result from cache.
+10-04 16:54:26.238 23773 23773 D StartupTrack: AccessibilityShortcutRemoveInitializer was completed, result from cache.
+10-04 16:54:26.238 23773 23773 D StartupTrack: RxJavaInitializer was completed, result from cache.
+10-04 16:54:26.238 23773 23773 D StartupTrack: VoiceTriggerInitializer was completed, result from cache.
+10-04 16:54:26.238 23773 23773 D StartupTrack: DexMemoryOptInitializer was completed, result from cache.
+10-04 16:54:26.238 23773 23773 D StartupTrack: CtaBootControlInitializer was completed, result from cache.
+10-04 16:54:26.238 23773 23773 D StartupTrack: ViewCacheInitializer was completed, result from cache.
+10-04 16:54:26.238 23773 23773 D StartupTrack: CpuDispatcherInitializer was completed, result from cache.
+10-04 16:54:26.238 23773 23773 D StartupTrack: ContextInitializer was completed, result from cache.
+10-04 16:54:26.238 23773 23773 D StartupTrack: StrictModeInitializer was completed, result from cache.
+10-04 16:54:26.238 23773 23773 D StartupTrack: BluetoothInitializer was completed, result from cache.
+10-04 16:54:26.238 23773 23773 D StartupTrack: LibraryInjectInitializer was completed, result from cache.
+10-04 16:54:26.238 23773 23773 D StartupTrack: CrashHandlerInitializer was completed, result from cache.
+10-04 16:54:26.240 23773 23773 D StartupTrack: Block printing(1):TopologySort result: 
+10-04 16:54:26.243 23773 23773 D StartupTrack: StatisticsInitializer was completed.
+10-04 16:54:26.244 23773 23867 D StartupTrack: VALoggerInitializer was completed.
+10-04 16:54:26.245 23773 23868 D StartupTrack: FrescoInitializer was completed.
+10-04 16:54:26.248 23773 23868 D StartupTrack: DatabaseInitializer was completed.
+10-04 16:54:26.249 23773 23773 D StartupTrack: LocationManagerInitializer was completed.
+10-04 16:54:26.250 23715 23900 W XMPush-23715: [Tid:52073] (Local) begin execute onCommandResult, command=set-alias, resultCode=0, reason=null
+10-04 16:54:26.250 23715 23900 I ##XLogger##: com.miui.cloudservice.push.MiPushMessageReceiver::onCommandResult@SourceFile:7, thread:52073--onCommandResult is called, command: set-alias, resultCode: 0, reason: null, category: null
+10-04 16:54:26.251 23773 23869 I VA_SystemAuthCheck: isSupportAuthUser result = true
+10-04 16:54:26.251 23773 23867 I VA_PermissionUtils: permission android.permission.READ_CALL_LOG result = true
+10-04 16:54:26.253 23773 23867 I VA_PermissionUtils: permission android.permission.READ_CONTACTS result = true
+10-04 16:54:26.254 23773 23867 D StartupTrack: ContactsUploadInitializer was completed.
+10-04 16:54:26.254 23715 23900 I ##XLogger##: com.miui.cloudservice.push.MiPushMessageReceiver::onCommandResult@SourceFile:37, thread:52073--set_alias_success, *********************************d3adb6
+10-04 16:54:26.254 23773 23867 D StartupTrack: ResPreloadInitializer was completed.
+10-04 16:54:26.254 23773 23867 D StartupTrack: ShareInitializer was completed.
+10-04 16:54:26.256 23773 23867 D StartupTrack: AppListInitializer was completed.
+10-04 16:54:26.258 23773 23867 D StartupTrack: ABTestInitializer was completed.
+10-04 16:54:26.260 23773 23868 D StartupTrack: CloudConfigInitializer was completed.
+10-04 16:54:26.264 23773 23773 D StartupTrack: MainProcessInitializer was completed.
+10-04 16:54:26.270 23773 23773 D VA_InitializeManager: initBeforeCTA com.miui.voiceassist进程 主线程耗时：10ms Startup Completed: 14
+10-04 16:54:26.271 23773 23773 D VA_InitializeManager: initBeforeCTA com.miui.voiceassist进程 主线程耗时：0ms Startup Completed: 0
+10-04 16:54:26.274 23773 23868 D StartupTrack: CoreAliveReportObserverInitializer was completed.
+10-04 16:54:26.293 23773 23868 D StartupTrack: LogUploadSwitchInitializer was completed.
+10-04 16:54:26.294 23773 23868 D StartupTrack: UIAgentInitializer was completed.
+10-04 16:54:26.328 23773 23867 D StartupTrack: BluetoothAfterCTAInitializer was completed.
+10-04 16:54:26.330  4490  4508 I TEEC    : invoke, command=0x00000102, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 16:54:26.345 23966 24009 I ActivityThread: TrafficStats init done
+10-04 16:54:26.348  4494  4517 I TEEC    : invoke, command=0x00000004, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 16:54:26.355 23951 23999 I ActivityThread: TrafficStats init done
+10-04 16:54:26.361 23966 24009 I ActivityThread: Miui Feature Init done
+10-04 16:54:26.364 23951 23999 I ActivityThread: Miui Feature Init done
+10-04 16:54:26.371 24011 24045 I ActivityThread: TrafficStats init done
+10-04 16:54:26.378 24011 24045 I ActivityThread: Miui Feature Init done
+10-04 16:54:26.456  5890  6466 I GDSettings: pinSpecialApps1: [com.tencent.mm, com.tencent.mobileqq]	result=[]
+10-04 16:54:26.457 24099 24136 I ActivityThread: TrafficStats init done
+10-04 16:54:26.459  5890  6466 I GDSettings: pinSpecialApps2: [com.tencent.mm, com.tencent.mobileqq]	result=[com.tencent.mm,,10262]
+10-04 16:54:26.466 23773 24184 W XMPush-23773: [Tid:52127] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 16:54:26.466 23773 24184 D VA_PushReceiver: onCommandResult
+10-04 16:54:26.466 23773 24184 D VA_PushReceiver: onReceiveRegisterResult
+10-04 16:54:26.469  5890  6923 W XMPush-5890: [Tid:330] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 16:54:26.469  5890  6923 D XiaomiPushReceiver: onCommandResult register success : eFKtOim3KvLiqFj7IXPNXQOYbK0CBHTrNnocr1ma80/LndwfcQvQCpOkmG8acPrA
+10-04 16:54:26.480  1154  1154 I TEEC    : invoke, command=0x00000058, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 16:54:26.486 24099 24136 I ActivityThread: Miui Feature Init done
+10-04 16:54:26.509  1154  1154 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 16:54:26.511  1154  1154 I TEEC    : invoke, command=0x00000020, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 16:54:26.514  2448  2700 W ActivityManager: Slow operation: 71ms so far, now at startProcess: done updating battery stats
+10-04 16:54:26.517  2448  2700 W ActivityManager: Slow operation: 73ms so far, now at startProcess: done updating pids map
+10-04 16:54:26.521 23773 23917 I VA_MemoryReminderReportHelper: reportMemoryCreateDBEvent: PARAM_RESULT = success, tip = 255.246.4.1.44639 failReason = null
+10-04 16:54:26.526  1154  1154 I TEEC    : invoke, command=0x00000064, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 16:54:26.532  1154  1154 I TEEC    : invoke, command=0x00000058, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 16:54:26.537 23951 23951 D AIHandleTask: StartWithIdentifyHandle content:AIWallpaperBean{localIdentify='CE43A7A27B9D5271F79BD6CA08E8EF92', bizId='CE43A7A27B9D5271F79BD6CA08E8EF92', bizCode='null', sha1='null', coverPicPath='/system/media/wallpaper/ai_wallpaper/d5c19fb0-de3a-4f2b-8fc3-817c6198d47c.jpg', videoPath='/system/media/wallpaper/ai_wallpaper/d5c19fb0-de3a-4f2b-8fc3-817c6198d47c.mp4', taskId='null', aesKey='null', state='Complete', stateExtraInfo='null', createTime=2, updateTime=1759524857038, sourceType=1, progress=0, subState='null', errCode=0, errMsg='null', errorTips='null', preFdsSignatureUrl='null', shouldWait=false, intentUri=null, deleteStatus=0, videoInfoExtra={"sizeBytes":7356016,"onlineId":"f270cc5b-fcae-4ecd-9b8c-0533279cd942"}}
+10-04 16:54:26.540 24125 24186 I ActivityThread: TrafficStats init done
+10-04 16:54:26.549  5890 24257 E URLFilterManager: mCountDownLatch.await result:true
+10-04 16:54:26.550 24195 24265 I ActivityThread: TrafficStats init done
+10-04 16:54:26.551  1154  1154 I TEEC    : invoke, command=0x00000004, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 16:54:26.553 24125 24186 I ActivityThread: Miui Feature Init done
+10-04 16:54:26.556 23951 23951 D AIHandleTask: StartWithIdentifyHandle content:AIWallpaperBean{localIdentify='3D945AC2A4316F29979A92BA4895E41A', bizId='3D945AC2A4316F29979A92BA4895E41A', bizCode='null', sha1='null', coverPicPath='/system/media/wallpaper/ai_wallpaper/6555f8c1-57a1-4cfc-ba21-b5d862cddff0.jpg', videoPath='/system/media/wallpaper/ai_wallpaper/6555f8c1-57a1-4cfc-ba21-b5d862cddff0.mp4', taskId='null', aesKey='null', state='Complete', stateExtraInfo='null', createTime=3, updateTime=1759524857040, sourceType=1, progress=0, subState='null', errCode=0, errMsg='null', errorTips='null', preFdsSignatureUrl='null', shouldWait=false, intentUri=null, deleteStatus=0, videoInfoExtra={"sizeBytes":2757070,"onlineId":"b8d21400-8df1-483d-97fe-3d22113a9384"}}
+10-04 16:54:26.557 23951 23951 D AIHandleTask: StartWithIdentifyHandle content:AIWallpaperBean{localIdentify='B6E3F22A0127A0A12BFD328D3C416C19', bizId='B6E3F22A0127A0A12BFD328D3C416C19', bizCode='null', sha1='null', coverPicPath='/system/media/wallpaper/ai_wallpaper/ec293288-9c91-4d95-8128-1d6884bf6df1.jpg', videoPath='/system/media/wallpaper/ai_wallpaper/ec293288-9c91-4d95-8128-1d6884bf6df1.mp4', taskId='null', aesKey='null', state='Complete', stateExtraInfo='null', createTime=1, updateTime=1759524857041, sourceType=1, progress=0, subState='null', errCode=0, errMsg='null', errorTips='null', preFdsSignatureUrl='null', shouldWait=false, intentUri=null, deleteStatus=0, videoInfoExtra={"sizeBytes":2119150,"onlineId":"6b81905d-e165-423d-bbef-135e5f2bb316"}}
+10-04 16:54:26.558 23951 23951 D AIHandleTask: StartWithIdentifyHandle content:AIWallpaperBean{localIdentify='A15148609A37E8079E8513AA7AA6AF5C', bizId='A15148609A37E8079E8513AA7AA6AF5C', bizCode='null', sha1='null', coverPicPath='/system/media/wallpaper/ai_wallpaper/30e7d587-d9a0-4a65-ae86-01d0c273b555.jpg', videoPath='/system/media/wallpaper/ai_wallpaper/30e7d587-d9a0-4a65-ae86-01d0c273b555.mp4', taskId='null', aesKey='null', state='Complete', stateExtraInfo='null', createTime=0, updateTime=1759524857042, sourceType=1, progress=0, subState='null', errCode=0, errMsg='null', errorTips='null', preFdsSignatureUrl='null', shouldWait=false, intentUri=null, deleteStatus=0, videoInfoExtra={"sizeBytes":5747431,"onlineId":"004e513e-4057-4340-a5e5-8c3d1fd83d0d"}}
+10-04 16:54:26.563  1154  1154 I TEEC    : invoke, command=0x00000008, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 16:54:26.565  1154  1154 I TEEC    : invoke, command=0x0000000C, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 16:54:26.570 24195 24265 I ActivityThread: Miui Feature Init done
+10-04 16:54:26.636 24238 24345 I ActivityThread: TrafficStats init done
+10-04 16:54:26.641 24274 24354 I ActivityThread: TrafficStats init done
+10-04 16:54:26.648 24310 24368 I ActivityThread: TrafficStats init done
+10-04 16:54:26.649 24238 24345 I ActivityThread: Miui Feature Init done
+10-04 16:54:26.650 24274 24354 I ActivityThread: Miui Feature Init done
+10-04 16:54:26.660 24310 24368 I ActivityThread: Miui Feature Init done
+10-04 16:54:26.668 24274 24274 D ##XLogger##: n1.a::j@null:91, thread:2--AppIconManager, initBackupIconDirQueue done, size = 0
+10-04 16:54:26.677 23773 23869 D StartupTrack: AppInitializer was completed.
+10-04 16:54:26.678 23773 23773 D VA_InitializeManager: initAfterCTA com.miui.voiceassist进程 主线程耗时：23ms Startup Completed: 22
+10-04 16:54:26.827 23966 23966 I AdvertisingIdClient: getting error as 17: API: ClientTelemetry.API is not available on this device. Connection failed with: ConnectionResult{statusCode=API_DISABLED_FOR_CONNECTION, resolution=null, message=null}
+10-04 16:54:26.856 23715 23950 E ##XLogger##: e5.h::a@SourceFile:15, thread:52083--ReportAppSyncSwitchStatusTask_Log, uploadDeviceInfo result : , true
+10-04 16:54:26.890  4490  4508 I TEEC    : invoke, command=0x00000102, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 16:54:26.905  4495  4495 I TEEC    : invoke, command=0x0000F001, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 16:54:26.917 23715 23930 D ##XLogger##: i5.@IPV6@SourceFile:8, thread:52081--BannerQueryTask, response: {"result":"ok","retriable":false,"code":0,"data":{"hasBanner":true,"bannerInfo":{"expiredInterval":686134333606,"eTag":"201904","banners":[{"picUrlLarge":"https://cdn.cnbj1.fds.api.mi-img.com/vip-activity-admin/147129191249744256.png","useSSO":true,"clickContent":"https://i.mi.com/vip?source=banner_23yfwsy&params=%7B\"autoSelect\"%3A%7B\"level\"%3A\"default\"%2C\"month\"%3A12%7D%7D","showNotification":false,"id":"1081","picUrlSmall":"https://cdn.cnbj1.fds.api.mi-img.com/vip-activity-admin/147129192709364096.png","clickType":"Web","pictures":{"picUrlLarge":"https://cdn.cnbj1.fds.api.mi-img.com/vip-activity-admin/147129191249744256.png","picUrlWide":"https://cdn.cnbj1.fds.api.mi-img.com/vip-activity-admin/147129190063282560.png","picUrlSmall":"https://cdn.cnbj1.fds.api.mi-img.com/vip-activity-admin/147129192709364096.png"},"clickAction":""}]}},"description":"成功","ts":1759568066395}
+10-04 16:54:26.923 30403 30437 D CloudControlUtil: switchActiveDeviceInternal Cloud data sync done
+10-04 16:54:26.924 30403 30437 D CloudControlUtil: switchWatchHfpActiveInternal Cloud sync donetrue
+10-04 16:54:26.924 30403 30437 D CloudControlUtil: isSuportBroadcastAudio Cloud data sync done
+10-04 16:54:26.960 23773 23872 I VA_PermissionUtils: permission android.permission.READ_CONTACTS result = true
+10-04 16:54:26.969 23634 23724 W System.err: 	at com.android.settings.cloud.JobTask.handleCloudResult(JobTask.java:155)
+10-04 16:54:26.972 30403 30437 D CloudControlUtil: SupportBtDeviceTypeSettings Cloud data sync done
+10-04 16:54:26.984  5890  5935 I VirusObserver: onCheckStarted in IVirusObserver.Stub result : -1
+10-04 16:54:26.993 23715 23988 E ##XLogger##: f3.a::h@SourceFile:2, thread:52084--url is https://keyapi.micloud.xiaomi.net/mic/keychain/v1/status, respone = {"result":"ok","retriable":false,"code":0,"data":{"appId":"micloud","status":false},"description":"成功","ts":1759568066499}
+10-04 16:54:27.024 24587 24616 I ActivityThread: TrafficStats init done
+10-04 16:54:27.038 24587 24616 I ActivityThread: Miui Feature Init done
+10-04 16:54:27.130  4490  4508 I TEEC    : invoke, command=0x00000102, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 16:54:27.147 24195 24195 I DMS_Log : Logger init completed!
+10-04 16:54:27.155 24274 24274 D ##XLogger##: com.miui.cloudbackup.service.QuotaWarningNotificationCheckJobService$@IPV6@null:28, thread:2--QuotaWarningNotificationCheckJobService, result code is 1
+10-04 16:54:27.218 24642 24642 I TEEC    : invoke, command=0x00008002, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 16:54:27.277 23773 23914 I VA_Statistics: init complete
+10-04 16:54:27.278 23773 23914 I VA_Statistics: trackCachedEvent complete
+10-04 16:54:27.293 24642 24642 I TEEC    : invoke, command=0x00008002, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 16:54:27.546 23773 23773 D VA_XAUpdate:UpdateHelper: local receiver intentAction: action_download_complete_broadcast | code:2 | info:fileName = commercial_package_white_list.json
+10-04 16:54:27.546 23773 23773 D VA_XAUpdate:UpdateHelper: downloadResultSucc = false
+10-04 16:54:27.547 23773 23964 I VA_XAUpdate:UpdateHelper: downloadResultSucc = false
+10-04 16:54:27.547 23773 23964 I VA_VAJobService: downloadResultSucc = false
+10-04 16:54:27.547 23773 23773 D VA_XAUpdate:UpdateHelper: local receiver intentAction: action_download_complete_broadcast | code:2 | info:fileName = screen_recognition_package_black_list_config.json
+10-04 16:54:27.547 23773 23773 D VA_XAUpdate:UpdateHelper: downloadResultSucc = false
+10-04 16:54:27.547 23773 23773 D VA_XAUpdate:UpdateHelper: local receiver intentAction: action_download_complete_broadcast | code:201 | info:fileName = model_jinghu_v1.1.3.cloud.bin
+10-04 16:54:27.547 23773 23773 D VA_XAUpdate:UpdateHelper: downloadResultSucc = false
+10-04 16:54:27.547 23773 23964 I VA_XAUpdate:UpdateHelper: downloadResultSucc = false
+10-04 16:54:27.547 23773 23964 I VA_VAJobService: downloadResultSucc = false
+10-04 16:54:27.547 23773 23773 D VA_XAUpdate:UpdateHelper: local receiver intentAction: action_download_complete_broadcast | code:201 | info:fileName = device_wakeup_model_cloud_config.json
+10-04 16:54:27.547 23773 23773 D VA_XAUpdate:UpdateHelper: downloadResultSucc = false
+10-04 16:54:27.547 23773 23872 I VA_XAUpdate:UpdateHelper: downloadResultSucc = false
+10-04 16:54:27.548 23773 23872 D VA_VoiceTrigger:WakeupModelInfo: model download complete: fileName = device_wakeup_model_cloud_config.json
+10-04 16:54:27.548 23773 23872 D VA_VoiceTrigger:WakeupModelInfo: downloadResultSucc = false
+10-04 16:54:27.549 23773 24481 I VA_XAUpdate:UpdateHelper: downloadResultSucc = false
+10-04 16:54:27.549 23773 24481 D VA_VoiceTrigger:WakeupModelInfo: model download complete: fileName = model_jinghu_v1.1.3.cloud.bin
+10-04 16:54:27.549 23773 24481 D VA_VoiceTrigger:WakeupModelInfo: downloadResultSucc = false
+10-04 16:54:27.554 24642 24642 I TEEC    : invoke, command=0x00008003, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 16:54:27.592  4490  4508 I TEEC    : invoke, command=0x00000102, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 16:54:27.622 23773 24676 I VA_AsyncGlobalContext: MESSAGE_UPDATE_GLOBAL_CONTEXTS_COMPLETE
+10-04 16:54:27.647 23773 24678 I VA_AsyncGlobalContext: MESSAGE_UPDATE_GLOBAL_CONTEXTS_COMPLETE
+10-04 16:54:27.735 24680 24703 I ActivityThread: TrafficStats init done
+10-04 16:54:27.750 24680 24703 I ActivityThread: Miui Feature Init done
+10-04 16:54:27.751 24675 24675 I TEEC    : invoke, command=0x00007002, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 16:54:27.772 24675 24675 I TEEC    : invoke, command=0x00007002, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 16:54:27.901 24680 24738 I AiCrEngine_ActionProvider: static Action: urn:aiot-spec-v3:com.mi.phones:action:[com.miui.notes/notes/done_todo]:0:1.0
+10-04 16:54:28.001 24675 24675 I TEEC    : invoke, command=0x00007003, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 16:54:28.032 24742 24773 I ActivityThread: TrafficStats init done
+10-04 16:54:28.046 24742 24773 I ActivityThread: Miui Feature Init done
+10-04 16:54:28.054 24765 24791 I ActivityThread: TrafficStats init done
+10-04 16:54:28.066 24765 24791 I ActivityThread: Miui Feature Init done
+10-04 16:54:28.109 24765 24841 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 16:54:28.115 24765 24843 D CameraInjector: waitForResult: 
+10-04 16:54:28.125 24765 24843 D CameraInjector: waitForResult: 
+10-04 16:54:28.125 24765 24843 D CameraInjector: waitForResult: 
+10-04 16:54:28.125 24765 24843 D CameraInjector: waitForResult: 
+10-04 16:54:28.125 24765 24843 D CameraInjector: waitForResult: 
+10-04 16:54:28.128 24804 24847 I ActivityThread: TrafficStats init done
+10-04 16:54:28.141 24804 24847 I ActivityThread: Miui Feature Init done
+10-04 16:54:28.225 24680 24718 I AiCrEngine_ActionProvider: findCommonActions() add common action:  {"sync-timeout":3000,"deploy-property":"static","type":"urn:aiot-spec-v3:com.mi.phones:action:[com.milink.service\/mirror-service\/start-scan-mirror-device]:0:1.0","sync-flag":"0","in":[],"out":[{"description":"result code","format":"int32","name":"status","value-list":[{"value":"0","description":"success"},{"value":"1001","description":"CTA未同意"},{"value":"-11","description":"附近的设备权限未授权"},{"value":"-3","description":"未开启WiFi或蓝牙"},{"value":"-4","description":"未关闭双wifi加速"},{"value":"-5","description":"未关闭热点"},{"value":"-7","description":"未关闭有线DP投屏"},{"value":"-8","description":"当前处于flip机型的外屏"},{"value":"-9","description":"当前正在镜像投屏或数据投屏中"},{"value":"-10","description":"触发扫描后未发现到设备"},{"value":"-99","description":"未知错误"}]},{"description":"result info","format":"string","name":"msg"},{"description":"device list info","format":"$ref\/data-type-defs\/mirror-device-list","name":"devices"}],"authority":"com.milink.service.mirrorservice","ddfid":7471105,"packageName":"com.milink.service"}
+10-04 16:54:28.225 24680 24718 I AiCrEngine_ActionProvider: findCommonActions() add common action:  {"sync-timeout":3000,"deploy-property":"static","type":"urn:aiot-spec-v3:com.mi.phones:action:[com.milink.service\/mirror-service\/start-mirror-cast]:0:1.0","sync-flag":"0","in":[{"description":"device key","name":"deviceKey","format":"string"}],"out":[{"format":"int32","name":"status","value-list":[{"value":"0","description":"success"},{"value":"-2","description":"镜像连接失败"},{"value":"-9","description":"当前正在镜像投屏或数据投屏中"},{"value":"-12","description":"投屏设备列表已过期"},{"value":"-99","description":"未知错误"}]},{"description":"result info ","format":"string","name":"msg"}],"authority":"com.milink.service.mirrorservice","ddfid":7471105,"packageName":"com.milink.service"}
+10-04 16:54:28.225 24680 24718 I AiCrEngine_ActionProvider: findCommonActions() find common action: urn:aiot-spec-v3:com.mi.phones:action:[com.miui.notes/notes/done_todo]:0:1.0 ,timeout = 3000
+10-04 16:54:28.225 24680 24718 I AiCrEngine_ActionProvider: findCommonActions() add common action:  {"sync-timeout":3000,"deploy-property":"static","type":"urn:aiot-spec-v3:com.mi.phones:action:[com.miui.notes\/notes\/done_todo]:0:1.0","sync-flag":"0","in":[{"description":"位置","name":"extra_done_position","format":"int32"}],"out":[{"description":"执行状态","format":"int32","name":"status","value-list":[{"value":"0","description":"成功"},{"value":"-1","description":"失败"}]}],"authority":"com.miui.notes.action","ddfid":6946818,"packageName":"com.miui.notes"}
+10-04 16:54:28.234 24680 24718 I AiCrEngine_ActionProvider: findCommonActions() add common action:  {"sync-timeout":5000,"deploy-property":"static","type":"urn:aiot-spec-v3:com.mi.phones:action:[com.xiaomi.aicr\/search\/query]:0:1.0","sync-flag":"1","in":[{"description":"调用方包名","name":"packagename","format":"string"},{"description":"搜索范围","name":"scope","format":"int","value-list":[{"value":"1","description":"相册"}]},{"description":"搜索词","name":"body","format":"string"}],"out":[{"description":"执行状态","format":"int32","name":"status","value-list":[{"value":"0","description":"成功"},{"value":"-1002","description":"失败"}]},{"description":"搜索引擎状态","format":"int","name":"scope_status","value-list":[{"value":"1","description":"成功"},{"value":"-1002","description":"未知错误"},{"value":"-2001","description":"服务端不支持该领域类型"},{"value":"-2002","description":"服务不支持该能力类型"},{"value":"-2003","description":"服务端没有权限使用该能力"},{"value":"-4001","description":"客户端没有权限使用该能力"},{"value":"-4002","description":"输入参数有误"},{"value":"-3001","description":"引擎开关关闭"}]},{"description":"每个元素代表一个工具应用类别，由category值唯一标识，仅小爱和全搜的结果可能为多个，由query时scope参数决定","format":"$ref\/data-type-defs\/results","name":"results"}],"authority":"com.xiaomi.aicr.action.provider","ddfid":65543,"packageName":"com.xiaomi.aicr"}
+10-04 16:54:28.633 24765 24912 W XMPush-24765: [Tid:52185] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 16:54:28.634 24765 24912 I MiPushMessageReceiver: onCommandResult: register
+10-04 16:54:28.634 24765 24912 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 16:54:28.634 24765 24912 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 16:54:28.634 24765 24912 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 16:54:28.641 24765 24912 W XMPush-24765: [Tid:52185] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 16:54:28.641 24765 24912 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 16:54:28.641 24765 24912 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 16:54:33.890  5890  8021 E NewAutoTaskDBHelper: query task result size = 2
+10-04 16:54:38.528 24937 24957 I ActivityThread: TrafficStats init done
+10-04 16:54:38.544 24937 24957 I ActivityThread: Miui Feature Init done
+10-04 16:54:38.578 24937 24981 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 16:54:38.593 24937 24983 D CameraInjector: waitForResult: 
+10-04 16:54:38.602 24937 24983 D CameraInjector: waitForResult: 
+10-04 16:54:38.602 24937 24983 D CameraInjector: waitForResult: 
+10-04 16:54:38.602 24937 24983 D CameraInjector: waitForResult: 
+10-04 16:54:38.603 24937 24983 D CameraInjector: waitForResult: 
+10-04 16:54:39.096 24937 25020 W XMPush-24937: [Tid:52195] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 16:54:39.096 24937 25020 I MiPushMessageReceiver: onCommandResult: register
+10-04 16:54:39.096 24937 25020 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 16:54:39.096 24937 25020 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 16:54:39.096 24937 25020 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 16:54:39.098 24937 25020 W XMPush-24937: [Tid:52195] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 16:54:39.098 24937 25020 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 16:54:39.098 24937 25020 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 16:54:57.180  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:54:58.410  3332  3340 I WifiHAL : Done!
+10-04 16:54:58.415  3332  3340 I WifiHAL : Done!
+10-04 16:54:58.418  3332  3340 I WifiHAL : Done!
+10-04 16:54:59.222 25027 25047 I ActivityThread: TrafficStats init done
+10-04 16:54:59.245 25027 25047 I ActivityThread: Miui Feature Init done
+10-04 16:54:59.268 25027 25073 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 16:54:59.280 25027 25075 D CameraInjector: waitForResult: 
+10-04 16:54:59.294 25027 25075 D CameraInjector: waitForResult: 
+10-04 16:54:59.294 25027 25075 D CameraInjector: waitForResult: 
+10-04 16:54:59.294 25027 25075 D CameraInjector: waitForResult: 
+10-04 16:54:59.294 25027 25075 D CameraInjector: waitForResult: 
+10-04 16:54:59.812 25027 25112 W XMPush-25027: [Tid:52198] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 16:54:59.812 25027 25112 I MiPushMessageReceiver: onCommandResult: register
+10-04 16:54:59.812 25027 25112 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 16:54:59.812 25027 25112 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 16:54:59.812 25027 25112 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 16:54:59.818 25027 25112 W XMPush-25027: [Tid:52198] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 16:54:59.818 25027 25112 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 16:54:59.818 25027 25112 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 16:55:00.478 25116 25137 I ActivityThread: TrafficStats init done
+10-04 16:55:00.508 25116 25137 I ActivityThread: Miui Feature Init done
+10-04 16:55:00.535 25116 25151 W XMPush-25116: [Tid:52163] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 16:55:00.537 25116 25151 W XMPush-25116: [Tid:52163] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 16:55:28.717 25163 25183 I ActivityThread: TrafficStats init done
+10-04 16:55:28.729 25163 25183 I ActivityThread: Miui Feature Init done
+10-04 16:55:28.760 25163 25210 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 16:55:28.766 25163 25212 D CameraInjector: waitForResult: 
+10-04 16:55:28.770 25163 25212 D CameraInjector: waitForResult: 
+10-04 16:55:28.770 25163 25212 D CameraInjector: waitForResult: 
+10-04 16:55:28.770 25163 25212 D CameraInjector: waitForResult: 
+10-04 16:55:28.770 25163 25212 D CameraInjector: waitForResult: 
+10-04 16:55:29.280 25163 25249 W XMPush-25163: [Tid:52210] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 16:55:29.280 25163 25249 I MiPushMessageReceiver: onCommandResult: register
+10-04 16:55:29.280 25163 25249 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 16:55:29.280 25163 25249 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 16:55:29.280 25163 25249 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 16:55:29.283 25163 25249 W XMPush-25163: [Tid:52210] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 16:55:29.283 25163 25249 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 16:55:29.283 25163 25249 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 16:55:57.183  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:56:44.789 25260 25280 I ActivityThread: TrafficStats init done
+10-04 16:56:44.807  6645 27464 I AiCrEngine_CognitionMainController: listen RESULT_OK
+10-04 16:56:44.809  6645 27464 I AiCrEngine_CognitionMainController: listen RESULT_OK
+10-04 16:56:44.813  6645 27464 I AiCrEngine_CognitionMainController: listen RESULT_OK
+10-04 16:56:44.814 25260 25280 I ActivityThread: Miui Feature Init done
+10-04 16:56:44.815  6645 19362 I AiCrEngine_CognitionMainController: listen RESULT_OK
+10-04 16:56:44.942 25295 25316 I ActivityThread: TrafficStats init done
+10-04 16:56:44.966 25295 25316 I ActivityThread: Miui Feature Init done
+10-04 16:56:57.192  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:57:11.357  2448  2448 W BackupManagerService: [UserID:0] Backup pass but enabled=false setupComplete=true
+10-04 16:57:57.201  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:58:57.245  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 16:59:26.614 21503 21503 D JobUtils: setSchedule(): result:1, jobInfo:(job:73845/com.xiaomi.mirror/.job.KeepAliveJobService), getBackoffPolicy:1, getMinLatencyMillis:3600000, isPeriodic:false, getIntervalMillis:0, getMaxExecutionDelayMillis:7200000, isRequireDeviceIdle:false, setRequiresCharging:false
+10-04 16:59:57.259  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 17:00:01.915 13200 25376 I ActivityThread: TrafficStats init done
+10-04 17:00:01.938 13200 25376 I ActivityThread: Miui Feature Init done
+10-04 17:00:04.229 25421 25440 I ActivityThread: TrafficStats init done
+10-04 17:00:04.252 25421 25440 I ActivityThread: Miui Feature Init done
+10-04 17:00:04.275 25421 25466 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:00:04.284 25421 25468 D CameraInjector: waitForResult: 
+10-04 17:00:04.290 25421 25468 D CameraInjector: waitForResult: 
+10-04 17:00:04.290 25421 25468 D CameraInjector: waitForResult: 
+10-04 17:00:04.290 25421 25468 D CameraInjector: waitForResult: 
+10-04 17:00:04.290 25421 25468 D CameraInjector: waitForResult: 
+10-04 17:00:04.814 25421 25506 W XMPush-25421: [Tid:52224] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:00:04.815 25421 25506 I MiPushMessageReceiver: onCommandResult: register
+10-04 17:00:04.815 25421 25506 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:00:04.816 25421 25506 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 17:00:04.816 25421 25506 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:00:04.820 25421 25506 W XMPush-25421: [Tid:52224] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:00:04.821 25421 25506 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 17:00:04.821 25421 25506 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 17:00:05.400 25520 25540 I ActivityThread: TrafficStats init done
+10-04 17:00:05.414 25520 25540 I ActivityThread: Miui Feature Init done
+10-04 17:00:05.437 25520 25553 W XMPush-25520: [Tid:52191] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:00:05.439 25520 25553 W XMPush-25520: [Tid:52191] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:00:57.281  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 17:01:57.284  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 17:02:52.282 25591 25628 I ActivityThread: TrafficStats init done
+10-04 17:02:52.295 25591 25628 I ActivityThread: Miui Feature Init done
+10-04 17:02:52.310 25607 25653 I ActivityThread: TrafficStats init done
+10-04 17:02:52.332 25607 25607 D StartupTrack: Block printing(1):TopologySort result: 
+10-04 17:02:52.333 25607 25607 I VA_Ahead_CpuDispatcherInitialize: create complete
+10-04 17:02:52.338 25607 25653 I ActivityThread: Miui Feature Init done
+10-04 17:02:52.338 25607 25607 D StartupTrack: CpuDispatcherInitializer was completed.
+10-04 17:02:52.341 25607 25607 I VA_Ahead_ContextInitializer: create complete
+10-04 17:02:52.341 25607 25607 D StartupTrack: ContextInitializer was completed.
+10-04 17:02:52.341 25607 25607 D StartupTrack: StrictModeInitializer was completed.
+10-04 17:02:52.342 25607 25730 D StartupTrack: AppIconInitializer was completed.
+10-04 17:02:52.342 25607 25607 D StartupTrack: BluetoothInitializer was completed.
+10-04 17:02:52.342 25667 25720 I ActivityThread: TrafficStats init done
+10-04 17:02:52.343 25607 25730 D StartupTrack: AccessibilityShortcutRemoveInitializer was completed.
+10-04 17:02:52.344 25607 25729 D StartupTrack: MMKVInitializer was completed.
+10-04 17:02:52.344 25607 25729 D StartupTrack: VoiceTriggerInitializer was completed.
+10-04 17:02:52.344 25607 25730 D StartupTrack: RxJavaInitializer was completed.
+10-04 17:02:52.348 25607 25729 D StartupTrack: DexMemoryOptInitializer was completed.
+10-04 17:02:52.348 25607 25607 D StartupTrack: LibraryInjectInitializer was completed.
+10-04 17:02:52.348 25607 25607 D StartupTrack: CrashHandlerInitializer was completed.
+10-04 17:02:52.350 25607 25731 D StartupTrack: ViewCacheInitializer was completed.
+10-04 17:02:52.353 25607 25730 D StartupTrack: CtaBootControlInitializer was completed.
+10-04 17:02:52.355 25687 25733 I ActivityThread: TrafficStats init done
+10-04 17:02:52.358 25667 25720 I ActivityThread: Miui Feature Init done
+10-04 17:02:52.358 25616 25677 I ActivityThread: TrafficStats init done
+10-04 17:02:52.372 25687 25733 I ActivityThread: Miui Feature Init done
+10-04 17:02:52.372 25616 25677 I ActivityThread: Miui Feature Init done
+10-04 17:02:52.373 25607 25607 D StartupTrack: Block printing(1):TopologySort result: 
+10-04 17:02:52.373 25607 25607 D StartupTrack: MMKVInitializer was completed, result from cache.
+10-04 17:02:52.373 25607 25607 D StartupTrack: AppIconInitializer was completed, result from cache.
+10-04 17:02:52.373 25607 25607 D StartupTrack: AccessibilityShortcutRemoveInitializer was completed, result from cache.
+10-04 17:02:52.373 25607 25607 D StartupTrack: RxJavaInitializer was completed, result from cache.
+10-04 17:02:52.373 25607 25607 D StartupTrack: VoiceTriggerInitializer was completed, result from cache.
+10-04 17:02:52.373 25607 25607 D StartupTrack: DexMemoryOptInitializer was completed, result from cache.
+10-04 17:02:52.373 25607 25607 D StartupTrack: CtaBootControlInitializer was completed, result from cache.
+10-04 17:02:52.373 25607 25607 D StartupTrack: ViewCacheInitializer was completed, result from cache.
+10-04 17:02:52.373 25607 25607 D StartupTrack: CpuDispatcherInitializer was completed, result from cache.
+10-04 17:02:52.373 25607 25607 D StartupTrack: ContextInitializer was completed, result from cache.
+10-04 17:02:52.373 25607 25607 D StartupTrack: StrictModeInitializer was completed, result from cache.
+10-04 17:02:52.373 25607 25607 D StartupTrack: BluetoothInitializer was completed, result from cache.
+10-04 17:02:52.373 25607 25607 D StartupTrack: LibraryInjectInitializer was completed, result from cache.
+10-04 17:02:52.373 25607 25607 D StartupTrack: CrashHandlerInitializer was completed, result from cache.
+10-04 17:02:52.374 25607 25607 D StartupTrack: Block printing(1):TopologySort result: 
+10-04 17:02:52.376 25607 25607 D StartupTrack: StatisticsInitializer was completed.
+10-04 17:02:52.377 25607 25730 D StartupTrack: FrescoInitializer was completed.
+10-04 17:02:52.378 25607 25730 I VA_Ahead_PermissionUtils: permission android.permission.READ_CALL_LOG result = true
+10-04 17:02:52.379 25607 25607 D StartupTrack: LocationManagerInitializer was completed.
+10-04 17:02:52.380 25607 25730 I VA_Ahead_PermissionUtils: permission android.permission.READ_CONTACTS result = true
+10-04 17:02:52.380 25607 25730 D StartupTrack: ContactsUploadInitializer was completed.
+10-04 17:02:52.381 25607 25731 I VA_SystemAuthCheck: isSupportAuthUser result = true
+10-04 17:02:52.381 25607 25730 D StartupTrack: DatabaseInitializer was completed.
+10-04 17:02:52.394 25607 25729 D StartupTrack: VALoggerInitializer was completed.
+10-04 17:02:52.397 25607 25730 D StartupTrack: CloudConfigInitializer was completed.
+10-04 17:02:52.398 25607 25730 D StartupTrack: ShareInitializer was completed.
+10-04 17:02:52.398 25607 25730 D StartupTrack: AppListInitializer was completed.
+10-04 17:02:52.398 25737 25784 I ActivityThread: TrafficStats init done
+10-04 17:02:52.399 25607 25607 D StartupTrack: MainProcessInitializer was completed.
+10-04 17:02:52.400 25607 25730 D StartupTrack: ABTestInitializer was completed.
+10-04 17:02:52.401 25607 25729 D StartupTrack: ResPreloadInitializer was completed.
+10-04 17:02:52.404 25607 25607 D VA_InitializeManager: initBeforeCTA com.miui.voiceassist进程 主线程耗时：16ms Startup Completed: 14
+10-04 17:02:52.405 25607 25607 D VA_InitializeManager: initBeforeCTA com.miui.voiceassist进程 主线程耗时：0ms Startup Completed: 0
+10-04 17:02:52.405 25737 25784 I ActivityThread: Miui Feature Init done
+10-04 17:02:52.420 25607 25729 D StartupTrack: CoreAliveReportObserverInitializer was completed.
+10-04 17:02:52.426 25607 25729 D StartupTrack: AiConnStatsObserverInitializer was completed.
+10-04 17:02:52.434 25607 25729 D StartupTrack: UpdateLocalDataInitializer was completed.
+10-04 17:02:52.445 25607 25729 I VA_AccountHelper: getServiceTokenResult account duration=0
+10-04 17:02:52.451 25687 25687 D AIHandleTask: StartWithIdentifyHandle content:AIWallpaperBean{localIdentify='3D945AC2A4316F29979A92BA4895E41A', bizId='3D945AC2A4316F29979A92BA4895E41A', bizCode='null', sha1='null', coverPicPath='/system/media/wallpaper/ai_wallpaper/6555f8c1-57a1-4cfc-ba21-b5d862cddff0.jpg', videoPath='/system/media/wallpaper/ai_wallpaper/6555f8c1-57a1-4cfc-ba21-b5d862cddff0.mp4', taskId='null', aesKey='null', state='Complete', stateExtraInfo='null', createTime=3, updateTime=1759568066557, sourceType=1, progress=0, subState='null', errCode=0, errMsg='null', errorTips='null', preFdsSignatureUrl='null', shouldWait=false, intentUri=null, deleteStatus=0, videoInfoExtra={"sizeBytes":2757070,"onlineId":"b8d21400-8df1-483d-97fe-3d22113a9384"}}
+10-04 17:02:52.452 25687 25687 D AIHandleTask: StartWithIdentifyHandle content:AIWallpaperBean{localIdentify='CE43A7A27B9D5271F79BD6CA08E8EF92', bizId='CE43A7A27B9D5271F79BD6CA08E8EF92', bizCode='null', sha1='null', coverPicPath='/system/media/wallpaper/ai_wallpaper/d5c19fb0-de3a-4f2b-8fc3-817c6198d47c.jpg', videoPath='/system/media/wallpaper/ai_wallpaper/d5c19fb0-de3a-4f2b-8fc3-817c6198d47c.mp4', taskId='null', aesKey='null', state='Complete', stateExtraInfo='null', createTime=2, updateTime=1759568066538, sourceType=1, progress=0, subState='null', errCode=0, errMsg='null', errorTips='null', preFdsSignatureUrl='null', shouldWait=false, intentUri=null, deleteStatus=0, videoInfoExtra={"sizeBytes":7356016,"onlineId":"f270cc5b-fcae-4ecd-9b8c-0533279cd942"}}
+10-04 17:02:52.452 25687 25687 D AIHandleTask: StartWithIdentifyHandle content:AIWallpaperBean{localIdentify='B6E3F22A0127A0A12BFD328D3C416C19', bizId='B6E3F22A0127A0A12BFD328D3C416C19', bizCode='null', sha1='null', coverPicPath='/system/media/wallpaper/ai_wallpaper/ec293288-9c91-4d95-8128-1d6884bf6df1.jpg', videoPath='/system/media/wallpaper/ai_wallpaper/ec293288-9c91-4d95-8128-1d6884bf6df1.mp4', taskId='null', aesKey='null', state='Complete', stateExtraInfo='null', createTime=1, updateTime=1759568066558, sourceType=1, progress=0, subState='null', errCode=0, errMsg='null', errorTips='null', preFdsSignatureUrl='null', shouldWait=false, intentUri=null, deleteStatus=0, videoInfoExtra={"sizeBytes":2119150,"onlineId":"6b81905d-e165-423d-bbef-135e5f2bb316"}}
+10-04 17:02:52.456 25687 25687 D AIHandleTask: StartWithIdentifyHandle content:AIWallpaperBean{localIdentify='A15148609A37E8079E8513AA7AA6AF5C', bizId='A15148609A37E8079E8513AA7AA6AF5C', bizCode='null', sha1='null', coverPicPath='/system/media/wallpaper/ai_wallpaper/30e7d587-d9a0-4a65-ae86-01d0c273b555.jpg', videoPath='/system/media/wallpaper/ai_wallpaper/30e7d587-d9a0-4a65-ae86-01d0c273b555.mp4', taskId='null', aesKey='null', state='Complete', stateExtraInfo='null', createTime=0, updateTime=1759568066559, sourceType=1, progress=0, subState='null', errCode=0, errMsg='null', errorTips='null', preFdsSignatureUrl='null', shouldWait=false, intentUri=null, deleteStatus=0, videoInfoExtra={"sizeBytes":5747431,"onlineId":"004e513e-4057-4340-a5e5-8c3d1fd83d0d"}}
+10-04 17:02:52.465 25607 25729 D StartupTrack: AccountInitializer was completed.
+10-04 17:02:52.465 25607 25729 D StartupTrack: AiRichTextInitializer was completed.
+10-04 17:02:52.465 25607 25729 D StartupTrack: AppOpsPatchInitializer was completed.
+10-04 17:02:52.474 25607 25729 D StartupTrack: LogUploadSwitchInitializer was completed.
+10-04 17:02:52.475 25607 25729 D StartupTrack: UIAgentInitializer was completed.
+10-04 17:02:52.505 25607 25730 D StartupTrack: BluetoothAfterCTAInitializer was completed.
+10-04 17:02:52.531 25607 25822 D VA_DownloadAllAppInfoAsyncTask: downloadApplistResult: true
+10-04 17:02:52.537  1154  1154 I TEEC    : invoke, command=0x00000004, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:02:52.540  1154  1154 I TEEC    : invoke, command=0x00000008, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:02:52.542  1154  1154 I TEEC    : invoke, command=0x0000000C, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:02:52.543 25616 25616 D AODApplicationDelegate: onPartColorComputeComplete: fullImageMap:{image-hue=227, image-lightness=0, image-saturation=0}
+10-04 17:02:52.567 25607 25964 W XMPush-25607: [Tid:52263] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:02:52.567 25607 25964 D VA_PushReceiver: onCommandResult
+10-04 17:02:52.567 25607 25964 D VA_PushReceiver: onReceiveRegisterResult
+10-04 17:02:52.633  1619  3178 D iorapd  : Update for version is done. The size is from 389 to 388
+10-04 17:02:52.634  2448  4025 V IorapForwardingService: RemoteTaskListener#onComplete({requestId: 4740}, {state: 2})
+10-04 17:02:52.634  2448  4025 V IorapForwardingService: IorapdJobService#onIorapdTaskCompleted({requestId: 4740}), found params=android.app.job.JobParameters@6182943
+10-04 17:02:52.637  2448  4025 V IorapForwardingService: RemoteTaskListener#onComplete({requestId: 4778}, {state: 2})
+10-04 17:02:52.637  2448  4025 V IorapForwardingService: IorapdJobService#onIorapdTaskCompleted({requestId: 4778}), found params=android.app.job.JobParameters@6182943
+10-04 17:02:52.650  2448  6586 V IorapForwardingService: RemoteTaskListener#onComplete({requestId: 4822}, {state: 2})
+10-04 17:02:52.650  2448  6586 V IorapForwardingService: IorapdJobService#onIorapdTaskCompleted({requestId: 4822}), found params=android.app.job.JobParameters@6182943
+10-04 17:02:52.661  2448  6586 V IorapForwardingService: RemoteTaskListener#onComplete({requestId: 4917}, {state: 2})
+10-04 17:02:52.661  2448  6586 V IorapForwardingService: IorapdJobService#onIorapdTaskCompleted({requestId: 4917}), found params=android.app.job.JobParameters@6182943
+10-04 17:02:52.670  2448  6586 V IorapForwardingService: RemoteTaskListener#onComplete({requestId: 4952}, {state: 2})
+10-04 17:02:52.670  2448  6586 V IorapForwardingService: IorapdJobService#onIorapdTaskCompleted({requestId: 4952}), found params=android.app.job.JobParameters@6182943
+10-04 17:02:52.673 25980 26017 I ActivityThread: TrafficStats init done
+10-04 17:02:52.680  2448  5095 V IorapForwardingService: RemoteTaskListener#onComplete({requestId: 4954}, {state: 2})
+10-04 17:02:52.680  2448  5095 V IorapForwardingService: IorapdJobService#onIorapdTaskCompleted({requestId: 4954}), found params=android.app.job.JobParameters@6182943
+10-04 17:02:52.680 25980 26017 I ActivityThread: Miui Feature Init done
+10-04 17:02:52.690  2448  5095 V IorapForwardingService: RemoteTaskListener#onComplete({requestId: 4958}, {state: 2})
+10-04 17:02:52.690  2448  5095 V IorapForwardingService: IorapdJobService#onIorapdTaskCompleted({requestId: 4958}), found params=android.app.job.JobParameters@6182943
+10-04 17:02:52.700  2448  4025 V IorapForwardingService: RemoteTaskListener#onComplete({requestId: 5050}, {state: 2})
+10-04 17:02:52.700  2448  4025 V IorapForwardingService: IorapdJobService#onIorapdTaskCompleted({requestId: 5050}), found params=android.app.job.JobParameters@6182943
+10-04 17:02:52.712  2448  5095 V IorapForwardingService: RemoteTaskListener#onComplete({requestId: 5103}, {state: 2})
+10-04 17:02:52.712  2448  5095 V IorapForwardingService: IorapdJobService#onIorapdTaskCompleted({requestId: 5103}), found params=android.app.job.JobParameters@6182943
+10-04 17:02:52.716 25607 25731 D StartupTrack: AppInitializer was completed.
+10-04 17:02:52.717 25607 25607 D VA_InitializeManager: initAfterCTA com.miui.voiceassist进程 主线程耗时：25ms Startup Completed: 22
+10-04 17:02:52.722  2448  6586 V IorapForwardingService: RemoteTaskListener#onComplete({requestId: 5115}, {state: 2})
+10-04 17:02:52.722  2448  6586 V IorapForwardingService: IorapdJobService#onIorapdTaskCompleted({requestId: 5115}), found params=android.app.job.JobParameters@6182943
+10-04 17:02:52.732  2448  3516 V IorapForwardingService: RemoteTaskListener#onComplete({requestId: 5120}, {state: 2})
+10-04 17:02:52.732  2448  3516 V IorapForwardingService: IorapdJobService#onIorapdTaskCompleted({requestId: 5120}), found params=android.app.job.JobParameters@6182943
+10-04 17:02:52.745 25607 25790 I VA_MemoryReminderReportHelper: reportMemoryCreateDBEvent: PARAM_RESULT = success, tip = 255.246.4.1.44639 failReason = null
+10-04 17:02:52.819 26071 26122 I ActivityThread: TrafficStats init done
+10-04 17:02:52.831 26071 26122 I ActivityThread: Miui Feature Init done
+10-04 17:02:52.841 26071 26165 W XMPush-26071: [Tid:52231] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:02:52.843 25980 26006 I VirusObserver: onScanStart in IVirusObserver.Stub result : 1
+10-04 17:02:52.844 25980 26006 I VirusObserver: onScanStartItem in IVirusObserver.Stub result : -1, path : /data/app/~~uEw5UBLsqq50h1LaCOEm_w==/com.github.metacubex.clash.meta-XB6mBoW8afYnmMY3jk1Nbg==/base.apk
+10-04 17:02:52.844 26071 26165 W XMPush-26071: [Tid:52231] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:02:52.846 26092 26147 I ActivityThread: TrafficStats init done
+10-04 17:02:52.858 26092 26147 I ActivityThread: Miui Feature Init done
+10-04 17:02:52.863 26105 26163 I ActivityThread: TrafficStats init done
+10-04 17:02:52.871 26105 26163 I ActivityThread: Miui Feature Init done
+10-04 17:02:52.893 25667 25667 I DMS_Log : Logger init completed!
+10-04 17:02:52.904 26092 26235 W XMPush-26092: [Tid:52247] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:02:52.905 26092 26235 I ##XLogger##: com.miui.cloudservice.push.MiPushMessageReceiver::onCommandResult@SourceFile:7, thread:52247--onCommandResult is called, command: register, resultCode: 0, reason: null, category: null
+10-04 17:02:52.907 26092 26235 I ##XLogger##: com.miui.cloudservice.push.MiPushMessageReceiver::onCommandResult@SourceFile:37, thread:52247--register_success
+10-04 17:02:52.949 26092 26235 W XMPush-26092: [Tid:52247] (Local) begin execute onCommandResult, command=set-alias, resultCode=0, reason=null
+10-04 17:02:52.950 26092 26235 I ##XLogger##: com.miui.cloudservice.push.MiPushMessageReceiver::onCommandResult@SourceFile:7, thread:52247--onCommandResult is called, command: set-alias, resultCode: 0, reason: null, category: null
+10-04 17:02:52.953 26092 26235 I ##XLogger##: com.miui.cloudservice.push.MiPushMessageReceiver::onCommandResult@SourceFile:37, thread:52247--set_alias_success, *********************************d3adb6
+10-04 17:02:53.072 26284 26324 I ActivityThread: TrafficStats init done
+10-04 17:02:53.081 26297 26328 I ActivityThread: TrafficStats init done
+10-04 17:02:53.084 26284 26324 I ActivityThread: Miui Feature Init done
+10-04 17:02:53.089 26297 26328 I ActivityThread: Miui Feature Init done
+10-04 17:02:53.158 26356 26396 I ActivityThread: TrafficStats init done
+10-04 17:02:53.165 26356 26396 I ActivityThread: Miui Feature Init done
+10-04 17:02:53.184  1154  1154 I TEEC    : invoke, command=0x00000064, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:02:53.190  1154  1154 I TEEC    : invoke, command=0x00000058, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:02:53.193  1154  1154 I TEEC    : invoke, command=0x00000020, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:02:53.194  1154  1154 I TEEC    : invoke, command=0x00000004, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:02:53.196  1154  1154 I TEEC    : invoke, command=0x00000008, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:02:53.198  1154  1154 I TEEC    : invoke, command=0x0000000C, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:02:53.296 26297 26297 I AdvertisingIdClient: getting error as 17: API: ClientTelemetry.API is not available on this device. Connection failed with: ConnectionResult{statusCode=API_DISABLED_FOR_CONNECTION, resolution=null, message=null}
+10-04 17:02:53.425 25607 25780 I VA_Statistics: init complete
+10-04 17:02:53.425 25607 25780 I VA_Statistics: trackCachedEvent complete
+10-04 17:02:53.450 25607 25822 I VA_PermissionUtils: permission android.permission.READ_CONTACTS result = true
+10-04 17:02:53.507 26465 26489 I ActivityThread: TrafficStats init done
+10-04 17:02:53.514 25607 25607 D VA_XAUpdate:UpdateHelper: local receiver intentAction: action_download_complete_broadcast | code:2 | info:fileName = dialect_settings_config.json
+10-04 17:02:53.514 25607 25607 D VA_XAUpdate:UpdateHelper: downloadResultSucc = false
+10-04 17:02:53.514 25607 25744 I VA_XAUpdate:UpdateHelper: downloadResultSucc = false
+10-04 17:02:53.514 25607 25744 D VA_DialectUtils: downloadResultSucc = false
+10-04 17:02:53.517 26092 26281 E ##XLogger##: f3.a::h@SourceFile:2, thread:52256--url is https://keyapi.micloud.xiaomi.net/mic/keychain/v1/status, respone = {"result":"ok","retriable":false,"code":0,"data":{"appId":"micloud","status":false},"description":"成功","ts":1759568573016}
+10-04 17:02:53.519 26465 26489 I ActivityThread: Miui Feature Init done
+10-04 17:02:53.647 26511 26531 I ActivityThread: TrafficStats init done
+10-04 17:02:53.658 26511 26531 I ActivityThread: Miui Feature Init done
+10-04 17:02:53.678 25607 26555 I VA_AsyncGlobalContext: MESSAGE_UPDATE_GLOBAL_CONTEXTS_COMPLETE
+10-04 17:02:53.679 25607 26556 I VA_AsyncGlobalContext: MESSAGE_UPDATE_GLOBAL_CONTEXTS_COMPLETE
+10-04 17:02:53.750 26560 26604 I ActivityThread: TrafficStats init done
+10-04 17:02:53.759 26569 26610 I ActivityThread: TrafficStats init done
+10-04 17:02:53.762 26560 26604 I ActivityThread: Miui Feature Init done
+10-04 17:02:53.775 26569 26610 I ActivityThread: Miui Feature Init done
+10-04 17:02:53.889 26569 26654 I AiCrEngine_ActionProvider: static Action: urn:aiot-spec-v3:com.mi.phones:action:[com.miui.notes/notes/done_todo]:0:1.0
+10-04 17:02:53.989 26662 26682 I ActivityThread: TrafficStats init done
+10-04 17:02:53.998 26662 26682 I ActivityThread: Miui Feature Init done
+10-04 17:02:54.026 26685 26714 I ActivityThread: TrafficStats init done
+10-04 17:02:54.043 22859 26716 I CodeScanner: flamingo: Scan done com.github.metacubex.clash.meta: len:2,rate:0.977(misses:2,hits:85), size:2.428, spend:19
+10-04 17:02:54.046 26685 26714 I ActivityThread: Miui Feature Init done
+10-04 17:02:54.061 26685 26769 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:02:54.067 25607 25607 D VA_XAUpdate:UpdateHelper: local receiver intentAction: action_download_complete_broadcast | code:2 | info:fileName = voice_trigger_cantonese
+10-04 17:02:54.067 25607 25607 D VA_XAUpdate:UpdateHelper: downloadResultSucc = false
+10-04 17:02:54.067 25607 25607 D VA_XAUpdate:UpdateHelper: local receiver intentAction: action_download_complete_broadcast | code:2 | info:fileName = voice_trigger_sichuan
+10-04 17:02:54.067 25607 25607 D VA_XAUpdate:UpdateHelper: downloadResultSucc = false
+10-04 17:02:54.068 25607 25877 I VA_XAUpdate:UpdateHelper: downloadResultSucc = false
+10-04 17:02:54.069 26685 26771 D CameraInjector: waitForResult: 
+10-04 17:02:54.069 25607 25744 I VA_XAUpdate:UpdateHelper: downloadResultSucc = false
+10-04 17:02:54.076 26721 26766 I ActivityThread: TrafficStats init done
+10-04 17:02:54.077 26685 26771 D CameraInjector: waitForResult: 
+10-04 17:02:54.077 26685 26771 D CameraInjector: waitForResult: 
+10-04 17:02:54.077 26685 26771 D CameraInjector: waitForResult: 
+10-04 17:02:54.077 26685 26771 D CameraInjector: waitForResult: 
+10-04 17:02:54.086 26721 26766 I ActivityThread: Miui Feature Init done
+10-04 17:02:54.172 26569 26623 I AiCrEngine_ActionProvider: findCommonActions() add common action:  {"sync-timeout":3000,"deploy-property":"static","type":"urn:aiot-spec-v3:com.mi.phones:action:[com.milink.service\/mirror-service\/start-scan-mirror-device]:0:1.0","sync-flag":"0","in":[],"out":[{"description":"result code","format":"int32","name":"status","value-list":[{"value":"0","description":"success"},{"value":"1001","description":"CTA未同意"},{"value":"-11","description":"附近的设备权限未授权"},{"value":"-3","description":"未开启WiFi或蓝牙"},{"value":"-4","description":"未关闭双wifi加速"},{"value":"-5","description":"未关闭热点"},{"value":"-7","description":"未关闭有线DP投屏"},{"value":"-8","description":"当前处于flip机型的外屏"},{"value":"-9","description":"当前正在镜像投屏或数据投屏中"},{"value":"-10","description":"触发扫描后未发现到设备"},{"value":"-99","description":"未知错误"}]},{"description":"result info","format":"string","name":"msg"},{"description":"device list info","format":"$ref\/data-type-defs\/mirror-device-list","name":"devices"}],"authority":"com.milink.service.mirrorservice","ddfid":7471105,"packageName":"com.milink.service"}
+10-04 17:02:54.172 26569 26623 I AiCrEngine_ActionProvider: findCommonActions() add common action:  {"sync-timeout":3000,"deploy-property":"static","type":"urn:aiot-spec-v3:com.mi.phones:action:[com.milink.service\/mirror-service\/start-mirror-cast]:0:1.0","sync-flag":"0","in":[{"description":"device key","name":"deviceKey","format":"string"}],"out":[{"format":"int32","name":"status","value-list":[{"value":"0","description":"success"},{"value":"-2","description":"镜像连接失败"},{"value":"-9","description":"当前正在镜像投屏或数据投屏中"},{"value":"-12","description":"投屏设备列表已过期"},{"value":"-99","description":"未知错误"}]},{"description":"result info ","format":"string","name":"msg"}],"authority":"com.milink.service.mirrorservice","ddfid":7471105,"packageName":"com.milink.service"}
+10-04 17:02:54.172 26569 26623 I AiCrEngine_ActionProvider: findCommonActions() find common action: urn:aiot-spec-v3:com.mi.phones:action:[com.miui.notes/notes/done_todo]:0:1.0 ,timeout = 3000
+10-04 17:02:54.172 26569 26623 I AiCrEngine_ActionProvider: findCommonActions() add common action:  {"sync-timeout":3000,"deploy-property":"static","type":"urn:aiot-spec-v3:com.mi.phones:action:[com.miui.notes\/notes\/done_todo]:0:1.0","sync-flag":"0","in":[{"description":"位置","name":"extra_done_position","format":"int32"}],"out":[{"description":"执行状态","format":"int32","name":"status","value-list":[{"value":"0","description":"成功"},{"value":"-1","description":"失败"}]}],"authority":"com.miui.notes.action","ddfid":6946818,"packageName":"com.miui.notes"}
+10-04 17:02:54.176 26569 26623 I AiCrEngine_ActionProvider: findCommonActions() add common action:  {"sync-timeout":1000,"deploy-property":"static","type":"urn:aiot-spec-v3:com.mi.phones:action:[com.android.deskclock\/deskclock\/alarm]:0:2.0","sync-flag":"0","in":[{"description":"倒计时操作类型","name":"alarmAction","format":"int32","value-list":[{"value":"0","description":"新建闹钟"},{"value":"1","description":"编辑闹钟"},{"value":"2","description":"删除闹钟"},{"value":"3","description":"关闭闹钟"}]},{"description":"闹钟的小时","name":"hour","format":"int32"},{"description":"闹钟的分钟","name":"minute","format":"int32"},{"description":"编辑之后的小时-只有当alarmAction = 1使用","name":"newHour","format":"int32"},{"description":"编辑之后的分钟-只有当alarmAction = 1使用","name":"newMinute","format":"int32"}],"out":[{"description":"result code","format":"int32","name":"status","value-list":[{"value":"0","description":"success"},{"value":"-1","description":"更新闹钟失败"},{"value":"-2","description":"不存在该时间的闹钟"},{"value":"-99","description":"未知错误"}]}],"authority":"com.android.deskclock.MyAiActionProvider","ddfid":7274497,"packageName":"com.android.deskclock"}
+10-04 17:02:54.178 26569 26623 I AiCrEngine_ActionProvider: findCommonActions() add common action:  {"sync-timeout":5000,"deploy-property":"dynamic","type":"urn:aiot-spec-v3:com.mi.phones:action:[com.xiaomi.aicr\/vc\/wechat\/search_contacts]:0:1.0","sync-flag":"1","in":[{"description":"联系人姓名","name":"contacts_name","format":"string"}],"out":[{"description":"执行状态","format":"int32","name":"status","value-list":[{"value":"0","description":"成功"},{"value":"-1","description":"失败"}]},{"description":"符合条件的联系人数量","format":"int32","name":"search_results"}],"authority":"com.xiaomi.aicr.instruction.action","ddfid":65543,"packageName":"com.xiaomi.aicr"}
+10-04 17:02:54.180 26569 26623 I AiCrEngine_ActionProvider: findCommonActions() add common action:  {"sync-timeout":3000,"deploy-property":"static","type":"urn:aiot-spec-v3:com.mi.phones:action:[com.milink.service\/audiocast-service\/start-scan-audio-device]:0:1.0","sync-flag":"0","in":[],"out":[{"description":"result code","format":"int32","name":"status","value-list":[{"value":"0","description":"success"},{"value":"1001","description":"CTA未同意"},{"value":"-2","description":"初始化失败"},{"value":"-3","description":"未开启Wi-Fi"},{"value":"-10","description":"设备未找到"},{"value":"-99","description":"未知错误"}]},{"description":"result info","format":"string","name":"msg"},{"description":"device list info","format":"$ref\/data-type-defs\/audiocast-device-list","name":"devices"}],"authority":"com.milink.service.audiocastservice","ddfid":7536641,"packageName":"com.milink.service"}
+10-04 17:02:54.180 26569 26623 I AiCrEngine_ActionProvider: findCommonActions() add common action:  {"sync-timeout":3000,"deploy-property":"static","type":"urn:aiot-spec-v3:com.mi.phones:action:[com.milink.service\/audiocast-service\/start-audio-cast]:0:1.0","sync-flag":"0","in":[{"description":"device id list","name":"devices","format":"$ref\/data-type-defs\/string-array"}],"out":[{"description":"result code","format":"int32","name":"status","value-list":[{"value":"0","description":"success"},{"value":"-1","description":"失败"},{"value":"-12","description":"投音设备列表已过期"},{"value":"-99","description":"未知错误"}]},{"description":"result info ","format":"string","name":"msg"}],"authority":"com.milink.service.audiocastservice","ddfid":7536641,"packageName":"com.milink.service"}
+10-04 17:02:54.180 26569 26623 I AiCrEngine_ActionProvider: findCommonActions() add common action:  {"sync-timeout":3000,"deploy-property":"static","type":"urn:aiot-spec-v3:com.mi.phones:action:[com.milink.service\/audiocast-service\/stop-audio-cast]:0:1.0","sync-flag":"0","in":[],"out":[{"description":"result code","format":"int32","name":"status","value-list":[{"value":"0","description":"success"},{"value":"-1","description":"结束失败"},{"value":"-6","description":"当前不在投射状态"},{"value":"-99","description":"未知错误"}]},{"description":"result info ","format":"string","name":"msg"}],"authority":"com.milink.service.audiocastservice","ddfid":7536641,"packageName":"com.milink.service"}
+10-04 17:02:54.185 26569 26623 I AiCrEngine_ActionProvider: findCommonActions() add common action:  {"sync-timeout":5000,"deploy-property":"static","type":"urn:aiot-spec-v3:com.mi.phones:action:[com.xiaomi.aicr\/search\/query]:0:1.0","sync-flag":"1","in":[{"description":"调用方包名","name":"packagename","format":"string"},{"description":"搜索范围","name":"scope","format":"int","value-list":[{"value":"1","description":"相册"}]},{"description":"搜索词","name":"body","format":"string"}],"out":[{"description":"执行状态","format":"int32","name":"status","value-list":[{"value":"0","description":"成功"},{"value":"-1002","description":"失败"}]},{"description":"搜索引擎状态","format":"int","name":"scope_status","value-list":[{"value":"1","description":"成功"},{"value":"-1002","description":"未知错误"},{"value":"-2001","description":"服务端不支持该领域类型"},{"value":"-2002","description":"服务不支持该能力类型"},{"value":"-2003","description":"服务端没有权限使用该能力"},{"value":"-4001","description":"客户端没有权限使用该能力"},{"value":"-4002","description":"输入参数有误"},{"value":"-3001","description":"引擎开关关闭"}]},{"description":"每个元素代表一个工具应用类别，由category值唯一标识，仅小爱和全搜的结果可能为多个，由query时scope参数决定","format":"$ref\/data-type-defs\/results","name":"results"}],"authority":"com.xiaomi.aicr.action.provider","ddfid":65543,"packageName":"com.xiaomi.aicr"}
+10-04 17:02:54.186 26569 26623 I AiCrEngine_ActionProvider: findCommonActions() add common action:  {"sync-timeout":10000,"deploy-property":"static","clear-top":"true","type":"urn:aiot-spec-v3:com.mi.phones:action:[com.miui.gallery\/gallery\/pick_gallery_activity]:0:1.0","sync-flag":"0","in":[{"description":"pick图片类型：图片\/视频\/图片+视频","name":"intent_type","format":"string","value-list":[{"value":"*\/*","description":"ALL(图片+视频)"},{"value":"image\/*","description":"图片"},{"value":"video\/*","description":"视频"}]},{"description":"最大选择照片数量","name":"pick-upper-bound","format":"int32"},{"description":"最大选择照片数量","name":"pick-upper-bound","format":"int32"},{"description":"最少选择照片数量","name":"pick-lower-bound","format":"int32"},{"description":"选择视频累计最大时长","name":"extra_pick_total_duration_limit","format":"int32"},{"description":"选择媒体类型","name":"extra_pick_media_info_type","format":"int32","value-list":[{"value":"0","description":"NONE"},{"value":"1","description":"SIMPLE"},{"value":"2","description":"DETAIL"}]},{"description":"是否返回原图url","name":"pick-need-origin","format":"boolean"},{"description":"选中图片id","name":"extra_pick_pre_selected_data","format":"string"},{"description":"pick action 类型(非必须)","name":"intent_action","format":"string"}],"out":[{"description":"执行状态","format":"int32","name":"status","value-list":[{"value":"0","description":"执行成功"},{"value":"-1","description":"执行失败"},{"value":"-4","description":"用户取消"},{"value":"-103","description":"CTA未同意"}]},{"description":"编辑后的图片id列表","format":"iids","name":"extra_pick_media_id"},{"description":"编辑后的图片id list","format":"iids","name":"pick_sha1"},{"description":"编辑后的图片uri list","name":"pick-result-data"}],"targetActivity":"com.miui.gallery.picker.PickGalleryActivity","packageName":"com.miui.gallery","ddfid":6684674}
+10-04 17:02:54.187 26569 26623 E AiCrEngine_E_.ActionProvider.scanActions: scanActions() done
+10-04 17:02:54.205 22859 26716 I CodeScanner: flamingo: Scan done com.tencent.wetype: len:4,rate:0.985(misses:4,hits:255), size:23.222, spend:161
+10-04 17:02:54.384 22859 26716 I CodeScanner: flamingo: Scan done com.mira.com: len:18,rate:0.988(misses:18,hits:1445), size:22.120, spend:176
+10-04 17:02:54.391 22859  2617 I MiEngineNG: Scan completely.
+10-04 17:02:54.392  4919  8057 I PickerSyncTracker: Marked sync future complete for work id: a8952c22-9515-49c5-b7a3-6c7c15f8ee24. Future map: {}
+10-04 17:02:54.392  4919  8057 I PSyncWorker: Completed picker proactive sync complete from local provider.
+10-04 17:02:54.392  4919  5231 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=a8952c22-9515-49c5-b7a3-6c7c15f8ee24, tags={ com.android.providers.media.photopicker.sync.ProactiveSyncWorker } ]
+10-04 17:02:54.560 26685 26838 W XMPush-26685: [Tid:52330] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:02:54.560 26685 26838 I MiPushMessageReceiver: onCommandResult: register
+10-04 17:02:54.560 26685 26838 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:02:54.560 26685 26838 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 17:02:54.560 26685 26838 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:02:54.562 26685 26838 W XMPush-26685: [Tid:52330] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:02:54.562 26685 26838 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 17:02:54.562 26685 26838 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 17:02:55.145 26840 26861 I ActivityThread: TrafficStats init done
+10-04 17:02:55.160 26840 26861 I ActivityThread: Miui Feature Init done
+10-04 17:02:57.019  2448 26875 D BlobStore: Completed idle maintenance; deleted []
+10-04 17:02:57.287  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 17:03:01.988 30403 30451 I bluetooth: le_address_manager.cc:614 OnCommandComplete: Received command complete with op_code LE_SET_RANDOM_ADDRESS
+10-04 17:03:01.989 30403 30451 I bluetooth: le_address_manager.cc:635 OnCommandComplete: update random address : xx:xx:xx:xx:72:8c
+10-04 17:03:02.404 26887 26907 I ActivityThread: TrafficStats init done
+10-04 17:03:02.420 26887 26907 I ActivityThread: Miui Feature Init done
+10-04 17:03:02.459 26887 26931 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:03:02.468 26887 26934 D CameraInjector: waitForResult: 
+10-04 17:03:02.472 26887 26934 D CameraInjector: waitForResult: 
+10-04 17:03:02.472 26887 26934 D CameraInjector: waitForResult: 
+10-04 17:03:02.472 26887 26934 D CameraInjector: waitForResult: 
+10-04 17:03:02.472 26887 26934 D CameraInjector: waitForResult: 
+10-04 17:03:02.986 26887 26968 W XMPush-26887: [Tid:52344] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:03:02.986 26887 26968 I MiPushMessageReceiver: onCommandResult: register
+10-04 17:03:02.986 26887 26968 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:03:02.987 26887 26968 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 17:03:02.987 26887 26968 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:03:02.990 26887 26968 W XMPush-26887: [Tid:52344] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:03:02.990 26887 26968 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 17:03:02.990 26887 26968 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 17:03:03.592 26970 26990 I ActivityThread: TrafficStats init done
+10-04 17:03:03.616 26970 26990 I ActivityThread: Miui Feature Init done
+10-04 17:03:03.633 26970 27003 W XMPush-26970: [Tid:52306] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:03:03.634 26970 27003 W XMPush-26970: [Tid:52306] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:03:05.116 27007 27027 I ActivityThread: TrafficStats init done
+10-04 17:03:05.134 27007 27027 I ActivityThread: Miui Feature Init done
+10-04 17:03:05.143  6645 27464 I AiCrEngine_CognitionMainController: listen RESULT_OK
+10-04 17:03:05.146  6645  6699 I AiCrEngine_CognitionMainController: listen RESULT_OK
+10-04 17:03:05.155  6645 27464 I AiCrEngine_CognitionMainController: listen RESULT_OK
+10-04 17:03:05.156  6645  6699 I AiCrEngine_CognitionMainController: listen RESULT_OK
+10-04 17:03:05.272 27040 27059 I ActivityThread: TrafficStats init done
+10-04 17:03:05.290 27040 27059 I ActivityThread: Miui Feature Init done
+10-04 17:03:05.855 27070 27092 I ActivityThread: TrafficStats init done
+10-04 17:03:05.871 27070 27092 I ActivityThread: Miui Feature Init done
+10-04 17:03:05.907 27070 27117 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:03:05.920 27070 27120 D CameraInjector: waitForResult: 
+10-04 17:03:05.923 27070 27120 D CameraInjector: waitForResult: 
+10-04 17:03:05.923 27070 27120 D CameraInjector: waitForResult: 
+10-04 17:03:05.923 27070 27120 D CameraInjector: waitForResult: 
+10-04 17:03:05.923 27070 27120 D CameraInjector: waitForResult: 
+10-04 17:03:57.339  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 17:04:57.376  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 17:05:57.389  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 17:06:27.506 27207 27227 I ActivityThread: TrafficStats init done
+10-04 17:06:27.535 27207 27227 I ActivityThread: Miui Feature Init done
+10-04 17:06:57.404  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 17:07:55.295 27256 27276 I ActivityThread: TrafficStats init done
+10-04 17:07:55.307 27256 27276 I ActivityThread: Miui Feature Init done
+10-04 17:07:55.342 27256 27302 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:07:55.350 27256 27304 D CameraInjector: waitForResult: 
+10-04 17:07:55.362 27256 27304 D CameraInjector: waitForResult: 
+10-04 17:07:55.362 27256 27304 D CameraInjector: waitForResult: 
+10-04 17:07:55.362 27256 27304 D CameraInjector: waitForResult: 
+10-04 17:07:55.362 27256 27304 D CameraInjector: waitForResult: 
+10-04 17:07:55.881 27256 27346 W XMPush-27256: [Tid:52376] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:07:55.881 27256 27346 I MiPushMessageReceiver: onCommandResult: register
+10-04 17:07:55.881 27256 27346 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:07:55.881 27256 27346 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 17:07:55.881 27256 27346 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:07:55.885 27256 27346 W XMPush-27256: [Tid:52376] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:07:55.885 27256 27346 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 17:07:55.885 27256 27346 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 17:07:56.512 27349 27369 I ActivityThread: TrafficStats init done
+10-04 17:07:56.543 27349 27369 I ActivityThread: Miui Feature Init done
+10-04 17:07:56.580 27349 27385 W XMPush-27349: [Tid:52337] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:07:56.582 27349 27385 W XMPush-27349: [Tid:52337] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:07:57.406  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 17:08:57.446  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 17:09:47.716 11290 27403 I NetworkScheduler.Stats: (REDACTED) Task %s/%s finished executing. cause:%s result: %s elapsed_millis: %s uptime_millis: %s exec_start_elapsed_seconds: %s
+10-04 17:09:47.747 11290 26422 I NetworkScheduler.Stats: (REDACTED) Task %s/%s finished executing. cause:%s result: %s elapsed_millis: %s uptime_millis: %s exec_start_elapsed_seconds: %s
+10-04 17:09:47.769 11290 26422 I NetworkScheduler.Stats: (REDACTED) Task %s/%s finished executing. cause:%s result: %s elapsed_millis: %s uptime_millis: %s exec_start_elapsed_seconds: %s
+10-04 17:09:47.783 11290 26422 I NetworkScheduler.Stats: (REDACTED) Task %s/%s finished executing. cause:%s result: %s elapsed_millis: %s uptime_millis: %s exec_start_elapsed_seconds: %s
+10-04 17:09:49.339 11290 25362 I NetworkScheduler.Stats: (REDACTED) Task %s/%s finished executing. cause:%s result: %s elapsed_millis: %s uptime_millis: %s exec_start_elapsed_seconds: %s
+10-04 17:09:57.454  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 17:10:00.371  2448  6555 I ActivityTaskManager: START u0 {flg=0x10000000 xflg=0x1 cmp=com.mira.com/com.mira.clip.Clip4ClipActivity} with LAUNCH_MULTIPLE from uid 2000 from pid 27416 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=3
+10-04 17:10:04.086 27454 27477 I ActivityThread: TrafficStats init done
+10-04 17:10:04.100 27454 27477 I ActivityThread: Miui Feature Init done
+10-04 17:10:04.128  2448  2514 I ActivityManager: Broadcast completed: result=0
+10-04 17:10:04.134 27480 27505 I ActivityThread: TrafficStats init done
+10-04 17:10:04.148 27480 27480 I RFix.RFixPatchInfo: loadStoreInfo RFixPatchInfo{lastConfigId=2640532, lastDownloadResult=1, lastInstallResult=6, configId=2640532, configType=0, patchProcess=, version=f3ef4321fd6fe7ab826784d8510e96ce, patchType=Tinker, patchId=id_0620195119_arm64-v8a, effectImmediate=false, enableAssertDex=true, enableAssertLib=true, enableAssertRes=true, removePatch=false, mainVerified=true}
+10-04 17:10:04.151 27480 27505 I ActivityThread: Miui Feature Init done
+10-04 17:10:04.176 27480 27480 I Tinker.ClassLoaderAdder: checkDexInstall result: true, checker_classloader: dalvik.system.DelegateLastClassLoader[DexPathList[[zip file "/data/user/0/com.tencent.wetype/tinker/patch-6b1e6310/dex/tinker_classN.apk"],nativeLibraryDirectories=[/data/app/~~BItgL2oq9WoGiQkTXpci9g==/com.tencent.wetype-9ovqgejIiYdU8PfstOBjqQ==/lib/arm64, /data/app/~~BItgL2oq9WoGiQkTXpci9g==/com.tencent.wetype-9ovqgejIiYdU8PfstOBjqQ==/base.apk!/lib/arm64-v8a, /system/lib64, /system_ext/lib64]]]
+10-04 17:10:04.177 27480 27480 I Tinker.ClassLoaderAdder: checkDexInstall result: true, checker_classloader: dalvik.system.DelegateLastClassLoader[DexPathList[[zip file "/data/user/0/com.tencent.wetype/tinker/patch-6b1e6310/dex/tinker_classN.apk"],nativeLibraryDirectories=[/data/app/~~BItgL2oq9WoGiQkTXpci9g==/com.tencent.wetype-9ovqgejIiYdU8PfstOBjqQ==/lib/arm64, /data/app/~~BItgL2oq9WoGiQkTXpci9g==/com.tencent.wetype-9ovqgejIiYdU8PfstOBjqQ==/base.apk!/lib/arm64-v8a, /system/lib64, /system_ext/lib64]]]
+10-04 17:10:04.177 27480 27480 I Tinker.AppInfoChangedBlocker: tryStart done.
+10-04 17:10:04.178 27480 27480 I RFix.PatchLoadEngineBase: tryLoadPatch loadResult=RFixLoadResult{result=LOAD_RESULT_SUCCESS, subResult=0, timeCost=0, patchInfo=RFixPatchInfo{lastConfigId=2640532, lastDownloadResult=1, lastInstallResult=6, configId=2640532, configType=0, patchProcess=, version=f3ef4321fd6fe7ab826784d8510e96ce, patchType=Tinker, patchId=id_0620195119_arm64-v8a, effectImmediate=false, enableAssertDex=true, enableAssertLib=true, enableAssertRes=true, removePatch=false, mainVerified=true}}
+10-04 17:10:04.482 27480 27574 E SoLoader:  result: 0
+10-04 17:10:04.902 27480 27528 I RMonitor_atta: reportConfigEvent, eventResult: 1, errorCode: 0, eventCostInMs: 249, hitSampling: false
+10-04 17:10:05.061 27596 27615 I ActivityThread: TrafficStats init done
+10-04 17:10:05.082  6645  6699 I AiCrEngine_CognitionMainController: listen RESULT_OK
+10-04 17:10:05.085  6645 27464 I AiCrEngine_CognitionMainController: listen RESULT_OK
+10-04 17:10:05.090  6645  6699 I AiCrEngine_CognitionMainController: listen RESULT_OK
+10-04 17:10:05.093  6645  6699 I AiCrEngine_CognitionMainController: listen RESULT_OK
+10-04 17:10:05.095 27596 27615 I ActivityThread: Miui Feature Init done
+10-04 17:10:05.213 27629 27650 I ActivityThread: TrafficStats init done
+10-04 17:10:05.234 27629 27650 I ActivityThread: Miui Feature Init done
+10-04 17:10:05.783  4919  5838 I PickerSyncTracker: Marked sync future complete for work id: 9a45f0e1-babf-4bb6-801f-264b6815bf8c. Future map: {}
+10-04 17:10:05.783  4919  5838 I PSyncWorker: Completed picker proactive sync complete from local provider.
+10-04 17:10:05.784  4919  5233 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=9a45f0e1-babf-4bb6-801f-264b6815bf8c, tags={ com.android.providers.media.photopicker.sync.ProactiveSyncWorker } ]
+10-04 17:10:06.307 27660 27681 I ActivityThread: TrafficStats init done
+10-04 17:10:06.331 27660 27681 I ActivityThread: Miui Feature Init done
+10-04 17:10:06.353 27660 27706 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:10:06.367 27660 27708 D CameraInjector: waitForResult: 
+10-04 17:10:06.371 27660 27708 D CameraInjector: waitForResult: 
+10-04 17:10:06.371 27660 27708 D CameraInjector: waitForResult: 
+10-04 17:10:06.371 27660 27708 D CameraInjector: waitForResult: 
+10-04 17:10:06.371 27660 27708 D CameraInjector: waitForResult: 
+10-04 17:10:06.855 27660 27745 W XMPush-27660: [Tid:52405] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:10:06.855 27660 27745 I MiPushMessageReceiver: onCommandResult: register
+10-04 17:10:06.855 27660 27745 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:10:06.855 27660 27745 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 17:10:06.855 27660 27745 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:10:06.858 27660 27745 W XMPush-27660: [Tid:52405] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:10:06.858 27660 27745 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 17:10:06.858 27660 27745 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 17:10:07.434 27748 27769 I ActivityThread: TrafficStats init done
+10-04 17:10:07.448 27748 27769 I ActivityThread: Miui Feature Init done
+10-04 17:10:07.462 27748 27782 W XMPush-27748: [Tid:52366] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:10:07.464 27748 27782 W XMPush-27748: [Tid:52366] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:10:07.808  2448  3516 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep2Activity} with LAUNCH_MULTIPLE from uid 2000 from pid 27790 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 17:10:11.463 27817 27838 I ActivityThread: TrafficStats init done
+10-04 17:10:11.485 27817 27838 I ActivityThread: Miui Feature Init done
+10-04 17:10:11.525  2448  2514 I ActivityManager: Broadcast completed: result=0
+10-04 17:10:13.182  4919 10092 I PickerSyncTracker: Marked sync future complete for work id: 332c2daf-47a7-42a4-8f4b-d06808a3d560. Future map: {}
+10-04 17:10:13.182  4919 10092 I PSyncWorker: Completed picker proactive sync complete from local provider.
+10-04 17:10:13.187  4919  5233 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=332c2daf-47a7-42a4-8f4b-d06808a3d560, tags={ com.android.providers.media.photopicker.sync.ProactiveSyncWorker } ]
+10-04 17:10:13.673 27852 27873 I ActivityThread: TrafficStats init done
+10-04 17:10:13.687 27852 27873 I ActivityThread: Miui Feature Init done
+10-04 17:10:13.712 27852 27898 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:10:13.718 27852 27900 D CameraInjector: waitForResult: 
+10-04 17:10:13.726 27852 27900 D CameraInjector: waitForResult: 
+10-04 17:10:13.726 27852 27900 D CameraInjector: waitForResult: 
+10-04 17:10:13.726 27852 27900 D CameraInjector: waitForResult: 
+10-04 17:10:13.726 27852 27900 D CameraInjector: waitForResult: 
+10-04 17:10:14.224 27852 27937 W XMPush-27852: [Tid:52421] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:10:14.224 27852 27937 I MiPushMessageReceiver: onCommandResult: register
+10-04 17:10:14.224 27852 27937 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:10:14.224 27852 27937 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 17:10:14.224 27852 27937 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:10:14.226 27852 27937 W XMPush-27852: [Tid:52421] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:10:14.226 27852 27937 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 17:10:14.226 27852 27937 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 17:10:14.798 27942 27963 I ActivityThread: TrafficStats init done
+10-04 17:10:14.812 27942 27963 I ActivityThread: Miui Feature Init done
+10-04 17:10:14.823 27942 27976 W XMPush-27942: [Tid:52381] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:10:14.828 27942 27976 W XMPush-27942: [Tid:52381] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:10:15.912  2448  3787 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep3Activity} with LAUNCH_MULTIPLE from uid 2000 from pid 27986 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 17:10:19.541 28008 28029 I ActivityThread: TrafficStats init done
+10-04 17:10:19.566 28008 28029 I ActivityThread: Miui Feature Init done
+10-04 17:10:19.610  2448  2514 I ActivityManager: Broadcast completed: result=0
+10-04 17:10:21.242  4919 12045 I PickerSyncTracker: Marked sync future complete for work id: 2443efd8-3ca3-459e-acca-c9a81083cc46. Future map: {}
+10-04 17:10:21.242  4919 12045 I PSyncWorker: Completed picker proactive sync complete from local provider.
+10-04 17:10:21.244  4919  5230 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=2443efd8-3ca3-459e-acca-c9a81083cc46, tags={ com.android.providers.media.photopicker.sync.ProactiveSyncWorker } ]
+10-04 17:10:21.785 28090 28165 I ActivityThread: TrafficStats init done
+10-04 17:10:21.814 28090 28165 I ActivityThread: Miui Feature Init done
+10-04 17:10:21.828 28090 28190 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:10:21.838 28090 28194 D CameraInjector: waitForResult: 
+10-04 17:10:21.842 28090 28194 D CameraInjector: waitForResult: 
+10-04 17:10:21.842 28090 28194 D CameraInjector: waitForResult: 
+10-04 17:10:21.842 28090 28194 D CameraInjector: waitForResult: 
+10-04 17:10:21.842 28090 28194 D CameraInjector: waitForResult: 
+10-04 17:10:22.372 28090 28231 W XMPush-28090: [Tid:52434] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:10:22.373 28090 28231 I MiPushMessageReceiver: onCommandResult: register
+10-04 17:10:22.373 28090 28231 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:10:22.373 28090 28231 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 17:10:22.376 28090 28231 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:10:22.378 28090 28231 W XMPush-28090: [Tid:52434] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:10:22.378 28090 28231 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 17:10:22.378 28090 28231 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 17:10:22.971 28233 28253 I ActivityThread: TrafficStats init done
+10-04 17:10:22.990 28233 28253 I ActivityThread: Miui Feature Init done
+10-04 17:10:23.006 28233 28275 W XMPush-28233: [Tid:52396] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:10:23.011 28233 28275 W XMPush-28233: [Tid:52396] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:10:57.468  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 17:11:57.493  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 17:12:57.532  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 17:13:08.673 30403 30451 I bluetooth: le_address_manager.cc:614 OnCommandComplete: Received command complete with op_code LE_SET_RANDOM_ADDRESS
+10-04 17:13:08.673 30403 30451 I bluetooth: le_address_manager.cc:635 OnCommandComplete: update random address : xx:xx:xx:xx:11:15
+10-04 17:13:57.589  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 17:14:57.592  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 17:15:28.809  4490  4508 I TEEC    : invoke, command=0x00000300, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:15:28.868  4490  4508 I TEEC    : invoke, command=0x00000300, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:15:28.922  4490  4508 I TEEC    : invoke, command=0x00000300, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:15:57.628  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 17:16:05.088 28398 28418 I ActivityThread: TrafficStats init done
+10-04 17:16:05.112 28398 28418 I ActivityThread: Miui Feature Init done
+10-04 17:16:05.116  6645 27464 I AiCrEngine_CognitionMainController: listen RESULT_OK
+10-04 17:16:05.117  6645 27464 I AiCrEngine_CognitionMainController: listen RESULT_OK
+10-04 17:16:57.655  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 17:17:57.660  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 17:18:50.597 28462 28483 I ActivityThread: TrafficStats init done
+10-04 17:18:50.621 28462 28483 I ActivityThread: Miui Feature Init done
+10-04 17:18:52.777  2448  2700 W ActivityManager: Slow operation: 51ms so far, now at startProcess: done updating pids map
+10-04 17:18:52.911 28498 28517 I ActivityThread: TrafficStats init done
+10-04 17:18:52.929 28498 28517 I ActivityThread: Miui Feature Init done
+10-04 17:18:52.944 28498 28544 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:18:52.952 28498 28548 D CameraInjector: waitForResult: 
+10-04 17:18:52.955 28498 28548 D CameraInjector: waitForResult: 
+10-04 17:18:52.955 28498 28548 D CameraInjector: waitForResult: 
+10-04 17:18:52.955 28498 28548 D CameraInjector: waitForResult: 
+10-04 17:18:52.955 28498 28548 D CameraInjector: waitForResult: 
+10-04 17:18:53.464 28498 28582 W XMPush-28498: [Tid:52453] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:18:53.464 28498 28582 I MiPushMessageReceiver: onCommandResult: register
+10-04 17:18:53.464 28498 28582 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:18:53.464 28498 28582 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 17:18:53.464 28498 28582 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:18:53.466 28498 28582 W XMPush-28498: [Tid:52453] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:18:53.466 28498 28582 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 17:18:53.466 28498 28582 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 17:18:54.087 28585 28605 I ActivityThread: TrafficStats init done
+10-04 17:18:54.114 28585 28605 I ActivityThread: Miui Feature Init done
+10-04 17:18:54.132 28585 28619 W XMPush-28585: [Tid:52416] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:18:54.134 28585 28619 W XMPush-28585: [Tid:52416] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:18:55.309 28625 28646 I ActivityThread: TrafficStats init done
+10-04 17:18:55.323 28625 28646 I ActivityThread: Miui Feature Init done
+10-04 17:18:57.534 28659 28679 I ActivityThread: TrafficStats init done
+10-04 17:18:57.562 28659 28679 I ActivityThread: Miui Feature Init done
+10-04 17:18:57.578 28659 28703 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:18:57.591 28659 28707 D CameraInjector: waitForResult: 
+10-04 17:18:57.595 28659 28707 D CameraInjector: waitForResult: 
+10-04 17:18:57.595 28659 28707 D CameraInjector: waitForResult: 
+10-04 17:18:57.596 28659 28707 D CameraInjector: waitForResult: 
+10-04 17:18:57.596 28659 28707 D CameraInjector: waitForResult: 
+10-04 17:18:57.661  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 17:18:58.723 28738 28769 I ActivityThread: TrafficStats init done
+10-04 17:18:58.746 28738 28769 I ActivityThread: Miui Feature Init done
+10-04 17:18:59.978 28785 28805 I ActivityThread: TrafficStats init done
+10-04 17:19:00.008 28785 28805 I ActivityThread: Miui Feature Init done
+10-04 17:19:02.282 28819 28840 I ActivityThread: TrafficStats init done
+10-04 17:19:02.306 28819 28840 I ActivityThread: Miui Feature Init done
+10-04 17:19:02.349 28819 28869 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:19:02.362 28819 28871 D CameraInjector: waitForResult: 
+10-04 17:19:02.366 28819 28871 D CameraInjector: waitForResult: 
+10-04 17:19:02.367 28819 28871 D CameraInjector: waitForResult: 
+10-04 17:19:02.367 28819 28871 D CameraInjector: waitForResult: 
+10-04 17:19:02.367 28819 28871 D CameraInjector: waitForResult: 
+10-04 17:19:02.878 28819 28906 W XMPush-28819: [Tid:52487] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:19:02.878 28819 28906 I MiPushMessageReceiver: onCommandResult: register
+10-04 17:19:02.879 28819 28906 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:19:02.879 28819 28906 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 17:19:02.879 28819 28906 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:19:02.885 28819 28906 W XMPush-28819: [Tid:52487] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:19:02.885 28819 28906 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 17:19:02.885 28819 28906 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 17:19:03.457 28908 28928 I ActivityThread: TrafficStats init done
+10-04 17:19:03.480 28908 28928 I ActivityThread: Miui Feature Init done
+10-04 17:19:03.498 28908 28942 W XMPush-28908: [Tid:52446] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:19:03.508 28908 28942 W XMPush-28908: [Tid:52446] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:19:04.672 28946 28967 I ActivityThread: TrafficStats init done
+10-04 17:19:04.694 28946 28967 I ActivityThread: Miui Feature Init done
+10-04 17:19:06.915 28980 29001 I ActivityThread: TrafficStats init done
+10-04 17:19:06.941 28980 29001 I ActivityThread: Miui Feature Init done
+10-04 17:19:06.962 28980 29027 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:19:06.978 28980 29031 D CameraInjector: waitForResult: 
+10-04 17:19:06.982 28980 29031 D CameraInjector: waitForResult: 
+10-04 17:19:06.982 28980 29031 D CameraInjector: waitForResult: 
+10-04 17:19:06.982 28980 29031 D CameraInjector: waitForResult: 
+10-04 17:19:06.982 28980 29031 D CameraInjector: waitForResult: 
+10-04 17:19:08.103 29064 29083 I ActivityThread: TrafficStats init done
+10-04 17:19:08.119 29064 29083 I ActivityThread: Miui Feature Init done
+10-04 17:19:09.328 29099 29118 I ActivityThread: TrafficStats init done
+10-04 17:19:09.356 29099 29118 I ActivityThread: Miui Feature Init done
+10-04 17:19:11.645 29132 29152 I ActivityThread: TrafficStats init done
+10-04 17:19:11.671 29132 29152 I ActivityThread: Miui Feature Init done
+10-04 17:19:11.685 29132 29177 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:19:11.695 29132 29180 D CameraInjector: waitForResult: 
+10-04 17:19:11.703 29132 29180 D CameraInjector: waitForResult: 
+10-04 17:19:11.703 29132 29180 D CameraInjector: waitForResult: 
+10-04 17:19:11.703 29132 29180 D CameraInjector: waitForResult: 
+10-04 17:19:11.703 29132 29180 D CameraInjector: waitForResult: 
+10-04 17:19:11.948  1816  2075 I TEEC    : invoke, command=0x00000001, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:19:11.970  3627  3627 I FingerprintCallback: sendAcquiredResult acquireInfo=6, vendorCode=22
+10-04 17:19:12.006  1816  2075 I TEEC    : invoke, command=0x00000001, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:19:12.006  3627  3627 I FingerprintCallback: sendAcquiredResult acquireInfo=0, vendorCode=0
+10-04 17:19:12.008  2448  3308 D BaseClientMonitor: marking operation as done: {[304] com.android.server.biometrics.sensors.fingerprint.aidl.FingerprintAuthenticationClient, proto=3, owner=com.android.systemui, cookie=0, requestId=119, userId=0}
+10-04 17:19:12.008  1374  1374 I SensorHal: batch:232, android.sensor.light, handle=20, period=200000000, max_latency=0 request completed
+10-04 17:19:12.009  2448  3308 W FingerprintServiceInjectorStubImpl: recordAuthResult, packName: com.android.systemui, authen1
+10-04 17:19:12.010  1633  2016 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:19:12.014  3627  3652 I IPCThreadState: oneway function results for code 255 on binder at 0xb4000073b3bbfaa0 will be dropped but finished with status UNKNOWN_TRANSACTION
+10-04 17:19:12.039  7317  7935 I lyra-msg-act: ActuatorControl::StartDiscoveryInner:418 StartDiscovery result: 0
+10-04 17:19:12.044  3627  3627 D KeyguardViewMediator: readyForKeyguardDone
+10-04 17:19:12.045  3627  3627 D KeyguardViewMediator: keyguardDone
+10-04 17:19:12.045  3627  3627 D KeyguardViewMediator: tryKeyguardDone: pending - false, animRan - false animRunning - false
+10-04 17:19:12.045  3627  3627 D KeyguardViewMediator: tryKeyguardDone: starting pre-hide animation
+10-04 17:19:12.045  3627  3627 D KeyguardViewMediator: tryKeyguardDone: pending - false, animRan - true animRunning - false
+10-04 17:19:12.045  3627  3627 D KeyguardViewMediator: handleKeyguardDone
+10-04 17:19:12.046  1473  4389 I IPCThreadState: oneway function results for code 79 on binder at 0xb400007d706c8bc0 will be dropped but finished with status 1 (Unknown error -1)
+10-04 17:19:12.051  7317  7982 I lyra-ble-scan_cb: BleScanCallback::PostDelayScanResultSuccess:91 this 0xb4000073c3b3d190 -> 0xb4000074b3adb8a8 delay_ms 100
+10-04 17:19:12.062  2448  2683 W WindowManager: Setting mKeyguardDrawComplete
+10-04 17:19:12.062  2448  2683 I FoldScreenListenerStubImpl: On keyguard drawn complete
+10-04 17:19:12.062  2448  2683 I FoldScreenListenerStubImpl: Keyguard draw complete took 16 ms
+10-04 17:19:12.063  5890  6466 I AppPredictResultHelper: updatePreferenceStore: size = 24
+10-04 17:19:12.078  3627  3627 D KeyguardViewMediator: readyForKeyguardDone
+10-04 17:19:12.092 29225 29249 I ActivityThread: TrafficStats init done
+10-04 17:19:12.094  1374  1374 I SensorHal: batch:232, android.sensor.device_orientation, handle=69, period=66667000, max_latency=0 request completed
+10-04 17:19:12.097  1374  1374 I SensorHal: activate:200, android.sensor.device_orientation, handle=69 en=1 completed
+10-04 17:19:12.097  3332  3340 I WifiHAL : Done!
+10-04 17:19:12.101 29225 29249 I ActivityThread: Miui Feature Init done
+10-04 17:19:12.108  3332  3340 I WifiHAL : Done!
+10-04 17:19:12.110  3332  3340 I WifiHAL : Done!
+10-04 17:19:12.118  1374  1374 I SensorHal: batch:232, xiaomi.sensor.oem_amd, handle=140, period=200000000, max_latency=0 request completed
+10-04 17:19:12.120  1374  1374 I SensorHal: activate:200, xiaomi.sensor.oem_amd, handle=140 en=1 completed
+10-04 17:19:12.127  1816  2075 I TEEC    : invoke, command=0x00000001, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:19:12.135  1393  1487 D MiDSPP  : setColorMode set mode:4 ppMode:257 over done.... ret 0
+10-04 17:19:12.143  1393  1487 D MiDSPP  : setColorMode set mode:4 ppMode:257 over done.... ret 0
+10-04 17:19:12.151  7317  7982 I lyra-disc: DiscoveryPlatformBle::OnScanResult:214 code=0
+10-04 17:19:12.152  7317  7979 I lyra-msg-act: ActuatorControl::StartDiscoveryInner:413 start discovery result: 0, msg: success
+10-04 17:19:12.152  7317  7982 I lyra-disc: DiscoveryPlatformBle::OnScanResult:214 code=0
+10-04 17:19:12.159  3627  3627 D MiuiBlurUtils: clearContainerPassBlur result :false, view: com.miui.clock.classic.ClassicClockView{55b5a24 V.E...... ......ID 0,0-2136,969}
+10-04 17:19:12.159  3627  3627 D MiuiBlurUtils: clearContainerPassBlur result :false, view: com.miui.clock.classic.ClassicClockView{55b5a24 V.E...... ......ID 0,0-2136,969}
+10-04 17:19:12.165  7317  7317 I lyra-ble-advertising: BleAdvCallback::OnBleAdvStarted:67 ownAddr [] txPower 1 result 0 for proxy 0xb4000073c3accd80 adv 0xb400007353abe2b0
+10-04 17:19:12.165  7317  7982 I lyra-ble-advertising: BleAdvertising::OnAdvStarted:363 cb_obj [handle: 0, stoping: 0, obj: 0xb4000073d3ab61d0, adv_cb_: 0xb400007353abe2b0, proxy_cb: 0xb4000073c3accd80] result 0
+10-04 17:19:12.165  7317  7982 I lyra-adv: AdvertisingPlatformBleWrap::OnAdvStarted:315 adv result address=, adv_handle=0, status=0
+10-04 17:19:12.179 30403 30451 I bluetooth: le_advertising_manager.cc:1763 on_set_advertising_set_random_address_complete: update random address for advertising set 1 : xx:xx:xx:xx:a5:fc
+10-04 17:19:12.185 29132 29280 W XMPush-29132: [Tid:52515] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:19:12.185 29132 29280 I MiPushMessageReceiver: onCommandResult: register
+10-04 17:19:12.185 29132 29280 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:19:12.185 29132 29280 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 17:19:12.185 29132 29280 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:19:12.185 29132 29280 W XMPush-29132: [Tid:52515] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:19:12.185 29132 29280 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 17:19:12.185 29132 29280 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 17:19:12.195  1816  2075 I TEEC    : invoke, command=0x00000001, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:19:12.196  1816  2075 I [GF_HAL][gf_hal_milan]: [hal_milan_print_kpi_info] matcher_result = 0
+10-04 17:19:12.196  1816  2075 I [GF_HAL][gf_hal_milan]: [hal_milan_print_kpi_info] is_dl_result = 1
+10-04 17:19:12.196  1816  2075 I [GF_HAL][gf_hal_milan]: [hal_milan_print_kpi_info] palm_system_result = 0
+10-04 17:19:12.196  1816  2075 I [GF_HAL][gf_hal_milan]: [hal_milan_print_kpi_info] max_dl_score_palm_result = 0
+10-04 17:19:12.196  1816  2075 I TEEC    : invoke, command=0x00000001, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:19:12.253  1816  2075 I TEEC    : invoke, command=0x00000003, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:19:12.267  1374  1374 I SensorHal: batch:232, xiaomi.sensor.screen_down, handle=93, period=1000000000, max_latency=0 request completed
+10-04 17:19:12.275  1374  1374 I SensorHal: activate:200, xiaomi.sensor.screen_down, handle=93 en=1 completed
+10-04 17:19:12.276  1374  1374 I SensorHal: batch:232, xiaomi.sensor.knuckle, handle=97, period=200000000, max_latency=0 request completed
+10-04 17:19:12.280  1374  1374 I SensorHal: activate:200, xiaomi.sensor.knuckle, handle=97 en=1 completed
+10-04 17:19:12.453  1816  2075 I TEEC    : invoke, command=0x00000001, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:19:12.608  1447  3231 D AF::Track: setFadeOut Done
+10-04 17:19:12.640  3627  3627 W KeyguardUnlock: doResumeOnTopAnima onComplete:
+10-04 17:19:12.646  3627  3627 D KeyguardViewMediator: readyForKeyguardDone
+10-04 17:19:12.677  5890  6466 I AppPredictResultHelper: updatePreferenceStore: size = 24
+10-04 17:19:12.759 29290 29309 I ActivityThread: TrafficStats init done
+10-04 17:19:12.788 29290 29309 I ActivityThread: Miui Feature Init done
+10-04 17:19:12.803 29290 29324 W XMPush-29290: [Tid:52481] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:19:12.810 29290 29324 W XMPush-29290: [Tid:52481] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:19:13.176  6645 32419 I AIRC_[Geek]_GeekHelper: isGeekTimeValid result:true
+10-04 17:19:13.176 21503  4803 I CallProvider: METHOD_GET_SUB_SCREEN_PACKAGE_LIST resultList: []
+10-04 17:19:13.178  6645 32419 I AIRC_PerceptionEventBus: event=ScreenLockEvent,traceId=ScreenLockPerception send result=true
+10-04 17:19:13.250 29335 29355 I ActivityThread: TrafficStats init done
+10-04 17:19:13.264 29335 29355 I ActivityThread: Miui Feature Init done
+10-04 17:19:13.407  2448  2507 D WifiNl80211Manager: Scan result ready event
+10-04 17:19:13.407  2448  2507 D WifiNative: Scan result ready event
+10-04 17:19:13.422  3601  3601 D HighSpeedTrainModeController: receive actionandroid.net.wifi.SCAN_RESULTS
+10-04 17:19:13.422  5377  5377 I WifiMonitor: receive Broadcast SCAN_RESULTS_AVAILABLE_ACTION,updated:true
+10-04 17:19:13.432  2448  3342 E AppScanObserverService: Result available, null observers for user: 0
+10-04 17:19:13.921  2448  2699 W BroadcastQueue: SmartPower Denial: receiving Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) } ordered=false from android (uid 1000) to ProcessRecord{27b913e 31919:com.tencent.mm/u0a262}
+10-04 17:19:13.921  5351  5351 I WifiMonitor: receive Broadcast SCAN_RESULTS_AVAILABLE_ACTION,updated:true
+10-04 17:19:13.921  2448  2699 W BroadcastQueue: SmartPower Denial: receiving Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) } ordered=false from android (uid 1000) to ProcessRecord{27b913e 31919:com.tencent.mm/u0a262}
+10-04 17:19:13.952  6645 32419 I AIRC_PerceptionEventBus: event=WifiScanEvent,traceId=79577b293b8442a5b69f16832a1e772b send result=true
+10-04 17:19:13.976  2448  6277 D WifiNl80211Manager: Scan result ready event
+10-04 17:19:13.976  2448  6277 D WifiNative: Scan result ready event
+10-04 17:19:13.981  2448  2507 D WifiNl80211Manager: Scan result ready event
+10-04 17:19:13.981  2448  2507 D WifiNative: Scan result ready event
+10-04 17:19:13.984  3601  3601 D HighSpeedTrainModeController: receive actionandroid.net.wifi.SCAN_RESULTS
+10-04 17:19:13.984  5377  5377 I WifiMonitor: receive Broadcast SCAN_RESULTS_AVAILABLE_ACTION,updated:true
+10-04 17:19:13.989  5377  5377 I WifiMonitor: receive Broadcast SCAN_RESULTS_AVAILABLE_ACTION,updated:true
+10-04 17:19:13.989  3601  3601 D HighSpeedTrainModeController: receive actionandroid.net.wifi.SCAN_RESULTS
+10-04 17:19:13.992  2448  3342 E AppScanObserverService: Result available, null observers for user: 0
+10-04 17:19:13.993  2448  3342 E AppScanObserverService: Result available, null observers for user: 0
+10-04 17:19:14.168  3374  3855 I MirrorDesktopHelper: isDesktopCallbackValid result = true
+10-04 17:19:14.178  3374  3855 I MirrorDesktopHelper: isDesktopCallbackValid result = true
+10-04 17:19:14.181  3374  3855 I MirrorDesktopHelper: isDesktopCallbackValid result = true
+10-04 17:19:14.181  3374  3855 I MirrorDesktopHelper: isDesktopCallbackValid result = true
+10-04 17:19:14.489  5351  5351 I WifiMonitor: receive Broadcast SCAN_RESULTS_AVAILABLE_ACTION,updated:true
+10-04 17:19:14.491  2448  2699 W BroadcastQueue: SmartPower Denial: receiving Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) } ordered=false from android (uid 1000) to ProcessRecord{27b913e 31919:com.tencent.mm/u0a262}
+10-04 17:19:14.492  2448  2699 W BroadcastQueue: SmartPower Denial: receiving Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) } ordered=false from android (uid 1000) to ProcessRecord{27b913e 31919:com.tencent.mm/u0a262}
+10-04 17:19:14.913 29411 29431 I ActivityThread: TrafficStats init done
+10-04 17:19:14.920 29411 29431 I ActivityThread: Miui Feature Init done
+10-04 17:19:14.944 29411 29459 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:19:14.953 29411 29462 D CameraInjector: waitForResult: 
+10-04 17:19:14.958 29411 29462 D CameraInjector: waitForResult: 
+10-04 17:19:14.958 29411 29462 D CameraInjector: waitForResult: 
+10-04 17:19:14.958 29411 29462 D CameraInjector: waitForResult: 
+10-04 17:19:14.958 29411 29462 D CameraInjector: waitForResult: 
+10-04 17:19:15.199  5351  5517 D MetokFileLogger: logInfo msg:10-04 17:19:15.198 - =MI NLP=request called to code=5 fix time 1232 ms, result code 0 , resultInfo 
+10-04 17:19:15.213  6645 32419 I AIRC_[Geek]_GeekHelper: isGeekTimeValid result:true
+10-04 17:19:15.213  6645 32419 I AIRC_LocationPerception: updateLocation checkResult=true
+10-04 17:19:15.214  6645 32419 I AIRC_[Geek]_GeekHelper: isGeekTimeValid result:true
+10-04 17:19:15.214  6645 32419 I AIRC_PerceptionEventBus: event=GeoLocationChangeEvent,traceId=745befcad4a54f9a99e8e485c2113aaa send result=true
+10-04 17:19:15.225  6645 32444 I AIRC_[Geek]_GeekResultHandler: handleGeekEvent event=112, geekSwitch=true
+10-04 17:19:15.225  6645 32444 I AIRC_[Geek]_GeekResultHandler: actualHandleGeekEvent not handle event=112
+10-04 17:19:16.056 29508 29528 I ActivityThread: TrafficStats init done
+10-04 17:19:16.065 29508 29528 I ActivityThread: Miui Feature Init done
+10-04 17:19:17.130  1374  1374 I SensorHal: batch:232, android.sensor.step_detector, handle=56, period=200000000, max_latency=0 request completed
+10-04 17:19:17.137  1374  1374 I SensorHal: activate:200, android.sensor.step_detector, handle=56 en=1 completed
+10-04 17:19:27.569  2448  4027 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{f0c66e7 u0 com.mira.com/.whisper.WhisperStep3Activity t773 f}} isInVideoOrGameScene: false intent: Intent { flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep3Activity }
+10-04 17:19:27.585  2448  3787 D WindowManager: Set transition=TransitionRecord{efed85e id=2871 type=CLOSE flags=0x0}, ready=true, SyncId=2871 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.TaskFragment.resumeTopActivity:1894 
+10-04 17:19:30.584 29583 29603 I ActivityThread: TrafficStats init done
+10-04 17:19:30.596 29583 29603 I ActivityThread: Miui Feature Init done
+10-04 17:19:30.625 29583 29628 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:19:30.632 29583 29631 D CameraInjector: waitForResult: 
+10-04 17:19:30.639 29583 29631 D CameraInjector: waitForResult: 
+10-04 17:19:30.639 29583 29631 D CameraInjector: waitForResult: 
+10-04 17:19:30.639 29583 29631 D CameraInjector: waitForResult: 
+10-04 17:19:30.639 29583 29631 D CameraInjector: waitForResult: 
+10-04 17:19:31.132 29583 29672 W XMPush-29583: [Tid:52545] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:19:31.132 29583 29672 I MiPushMessageReceiver: onCommandResult: register
+10-04 17:19:31.132 29583 29672 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:19:31.132 29583 29672 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 17:19:31.132 29583 29672 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:19:31.134 29583 29672 W XMPush-29583: [Tid:52545] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:19:31.134 29583 29672 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 17:19:31.134 29583 29672 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 17:19:31.525  2448  6586 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{b02a408 u0 com.mira.com/.whisper.WhisperStep2Activity t773 f}} isInVideoOrGameScene: false intent: Intent { flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep2Activity }
+10-04 17:19:31.534  2448  6586 D WindowManager: Set transition=TransitionRecord{640d4d0 id=2872 type=CLOSE flags=0x0}, ready=true, SyncId=2872 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.TaskFragment.resumeTopActivity:1894 
+10-04 17:19:31.676 29681 29703 I ActivityThread: TrafficStats init done
+10-04 17:19:31.682 29681 29703 I ActivityThread: Miui Feature Init done
+10-04 17:19:31.688 29681 29716 W XMPush-29681: [Tid:52506] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:19:31.689 29681 29716 W XMPush-29681: [Tid:52506] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:19:32.486  2448  3859 D WifiNl80211Manager: Scan result ready event
+10-04 17:19:32.486  2448  3859 D WifiNative: Scan result ready event
+10-04 17:19:32.492  2448  3106 D WificondScannerImpl: Filtering out 1 scan results.
+10-04 17:19:32.494  3601  3601 D HighSpeedTrainModeController: receive actionandroid.net.wifi.SCAN_RESULTS
+10-04 17:19:32.495  5377  5377 I WifiMonitor: receive Broadcast SCAN_RESULTS_AVAILABLE_ACTION,updated:true
+10-04 17:19:32.500  2448  3342 E AppScanObserverService: Result available, null observers for user: 0
+10-04 17:19:32.993  2448  2699 I SmartPower: com.xiaomi.metoknlp/10143(5351): idle->background(17892ms) R(broadcast start Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }) adj=200.
+10-04 17:19:32.994  5351  5351 I WifiMonitor: receive Broadcast SCAN_RESULTS_AVAILABLE_ACTION,updated:true
+10-04 17:19:32.995  2448  2699 W BroadcastQueue: Greezer Denial: sending Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }, action: android.net.wifi.SCAN_RESULTS from android (uid=1000) due to receiver ProcessRecord{27b913e 31919:com.tencent.mm/u0a262} (uid 10262) need cached broadcast
+10-04 17:19:32.995  2448  2699 W BroadcastQueue: Greezer Denial: sending Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }, action: android.net.wifi.SCAN_RESULTS from android (uid=1000) due to receiver ProcessRecord{27b913e 31919:com.tencent.mm/u0a262} (uid 10262) need cached broadcast
+10-04 17:19:32.995  2448  2699 W BroadcastQueue: Greezer Denial: sending Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }, action: android.net.wifi.SCAN_RESULTS from android (uid=1000) due to receiver ProcessRecord{22b3ed 32713:com.tencent.mm:push/u0a262} (uid 10262) need cached broadcast
+10-04 17:19:33.003  6645 32419 I AIRC_PerceptionEventBus: event=WifiScanEvent,traceId=3fc487a137bb420980397bd144292ea6 send result=true
+10-04 17:19:33.016  6645 32444 I AIRC_[Geek]_GeekResultHandler: handleGeekEvent event=112, geekSwitch=true
+10-04 17:19:33.016  6645 32444 I AIRC_[Geek]_GeekResultHandler: actualHandleGeekEvent not handle event=112
+10-04 17:19:35.995  2448  3279 I SmartPower: com.xiaomi.metoknlp/10143(5351): background->idle(3001ms) R(broadcast start Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }) adj=200.
+10-04 17:19:39.602  2448  3275 I whetstone.activity: processNotifyEvent1 resId = 128, bundle = Bundle[{startTime=2852767781, sourcePkg=com.google.android.gms, type=ELAPSED, statsTag=*alarm*:com.google.android.gms.auth.authzen.cryptauth.DEVICE_STATE_CHECK_DELAY_COMPLETE, creatorUid=10111, elapsedRealtime=2852767771}]
+10-04 17:19:39.703 29768 29787 I ActivityThread: TrafficStats init done
+10-04 17:19:39.734 29768 29787 I ActivityThread: Miui Feature Init done
+10-04 17:19:49.008 29835 29863 I ActivityThread: TrafficStats init done
+10-04 17:19:49.030 29835 29863 I ActivityThread: Miui Feature Init done
+10-04 17:19:49.061 29835 29894 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:19:49.063 29835 29895 D CameraInjector: waitForResult: 
+10-04 17:19:49.074 29835 29895 D CameraInjector: waitForResult: 
+10-04 17:19:49.074 29835 29895 D CameraInjector: waitForResult: 
+10-04 17:19:49.074 29835 29895 D CameraInjector: waitForResult: 
+10-04 17:19:49.074 29835 29895 D CameraInjector: waitForResult: 
+10-04 17:19:49.577 29835 29939 W XMPush-29835: [Tid:52560] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:19:49.577 29835 29939 I MiPushMessageReceiver: onCommandResult: register
+10-04 17:19:49.577 29835 29939 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:19:49.577 29835 29939 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 17:19:49.577 29835 29939 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:19:49.580 29835 29939 W XMPush-29835: [Tid:52560] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:19:49.580 29835 29939 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 17:19:49.581 29835 29939 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 17:19:50.151 29944 29963 I ActivityThread: TrafficStats init done
+10-04 17:19:50.168 29944 29963 I ActivityThread: Miui Feature Init done
+10-04 17:19:50.185 29944 29977 W XMPush-29944: [Tid:52521] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:19:50.192 29944 29977 W XMPush-29944: [Tid:52521] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:19:57.669  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 17:20:07.343 30403 30528 I AppScanStats: BLE_SCAN_RESULT_RECEIVED[2]reportBleScanResults=0
+10-04 17:20:13.567  2448  6586 D WifiNl80211Manager: Scan result ready event
+10-04 17:20:13.567  2448  6586 D WifiNative: Scan result ready event
+10-04 17:20:13.584  3601  3601 D HighSpeedTrainModeController: receive actionandroid.net.wifi.SCAN_RESULTS
+10-04 17:20:13.585  5377  5377 I WifiMonitor: receive Broadcast SCAN_RESULTS_AVAILABLE_ACTION,updated:true
+10-04 17:20:13.594  2448  3342 E AppScanObserverService: Result available, null observers for user: 0
+10-04 17:20:14.081  2448  2699 I SmartPower: com.xiaomi.metoknlp/10143(5351): idle->background(38087ms) R(broadcast start Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }) adj=200.
+10-04 17:20:14.083  2448  2699 W BroadcastQueue: SmartPower Denial: receiving Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) } ordered=false from android (uid 1000) to ProcessRecord{27b913e 31919:com.tencent.mm/u0a262}
+10-04 17:20:14.083  2448  2699 W BroadcastQueue: SmartPower Denial: receiving Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) } ordered=false from android (uid 1000) to ProcessRecord{27b913e 31919:com.tencent.mm/u0a262}
+10-04 17:20:14.083  5351  5351 I WifiMonitor: receive Broadcast SCAN_RESULTS_AVAILABLE_ACTION,updated:true
+10-04 17:20:14.092  6645 32419 I AIRC_PerceptionEventBus: event=WifiScanEvent,traceId=b58235af155045088518136659643f60 send result=true
+10-04 17:20:14.108  6645 32444 I AIRC_[Geek]_GeekResultHandler: handleGeekEvent event=112, geekSwitch=true
+10-04 17:20:14.108  6645 32444 I AIRC_[Geek]_GeekResultHandler: actualHandleGeekEvent not handle event=112
+10-04 17:20:16.776 17204 17204 I AndroidRuntime: VM exiting with result code 0, cleanup skipped.
+10-04 17:20:16.797 28044 29009 D MyLog   : -->log(1): [Tid:44168] [OneTrackWrapper] -->trackXmsEvent(): Sampling result is true, sampleEvent=31000000946|xms|xms_service_interface_method_call|error
+10-04 17:20:16.810  1154  1154 I TEEC    : invoke, command=0x00000020, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:20:16.855  5041  5041 D MiSpeedUtils: Calling service to removeAuthorizedUid: 10298 and result: 0
+10-04 17:20:16.860  1382 30021 W X_VPU   : [VPU ][DAEMON][vsi_dec_msg_done:439] Inst[2ece00000001]: streamoff capture done
+10-04 17:20:16.870  2448  3859 I JpegXDecoder: [mId: 858] skia-debug resultNotify: width:2136 ,height:3200, outWStride:8576, outHStride:3200 ,fd:1060 ,offset:0 ,size:27443200 ,bytesUsed:27443200 ,format:RGBA8888 ,colorSpace:COLORSPACE_REC601
+10-04 17:20:16.870  5890  7058 I AppPredictResultHelper: updatePreferenceStore: size = 23
+10-04 17:20:16.877  3374  3858 D MiuiMultiWindowUtils: readFreeformTimestamps::result = {com.tencent.mm=[1754042673295, 1754134799171]}
+10-04 17:20:16.889  1382 30021 W X_VPU   : [VPU ][DAEMON][vsi_dec_msg_done:439] Inst[2ece00000001]: streamoff capture done
+10-04 17:20:16.918  2448  2700 W ActivityManager: Slow operation: 53ms so far, now at startProcess: done updating battery stats
+10-04 17:20:16.926  2448  2700 W ActivityManager: Slow operation: 62ms so far, now at startProcess: done updating pids map
+10-04 17:20:16.929  4496  4496 E TEEC    : invoke, command=0x00001006, result=0xFFFFFC0B, oresult=0x00000004, res=0xFFFFFC0B
+10-04 17:20:16.931  4496  4496 E SoterImpl: [remove_all_uid_key] result: fffffc0b
+10-04 17:20:16.933  5223  5223 E SoterService: soterService removeAllUidKey result is:-1
+10-04 17:20:16.989  2448  2700 W ActivityManager: Slow operation: 73ms so far, now at startProcess: done updating pids map
+10-04 17:20:17.009  2448  2700 W ActivityManager: Slow operation: 77ms so far, now at startProcess: done updating battery stats
+10-04 17:20:17.010  2448  2700 W ActivityManager: Slow operation: 79ms so far, now at startProcess: done updating pids map
+10-04 17:20:17.036 30043 30070 I ActivityThread: TrafficStats init done
+10-04 17:20:17.055 30043 30070 I ActivityThread: Miui Feature Init done
+10-04 17:20:17.063 30069 30097 I ActivityThread: TrafficStats init done
+10-04 17:20:17.068 30023 30094 I ActivityThread: TrafficStats init done
+10-04 17:20:17.071 30069 30097 I ActivityThread: Miui Feature Init done
+10-04 17:20:17.077 30023 30094 I ActivityThread: Miui Feature Init done
+10-04 17:20:17.081  2448  3279 I SmartPower: com.xiaomi.metoknlp/10143(5351): background->idle(3000ms) R(broadcast start Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }) adj=200.
+10-04 17:20:17.086  3374  3858 D MiuiMultiWindowUtils: getFreeformSuggestionList end result size:[com.google.android.documentsui, com.miui.gallery, com.tencent.mm, com.android.fileexplorer, com.qiyi.video.pad, com.android.email, com.ss.android.ugc.aweme, com.mipay.wallet, com.luna.music, com.miui.phrase, com.xiaomi.vipaccount, com.microsoft.emmx, com.ximalaya.ting.android, com.tmri.app.main, com.github.metacubex.clash.meta, com.microsoft.office.outlook, com.autonavi.minimap, com.miui.calculator, com.android.contacts, com.microsoft.bing, com.android.deskclock, com.tencent.docs, com.tencent.lolm, com.duokan.reader, com.xingin.xhs, com.UCMobile, com.tencent.mtt, com.eg.android.AlipayGphone, cn.wps.moffice_eng.xiaomi.lite, com.miui.notes, com.miui.miservice, com.xiaomi.shop, com.xiaomi.gamecenter, com.tencent.wemeet.app, com.android.browser, com.apple.android.music, com.akd.luxurycars, com.tencent.hunyuan.app.chat, com.miui.weather2, com.xiaomi.smarthome, net.huanci.hsjpro, cn.wps.moffice_eng, com.maxframing.mipad, com.tencent.wetype, com.android.providers.downloads.ui, ctrip.android.view, com.miui.bugreport, com.ss.android.lark, com.android.calendar, com.deepseek.chat, com.baidu.netdisk, com.hpbr.bosszhipin, com.larus.nova, com.android.soundrecorder, com.miui.creation]
+10-04 17:20:17.092 30043 30043 D DocumentsApplication: OverlayManager.setEnabled() result: true
+10-04 17:20:17.158 30141 30164 I ActivityThread: TrafficStats init done
+10-04 17:20:17.168 30141 30164 I ActivityThread: Miui Feature Init done
+10-04 17:20:17.183 30141 30179 I Log     : Logger init completed!
+10-04 17:20:17.192 30141 30197 W XMPush-30141: [Tid:52558] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:20:17.267 30211 30232 I ActivityThread: TrafficStats init done
+10-04 17:20:17.283 30211 30232 I ActivityThread: Miui Feature Init done
+10-04 17:20:17.352 28044 28142 D MyLog   : -->log(1): [Tid:44152] [ActivationDAO_ac] -->deleteRecord(): result=true, packageName=com.mira.com
+10-04 17:20:17.385 30244 30269 I ActivityThread: TrafficStats init done
+10-04 17:20:17.398 30244 30269 I ActivityThread: Miui Feature Init done
+10-04 17:20:17.417 30271 30303 I ActivityThread: TrafficStats init done
+10-04 17:20:17.426 30271 30303 I ActivityThread: Miui Feature Init done
+10-04 17:20:17.428  3374  3374 D Dock_AnimationRunner: {269656611} onComplete
+10-04 17:20:17.503 30331 30358 I ActivityThread: TrafficStats init done
+10-04 17:20:17.511 30331 30358 I ActivityThread: Miui Feature Init done
+10-04 17:20:17.639 30271 30351 I Icing   : Internal init done: storage state 0
+10-04 17:20:17.641 30271 30351 I Icing   : Post-init done
+10-04 17:20:17.665 30271 30351 I Icing   : Indexing done com.google.android.gms-apps
+10-04 17:20:17.714 30506 30538 I ActivityThread: TrafficStats init done
+10-04 17:20:17.723 30506 30538 I ActivityThread: Miui Feature Init done
+10-04 17:20:17.897  2448  4026 E AppOps  : 	at com.android.server.wm.ActivityRecord.handleCompleteDeferredRemoval(ActivityRecord.java:5406)
+10-04 17:20:17.897  2448  4026 E AppOps  : 	at com.android.server.wm.WindowContainer.handleCompleteDeferredRemoval(WindowContainer.java:1600)
+10-04 17:20:17.897  2448  4026 E AppOps  : 	at com.android.server.wm.TaskFragment.handleCompleteDeferredRemoval(TaskFragment.java:3389)
+10-04 17:20:17.897  2448  4026 E AppOps  : 	at com.android.server.wm.WindowContainer.handleCompleteDeferredRemoval(WindowContainer.java:1600)
+10-04 17:20:17.897  2448  4026 E AppOps  : 	at com.android.server.wm.WindowContainer.handleCompleteDeferredRemoval(WindowContainer.java:1600)
+10-04 17:20:17.897  2448  4026 E AppOps  : 	at com.android.server.wm.WindowContainer.handleCompleteDeferredRemoval(WindowContainer.java:1600)
+10-04 17:20:17.897  2448  4026 E AppOps  : 	at com.android.server.wm.WindowContainer.handleCompleteDeferredRemoval(WindowContainer.java:1600)
+10-04 17:20:17.897  2448  4026 E AppOps  : 	at com.android.server.wm.WindowContainer.handleCompleteDeferredRemoval(WindowContainer.java:1600)
+10-04 17:20:17.897  2448  4026 E AppOps  : 	at com.android.server.wm.WindowContainer.handleCompleteDeferredRemoval(WindowContainer.java:1600)
+10-04 17:20:17.897  2448  4026 E AppOps  : 	at com.android.server.wm.DisplayContent.handleCompleteDeferredRemoval(DisplayContent.java:3907)
+10-04 17:20:17.900  2448  4026 E AppOps  : 	at com.android.server.wm.ActivityRecord.handleCompleteDeferredRemoval(ActivityRecord.java:5406)
+10-04 17:20:17.900  2448  4026 E AppOps  : 	at com.android.server.wm.WindowContainer.handleCompleteDeferredRemoval(WindowContainer.java:1600)
+10-04 17:20:17.900  2448  4026 E AppOps  : 	at com.android.server.wm.TaskFragment.handleCompleteDeferredRemoval(TaskFragment.java:3389)
+10-04 17:20:17.900  2448  4026 E AppOps  : 	at com.android.server.wm.WindowContainer.handleCompleteDeferredRemoval(WindowContainer.java:1600)
+10-04 17:20:17.900  2448  4026 E AppOps  : 	at com.android.server.wm.WindowContainer.handleCompleteDeferredRemoval(WindowContainer.java:1600)
+10-04 17:20:17.900  2448  4026 E AppOps  : 	at com.android.server.wm.WindowContainer.handleCompleteDeferredRemoval(WindowContainer.java:1600)
+10-04 17:20:17.900  2448  4026 E AppOps  : 	at com.android.server.wm.WindowContainer.handleCompleteDeferredRemoval(WindowContainer.java:1600)
+10-04 17:20:17.900  2448  4026 E AppOps  : 	at com.android.server.wm.WindowContainer.handleCompleteDeferredRemoval(WindowContainer.java:1600)
+10-04 17:20:17.900  2448  4026 E AppOps  : 	at com.android.server.wm.WindowContainer.handleCompleteDeferredRemoval(WindowContainer.java:1600)
+10-04 17:20:17.900  2448  4026 E AppOps  : 	at com.android.server.wm.DisplayContent.handleCompleteDeferredRemoval(DisplayContent.java:3907)
+10-04 17:20:17.906  3374 26181 I MiuiPadHome_WindowElementdba9b8b: onFinishCompleted mDisableStateManagerListener = false
+10-04 17:20:17.906  3374  3374 D HomeLayerElement: 	at com.miui.home.recents.anim.WindowElement.onFinishCompleted$lambda-30(WindowElement.kt:1738)
+10-04 17:20:17.917  1473  2276 E BpTransactionCompletedListener: Failed to transact (-32)
+10-04 17:20:17.935 30244 30244 I DMS_Log : Logger init completed!
+10-04 17:20:17.947  2448  2987 I JpegXEncoder: [mId: 68] skia-debug Enter JpegXEncoder::funcNotify The func Id is INITENC, the result is OK.
+10-04 17:20:17.955  2448  4026 I JpegXEncoder: [mId: 68] skia-debug Enter JpegXEncoder::funcNotify The func Id is ENCODE, the result is OK.
+10-04 17:20:17.955  2448  4026 I JpegXEncoder: [mId: 68] skia-debug resultNotify.
+10-04 17:20:17.955  2448  3347 I JpegXEncoder: [mId: 68] skia-debug Success to get the encode completed msg from hal, going to write data to Dst.
+10-04 17:20:17.955  2448  3347 I JpegXEncoder: [mId: 68] skia-debug Encode completed with result = 1.
+10-04 17:20:17.956  1382 30571 W X_VPU   : [VPU ][DAEMON][vsi_enc_msg_done:437] Inst[2ecf00000001] streamoff output done
+10-04 17:20:17.956  1382 30571 W X_VPU   : [VPU ][DAEMON][vsi_enc_msg_done:434] Inst[2ecf00000001] streamoff capture done
+10-04 17:20:17.971  2448  2987 I JpegXEncoder: [mId: 69] skia-debug Enter JpegXEncoder::funcNotify The func Id is INITENC, the result is OK.
+10-04 17:20:17.974  2448  2987 I JpegXEncoder: [mId: 69] skia-debug Enter JpegXEncoder::funcNotify The func Id is ENCODE, the result is OK.
+10-04 17:20:17.974  2448  2987 I JpegXEncoder: [mId: 69] skia-debug resultNotify.
+10-04 17:20:17.974  2448  3347 I JpegXEncoder: [mId: 69] skia-debug Success to get the encode completed msg from hal, going to write data to Dst.
+10-04 17:20:17.974  2448  3347 I JpegXEncoder: [mId: 69] skia-debug Encode completed with result = 1.
+10-04 17:20:17.975  1382 30582 W X_VPU   : [VPU ][DAEMON][vsi_enc_msg_done:437] Inst[2ed000000001] streamoff output done
+10-04 17:20:17.975  1382 30582 W X_VPU   : [VPU ][DAEMON][vsi_enc_msg_done:434] Inst[2ed000000001] streamoff capture done
+10-04 17:20:18.440  3374  3374 D LaptopDock: onLayoutCompleted updateBackground postDelayed
+10-04 17:20:19.241 30587 30612 I ActivityThread: TrafficStats init done
+10-04 17:20:19.255 30587 30612 I ActivityThread: Miui Feature Init done
+10-04 17:20:19.281 30587 30637 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:20:19.301 30587 30639 D CameraInjector: waitForResult: 
+10-04 17:20:19.304 30587 30639 D CameraInjector: waitForResult: 
+10-04 17:20:19.304 30587 30639 D CameraInjector: waitForResult: 
+10-04 17:20:19.304 30587 30639 D CameraInjector: waitForResult: 
+10-04 17:20:19.304 30587 30639 D CameraInjector: waitForResult: 
+10-04 17:20:19.803  5890  6466 I AppPredictResultHelper: updatePreferenceStore: size = 23
+10-04 17:20:19.806 30587 30681 W XMPush-30587: [Tid:52616] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:20:19.806 30587 30681 I MiPushMessageReceiver: onCommandResult: register
+10-04 17:20:19.806 30587 30681 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:20:19.806 30587 30681 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 17:20:19.806 30587 30681 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:20:19.812 30587 30681 W XMPush-30587: [Tid:52616] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:20:19.812 30587 30681 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 17:20:19.812 30587 30681 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 17:20:20.382 30690 30711 I ActivityThread: TrafficStats init done
+10-04 17:20:20.408 30690 30711 I ActivityThread: Miui Feature Init done
+10-04 17:20:20.428 30690 30724 W XMPush-30690: [Tid:52576] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:20:20.433 30690 30724 W XMPush-30690: [Tid:52576] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:20:27.440 30403 30528 I AppScanStats: BLE_SCAN_RESULT_RECEIVED[2]reportBleScanResults=0
+10-04 17:20:28.268  2448  2975 I ActivityTaskManager: START u0 {act=android.intent.action.VIEW flg=0x18000000 cmp=com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity (has extras)} with LAUNCH_MULTIPLE from uid 1000 from pid 2448 callingPackage pm callers: com.android.server.wm.ActivityTaskManagerService.startActivity:1454 com.android.server.am.ActivityManagerService.startActivity:3575 com.android.server.pm.PmInjector.installVerify:65 com.android.server.pm.PackageManagerServiceImpl.verifyInstallFromShell:1335  (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+10-04 17:20:28.312 17338 30755 I ActivityThread: TrafficStats init done
+10-04 17:20:28.324 17338 30755 I ActivityThread: Miui Feature Init done
+10-04 17:20:28.330  2448  6586 D WindowManager: Set transition=TransitionRecord{e3ea4cd id=2874 type=OPEN flags=0x0}, ready=true, SyncId=2874 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.ActivityTaskSupervisor.realStartActivityLocked:1056 
+10-04 17:20:28.400 28044 29009 D MyLog   : -->log(1): [Tid:44168] [OneTrackWrapper] -->trackXmsEvent(): Sampling result is true, sampleEvent=31000000946|xms|xms_service_interface_method_call|error
+10-04 17:20:28.900  3374  3374 D LaptopDock: onLayoutCompleted updateBackground postDelayed
+10-04 17:20:34.388  2448  3092 D WifiConfigStore: Writing to stores completed in 4 ms.
+10-04 17:20:34.889 30847 30866 I ActivityThread: TrafficStats init done
+10-04 17:20:34.907 30847 30866 I ActivityThread: Miui Feature Init done
+10-04 17:20:34.932 30847 30892 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:20:34.940 30847 30894 D CameraInjector: waitForResult: 
+10-04 17:20:34.944 30847 30894 D CameraInjector: waitForResult: 
+10-04 17:20:34.944 30847 30894 D CameraInjector: waitForResult: 
+10-04 17:20:34.944 30847 30894 D CameraInjector: waitForResult: 
+10-04 17:20:34.944 30847 30894 D CameraInjector: waitForResult: 
+10-04 17:20:35.478 30847 30928 W XMPush-30847: [Tid:52629] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:20:35.478 30847 30928 I MiPushMessageReceiver: onCommandResult: register
+10-04 17:20:35.478 30847 30928 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:20:35.478 30847 30928 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 17:20:35.478 30847 30928 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:20:35.484 30847 30928 W XMPush-30847: [Tid:52629] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:20:35.484 30847 30928 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 17:20:35.484 30847 30928 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 17:20:36.070 30930 30949 I ActivityThread: TrafficStats init done
+10-04 17:20:36.095 30930 30949 I ActivityThread: Miui Feature Init done
+10-04 17:20:36.128 30930 30963 W XMPush-30930: [Tid:52591] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:20:36.130 30930 30963 W XMPush-30930: [Tid:52591] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:20:40.011  2448  6292 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{a70d182 u0 com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity t774 f}} isInVideoOrGameScene: false intent: Intent { act=android.intent.action.VIEW flg=0x18800000 cmp=com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity (has extras) }
+10-04 17:20:40.034  2448  6292 D WindowManager: Set transition=TransitionRecord{b042526 id=2875 type=CLOSE flags=0x0}, ready=true, SyncId=2875 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.TaskFragment.resumeTopActivity:1894 
+10-04 17:20:40.059 28044 29009 D MyLog   : -->log(1): [Tid:44168] [OneTrackWrapper] -->trackXmsEvent(): Sampling result is true, sampleEvent=31000000946|xms|xms_service_interface_method_call|error
+10-04 17:20:40.129  2448  3787 I JpegXEncoder: [mId: 70] skia-debug Enter JpegXEncoder::funcNotify The func Id is INITENC, the result is OK.
+10-04 17:20:40.134  2448  2507 I JpegXEncoder: [mId: 70] skia-debug Enter JpegXEncoder::funcNotify The func Id is ENCODE, the result is OK.
+10-04 17:20:40.134  2448  2507 I JpegXEncoder: [mId: 70] skia-debug resultNotify.
+10-04 17:20:40.134  2448  3347 I JpegXEncoder: [mId: 70] skia-debug Success to get the encode completed msg from hal, going to write data to Dst.
+10-04 17:20:40.135  2448  3347 I JpegXEncoder: [mId: 70] skia-debug Encode completed with result = 1.
+10-04 17:20:40.135  1382 30982 W X_VPU   : [VPU ][DAEMON][vsi_enc_msg_done:437] Inst[2ed100000001] streamoff output done
+10-04 17:20:40.135  1382 30982 W X_VPU   : [VPU ][DAEMON][vsi_enc_msg_done:434] Inst[2ed100000001] streamoff capture done
+10-04 17:20:40.146  2448  2507 I JpegXEncoder: [mId: 71] skia-debug Enter JpegXEncoder::funcNotify The func Id is INITENC, the result is OK.
+10-04 17:20:40.148  2448  2507 I JpegXEncoder: [mId: 71] skia-debug Enter JpegXEncoder::funcNotify The func Id is ENCODE, the result is OK.
+10-04 17:20:40.148  2448  2507 I JpegXEncoder: [mId: 71] skia-debug resultNotify.
+10-04 17:20:40.148  2448  3347 I JpegXEncoder: [mId: 71] skia-debug Success to get the encode completed msg from hal, going to write data to Dst.
+10-04 17:20:40.148  2448  3347 I JpegXEncoder: [mId: 71] skia-debug Encode completed with result = 1.
+10-04 17:20:40.148  1382 30986 W X_VPU   : [VPU ][DAEMON][vsi_enc_msg_done:437] Inst[2ed200000001] streamoff output done
+10-04 17:20:40.148  1382 30986 W X_VPU   : [VPU ][DAEMON][vsi_enc_msg_done:434] Inst[2ed200000001] streamoff capture done
+10-04 17:20:40.680  3374  3374 D LaptopDock: onLayoutCompleted updateBackground postDelayed
+10-04 17:20:42.225 30989 31009 I ActivityThread: TrafficStats init done
+10-04 17:20:42.247 30989 31009 I ActivityThread: Miui Feature Init done
+10-04 17:20:42.277 30989 31034 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:20:42.287 30989 31037 D CameraInjector: waitForResult: 
+10-04 17:20:42.296 30989 31037 D CameraInjector: waitForResult: 
+10-04 17:20:42.296 30989 31037 D CameraInjector: waitForResult: 
+10-04 17:20:42.296 30989 31037 D CameraInjector: waitForResult: 
+10-04 17:20:42.296 30989 31037 D CameraInjector: waitForResult: 
+10-04 17:20:42.799 30989 31070 W XMPush-30989: [Tid:52639] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:20:42.799 30989 31070 I MiPushMessageReceiver: onCommandResult: register
+10-04 17:20:42.799 30989 31070 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:20:42.799 30989 31070 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 17:20:42.799 30989 31070 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:20:42.803 30989 31070 W XMPush-30989: [Tid:52639] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:20:42.803 30989 31070 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 17:20:42.803 30989 31070 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 17:20:43.066  5890  7058 I AppPredictResultHelper: updatePreferenceStore: size = 23
+10-04 17:20:43.448 31076 31096 I ActivityThread: TrafficStats init done
+10-04 17:20:43.479 31076 31096 I ActivityThread: Miui Feature Init done
+10-04 17:20:43.515 31076 31110 W XMPush-31076: [Tid:52602] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:20:43.526 31076 31110 W XMPush-31076: [Tid:52602] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:20:57.685  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 17:21:03.122  2448  2975 I ActivityTaskManager: START u0 {act=android.intent.action.VIEW flg=0x18000000 cmp=com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity (has extras)} with LAUNCH_MULTIPLE from uid 1000 from pid 2448 callingPackage pm callers: com.android.server.wm.ActivityTaskManagerService.startActivity:1454 com.android.server.am.ActivityManagerService.startActivity:3575 com.android.server.pm.PmInjector.installVerify:65 com.android.server.pm.PackageManagerServiceImpl.verifyInstallFromShell:1335  (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+10-04 17:21:03.165 17339 31151 I ActivityThread: TrafficStats init done
+10-04 17:21:03.174 17339 31151 I ActivityThread: Miui Feature Init done
+10-04 17:21:03.182  2448  2986 D WindowManager: Set transition=TransitionRecord{3e5ac63 id=2876 type=OPEN flags=0x0}, ready=true, SyncId=2876 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.ActivityTaskSupervisor.realStartActivityLocked:1056 
+10-04 17:21:03.249 28044 29009 D MyLog   : -->log(1): [Tid:44168] [OneTrackWrapper] -->trackXmsEvent(): Sampling result is true, sampleEvent=31000000946|xms|xms_service_interface_method_call|error
+10-04 17:21:03.821  3374  3374 D LaptopDock: onLayoutCompleted updateBackground postDelayed
+10-04 17:21:05.668  2448  6733 D MiuiFreeFormGestureController: deliverResultForFinishActivity resultTo: null resultFrom: ActivityRecord{ae2c060 u0 com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity t775 f}} isInVideoOrGameScene: false intent: Intent { act=android.intent.action.VIEW flg=0x18800000 cmp=com.miui.securitycenter/com.miui.permcenter.install.AdbInstallActivity (has extras) }
+10-04 17:21:05.712 28044 29009 D MyLog   : -->log(1): [Tid:44168] [OneTrackWrapper] -->trackXmsEvent(): Sampling result is true, sampleEvent=31000000946|xms|xms_service_interface_method_call|error
+10-04 17:21:05.778  2448  6586 I JpegXEncoder: [mId: 72] skia-debug Enter JpegXEncoder::funcNotify The func Id is INITENC, the result is OK.
+10-04 17:21:05.785  2448  6586 I JpegXEncoder: [mId: 72] skia-debug Enter JpegXEncoder::funcNotify The func Id is ENCODE, the result is OK.
+10-04 17:21:05.785  2448  6586 I JpegXEncoder: [mId: 72] skia-debug resultNotify.
+10-04 17:21:05.785  2448  3347 I JpegXEncoder: [mId: 72] skia-debug Success to get the encode completed msg from hal, going to write data to Dst.
+10-04 17:21:05.785  2448  3347 I JpegXEncoder: [mId: 72] skia-debug Encode completed with result = 1.
+10-04 17:21:05.786  1382 31248 W X_VPU   : [VPU ][DAEMON][vsi_enc_msg_done:437] Inst[2ed300000001] streamoff output done
+10-04 17:21:05.787  1382 31248 W X_VPU   : [VPU ][DAEMON][vsi_enc_msg_done:434] Inst[2ed300000001] streamoff capture done
+10-04 17:21:05.799  2448  2506 I JpegXEncoder: [mId: 73] skia-debug Enter JpegXEncoder::funcNotify The func Id is INITENC, the result is OK.
+10-04 17:21:05.802  2448  2506 I JpegXEncoder: [mId: 73] skia-debug Enter JpegXEncoder::funcNotify The func Id is ENCODE, the result is OK.
+10-04 17:21:05.802  2448  2506 I JpegXEncoder: [mId: 73] skia-debug resultNotify.
+10-04 17:21:05.802  2448  3347 I JpegXEncoder: [mId: 73] skia-debug Success to get the encode completed msg from hal, going to write data to Dst.
+10-04 17:21:05.802  2448  3347 I JpegXEncoder: [mId: 73] skia-debug Encode completed with result = 1.
+10-04 17:21:05.802  1382 31255 W X_VPU   : [VPU ][DAEMON][vsi_enc_msg_done:437] Inst[2ed400000001] streamoff output done
+10-04 17:21:05.802  1382 31255 W X_VPU   : [VPU ][DAEMON][vsi_enc_msg_done:434] Inst[2ed400000001] streamoff capture done
+10-04 17:21:05.846 31259 31279 I ActivityThread: TrafficStats init done
+10-04 17:21:05.851 31259 31279 I ActivityThread: Miui Feature Init done
+10-04 17:21:05.908  3374  3823 D MiuiMultiWindowUtils: readFreeformTimestamps::result = {com.tencent.mm=[1754042673295, 1754134799171]}
+10-04 17:21:05.923  5890  6466 I AppPredictResultHelper: updatePreferenceStore: size = 24
+10-04 17:21:05.955  3374  3854 D MiuiMultiWindowUtils: readFreeformTimestamps::result = {com.tencent.mm=[1754042673295, 1754134799171]}
+10-04 17:21:06.006 31315 31341 I ActivityThread: TrafficStats init done
+10-04 17:21:06.018 31315 31341 I ActivityThread: Miui Feature Init done
+10-04 17:21:06.023 31334 31361 I ActivityThread: TrafficStats init done
+10-04 17:21:06.033 31315 31315 I MIUIPI_Log: Logger init completed!
+10-04 17:21:06.037 31334 31361 I ActivityThread: Miui Feature Init done
+10-04 17:21:06.071  3374  3823 D MiuiMultiWindowUtils: getFreeformSuggestionList end result size:[com.google.android.documentsui, com.mira.com, com.miui.gallery, com.tencent.mm, com.android.fileexplorer, com.qiyi.video.pad, com.android.email, com.ss.android.ugc.aweme, com.mipay.wallet, com.luna.music, com.miui.phrase, com.xiaomi.vipaccount, com.microsoft.emmx, com.ximalaya.ting.android, com.tmri.app.main, com.github.metacubex.clash.meta, com.microsoft.office.outlook, com.autonavi.minimap, com.miui.calculator, com.android.contacts, com.microsoft.bing, com.android.deskclock, com.tencent.docs, com.tencent.lolm, com.duokan.reader, com.xingin.xhs, com.UCMobile, com.tencent.mtt, com.eg.android.AlipayGphone, cn.wps.moffice_eng.xiaomi.lite, com.miui.notes, com.miui.miservice, com.xiaomi.shop, com.xiaomi.gamecenter, com.tencent.wemeet.app, com.android.browser, com.apple.android.music, com.akd.luxurycars, com.tencent.hunyuan.app.chat, com.miui.weather2, com.xiaomi.smarthome, net.huanci.hsjpro, cn.wps.moffice_eng, com.maxframing.mipad, com.tencent.wetype, com.android.providers.downloads.ui, ctrip.android.view, com.miui.bugreport, com.ss.android.lark, com.android.calendar, com.deepseek.chat, com.baidu.netdisk, com.hpbr.bosszhipin, com.larus.nova, com.android.soundrecorder, com.miui.creation]
+10-04 17:21:06.108  3374  3854 D MiuiMultiWindowUtils: getFreeformSuggestionList end result size:[com.google.android.documentsui, com.mira.com, com.miui.gallery, com.tencent.mm, com.android.fileexplorer, com.qiyi.video.pad, com.android.email, com.ss.android.ugc.aweme, com.mipay.wallet, com.luna.music, com.miui.phrase, com.xiaomi.vipaccount, com.microsoft.emmx, com.ximalaya.ting.android, com.tmri.app.main, com.github.metacubex.clash.meta, com.microsoft.office.outlook, com.autonavi.minimap, com.miui.calculator, com.android.contacts, com.microsoft.bing, com.android.deskclock, com.tencent.docs, com.tencent.lolm, com.duokan.reader, com.xingin.xhs, com.UCMobile, com.tencent.mtt, com.eg.android.AlipayGphone, cn.wps.moffice_eng.xiaomi.lite, com.miui.notes, com.miui.miservice, com.xiaomi.shop, com.xiaomi.gamecenter, com.tencent.wemeet.app, com.android.browser, com.apple.android.music, com.akd.luxurycars, com.tencent.hunyuan.app.chat, com.miui.weather2, com.xiaomi.smarthome, net.huanci.hsjpro, cn.wps.moffice_eng, com.maxframing.mipad, com.tencent.wetype, com.android.providers.downloads.ui, ctrip.android.view, com.miui.bugreport, com.ss.android.lark, com.android.calendar, com.deepseek.chat, com.baidu.netdisk, com.hpbr.bosszhipin, com.larus.nova, com.android.soundrecorder, com.miui.creation]
+10-04 17:21:06.136 31425 31450 I ActivityThread: TrafficStats init done
+10-04 17:21:06.146 31425 31450 I ActivityThread: Miui Feature Init done
+10-04 17:21:06.276 31485 31512 I ActivityThread: TrafficStats init done
+10-04 17:21:06.291 31485 31512 I ActivityThread: Miui Feature Init done
+10-04 17:21:06.336  3374  3374 D LaptopDock: onLayoutCompleted updateBackground postDelayed
+10-04 17:21:06.399 31520 31542 I ActivityThread: TrafficStats init done
+10-04 17:21:06.423 31520 31542 I ActivityThread: Miui Feature Init done
+10-04 17:21:06.479 31566 31604 I ActivityThread: TrafficStats init done
+10-04 17:21:06.492 31566 31604 I ActivityThread: Miui Feature Init done
+10-04 17:21:06.513 31598 31650 I ActivityThread: TrafficStats init done
+10-04 17:21:06.520 31608 31654 I ActivityThread: TrafficStats init done
+10-04 17:21:06.523 31598 31650 I ActivityThread: Miui Feature Init done
+10-04 17:21:06.532 31608 31654 I ActivityThread: Miui Feature Init done
+10-04 17:21:06.634 31727 31764 I ActivityThread: TrafficStats init done
+10-04 17:21:06.644 31727 31764 I ActivityThread: Miui Feature Init done
+10-04 17:21:06.668 31608 31668 D prefetch: [XMS][Prefetch] updatePrefetchResults type: 0, prefetchConfigs: []
+10-04 17:21:06.668 31608 31668 W prefetch: [XMS][Prefetch] updatePrefetchResults prefetchConfigs is empty
+10-04 17:21:06.715 31566 31710 I Icing   : Internal init done: storage state 0
+10-04 17:21:06.721 31566 31710 I Icing   : Post-init done
+10-04 17:21:06.756 31566 31710 I Icing   : Indexing done com.google.android.gms-apps
+10-04 17:21:06.757 31566 31710 I Icing   : Indexing done com.google.android.gms-apps
+10-04 17:21:06.763 31566 31710 I Icing   : Indexing done com.google.android.gms-apps
+10-04 17:21:06.822 31808 31828 I ActivityThread: TrafficStats init done
+10-04 17:21:06.840 31808 31828 I ActivityThread: Miui Feature Init done
+10-04 17:21:07.117 28252 28303 D auth    : [XMS][Auth] Sampling result is false, trackSample=TrackSample(eventName=xms_auth, taskType=auth_scheduled_task, taskResult=success, taskId=null)
+10-04 17:21:07.374 30403 30422 I AppScanStats: BLE_SCAN_RESULT_RECEIVED[2]reportBleScanResults=0
+10-04 17:21:07.872 31854 31874 I ActivityThread: TrafficStats init done
+10-04 17:21:07.887 31854 31874 I ActivityThread: Miui Feature Init done
+10-04 17:21:07.914 31854 31899 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:21:07.927 31854 31901 D CameraInjector: waitForResult: 
+10-04 17:21:07.931 31854 31901 D CameraInjector: waitForResult: 
+10-04 17:21:07.931 31854 31901 D CameraInjector: waitForResult: 
+10-04 17:21:07.931 31854 31901 D CameraInjector: waitForResult: 
+10-04 17:21:07.931 31854 31901 D CameraInjector: waitForResult: 
+10-04 17:21:08.447 31854 31940 W XMPush-31854: [Tid:52708] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:21:08.447 31854 31940 I MiPushMessageReceiver: onCommandResult: register
+10-04 17:21:08.447 31854 31940 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:21:08.447 31854 31940 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 17:21:08.447 31854 31940 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:21:08.451 31854 31940 W XMPush-31854: [Tid:52708] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:21:08.451 31854 31940 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 17:21:08.451 31854 31940 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 17:21:08.722  5890  7058 I AppPredictResultHelper: updatePreferenceStore: size = 24
+10-04 17:21:15.184  2448  6191 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep1Activity} with LAUNCH_MULTIPLE from uid 2000 from pid 31959 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 17:21:15.273 31981 32012 I ActivityThread: TrafficStats init done
+10-04 17:21:15.280 31981 32012 I ActivityThread: Miui Feature Init done
+10-04 17:21:15.342 25510 31994 I ActivityThread: TrafficStats init done
+10-04 17:21:15.359 25510 31994 I ActivityThread: Miui Feature Init done
+10-04 17:21:15.398 32038 32086 I ActivityThread: TrafficStats init done
+10-04 17:21:15.415 32038 32086 I ActivityThread: Miui Feature Init done
+10-04 17:21:15.417  5890  8125 E b       : insert result = 2030
+10-04 17:21:15.417 28044 28142 D MyLog   : -->log(1): [Tid:44152] [ActivationDAO_ac] -->insertRecord(): result=true, record=ActivationRecord{id=0, packageName='com.mira.com', pageName='null', activeTime=1759569675396, caller='com.miui.home', activationSource='com.miui.home', installer='null', firstInstallTime=1759569665766, lastUpdateTime=1759569665766, versionName='0.1.0', versionCode=1, spaceId=0, traceId='null', activeId='null', uploadFlag=0, syncOneTrackFlag=0, isCachedItem=false}
+10-04 17:21:15.431 28044 28142 D MyLog   : -->log(1): [Tid:44152] [ActivationManager_ac] -->onSyncToOneTrackDone(): traceId=com.mira.com-fc181a5fb3439192-1759569666415
+10-04 17:21:15.439 32038 32116 I common  : milink::common::ClassLoader::LoadClasses name: com/milink/base/itf/Result (class_loader.cpp:55)
+10-04 17:21:15.439 32038 32116 I common  : milink::common::ClassLoader::LoadClasses name: com/milink/base/itf/Result load over (class_loader.cpp:57)
+10-04 17:21:15.463 32038 32143 I com.milink.runtime:new_milink:idm_framework: milink::idm_framework::MilinkClientImpl::OnProcessConnected RegisterIDM result : 0 (milink_client_impl.cpp:348)
+10-04 17:21:15.466  4476  4635 E IDM-ClientProcV2: HandleStartDiscovery: check_permission_by_block_list_result.is_block_ == false
+10-04 17:21:15.476  4476  4667 I SMGR_IDMClientAgent: onDiscoveryResult: appId 7 result 1
+10-04 17:21:15.476  4476  4667 I IDM-ClientProcV2: client:EPntKeXF, OnDiscoveryResult
+10-04 17:21:15.477 32038 32143 I IDM-ClientImpl: OnDiscoveryResultInWorkThread...
+10-04 17:21:15.478 32038 32143 I com.milink.runtime:new_milink:idm_framework: milink::idm_framework::MilinkClientImpl::OnDiscoveryResult discovery result : 1 (milink_client_impl.cpp:32)
+10-04 17:21:15.531 32170 32244 I ActivityThread: TrafficStats init done
+10-04 17:21:15.542 32214 32214 W ActivityThread: registerApplicationScoutThread result:false
+10-04 17:21:15.551 32170 32244 I ActivityThread: Miui Feature Init done
+10-04 17:21:15.572 32214 32257 I ActivityThread: Miui Feature Init done
+10-04 17:21:15.577 28044 29009 D MyLog   : -->log(1): [Tid:44168] [OneTrackWrapper] -->trackXmsEvent(): Sampling result is true, sampleEvent=31000000946|xms|xms_service_interface_method_call|error
+10-04 17:21:15.889 28044 28142 D MyLog   : -->log(1): [Tid:44152] [ActivationUploadHelper_ac] -->uploadRecordSync(): respStr={"result":"ok","reason":"Success","trace_id":"Xcm66281759569675377Mn","code":0,"description":"成功"}
+10-04 17:21:15.892 28044 28142 D MyLog   : -->log(1): [Tid:44152] [ActivationDAO_ac] -->updateUploadFlag(): result=true, packageName=com.mira.com
+10-04 17:21:15.892 28044 28142 D MyLog   : -->log(1): [Tid:44152] [ActivationManager_ac] <--uploadEventToServer(), request finished. result=RespInfo{reason='Success', code=0, description='成功'}
+10-04 17:21:16.204  3374  3374 D Dock_AnimationRunner: {-1376345379} onComplete
+10-04 17:21:16.318  3374  3374 D LaptopDock: onLayoutCompleted updateBackground postDelayed
+10-04 17:21:16.330  3374  3374 D LaptopDock: onLayoutCompleted updateBackground postDelayed
+10-04 17:21:16.381  3374  3854 D MiuiMultiWindowUtils: readFreeformTimestamps::result = {com.tencent.mm=[1754042673295, 1754134799171]}
+10-04 17:21:16.394  3374  3374 D LaptopDock: onLayoutCompleted updateBackground postDelayed
+10-04 17:21:16.562  3374  3854 D MiuiMultiWindowUtils: getFreeformSuggestionList end result size:[com.google.android.documentsui, com.mira.com, com.miui.gallery, com.tencent.mm, com.android.fileexplorer, com.qiyi.video.pad, com.android.email, com.ss.android.ugc.aweme, com.mipay.wallet, com.luna.music, com.miui.phrase, com.xiaomi.vipaccount, com.microsoft.emmx, com.ximalaya.ting.android, com.tmri.app.main, com.github.metacubex.clash.meta, com.microsoft.office.outlook, com.autonavi.minimap, com.miui.calculator, com.android.contacts, com.microsoft.bing, com.android.deskclock, com.tencent.docs, com.tencent.lolm, com.duokan.reader, com.xingin.xhs, com.UCMobile, com.tencent.mtt, com.eg.android.AlipayGphone, cn.wps.moffice_eng.xiaomi.lite, com.miui.notes, com.miui.miservice, com.xiaomi.shop, com.xiaomi.gamecenter, com.tencent.wemeet.app, com.android.browser, com.apple.android.music, com.akd.luxurycars, com.tencent.hunyuan.app.chat, com.miui.weather2, com.xiaomi.smarthome, net.huanci.hsjpro, cn.wps.moffice_eng, com.maxframing.mipad, com.tencent.wetype, com.android.providers.downloads.ui, ctrip.android.view, com.miui.bugreport, com.ss.android.lark, com.android.calendar, com.deepseek.chat, com.baidu.netdisk, com.hpbr.bosszhipin, com.larus.nova, com.android.soundrecorder, com.miui.creation]
+10-04 17:21:17.458 32038 32138 I com.milink.runtime:new_milink:device_manager: milink::device_manager::SoftbusIdmImpl::OnMessage reset client result: 1 (softbus_idm_impl.cpp:665)
+10-04 17:21:17.465 32038 32143 I com.milink.runtime:new_milink:idm_framework: milink::idm_framework::MilinkClientImpl::OnProcessConnected RegisterIDM result : 0 (milink_client_impl.cpp:348)
+10-04 17:21:18.421 32057 32095 I ActivityThread: TrafficStats init done
+10-04 17:21:18.426  5890  7058 I AppPredictResultHelper: updatePreferenceStore: size = 24
+10-04 17:21:18.429 31981 32028 I common  : milink::common::ClassLoader::LoadClasses name: com/milink/base/itf/Result (class_loader.cpp:55)
+10-04 17:21:18.429 31981 32028 I common  : milink::common::ClassLoader::LoadClasses name: com/milink/base/itf/Result load over (class_loader.cpp:57)
+10-04 17:21:18.431 32057 32095 I ActivityThread: Miui Feature Init done
+10-04 17:21:18.434 31981 32025 I com.xiaomi.market:new_milink:MiLinkContext: call messenger_client.init done, next call native_core.install
+10-04 17:21:18.486 32038 32347 D com.milink.runtime:new_milink:device_manager: milink::device_manager::DataPacket::Marshalling compress result: 1, before: 156, after: 137 (data_packet.cpp:43)
+10-04 17:21:18.487 32038 32347 D com.milink.runtime:new_milink:device_manager: milink::device_manager::DataPacket::Marshalling compress result: 1, before: 88, after: 79 (data_packet.cpp:43)
+10-04 17:21:18.499 32367 32416 I ActivityThread: TrafficStats init done
+10-04 17:21:18.516 32367 32416 I ActivityThread: Miui Feature Init done
+10-04 17:21:18.521 32038 32347 D com.milink.runtime:new_milink:device_manager: milink::device_manager::DataPacket::Marshalling compress result: 1, before: 156, after: 137 (data_packet.cpp:43)
+10-04 17:21:18.521 32038 32347 D com.milink.runtime:new_milink:device_manager: milink::device_manager::DataPacket::Marshalling compress result: 1, before: 88, after: 79 (data_packet.cpp:43)
+10-04 17:21:18.612 32473 32500 I ActivityThread: TrafficStats init done
+10-04 17:21:18.629 32473 32500 I ActivityThread: Miui Feature Init done
+10-04 17:21:18.825 31981 32549 W XMPush-31981: [Tid:52735] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:21:18.830 31981 32549 W XMPush-31981: [Tid:52735] (Local) begin execute onCommandResult, command=set-alias, resultCode=0, reason=null
+10-04 17:21:18.830 31981 32549 W XMPush-31981: [Tid:52735] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:21:20.748 32580 32604 I ActivityThread: TrafficStats init done
+10-04 17:21:20.754 32580 32604 I ActivityThread: Miui Feature Init done
+10-04 17:21:20.772 32580 32628 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:21:20.781 32580 32630 D CameraInjector: waitForResult: 
+10-04 17:21:20.784 32580 32630 D CameraInjector: waitForResult: 
+10-04 17:21:20.784 32580 32630 D CameraInjector: waitForResult: 
+10-04 17:21:20.784 32580 32630 D CameraInjector: waitForResult: 
+10-04 17:21:20.784 32580 32630 D CameraInjector: waitForResult: 
+10-04 17:21:21.040 32710   347 I ActivityThread: TrafficStats init done
+10-04 17:21:21.048 32710   347 I ActivityThread: Miui Feature Init done
+10-04 17:21:21.058  2448  2514 I ActivityManager: Broadcast completed: result=0
+10-04 17:21:21.287 32580   406 W XMPush-32580: [Tid:52750] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:21:21.287 32580   406 I MiPushMessageReceiver: onCommandResult: register
+10-04 17:21:21.287 32580   406 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:21:21.287 32580   406 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 17:21:21.287 32580   406 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:21:21.288 32580   406 W XMPush-32580: [Tid:52750] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:21:21.288 32580   406 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 17:21:21.288 32580   406 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 17:21:22.697  4919 12268 I PickerSyncTracker: Marked sync future complete for work id: 3f2b7f0c-b9d3-473d-a3ad-c6637986e355. Future map: {}
+10-04 17:21:22.697  4919 12268 I PSyncWorker: Completed picker proactive sync complete from local provider.
+10-04 17:21:22.698  4919  5136 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=3f2b7f0c-b9d3-473d-a3ad-c6637986e355, tags={ com.android.providers.media.photopicker.sync.ProactiveSyncWorker } ]
+10-04 17:21:25.618  2448  2988 D WindowManager: All the checks have been done, return STARTING_WINDOW_TYPE_NONE. this = ActivityRecord{2b92060 u0 com.mira.com/.whisper.WhisperStep2Activity t776}
+10-04 17:21:25.620  2448  2988 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep2Activity} with LAUNCH_MULTIPLE from uid 2000 from pid 464 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 17:21:25.623  2448  2988 D WindowManager: Set transition=TransitionRecord{5998c63 id=2879 type=OPEN flags=0x0}, ready=true, SyncId=2879 info=used=true, override=false, defer=0, states=Display{#0 state=ON size=2136x3200 ROTATION_0}:true reason=com.android.server.wm.Transition.setReady:1166 com.android.server.wm.TransitionController.setReady:1089 com.android.server.wm.TransitionController.setReady:1094 com.android.server.wm.DisplayContent.executeAppTransition:6377 com.android.server.wm.RootWindowContainer.executeAppTransitionForAllDisplay:2698 com.android.server.wm.ActivityTaskSupervisor.reportResumedActivityLocked:2253 com.android.server.wm.ActivityRecord.completeResumeLocked:7788 com.android.server.wm.ActivityTaskSupervisor.realStartActivityLocked:1056 
+10-04 17:21:30.165  2448  6185 D WindowManager: All the checks have been done, return STARTING_WINDOW_TYPE_NONE. this = ActivityRecord{674baab u0 com.mira.com/.whisper.WhisperStep3Activity t776}
+10-04 17:21:30.167  2448  6185 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.mira.com/.whisper.WhisperStep3Activity} with LAUNCH_MULTIPLE from uid 2000 from pid 524 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 17:21:32.900   542   562 I ActivityThread: TrafficStats init done
+10-04 17:21:32.932   542   562 I ActivityThread: Miui Feature Init done
+10-04 17:21:32.964   542   591 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:21:32.975   542   596 D CameraInjector: waitForResult: 
+10-04 17:21:32.983   542   596 D CameraInjector: waitForResult: 
+10-04 17:21:32.983   542   596 D CameraInjector: waitForResult: 
+10-04 17:21:32.983   542   596 D CameraInjector: waitForResult: 
+10-04 17:21:32.983   542   596 D CameraInjector: waitForResult: 
+10-04 17:21:33.430  2448  2987 D WifiNl80211Manager: Scan result ready event
+10-04 17:21:33.430  2448  2987 D WifiNative: Scan result ready event
+10-04 17:21:33.449  3601  3601 D HighSpeedTrainModeController: receive actionandroid.net.wifi.SCAN_RESULTS
+10-04 17:21:33.450  5377  5377 I WifiMonitor: receive Broadcast SCAN_RESULTS_AVAILABLE_ACTION,updated:true
+10-04 17:21:33.461  2448  3342 E AppScanObserverService: Result available, null observers for user: 0
+10-04 17:21:33.465   542   629 W XMPush-542: [Tid:52759] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:21:33.465   542   629 I MiPushMessageReceiver: onCommandResult: register
+10-04 17:21:33.465   542   629 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:21:33.465   542   629 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 17:21:33.465   542   629 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:21:33.467   542   629 W XMPush-542: [Tid:52759] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:21:33.467   542   629 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 17:21:33.467   542   629 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 17:21:33.947  2448  2699 I SmartPower: com.xiaomi.metoknlp/10143(5351): idle->background(76866ms) R(broadcast start Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }) adj=200.
+10-04 17:21:33.948  2448  2699 W BroadcastQueue: Greezer Denial: sending Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }, action: android.net.wifi.SCAN_RESULTS from android (uid=1000) due to receiver ProcessRecord{27b913e 31919:com.tencent.mm/u0a262} (uid 10262) need cached broadcast
+10-04 17:21:33.948  2448  2699 W BroadcastQueue: Greezer Denial: sending Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }, action: android.net.wifi.SCAN_RESULTS from android (uid=1000) due to receiver ProcessRecord{27b913e 31919:com.tencent.mm/u0a262} (uid 10262) need cached broadcast
+10-04 17:21:33.948  2448  2699 W BroadcastQueue: Greezer Denial: sending Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }, action: android.net.wifi.SCAN_RESULTS from android (uid=1000) due to receiver ProcessRecord{22b3ed 32713:com.tencent.mm:push/u0a262} (uid 10262) need cached broadcast
+10-04 17:21:33.949  5351  5351 I WifiMonitor: receive Broadcast SCAN_RESULTS_AVAILABLE_ACTION,updated:true
+10-04 17:21:33.956  6645 32419 I AIRC_PerceptionEventBus: event=WifiScanEvent,traceId=1afa42419c034fc0baf38e6dbc8d9e39 send result=true
+10-04 17:21:34.032   636   656 I ActivityThread: TrafficStats init done
+10-04 17:21:34.041   636   656 I ActivityThread: Miui Feature Init done
+10-04 17:21:34.053   636   670 W XMPush-636: [Tid:52722] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:21:34.054   636   670 W XMPush-636: [Tid:52722] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:21:36.950  2448  3279 I SmartPower: com.xiaomi.metoknlp/10143(5351): background->idle(3002ms) R(broadcast start Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }) adj=200.
+10-04 17:21:57.707  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 17:22:07.399 30403 30528 I AppScanStats: BLE_SCAN_RESULT_RECEIVED[2]reportBleScanResults=0
+10-04 17:22:55.881  2448  3862 D WindowManager: All the checks have been done, return STARTING_WINDOW_TYPE_NONE. this = ActivityRecord{33e1808 u0 com.mira.com/com.mira.clip.Clip4ClipActivity t776}
+10-04 17:22:55.882  2448  3862 I ActivityTaskManager: START u0 {flg=0x10000000 xflg=0x1 cmp=com.mira.com/com.mira.clip.Clip4ClipActivity} with LAUNCH_MULTIPLE from uid 2000 from pid 710 callingPackage com.android.shell (BAL_ALLOW_PERMISSION) result code=0
+10-04 17:22:57.708  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 17:23:04.070   731   750 I ActivityThread: TrafficStats init done
+10-04 17:23:04.084   731   750 I ActivityThread: Miui Feature Init done
+10-04 17:23:04.108  2448  2514 I ActivityManager: Broadcast completed: result=0
+10-04 17:23:05.516  4919 19105 I PickerSyncTracker: Marked sync future complete for work id: 7132fa6e-0e3c-4d76-818d-25774f452909. Future map: {}
+10-04 17:23:05.516  4919 19105 I PSyncWorker: Completed picker proactive sync complete from local provider.
+10-04 17:23:05.516  4919  5233 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=7132fa6e-0e3c-4d76-818d-25774f452909, tags={ com.android.providers.media.photopicker.sync.ProactiveSyncWorker } ]
+10-04 17:23:06.266   763   782 I ActivityThread: TrafficStats init done
+10-04 17:23:06.283   763   782 I ActivityThread: Miui Feature Init done
+10-04 17:23:06.315   763   807 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:23:06.322   763   809 D CameraInjector: waitForResult: 
+10-04 17:23:06.326   763   809 D CameraInjector: waitForResult: 
+10-04 17:23:06.326   763   809 D CameraInjector: waitForResult: 
+10-04 17:23:06.326   763   809 D CameraInjector: waitForResult: 
+10-04 17:23:06.326   763   809 D CameraInjector: waitForResult: 
+10-04 17:23:06.826   763   855 W XMPush-763: [Tid:52774] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:23:06.826   763   855 I MiPushMessageReceiver: onCommandResult: register
+10-04 17:23:06.827   763   855 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:23:06.827   763   855 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 17:23:06.827   763   855 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:23:06.830   763   855 W XMPush-763: [Tid:52774] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:23:06.830   763   855 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 17:23:06.830   763   855 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 17:23:07.406   861   880 I ActivityThread: TrafficStats init done
+10-04 17:23:07.427   861   880 I ActivityThread: Miui Feature Init done
+10-04 17:23:07.440   861   895 W XMPush-861: [Tid:52736] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:23:07.443   861   895 W XMPush-861: [Tid:52736] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:23:07.456 30403 30528 I AppScanStats: BLE_SCAN_RESULT_RECEIVED[2]reportBleScanResults=0
+10-04 17:23:34.043   913   932 I ActivityThread: TrafficStats init done
+10-04 17:23:34.052   913   932 I ActivityThread: Miui Feature Init done
+10-04 17:23:34.069  2448  2514 I ActivityManager: Broadcast completed: result=0
+10-04 17:23:34.596  2448  2514 I ActivityManager: Broadcast completed: result=0
+10-04 17:23:34.730 20506 20506 I adbd    : in ShellService: export ANDROID_LOG_TAGS=''; exec logcat '-d'
+10-04 17:23:36.168  2448  2514 I ActivityManager: Broadcast completed: result=0
+10-04 17:23:36.212   974  1024 I ActivityThread: TrafficStats init done
+10-04 17:23:36.219   974  1024 I ActivityThread: Miui Feature Init done
+10-04 17:23:36.234   974  1119 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:23:36.250   974  1116 D CameraInjector: waitForResult: 
+10-04 17:23:36.257   974  1116 D CameraInjector: waitForResult: 
+10-04 17:23:36.257   974  1116 D CameraInjector: waitForResult: 
+10-04 17:23:36.257   974  1116 D CameraInjector: waitForResult: 
+10-04 17:23:36.257   974  1116 D CameraInjector: waitForResult: 
+10-04 17:23:36.748   974  1205 W XMPush-974: [Tid:52791] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:23:36.748   974  1205 I MiPushMessageReceiver: onCommandResult: register
+10-04 17:23:36.748   974  1205 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:23:36.748   974  1205 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 17:23:36.748   974  1205 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:23:36.751   974  1205 W XMPush-974: [Tid:52791] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:23:36.751   974  1205 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 17:23:36.751   974  1205 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 17:23:37.305  1207  1227 I ActivityThread: TrafficStats init done
+10-04 17:23:37.313  1207  1227 I ActivityThread: Miui Feature Init done
+10-04 17:23:37.324  1207  1240 W XMPush-1207: [Tid:52751] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:23:37.326  1207  1240 W XMPush-1207: [Tid:52751] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:23:37.783  4919  8057 I PickerSyncTracker: Marked sync future complete for work id: 210a1667-a1ed-4b62-b23d-3db883c4706d. Future map: {}
+10-04 17:23:37.783  4919  8057 I PSyncWorker: Completed picker proactive sync complete from local provider.
+10-04 17:23:37.784  4919  5233 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=210a1667-a1ed-4b62-b23d-3db883c4706d, tags={ com.android.providers.media.photopicker.sync.ProactiveSyncWorker } ]
+10-04 17:23:38.811  1252  1317 I ActivityThread: TrafficStats init done
+10-04 17:23:38.826  1252  1317 I ActivityThread: Miui Feature Init done
+10-04 17:23:38.845  2448  2514 I ActivityManager: Broadcast completed: result=0
+10-04 17:23:40.482  4919  5838 I PickerSyncTracker: Marked sync future complete for work id: fce1cab9-16e7-4b5d-b3cc-e62f06c9948d. Future map: {}
+10-04 17:23:40.482  4919  5838 I PSyncWorker: Completed picker proactive sync complete from local provider.
+10-04 17:23:40.484  4919  5136 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=fce1cab9-16e7-4b5d-b3cc-e62f06c9948d, tags={ com.android.providers.media.photopicker.sync.ProactiveSyncWorker } ]
+10-04 17:23:40.982  1397  1504 I ActivityThread: TrafficStats init done
+10-04 17:23:41.002  1397  1504 I ActivityThread: Miui Feature Init done
+10-04 17:23:41.024  1397  1586 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:23:41.033  1397  1598 D CameraInjector: waitForResult: 
+10-04 17:23:41.039  1397  1598 D CameraInjector: waitForResult: 
+10-04 17:23:41.039  1397  1598 D CameraInjector: waitForResult: 
+10-04 17:23:41.039  1397  1598 D CameraInjector: waitForResult: 
+10-04 17:23:41.039  1397  1598 D CameraInjector: waitForResult: 
+10-04 17:23:41.348  2448  2514 I ActivityManager: Broadcast completed: result=0
+10-04 17:23:42.106  1729  1772 I ActivityThread: TrafficStats init done
+10-04 17:23:42.117  1729  1772 I ActivityThread: Miui Feature Init done
+10-04 17:23:42.957  4919 10092 I PickerSyncTracker: Marked sync future complete for work id: c5427368-5cd8-4294-bdbd-a2d7a78dd015. Future map: {}
+10-04 17:23:42.957  4919 10092 I PSyncWorker: Completed picker proactive sync complete from local provider.
+10-04 17:23:42.958  4919  5231 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=c5427368-5cd8-4294-bdbd-a2d7a78dd015, tags={ com.android.providers.media.photopicker.sync.ProactiveSyncWorker } ]
+10-04 17:23:43.837  2448  2514 I ActivityManager: Broadcast completed: result=0
+10-04 17:23:43.961 20506 20506 I adbd    : in ShellService: export ANDROID_LOG_TAGS=''; exec logcat '-d'
+10-04 17:23:44.227  1810  1835 I ActivityThread: TrafficStats init done
+10-04 17:23:44.237  1810  1835 I ActivityThread: Miui Feature Init done
+10-04 17:23:44.261  1810  1876 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:23:44.265  1810  1877 D CameraInjector: waitForResult: 
+10-04 17:23:44.275  1810  1877 D CameraInjector: waitForResult: 
+10-04 17:23:44.275  1810  1877 D CameraInjector: waitForResult: 
+10-04 17:23:44.275  1810  1877 D CameraInjector: waitForResult: 
+10-04 17:23:44.275  1810  1877 D CameraInjector: waitForResult: 
+10-04 17:23:44.768  1810  1928 W XMPush-1810: [Tid:52815] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:23:44.769  1810  1928 I MiPushMessageReceiver: onCommandResult: register
+10-04 17:23:44.769  1810  1928 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:23:44.769  1810  1928 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 17:23:44.769  1810  1928 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:23:44.771  1810  1928 W XMPush-1810: [Tid:52815] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:23:44.772  1810  1928 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 17:23:44.772  1810  1928 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 17:23:44.994 20506 20506 I adbd    : in ShellService: export ANDROID_LOG_TAGS=''; exec logcat '-d'
+10-04 17:23:45.332  1936  1968 I ActivityThread: TrafficStats init done
+10-04 17:23:45.342  1936  1968 I ActivityThread: Miui Feature Init done
+10-04 17:23:45.351  1936  1990 W XMPush-1936: [Tid:52776] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:23:45.357  1936  1990 W XMPush-1936: [Tid:52776] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:23:45.459  4919 12045 I PickerSyncTracker: Marked sync future complete for work id: 64c15d5e-c3a2-403e-acdb-291db32a5f78. Future map: {}
+10-04 17:23:45.459  4919 12045 I PSyncWorker: Completed picker proactive sync complete from local provider.
+10-04 17:23:45.460  4919  5233 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=64c15d5e-c3a2-403e-acdb-291db32a5f78, tags={ com.android.providers.media.photopicker.sync.ProactiveSyncWorker } ]
+10-04 17:23:46.033 20506 20506 I adbd    : in ShellService: screencap -p /sdcard/results_state.png
+10-04 17:23:46.429  4919  4919 I MediaProvider: receive action = android.intent.action.MEDIA_SCANNER_SCAN_FILE schemeSpecificPart = ///sdcard/results_state.png
+10-04 17:23:46.547  2006  2027 I ActivityThread: TrafficStats init done
+10-04 17:23:46.576  2006  2027 I ActivityThread: Miui Feature Init done
+10-04 17:23:46.608  2448  2514 I ActivityManager: Broadcast completed: result=0
+10-04 17:23:46.675 20506 20506 I adbd    : in ShellService: rm /sdcard/results_state.png
+10-04 17:23:46.722 20506 20506 I adbd    : in ShellService: export ANDROID_LOG_TAGS=''; exec logcat '-d'
+10-04 17:23:47.803 20506 20506 I adbd    : in ShellService: export ANDROID_LOG_TAGS=''; exec logcat '-d'
+10-04 17:23:48.228  4919 12268 I PickerSyncTracker: Marked sync future complete for work id: 02d67add-baf1-4257-a476-b05ef3ea2ca7. Future map: {}
+10-04 17:23:48.228  4919 12268 I PSyncWorker: Completed picker proactive sync complete from local provider.
+10-04 17:23:48.229  4919  5136 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=02d67add-baf1-4257-a476-b05ef3ea2ca7, tags={ com.android.providers.media.photopicker.sync.ProactiveSyncWorker } ]
+10-04 17:23:48.757  2056  2089 I ActivityThread: TrafficStats init done
+10-04 17:23:48.780  2056  2089 I ActivityThread: Miui Feature Init done
+10-04 17:23:48.814  2056  2125 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:23:48.850  2056  2127 D CameraInjector: waitForResult: 
+10-04 17:23:48.861  2056  2127 D CameraInjector: waitForResult: 
+10-04 17:23:48.861  2056  2127 D CameraInjector: waitForResult: 
+10-04 17:23:48.861  2056  2127 D CameraInjector: waitForResult: 
+10-04 17:23:48.861  2056  2127 D CameraInjector: waitForResult: 
+10-04 17:23:49.208 20506 20506 I adbd    : in ShellService: export ANDROID_LOG_TAGS=''; exec logcat '-d'
+10-04 17:23:49.488  2178  2200 I ActivityThread: TrafficStats init done
+10-04 17:23:49.516  2178  2200 I ActivityThread: Miui Feature Init done
+10-04 17:23:49.791  2178  2178 W Looper  : Loop again would have the queued messages be executed before this one completed.
+10-04 17:23:49.804  2228  2293 I ActivityThread: TrafficStats init done
+10-04 17:23:49.817 22859 24446 I GrayResultDBManager: getAllGrayData
+10-04 17:23:49.827  2228  2293 I ActivityThread: Miui Feature Init done
+10-04 17:23:49.878  2330  2377 I ActivityThread: TrafficStats init done
+10-04 17:23:49.892  2330  2377 I ActivityThread: Miui Feature Init done
+10-04 17:23:49.893  2319  2381 I ActivityThread: TrafficStats init done
+10-04 17:23:49.913  2319  2381 I ActivityThread: Miui Feature Init done
+10-04 17:23:49.977  1418  1418 I TEEC    : invoke, command=0x00009201, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:49.986  1418  1418 I TEEC    : invoke, command=0x00009007, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:50.315 20506 20506 I adbd    : in ShellService: export ANDROID_LOG_TAGS=''; exec logcat '-d'
+10-04 17:23:51.078  2413  2431 I ActivityThread: TrafficStats init done
+10-04 17:23:51.092  2413  2431 I ActivityThread: Miui Feature Init done
+10-04 17:23:51.269  2413  2413 W Looper  : Loop again would have the queued messages be executed before this one completed.
+10-04 17:23:51.311 22859 24446 I GrayResultDBManager: getAllGrayData
+10-04 17:23:51.611  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:51.620  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:51.629  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:51.640  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:51.640  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:51.642  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:51.642  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:51.643  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:51.644  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:51.644  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:51.645  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:51.646  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:51.647  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:51.649  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:51.650  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:51.650  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:51.661  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:51.662  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:51.663  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:51.664  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:51.668  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:51.669  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:51.693  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:52.018  2534  2553 I ActivityThread: TrafficStats init done
+10-04 17:23:52.033  2534  2553 I ActivityThread: Miui Feature Init done
+10-04 17:23:52.067  2534  2581 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:23:52.081  2534  2585 D CameraInjector: waitForResult: 
+10-04 17:23:52.086  2534  2585 D CameraInjector: waitForResult: 
+10-04 17:23:52.086  2534  2585 D CameraInjector: waitForResult: 
+10-04 17:23:52.086  2534  2585 D CameraInjector: waitForResult: 
+10-04 17:23:52.086  2534  2585 D CameraInjector: waitForResult: 
+10-04 17:23:52.574  2534  2627 W XMPush-2534: [Tid:52860] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:23:52.575  2534  2627 I MiPushMessageReceiver: onCommandResult: register
+10-04 17:23:52.575  2534  2627 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:23:52.575  2534  2627 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 17:23:52.575  2534  2627 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:23:52.577  2534  2627 W XMPush-2534: [Tid:52860] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:23:52.577  2534  2627 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 17:23:52.577  2534  2627 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 17:23:53.171  2629  2649 I ActivityThread: TrafficStats init done
+10-04 17:23:53.181  2629  2649 I ActivityThread: Miui Feature Init done
+10-04 17:23:53.199  2629  2709 W XMPush-2629: [Tid:52821] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:23:53.201  2629  2709 W XMPush-2629: [Tid:52821] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:23:53.265  2654  2711 I ActivityThread: TrafficStats init done
+10-04 17:23:53.285  2654  2711 I ActivityThread: Miui Feature Init done
+10-04 17:23:53.381  2654  2654 W Looper  : Loop again would have the queued messages be executed before this one completed.
+10-04 17:23:53.428  2764  2792 I ActivityThread: TrafficStats init done
+10-04 17:23:53.435 22859 24446 I GrayResultDBManager: getAllGrayData
+10-04 17:23:53.439  2764  2792 I ActivityThread: Miui Feature Init done
+10-04 17:23:53.469  2796  2828 I ActivityThread: TrafficStats init done
+10-04 17:23:53.483  2796  2828 I ActivityThread: Miui Feature Init done
+10-04 17:23:53.551  1418  1418 I TEEC    : invoke, command=0x00009201, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:53.564  1418  1418 I TEEC    : invoke, command=0x00009007, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:53.790  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:53.791  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:53.792  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:53.794  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:53.795  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:53.797  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:53.798  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:53.799  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:53.800  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:53.800  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:53.806  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:53.809  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:53.810  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:53.812  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:53.813  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:53.824  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:53.825  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:53.828  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:53.829  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:53.834  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:53.834  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:53.859  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:54.395  2448  6281 D AuthService: canAuthenticate, userId: 0, callingUserId: 0, authenticators: 33023, result: 0
+10-04 17:23:54.404  2448  6281 W WifiService: Permission violation - getScanResults not allowed for uid=10246, packageName=com.xingin.xhs, reason=java.lang.SecurityException: UID 10246 has no location permission
+10-04 17:23:55.370  2898  2917 I ActivityThread: TrafficStats init done
+10-04 17:23:55.397  2898  2917 I ActivityThread: Miui Feature Init done
+10-04 17:23:55.432  1154  1154 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:55.444  1154  1154 I TEEC    : invoke, command=0x00000058, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:55.449  1154  1154 I TEEC    : invoke, command=0x00000020, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:55.503  2932  2963 I ActivityThread: TrafficStats init done
+10-04 17:23:55.532  2932  2963 I ActivityThread: Miui Feature Init done
+10-04 17:23:55.556  2932  3029 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:23:55.562  2932  3041 D CameraInjector: waitForResult: 
+10-04 17:23:55.571  2932  3041 D CameraInjector: waitForResult: 
+10-04 17:23:55.571  2932  3041 D CameraInjector: waitForResult: 
+10-04 17:23:55.571  2932  3041 D CameraInjector: waitForResult: 
+10-04 17:23:55.571  2932  3041 D CameraInjector: waitForResult: 
+10-04 17:23:56.567  3143  3161 I ActivityThread: TrafficStats init done
+10-04 17:23:56.586  3143  3161 I ActivityThread: Miui Feature Init done
+10-04 17:23:56.641  3165  3237 I ActivityThread: TrafficStats init done
+10-04 17:23:56.656  3165  3237 I ActivityThread: Miui Feature Init done
+10-04 17:23:56.703  3143  3143 W Looper  : Loop again would have the queued messages be executed before this one completed.
+10-04 17:23:56.735  3382  3413 I ActivityThread: TrafficStats init done
+10-04 17:23:56.749  3382  3413 I ActivityThread: Miui Feature Init done
+10-04 17:23:56.783  3425  3489 I ActivityThread: TrafficStats init done
+10-04 17:23:56.793  3425  3489 I ActivityThread: Miui Feature Init done
+10-04 17:23:56.845  1418  1418 I TEEC    : invoke, command=0x00009201, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:56.854  1418  1418 I TEEC    : invoke, command=0x00009007, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:57.166  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:57.167  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:57.167  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:57.170  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:57.171  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:57.172  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:57.173  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:57.174  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:57.175  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:57.176  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:57.184  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:57.188  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:57.189  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:57.190  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:57.191  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:57.200  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:57.200  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:57.201  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:57.202  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:57.206  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:57.207  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:57.226  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:57.710  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 17:23:57.714  2448  6292 D AuthService: canAuthenticate, userId: 0, callingUserId: 0, authenticators: 33023, result: 0
+10-04 17:23:57.720  2448  5107 W WifiService: Permission violation - getScanResults not allowed for uid=10246, packageName=com.xingin.xhs, reason=java.lang.SecurityException: UID 10246 has no location permission
+10-04 17:23:58.585  3655  3701 I ActivityThread: TrafficStats init done
+10-04 17:23:58.599  3655  3701 I ActivityThread: Miui Feature Init done
+10-04 17:23:58.634  1154  1154 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:58.644  1154  1154 I TEEC    : invoke, command=0x00000058, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:23:58.857  3720  3744 I ActivityThread: TrafficStats init done
+10-04 17:23:58.875  3720  3744 I ActivityThread: Miui Feature Init done
+10-04 17:23:58.910  3720  3805 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:23:58.918  3720  3808 D CameraInjector: waitForResult: 
+10-04 17:23:58.924  3720  3808 D CameraInjector: waitForResult: 
+10-04 17:23:58.924  3720  3808 D CameraInjector: waitForResult: 
+10-04 17:23:58.924  3720  3808 D CameraInjector: waitForResult: 
+10-04 17:23:58.924  3720  3808 D CameraInjector: waitForResult: 
+10-04 17:23:59.430  3720  3881 W XMPush-3720: [Tid:52920] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:23:59.430  3720  3881 I MiPushMessageReceiver: onCommandResult: register
+10-04 17:23:59.430  3720  3881 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:23:59.430  3720  3881 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 17:23:59.430  3720  3881 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:23:59.433  3720  3881 W XMPush-3720: [Tid:52920] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:23:59.433  3720  3881 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 17:23:59.433  3720  3881 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 17:23:59.813  3883  3910 I ActivityThread: TrafficStats init done
+10-04 17:23:59.823  3883  3910 I ActivityThread: Miui Feature Init done
+10-04 17:23:59.950  3883  3883 W Looper  : Loop again would have the queued messages be executed before this one completed.
+10-04 17:23:59.988  3950  4034 I ActivityThread: TrafficStats init done
+10-04 17:24:00.005  3987  4047 I ActivityThread: TrafficStats init done
+10-04 17:24:00.012  3950  4034 I ActivityThread: Miui Feature Init done
+10-04 17:24:00.015  3987  4047 I ActivityThread: Miui Feature Init done
+10-04 17:24:00.041  3987  4116 W XMPush-3987: [Tid:52891] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:24:00.044  3987  4116 W XMPush-3987: [Tid:52891] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:24:01.222  4125  4159 I ActivityThread: TrafficStats init done
+10-04 17:24:01.246  4125  4159 I ActivityThread: Miui Feature Init done
+10-04 17:24:01.352  4125  4125 W Looper  : Loop again would have the queued messages be executed before this one completed.
+10-04 17:24:01.475  4265  4307 I ActivityThread: TrafficStats init done
+10-04 17:24:01.499  4265  4307 I ActivityThread: Miui Feature Init done
+10-04 17:24:01.730  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:01.731  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:01.732  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:01.734  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:01.736  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:01.737  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:01.738  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:01.739  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:01.740  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:01.741  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:01.749  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:01.754  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:01.756  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:01.757  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:01.758  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:01.766  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:01.767  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:01.768  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:01.770  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:01.773  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:01.775  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:01.795  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:02.148  4353  4437 I ActivityThread: TrafficStats init done
+10-04 17:24:02.172  4353  4437 I ActivityThread: Miui Feature Init done
+10-04 17:24:02.200  4353  4465 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:24:02.208  4353  4468 D CameraInjector: waitForResult: 
+10-04 17:24:02.213  4353  4468 D CameraInjector: waitForResult: 
+10-04 17:24:02.214  4353  4468 D CameraInjector: waitForResult: 
+10-04 17:24:02.214  4353  4468 D CameraInjector: waitForResult: 
+10-04 17:24:02.214  4353  4468 D CameraInjector: waitForResult: 
+10-04 17:24:03.301  4553  4602 I ActivityThread: TrafficStats init done
+10-04 17:24:03.313  4553  4602 I ActivityThread: Miui Feature Init done
+10-04 17:24:03.356  4593  4656 I ActivityThread: TrafficStats init done
+10-04 17:24:03.369  4593  4656 I ActivityThread: Miui Feature Init done
+10-04 17:24:03.481  4593  4593 W Looper  : Loop again would have the queued messages be executed before this one completed.
+10-04 17:24:03.505  4727  4779 I ActivityThread: TrafficStats init done
+10-04 17:24:03.519  4727  4779 I ActivityThread: Miui Feature Init done
+10-04 17:24:03.963  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:03.964  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:03.965  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:03.968  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:03.969  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:03.970  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:03.971  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:03.972  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:03.973  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:03.976  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:03.984  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:03.988  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:03.989  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:03.990  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:03.991  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:03.998  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:03.998  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:03.999  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:04.001  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:04.005  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:04.005  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:04.021  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:04.489  2448  6281 D AuthService: canAuthenticate, userId: 0, callingUserId: 0, authenticators: 33023, result: 0
+10-04 17:24:04.495  2448  6281 W WifiService: Permission violation - getScanResults not allowed for uid=10246, packageName=com.xingin.xhs, reason=java.lang.SecurityException: UID 10246 has no location permission
+10-04 17:24:05.431  4923  4986 I ActivityThread: TrafficStats init done
+10-04 17:24:05.445  4923  4986 I ActivityThread: Miui Feature Init done
+10-04 17:24:05.471  4947  5010 I ActivityThread: TrafficStats init done
+10-04 17:24:05.477  1154  1154 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:05.490  4947  5010 I ActivityThread: Miui Feature Init done
+10-04 17:24:05.490  1154  1154 I TEEC    : invoke, command=0x00000058, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:05.520  4947  5051 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:24:05.526  4947  5056 D CameraInjector: waitForResult: 
+10-04 17:24:05.537  4947  5056 D CameraInjector: waitForResult: 
+10-04 17:24:05.537  4947  5056 D CameraInjector: waitForResult: 
+10-04 17:24:05.537  4947  5056 D CameraInjector: waitForResult: 
+10-04 17:24:05.537  4947  5056 D CameraInjector: waitForResult: 
+10-04 17:24:06.037  4947  5135 W XMPush-4947: [Tid:52975] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:24:06.037  4947  5135 I MiPushMessageReceiver: onCommandResult: register
+10-04 17:24:06.037  4947  5135 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:24:06.037  4947  5135 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 17:24:06.037  4947  5135 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:24:06.041  4947  5135 W XMPush-4947: [Tid:52975] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:24:06.041  4947  5135 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 17:24:06.041  4947  5135 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 17:24:06.613  5166  5229 I ActivityThread: TrafficStats init done
+10-04 17:24:06.634  5166  5229 I ActivityThread: Miui Feature Init done
+10-04 17:24:06.636  5145  5225 I ActivityThread: TrafficStats init done
+10-04 17:24:06.644  5145  5225 I ActivityThread: Miui Feature Init done
+10-04 17:24:06.651  5166  5277 W XMPush-5166: [Tid:52941] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:24:06.652  5166  5277 W XMPush-5166: [Tid:52941] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:24:06.752  5145  5145 W Looper  : Loop again would have the queued messages be executed before this one completed.
+10-04 17:24:06.785  5323  5382 I ActivityThread: TrafficStats init done
+10-04 17:24:06.799  5323  5382 I ActivityThread: Miui Feature Init done
+10-04 17:24:06.840  5413  5466 I ActivityThread: TrafficStats init done
+10-04 17:24:06.854  5413  5466 I ActivityThread: Miui Feature Init done
+10-04 17:24:07.190  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:07.192  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:07.192  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:07.195  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:07.195  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:07.197  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:07.198  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:07.200  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:07.202  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:07.203  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:07.212  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:07.218  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:07.219  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:07.219  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:07.220  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:07.229  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:07.230  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:07.231  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:07.233  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:07.237  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:07.238  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:07.268  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:07.516 30403 30528 I AppScanStats: BLE_SCAN_RESULT_RECEIVED[2]reportBleScanResults=0
+10-04 17:24:07.758  2448  6292 D AuthService: canAuthenticate, userId: 0, callingUserId: 0, authenticators: 33023, result: 0
+10-04 17:24:07.769  2448  6292 W WifiService: Permission violation - getScanResults not allowed for uid=10246, packageName=com.xingin.xhs, reason=java.lang.SecurityException: UID 10246 has no location permission
+10-04 17:24:08.735  5568  5597 I ActivityThread: TrafficStats init done
+10-04 17:24:08.762  5568  5597 I ActivityThread: Miui Feature Init done
+10-04 17:24:08.801  5601  5638 I ActivityThread: TrafficStats init done
+10-04 17:24:08.805  1154  1154 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:08.817  1154  1154 I TEEC    : invoke, command=0x00000058, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:08.826  5601  5638 I ActivityThread: Miui Feature Init done
+10-04 17:24:09.956  5696  5720 I ActivityThread: TrafficStats init done
+10-04 17:24:09.982  5696  5720 I ActivityThread: Miui Feature Init done
+10-04 17:24:10.096  5696  5696 W Looper  : Loop again would have the queued messages be executed before this one completed.
+10-04 17:24:10.146  5755  5797 I ActivityThread: TrafficStats init done
+10-04 17:24:10.163  5755  5797 I ActivityThread: Miui Feature Init done
+10-04 17:24:10.523  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:10.524  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:10.525  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:10.527  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:10.528  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:10.529  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:10.530  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:10.531  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:10.532  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:10.533  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:10.540  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:10.544  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:10.544  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:10.545  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:10.546  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:10.553  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:10.554  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:10.555  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:10.555  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:10.561  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:10.563  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:10.583  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:10.984  5860  5887 I ActivityThread: TrafficStats init done
+10-04 17:24:10.999  5860  5887 I ActivityThread: Miui Feature Init done
+10-04 17:24:11.028  5860  5920 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:24:11.043  5860  5925 D CameraInjector: waitForResult: 
+10-04 17:24:11.050  5860  5925 D CameraInjector: waitForResult: 
+10-04 17:24:11.050  5860  5925 D CameraInjector: waitForResult: 
+10-04 17:24:11.050  5860  5925 D CameraInjector: waitForResult: 
+10-04 17:24:11.050  5860  5925 D CameraInjector: waitForResult: 
+10-04 17:24:11.549  5860  5980 W XMPush-5860: [Tid:53021] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:24:11.549  5860  5980 I MiPushMessageReceiver: onCommandResult: register
+10-04 17:24:11.549  5860  5980 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:24:11.549  5860  5980 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 17:24:11.549  5860  5980 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:24:11.554  5860  5980 W XMPush-5860: [Tid:53021] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:24:11.554  5860  5980 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 17:24:11.554  5860  5980 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 17:24:12.131  5983  6023 I ActivityThread: TrafficStats init done
+10-04 17:24:12.145  5983  6023 I ActivityThread: Miui Feature Init done
+10-04 17:24:12.176  5983  6056 W XMPush-5983: [Tid:52982] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:24:12.178  5983  6056 W XMPush-5983: [Tid:52982] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:24:12.196  6008  6043 I ActivityThread: TrafficStats init done
+10-04 17:24:12.224  6008  6043 I ActivityThread: Miui Feature Init done
+10-04 17:24:12.335  6008  6008 W Looper  : Loop again would have the queued messages be executed before this one completed.
+10-04 17:24:12.403  6123  6164 I ActivityThread: TrafficStats init done
+10-04 17:24:12.421  6123  6164 I ActivityThread: Miui Feature Init done
+10-04 17:24:12.444  6169  6213 I ActivityThread: TrafficStats init done
+10-04 17:24:12.456  6169  6213 I ActivityThread: Miui Feature Init done
+10-04 17:24:12.810  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:12.811  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:12.812  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:12.814  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:12.816  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:12.816  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:12.817  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:12.818  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:12.819  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:12.820  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:12.828  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:12.833  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:12.834  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:12.835  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:12.836  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:12.845  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:12.846  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:12.848  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:12.848  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:12.853  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:12.853  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:12.878  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:13.349  2448  6292 D AuthService: canAuthenticate, userId: 0, callingUserId: 0, authenticators: 33023, result: 0
+10-04 17:24:13.353  2448  6292 W WifiService: Permission violation - getScanResults not allowed for uid=10246, packageName=com.xingin.xhs, reason=java.lang.SecurityException: UID 10246 has no location permission
+10-04 17:24:13.398  2448  6292 D WifiNl80211Manager: Scan result ready event
+10-04 17:24:13.398  2448  6292 D WifiNative: Scan result ready event
+10-04 17:24:13.418  3601  3601 D HighSpeedTrainModeController: receive actionandroid.net.wifi.SCAN_RESULTS
+10-04 17:24:13.418  5377  5377 I WifiMonitor: receive Broadcast SCAN_RESULTS_AVAILABLE_ACTION,updated:true
+10-04 17:24:13.422  2448  3342 E AppScanObserverService: Result available, null observers for user: 0
+10-04 17:24:13.913  2448  2699 I SmartPower: com.xiaomi.metoknlp/10143(5351): idle->background(156964ms) R(broadcast start Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }) adj=200.
+10-04 17:24:13.915  5351  5351 I WifiMonitor: receive Broadcast SCAN_RESULTS_AVAILABLE_ACTION,updated:true
+10-04 17:24:13.916  2448  2699 W BroadcastQueue: SmartPower Denial: receiving Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) } ordered=false from android (uid 1000) to ProcessRecord{27b913e 31919:com.tencent.mm/u0a262}
+10-04 17:24:13.916  2448  2699 W BroadcastQueue: SmartPower Denial: receiving Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) } ordered=false from android (uid 1000) to ProcessRecord{27b913e 31919:com.tencent.mm/u0a262}
+10-04 17:24:13.927  6645 32419 I AIRC_PerceptionEventBus: event=WifiScanEvent,traceId=e9f4b743a6f34726a48b3d829876cc50 send result=true
+10-04 17:24:14.229  6311  6335 I ActivityThread: TrafficStats init done
+10-04 17:24:14.238  6311  6335 I ActivityThread: Miui Feature Init done
+10-04 17:24:14.271  1154  1154 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:14.285  1154  1154 I TEEC    : invoke, command=0x00000058, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:14.291  6337  6380 I ActivityThread: TrafficStats init done
+10-04 17:24:14.303  6337  6380 I ActivityThread: Miui Feature Init done
+10-04 17:24:14.335  6337  6412 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:24:15.428  6442  6467 I ActivityThread: TrafficStats init done
+10-04 17:24:15.450  6442  6467 I ActivityThread: Miui Feature Init done
+10-04 17:24:15.556  6442  6442 W Looper  : Loop again would have the queued messages be executed before this one completed.
+10-04 17:24:15.616  6503  6528 I ActivityThread: TrafficStats init done
+10-04 17:24:15.635  6503  6528 I ActivityThread: Miui Feature Init done
+10-04 17:24:16.033  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:16.035  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:16.038  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:16.039  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:16.040  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:16.040  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:16.041  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:16.042  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:16.043  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:16.044  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:16.051  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:16.055  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:16.055  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:16.056  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:16.056  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:16.063  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:16.064  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:16.065  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:16.065  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:16.068  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:16.069  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:16.086  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:16.494  6580  6605 I ActivityThread: TrafficStats init done
+10-04 17:24:16.516  6580  6605 I ActivityThread: Miui Feature Init done
+10-04 17:24:16.539  6580  6641 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:24:16.542  2448  5107 W WifiService: Permission violation - getScanResults not allowed for uid=10246, packageName=com.xingin.xhs, reason=java.lang.SecurityException: UID 10246 has no location permission
+10-04 17:24:16.549  2448  5107 D AuthService: canAuthenticate, userId: 0, callingUserId: 0, authenticators: 33023, result: 0
+10-04 17:24:16.552  6580  6643 D CameraInjector: waitForResult: 
+10-04 17:24:16.564  6580  6643 D CameraInjector: waitForResult: 
+10-04 17:24:16.564  6580  6643 D CameraInjector: waitForResult: 
+10-04 17:24:16.564  6580  6643 D CameraInjector: waitForResult: 
+10-04 17:24:16.564  6580  6643 D CameraInjector: waitForResult: 
+10-04 17:24:16.914  2448  3279 I SmartPower: com.xiaomi.metoknlp/10143(5351): background->idle(3001ms) R(broadcast start Intent { act=android.net.wifi.SCAN_RESULTS flg=0x4000010 (has extras) }) adj=200.
+10-04 17:24:17.059  6580  6684 W XMPush-6580: [Tid:53064] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:24:17.059  6580  6684 I MiPushMessageReceiver: onCommandResult: register
+10-04 17:24:17.059  6580  6684 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:24:17.059  6580  6684 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 17:24:17.059  6580  6684 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:24:17.063  6580  6684 W XMPush-6580: [Tid:53064] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:24:17.063  6580  6684 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 17:24:17.063  6580  6684 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 17:24:17.630  6686  6714 I ActivityThread: TrafficStats init done
+10-04 17:24:17.653  6686  6714 I ActivityThread: Miui Feature Init done
+10-04 17:24:17.672  6686  6751 W XMPush-6686: [Tid:53026] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:24:17.688  6686  6751 W XMPush-6686: [Tid:53026] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:24:17.707  6718  6742 I ActivityThread: TrafficStats init done
+10-04 17:24:17.727  6718  6742 I ActivityThread: Miui Feature Init done
+10-04 17:24:17.840  6718  6718 W Looper  : Loop again would have the queued messages be executed before this one completed.
+10-04 17:24:17.906  6787  6813 I ActivityThread: TrafficStats init done
+10-04 17:24:17.930  6787  6813 I ActivityThread: Miui Feature Init done
+10-04 17:24:18.299  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:18.301  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:18.304  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:18.306  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:18.307  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:18.308  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:18.309  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:18.311  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:18.312  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:18.313  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:18.319  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:18.323  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:18.324  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:18.325  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:18.326  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:18.333  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:18.334  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:18.335  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:18.336  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:18.340  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:18.340  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:18.361  1438  1438 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:18.852  2448  6281 D AuthService: canAuthenticate, userId: 0, callingUserId: 0, authenticators: 33023, result: 0
+10-04 17:24:18.858  2448  6281 W WifiService: Permission violation - getScanResults not allowed for uid=10246, packageName=com.xingin.xhs, reason=java.lang.SecurityException: UID 10246 has no location permission
+10-04 17:24:19.807  6914  6951 I ActivityThread: TrafficStats init done
+10-04 17:24:19.814  6906  6950 I ActivityThread: TrafficStats init done
+10-04 17:24:19.823  6914  6951 I ActivityThread: Miui Feature Init done
+10-04 17:24:19.827  6906  6950 I ActivityThread: Miui Feature Init done
+10-04 17:24:19.858  1154  1154 I TEEC    : invoke, command=0x00000000, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:19.871  6906  6987 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:24:19.873  1154  1154 I TEEC    : invoke, command=0x00000058, result=0x00000000, oresult=0x00000004, res=0x00000000
+10-04 17:24:19.877  6906  6990 D CameraInjector: waitForResult: 
+10-04 17:24:19.884  6906  6990 D CameraInjector: waitForResult: 
+10-04 17:24:19.884  6906  6990 D CameraInjector: waitForResult: 
+10-04 17:24:19.884  6906  6990 D CameraInjector: waitForResult: 
+10-04 17:24:19.884  6906  6990 D CameraInjector: waitForResult: 
+10-04 17:24:20.954  7027  7048 I ActivityThread: TrafficStats init done
+10-04 17:24:20.978  7027  7048 I ActivityThread: Miui Feature Init done
+10-04 17:24:23.162  7067  7091 I ActivityThread: TrafficStats init done
+10-04 17:24:23.188  7067  7091 I ActivityThread: Miui Feature Init done
+10-04 17:24:23.217  7067  7115 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:24:23.225  7067  7117 D CameraInjector: waitForResult: 
+10-04 17:24:23.228  7067  7117 D CameraInjector: waitForResult: 
+10-04 17:24:23.228  7067  7117 D CameraInjector: waitForResult: 
+10-04 17:24:23.228  7067  7117 D CameraInjector: waitForResult: 
+10-04 17:24:23.228  7067  7117 D CameraInjector: waitForResult: 
+10-04 17:24:23.730  7067  7151 W XMPush-7067: [Tid:53099] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:24:23.730  7067  7151 I MiPushMessageReceiver: onCommandResult: register
+10-04 17:24:23.730  7067  7151 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:24:23.731  7067  7151 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 17:24:23.731  7067  7151 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:24:23.735  7067  7151 W XMPush-7067: [Tid:53099] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:24:23.735  7067  7151 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 17:24:23.735  7067  7151 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 17:24:57.713  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 17:25:07.574 30403 30535 I AppScanStats: BLE_SCAN_RESULT_RECEIVED[2]reportBleScanResults=0
+10-04 17:25:50.381 20506 20506 I adbd    : in ShellService: export ANDROID_LOG_TAGS=''; exec logcat '-d'
+10-04 17:25:55.243  3332  3338 I WifiHAL : Done!
+10-04 17:25:55.247  3332  3338 I WifiHAL : Done!
+10-04 17:25:55.249  3332  3338 I WifiHAL : Done!
+10-04 17:25:57.719  2448  3267 D HyperStabilitySdkService: checkDmabufStatus done, exceedLimitsList:[], totalDmabufSize:0
+10-04 17:26:07.632 30403 30528 I AppScanStats: BLE_SCAN_RESULT_RECEIVED[2]reportBleScanResults=0
+10-04 17:26:17.388 30403 30451 I bluetooth: le_address_manager.cc:614 OnCommandComplete: Received command complete with op_code LE_SET_RANDOM_ADDRESS
+10-04 17:26:17.388 30403 30451 I bluetooth: le_address_manager.cc:635 OnCommandComplete: update random address : xx:xx:xx:xx:d3:56
+10-04 17:26:25.323  7208  7228 I ActivityThread: TrafficStats init done
+10-04 17:26:25.342  7208  7228 I ActivityThread: Miui Feature Init done
+10-04 17:26:25.376  2448  2514 I ActivityManager: Broadcast completed: result=0
+10-04 17:26:25.922  2448  2514 I ActivityManager: Broadcast completed: result=0
+10-04 17:26:26.115 20506 20506 I adbd    : in ShellService: export ANDROID_LOG_TAGS=''; exec logcat '-d'
+10-04 17:26:27.518  7258  7278 I ActivityThread: TrafficStats init done
+10-04 17:26:27.535  7258  7278 I ActivityThread: Miui Feature Init done
+10-04 17:26:27.567  7258  7306 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:26:27.575  7258  7310 D CameraInjector: waitForResult: 
+10-04 17:26:27.595  7258  7310 D CameraInjector: waitForResult: 
+10-04 17:26:27.595  7258  7310 D CameraInjector: waitForResult: 
+10-04 17:26:27.595  7258  7310 D CameraInjector: waitForResult: 
+10-04 17:26:27.595  7258  7310 D CameraInjector: waitForResult: 
+10-04 17:26:27.596  2448  2514 I ActivityManager: Broadcast completed: result=0
+10-04 17:26:28.080  7258  7358 W XMPush-7258: [Tid:53109] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:26:28.080  7258  7358 I MiPushMessageReceiver: onCommandResult: register
+10-04 17:26:28.080  7258  7358 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:26:28.080  7258  7358 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 17:26:28.080  7258  7358 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:26:28.084  7258  7358 W XMPush-7258: [Tid:53109] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:26:28.084  7258  7358 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 17:26:28.084  7258  7358 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 17:26:28.652  7362  7387 I ActivityThread: TrafficStats init done
+10-04 17:26:28.674  7362  7387 I ActivityThread: Miui Feature Init done
+10-04 17:26:28.692  7362  7403 W XMPush-7362: [Tid:53071] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:26:28.698  7362  7403 W XMPush-7362: [Tid:53071] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:26:29.230  4919 19105 I PickerSyncTracker: Marked sync future complete for work id: 68acc82d-7270-4eb3-8059-bbfbb7400aaf. Future map: {}
+10-04 17:26:29.230  4919 19105 I PSyncWorker: Completed picker proactive sync complete from local provider.
+10-04 17:26:29.233  4919  5136 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=68acc82d-7270-4eb3-8059-bbfbb7400aaf, tags={ com.android.providers.media.photopicker.sync.ProactiveSyncWorker } ]
+10-04 17:26:30.161  2448  2514 I ActivityManager: Broadcast completed: result=0
+10-04 17:26:30.839  7418  7442 I ActivityThread: TrafficStats init done
+10-04 17:26:30.853  7418  7442 I ActivityThread: Miui Feature Init done
+10-04 17:26:30.887  7418  7474 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:26:30.895  7418  7478 D CameraInjector: waitForResult: 
+10-04 17:26:30.901  7418  7478 D CameraInjector: waitForResult: 
+10-04 17:26:30.901  7418  7478 D CameraInjector: waitForResult: 
+10-04 17:26:30.901  7418  7478 D CameraInjector: waitForResult: 
+10-04 17:26:30.901  7418  7478 D CameraInjector: waitForResult: 
+10-04 17:26:31.805  4919  8057 I PickerSyncTracker: Marked sync future complete for work id: ac54a350-6e80-4f4b-a314-82fa644a362e. Future map: {}
+10-04 17:26:31.805  4919  8057 I PSyncWorker: Completed picker proactive sync complete from local provider.
+10-04 17:26:31.807  4919  5136 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=ac54a350-6e80-4f4b-a314-82fa644a362e, tags={ com.android.providers.media.photopicker.sync.ProactiveSyncWorker } ]
+10-04 17:26:31.978  7529  7553 I ActivityThread: TrafficStats init done
+10-04 17:26:31.997  7529  7553 I ActivityThread: Miui Feature Init done
+10-04 17:26:32.828  7574  7597 I ActivityThread: TrafficStats init done
+10-04 17:26:32.839  7574  7597 I ActivityThread: Miui Feature Init done
+10-04 17:26:32.861  2448  2514 I ActivityManager: Broadcast completed: result=0
+10-04 17:26:34.492  4919  5838 I PickerSyncTracker: Marked sync future complete for work id: b81becf6-fcfc-4cdc-9c82-449873df8e50. Future map: {}
+10-04 17:26:34.493  4919  5838 I PSyncWorker: Completed picker proactive sync complete from local provider.
+10-04 17:26:34.496  4919  5230 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=b81becf6-fcfc-4cdc-9c82-449873df8e50, tags={ com.android.providers.media.photopicker.sync.ProactiveSyncWorker } ]
+10-04 17:26:35.062  7609  7633 I ActivityThread: TrafficStats init done
+10-04 17:26:35.087  7609  7633 I ActivityThread: Miui Feature Init done
+10-04 17:26:35.108  7609  7658 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:26:35.116  7609  7660 D CameraInjector: waitForResult: 
+10-04 17:26:35.123  7609  7660 D CameraInjector: waitForResult: 
+10-04 17:26:35.123  7609  7660 D CameraInjector: waitForResult: 
+10-04 17:26:35.123  7609  7660 D CameraInjector: waitForResult: 
+10-04 17:26:35.123  7609  7660 D CameraInjector: waitForResult: 
+10-04 17:26:35.418  2448  2514 I ActivityManager: Broadcast completed: result=0
+10-04 17:26:35.536 20506 20506 I adbd    : in ShellService: export ANDROID_LOG_TAGS=''; exec logcat '-d'
+10-04 17:26:35.629  7609  7706 W XMPush-7609: [Tid:53134] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:26:35.629  7609  7706 I MiPushMessageReceiver: onCommandResult: register
+10-04 17:26:35.629  7609  7706 I MiPushMessageReceiver: onCommandResult, mRegId:P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:26:35.629  7609  7706 I MiPushMessageReceiver: onReceiveRegisterResult: register
+10-04 17:26:35.629  7609  7706 I MiPushMessageReceiver: onReceiveRegisterResult, mRegId: P760CW6i1hFyoGXjrrjc072Lf3IRmyfOPiKB0c34t/WRz4hHr3uWg5PXV0WcQ2tG
+10-04 17:26:35.632  7609  7706 W XMPush-7609: [Tid:53134] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:26:35.632  7609  7706 I MiPushMessageReceiver: onCommandResult: subscribe-topic
+10-04 17:26:35.632  7609  7706 I MiPushMessageReceiver: onCommandResult, mTopic:topic_cloud_config_message
+10-04 17:26:36.187  7708  7730 I ActivityThread: TrafficStats init done
+10-04 17:26:36.206  7708  7730 I ActivityThread: Miui Feature Init done
+10-04 17:26:36.230  7708  7745 W XMPush-7708: [Tid:53096] (Local) begin execute onCommandResult, command=register, resultCode=0, reason=null
+10-04 17:26:36.235  7708  7745 W XMPush-7708: [Tid:53096] (Local) begin execute onCommandResult, command=subscribe-topic, resultCode=0, reason=null
+10-04 17:26:36.622 20506 20506 I adbd    : in ShellService: export ANDROID_LOG_TAGS=''; exec logcat '-d'
+10-04 17:26:37.058  4919 10092 I PickerSyncTracker: Marked sync future complete for work id: 311f30bf-cfc9-4ef9-9dbc-56c0318b1aae. Future map: {}
+10-04 17:26:37.058  4919 10092 I PSyncWorker: Completed picker proactive sync complete from local provider.
+10-04 17:26:37.061  4919  5233 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=311f30bf-cfc9-4ef9-9dbc-56c0318b1aae, tags={ com.android.providers.media.photopicker.sync.ProactiveSyncWorker } ]
+10-04 17:26:37.754 20506 20506 I adbd    : in ShellService: screencap -p /sdcard/results_state.png
+10-04 17:26:38.216  4919  4919 I MediaProvider: receive action = android.intent.action.MEDIA_SCANNER_SCAN_FILE schemeSpecificPart = ///sdcard/results_state.png
+10-04 17:26:38.231  2448  2514 I ActivityManager: Broadcast completed: result=0
+10-04 17:26:38.318 20506 20506 I adbd    : in ShellService: rm /sdcard/results_state.png
+10-04 17:26:38.364  7760  7782 I ActivityThread: TrafficStats init done
+10-04 17:26:38.372 20506 20506 I adbd    : in ShellService: export ANDROID_LOG_TAGS=''; exec logcat '-d'
+10-04 17:26:38.395  7760  7782 I ActivityThread: Miui Feature Init done
+10-04 17:26:38.422  7760  7818 I MCAM_PerformanceManager: [P_PERFORM]: check result: mIsOriginApp = true
+10-04 17:26:38.428  7760  7820 D CameraInjector: waitForResult: 
+10-04 17:26:38.437  7760  7820 D CameraInjector: waitForResult: 
+10-04 17:26:38.437  7760  7820 D CameraInjector: waitForResult: 
+10-04 17:26:38.437  7760  7820 D CameraInjector: waitForResult: 
+10-04 17:26:38.437  7760  7820 D CameraInjector: waitForResult: 
+10-04 17:26:39.451 20506 20506 I adbd    : in ShellService: export ANDROID_LOG_TAGS=''; exec logcat '-d'
+10-04 17:26:39.505  7855  7880 I ActivityThread: TrafficStats init done
+10-04 17:26:39.525  7855  7880 I ActivityThread: Miui Feature Init done
+10-04 17:26:39.879  4919 12045 I PickerSyncTracker: Marked sync future complete for work id: 028cc4c2-2518-4c64-a489-d56808ebf78a. Future map: {}
+10-04 17:26:39.879  4919 12045 I PSyncWorker: Completed picker proactive sync complete from local provider.
+10-04 17:26:39.881  4919  5136 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=028cc4c2-2518-4c64-a489-d56808ebf78a, tags={ com.android.providers.media.photopicker.sync.ProactiveSyncWorker } ]
+
+### Error Logs
+10-04 16:04:01.340  2448  6191 E ActivityStarterImpl: Error: Activity class {com.mira.com.debug/com.mira.com.whisper.WhisperStep2Activity} does not exist.
+10-04 16:04:07.817  2448  3862 E ActivityStarterImpl: Error: Activity class {com.mira.com.t.xi/com.mira.com.whisper.WhisperStep2Activity} does not exist.
+10-04 16:04:17.544  2448  3566 E ActivityStarterImpl: Error: Activity class {com.mira.com.t.xi/com.mira.com.whisper.WhisperStep2Activity} does not exist.
+10-04 16:04:22.487  2448  6586 E ActivityStarterImpl: Error: Activity class {com.mira.com.t.xi/com.mira.com.whisper.WhisperStep2Activity} does not exist.
+10-04 16:08:23.264  2448  2506 E ActivityStarterImpl: Error: Activity class {com.mira.com/com.mira.clip.Clip4ClipActivity} does not exist.
+10-04 16:08:28.268  2448  6582 E ActivityStarterImpl: Error: Activity class {com.mira.com/com.mira.clip.Clip4ClipActivity} does not exist.
+10-04 16:08:34.947  2448  4035 E ActivityStarterImpl: Error: Activity class {com.mira.com/com.mira.clip.Clip4ClipActivity} does not exist.
+10-04 16:10:22.457  2448  4028 W WindowManager: Exception thrown during dispatchAppVisibility Window{1615e57 u0 com.mira.com/com.mira.com.whisper.WhisperStep2Activity EXITING}
+10-04 16:11:34.988  2448  6582 E ActivityStarterImpl: Error: Activity class {com.mira.com.t.xi/com.mira.videoeditor.MainActivity} does not exist.
+10-04 16:12:31.995  2448  6191 W WindowManager: Exception thrown during dispatchAppVisibility Window{9e38de5 u0 com.mira.com/com.mira.com.whisper.WhisperStep2Activity EXITING}
+10-04 16:15:39.575  2448  3787 E ActivityStarterImpl: Error: Activity class {com.mira.com.t.xi/com.mira.com.whisper.WhisperStep1Activity} does not exist.
+10-04 16:15:43.682  2448  5107 E ActivityStarterImpl: Error: Activity class {com.mira.com.t.xi/com.mira.com.whisper.WhisperStep1Activity} does not exist.
+10-04 16:20:25.013  2448  2986 W WindowManager: Exception thrown during dispatchAppVisibility Window{4c0173d u0 com.mira.com/com.mira.clip.Clip4ClipActivity EXITING}
+10-04 16:25:06.585  2448  5105 E ActivityStarterImpl: Error: Activity class {com.mira.videoeditor/com.mira.com.whisper.WhisperStep2Activity} does not exist.
+10-04 16:25:09.902  2448  5105 E ActivityStarterImpl: Error: Activity class {com.mira.videoeditor/com.mira.com.whisper.WhisperStep2Activity} does not exist.
+10-04 16:25:24.550  2448  5105 E ActivityStarterImpl: Error: Activity class {com.mira.videoeditor/com.mira.com.whisper.WhisperStep1Activity} does not exist.
+10-04 16:26:19.094  2448  3864 W WindowManager: Exception thrown during dispatchAppVisibility Window{946812e u0 com.mira.com/com.mira.com.whisper.WhisperStep1Activity EXITING}
+10-04 17:02:54.207 25932 25932 I artd    : OatFileAssistant test for existing oat file /data/app/~~xmgOBgQraBWsftSPEIASjA==/com.mira.com-l9yjrJMpBOGQ44ryOKh2yw==/base.dm: I/O error
+10-04 17:02:54.207 25932 25932 I artd    : OatFileAssistant test for existing oat file /data/app/~~xmgOBgQraBWsftSPEIASjA==/com.mira.com-l9yjrJMpBOGQ44ryOKh2yw==/base.dm: I/O error
+10-04 17:10:00.414 13198 17178 D com.mira.com: MWDF parse error: Bad file descriptor
+10-04 17:19:13.673 13198 17178 D com.mira.com: MWDF parse error: Bad file descriptor
+10-04 17:20:16.879  2448  3787 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:16.882  2448  3787 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:16.885  3374  3810 D Launcher.LauncherUtils: android.content.pm.PackageManager$NameNotFoundException: com.mira.com
+10-04 17:20:16.885  3374  3810 D Launcher.LauncherUtils: android.content.pm.PackageManager$NameNotFoundException: com.mira.com
+10-04 17:20:16.886  2448  3787 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:16.897  2448  5105 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:16.900  2448  5105 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:16.907  2448  3862 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:16.915  2448  6284 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:16.926  2448  2987 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:16.930  2448  5095 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:16.936 22859 32582 E PackageUtils: android.content.pm.PackageManager$NameNotFoundException: com.mira.com
+10-04 17:20:16.936 22859 32582 E PackageUtils: android.content.pm.PackageManager$NameNotFoundException: com.mira.com
+10-04 17:20:16.987  2448  4035 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:16.995  2448  4026 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:16.998  2448  3859 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:17.007  2448  3859 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:17.009  2448  3859 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:17.012  2448  5095 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:17.017  2448  5095 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:17.023  2448  5095 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:17.026  2448  5095 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:17.029  2448  2987 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:17.036  2448  2987 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:17.038  2448  3859 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:17.039  2448  3859 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:17.044  3374  3858 W System.err: android.content.pm.PackageManager$NameNotFoundException: com.mira.com
+10-04 17:20:17.045  3374  3858 W System.err: android.content.pm.PackageManager$NameNotFoundException: com.mira.com.t.xi
+10-04 17:20:17.047  2448  2988 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:17.056  2448  4025 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:17.065  2448  4025 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:17.073  2448  2987 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:17.081  2448  2987 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:17.089  2448  6276 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:17.097  2448  5095 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:17.104  2448  2987 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:17.107  2448  2987 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:17.108  2448  4035 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:17.114  2448  5095 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:17.123  2448  6276 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:17.132  2448  6276 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:17.148  2448  4026 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:17.163  2448  4035 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:17.309  2448  4026 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:17.346 28044 28044 E PackageMonitor: query installer failed caused by android.content.pm.PackageManager$NameNotFoundException: com.mira.com
+10-04 17:20:17.375  2448  5107 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:17.431  2448  4026 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:17.894  2448  4026 W WindowManager: Exception thrown during dispatchAppVisibility Window{e87fdf1 u0 com.mira.com/com.mira.clip.Clip4ClipActivity EXITING}
+10-04 17:20:17.897  2448  4026 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:20:17.900  2448  4026 E AppOps  : java.lang.SecurityException: Specified package "com.mira.com" under uid 10298 but it is not
+10-04 17:21:05.801  2448 28138 D ProfileTranscode: com.mira.com read profile exception: java.io.FileNotFoundException: dexopt/baseline.prof
+10-04 17:21:06.006  3374  3823 W System.err: android.content.pm.PackageManager$NameNotFoundException: com.mira.com.t.xi
+10-04 17:21:06.017  3374  3854 W System.err: android.content.pm.PackageManager$NameNotFoundException: com.mira.com.t.xi
+10-04 17:21:15.614 25510 32099 D com.mira.com: MWDF parse error: No such file or directory
+10-04 17:21:15.629 25510 32099 D com.mira.com: MWDF parse error: Bad file descriptor
+10-04 17:21:16.499  3374  3854 W System.err: android.content.pm.PackageManager$NameNotFoundException: com.mira.com.t.xi
+10-04 17:21:35.301 29990 29990 I artd    : OatFileAssistant test for existing oat file /data/app/~~MSKqyj0MTK8qIxnvh6_TWw==/com.mira.com-BIjN6eQfiUmkNXBD4q9sPw==/base.dm: I/O error
+10-04 17:21:35.301 29990 29990 I artd    : OatFileAssistant test for existing oat file /data/app/~~MSKqyj0MTK8qIxnvh6_TWw==/com.mira.com-BIjN6eQfiUmkNXBD4q9sPw==/base.dm: I/O error
+
+## Conclusion
+
+The focused batch test provides insights into the current state of the whisper processing pipeline. The test captures screenshots and logs at each step to verify functionality.
+

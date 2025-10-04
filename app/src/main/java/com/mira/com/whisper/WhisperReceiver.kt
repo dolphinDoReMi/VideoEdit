@@ -91,21 +91,18 @@ class WhisperReceiver : BroadcastReceiver() {
         try {
             Log.d(TAG, "Processing Whisper job $jobId: $uri")
             
-            // TODO: Implement actual Whisper processing
-            // This would involve:
-            // 1. Loading the audio/video file
-            // 2. Running whisper.cpp with the specified model
-            // 3. Generating transcript and segments
-            // 4. Computing SHA hashes for verification
-            // 5. Updating the sidecar file with results
+            // Use the actual WhisperApi to enqueue real processing
+            com.mira.com.feature.whisper.api.WhisperApi.enqueueTranscribe(
+                context = context,
+                uri = uri,
+                model = modelPath,
+                threads = threads,
+                beam = 0,
+                lang = "auto",
+                translate = false
+            )
             
-            // For now, simulate processing
-            Thread.sleep(2000) // Simulate processing time
-            
-            // Update sidecar with mock results
-            updateSidecarWithResults(context, jobId, rtf = 0.5)
-            
-            Log.d(TAG, "Completed Whisper job: $jobId")
+            Log.d(TAG, "Enqueued Whisper job $jobId for real processing")
             
         } catch (e: Exception) {
             Log.e(TAG, "Error processing Whisper job $jobId: ${e.message}", e)
