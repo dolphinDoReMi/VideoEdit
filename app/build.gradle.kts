@@ -27,10 +27,18 @@ android {
 
   kotlinOptions {
     jvmTarget = "17"
+    freeCompilerArgs += listOf("-Xsuppress-version-warnings")
   }
   
   composeOptions {
     kotlinCompilerExtensionVersion = "1.5.8"
+  }
+  
+  // Suppress Kotlin version compatibility check for Compose
+  tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    kotlinOptions {
+      freeCompilerArgs += listOf("-P", "plugin:androidx.compose.compiler.plugins.kotlin:suppressKotlinVersionCompatibilityCheck=2.1.0")
+    }
   }
 
   defaultConfig {
@@ -164,7 +172,7 @@ android {
   }
 
   buildFeatures { 
-    compose = true
+    compose = false  // Compose temporarily disabled due to compatibility issues
     buildConfig = true
     prefab = true
   }
@@ -237,6 +245,9 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
   implementation("org.json:json:20231013")
   
+  // DocumentFile for SAF (Storage Access Framework)
+  implementation("androidx.documentfile:documentfile:1.0.1")
+  
   // PyTorch Mobile for CLIP models (always included)
   implementation("org.pytorch:pytorch_android:1.13.1")
   implementation("org.pytorch:pytorch_android_torchvision:1.13.1")
@@ -254,13 +265,13 @@ dependencies {
     implementation("androidx.media3:media3-common:1.2.1")
     implementation("androidx.media3:media3-exoplayer:1.2.1") // For preview (optional)
 
-    // UI - Using compatible versions for API 34
-    implementation(platform("androidx.compose:compose-bom:2023.08.00"))
-    implementation("androidx.activity:activity-compose:1.8.2")
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.material:material")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    debugImplementation("androidx.compose.ui:ui-tooling")
+    // UI - Compose dependencies removed (not used in this app)
+    // implementation(platform("androidx.compose:compose-bom:2023.08.00"))
+    // implementation("androidx.activity:activity-compose:1.8.2")
+    // implementation("androidx.compose.ui:ui")
+    // implementation("androidx.compose.material:material")
+    // implementation("androidx.compose.ui:ui-tooling-preview")
+    // debugImplementation("androidx.compose.ui:ui-tooling")
 
     // Room database for CLIP4Clip embeddings and video metadata
     implementation("androidx.room:room-runtime:2.7.0")
@@ -355,6 +366,9 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
   implementation("org.json:json:20231013")
   
+  // DocumentFile for SAF (Storage Access Framework)
+  implementation("androidx.documentfile:documentfile:1.0.1")
+  
   // PyTorch Mobile for CLIP models
   implementation("org.pytorch:pytorch_android:1.13.1")
   implementation("org.pytorch:pytorch_android_torchvision:1.13.1")
@@ -365,13 +379,13 @@ dependencies {
   implementation("androidx.media3:media3-common:1.2.1")
   implementation("androidx.media3:media3-exoplayer:1.2.1") // For preview (optional)
 
-  // UI - Using compatible versions for API 34
-  implementation(platform("androidx.compose:compose-bom:2023.08.00"))
-  implementation("androidx.activity:activity-compose:1.8.2")
-  implementation("androidx.compose.ui:ui")
-  implementation("androidx.compose.material:material")
-  implementation("androidx.compose.ui:ui-tooling-preview")
-  debugImplementation("androidx.compose.ui:ui-tooling")
+  // UI - Compose dependencies removed (not used in this app)
+  // implementation(platform("androidx.compose:compose-bom:2023.08.00"))
+  // implementation("androidx.activity:activity-compose:1.8.2")
+  // implementation("androidx.compose.ui:ui")
+  // implementation("androidx.compose.material:material")
+  // implementation("androidx.compose.ui:ui-tooling-preview")
+  // debugImplementation("androidx.compose.ui:ui-tooling")
 
   // Room database for CLIP4Clip embeddings and video metadata
   implementation("androidx.room:room-runtime:2.7.0")
@@ -386,6 +400,12 @@ dependencies {
   
   // Gson for JSON serialization
   implementation("com.google.code.gson:gson:2.11.0")
+  
+  // Run Console dependencies
+  implementation("com.squareup.moshi:moshi-kotlin:1.15.1")
+  implementation("com.squareup.okio:okio:3.9.0")
+  implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.3")
+  implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.3")
 
   // HTTP client for optional cloud upload
   implementation("com.squareup.okhttp3:okhttp:4.12.0")

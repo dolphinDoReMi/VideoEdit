@@ -55,9 +55,9 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         
-        <!-- Main Activity -->
+        <!-- Main Activity - Whisper Step 1 (Staging) -->
         <activity 
-            android:name="com.mira.clip.Clip4ClipActivity"
+            android:name="com.mira.com.whisper.WhisperStep1Activity"
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Mira">
@@ -74,9 +74,44 @@
             </intent-filter>
         </activity>
 
+        <!-- Clip4Clip Service Activity (Secondary) -->
+        <activity 
+            android:name="com.mira.clip.Clip4ClipActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Mira">
+            <!-- File association for video files -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="video/*" />
+            </intent-filter>
+        </activity>
+
         <!-- Debug Embedding Activity (foreground generator) -->
         <activity
             android:name="com.mira.clip.debug.DebugEmbeddingActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Mira" />
+        
+        <!-- Whisper Step-2 Activity -->
+        <activity
+            android:name="com.mira.com.whisper.WhisperStep2Activity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Mira" />
+
+        <!-- Whisper Run Console Activity -->
+        <activity
+            android:name="com.mira.com.whisper.WhisperRunConsoleActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Mira" />
+
+        <!-- Whisper Step-3 Activity -->
+        <activity
+            android:name="com.mira.com.whisper.WhisperStep3Activity"
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Mira" />
@@ -134,6 +169,19 @@
                 <action android:name="com.mira.videoeditor.debug.VERIFY_REPRESENTATION" />
                 <action android:name="com.mira.videoeditor.debug.VERIFY_RETRIEVAL" />
                 <action android:name="com.mira.videoeditor.debug.VERIFY_REPRODUCIBILITY" />
+            </intent-filter>
+        </receiver>
+        
+        <!-- Whisper Broadcast Receiver -->
+        <receiver
+            android:name="com.mira.com.whisper.WhisperReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.mira.whisper.RUN" />
+                <action android:name="com.mira.whisper.EXPORT" />
+                <action android:name="com.mira.whisper.VERIFY" />
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </receiver>
         

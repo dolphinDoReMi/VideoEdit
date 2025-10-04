@@ -1,0 +1,30 @@
+{
+  "text": "[No audio track found in video]",
+  "segments": [
+    {
+      "id": 0,
+      "seek": 0,
+      "start": 0.0,
+      "end": 5.0,
+      "text": "[No audio track found in video]",
+      "tokens": [],
+      "temperature": 0.0,
+      "avg_logprob": 0.0,
+      "compression_ratio": 0.0,
+      "no_speech_prob": 1.0
+    }
+  ],
+  "language": "en",
+  "duration": 5.0,
+  "rtf": 0.0,
+  "model": "whisper-tiny.en-q5_1",
+  "processing_time": 0.0,
+  "timestamp": "2025-10-03T23:54:00Z",
+  "device": "Xiaomi Pad Ultra (25032RP42C)",
+  "android_version": "15",
+  "architecture": "arm64-v8a",
+  "extraction_method": "Media3 Transformer (simulated)",
+  "video_file": "video_v1.mp4",
+  "audio_extracted": false,
+  "reason": "No audio stream in source video"
+}

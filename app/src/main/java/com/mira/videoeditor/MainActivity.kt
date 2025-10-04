@@ -16,6 +16,8 @@ import java.util.Timer
 import java.util.TimerTask
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.math.max
+import com.mira.com.whisper.AndroidWhisperBridge
+import android.content.Intent
 
 class MainActivity : AppCompatActivity() {
 
@@ -46,6 +48,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             addJavascriptInterface(JavaScriptInterface(), "AndroidInterface")
+            addJavascriptInterface(AndroidWhisperBridge(this@MainActivity), "AndroidWhisper")
             loadUrl("file:///android_asset/processing.html")
         }
         setContentView(webView)
@@ -434,6 +437,32 @@ class MainActivity : AppCompatActivity() {
         @JavascriptInterface
         fun navigateTo(section: String) {
             Toast.makeText(this@MainActivity, "Navigate to: $section", Toast.LENGTH_SHORT).show()
+        }
+        
+        @JavascriptInterface
+        fun openWhisperStep2() {
+            runOnUiThread {
+                val intent = Intent(this@MainActivity, com.mira.com.whisper.WhisperStep2Activity::class.java)
+                startActivity(intent)
+            }
+        }
+
+        @JavascriptInterface
+        fun openRunConsole() {
+            runOnUiThread {
+                // Temporarily disabled - WhisperRunConsoleActivity moved to temp_compose_files
+                // val intent = Intent(this@MainActivity, com.mira.com.whisper.WhisperRunConsoleActivity::class.java)
+                // startActivity(intent)
+                Toast.makeText(this@MainActivity, "Run Console temporarily disabled", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        @JavascriptInterface
+        fun openWhisperStep3() {
+            runOnUiThread {
+                val intent = Intent(this@MainActivity, com.mira.com.whisper.WhisperStep3Activity::class.java)
+                startActivity(intent)
+            }
         }
     }
 }

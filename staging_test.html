@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Staging Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white p-4">
+    <h1>Staging Step 0 Test</h1>
+    <div id="test-results"></div>
+    
+    <script>
+        // Test the staging functionality
+        function runTests() {
+            const results = document.getElementById('test-results');
+            let html = '<h2>Test Results:</h2><ul>';
+            
+            // Test 1: Check if StagingBridge is available
+            if (typeof window.StagingBridge !== 'undefined') {
+                html += '<li style="color: green;">✅ StagingBridge available</li>';
+            } else {
+                html += '<li style="color: orange;">⚠️ StagingBridge not available (using mock)</li>';
+            }
+            
+            // Test 2: Check if staging section exists
+            const stagingSection = document.getElementById('staging');
+            if (stagingSection) {
+                html += '<li style="color: green;">✅ Staging section found</li>';
+            } else {
+                html += '<li style="color: red;">❌ Staging section not found</li>';
+            }
+            
+            // Test 3: Check if mock bridge works
+            try {
+                if (typeof window.StagingBridge === 'undefined') {
+                    // Load the staging script from whisper-step1.html
+                    const script = document.createElement('script');
+                    script.src = 'app/src/main/assets/web/whisper-step1.html';
+                    document.head.appendChild(script);
+                    
+                    setTimeout(() => {
+                        if (typeof window.StagingBridge !== 'undefined' || 
+                            (window.StagingBridge && window.StagingBridge.addTree)) {
+                            html += '<li style="color: green;">✅ Mock bridge functional</li>';
+                        } else {
+                            html += '<li style="color: red;">❌ Mock bridge not functional</li>';
+                        }
+                        results.innerHTML = html + '</ul>';
+                    }, 1000);
+                } else {
+                    html += '<li style="color: green;">✅ Native bridge functional</li>';
+                    results.innerHTML = html + '</ul>';
+                }
+            } catch (e) {
+                html += '<li style="color: red;">❌ Bridge test failed: ' + e.message + '</li>';
+                results.innerHTML = html + '</ul>';
+            }
+        }
+        
+        // Run tests when page loads
+        window.onload = runTests;
+    </script>
+</body>
+</html>

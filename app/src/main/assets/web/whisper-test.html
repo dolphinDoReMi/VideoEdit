@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Whisper Step-2 Test</title>
+</head>
+<body class="bg-gray-900 text-white p-6">
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6">Whisper Step-2 Integration Test</h1>
+        
+        <div class="bg-gray-800 rounded-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Bridge Status</h2>
+            <div id="bridge-status" class="text-yellow-400">Checking...</div>
+        </div>
+        
+        <div class="bg-gray-800 rounded-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Test Operations</h2>
+            <div class="space-y-4">
+                <button id="test-run" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">
+                    Test Run Operation
+                </button>
+                <button id="test-list" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded">
+                    Test List Sidecars
+                </button>
+                <button id="test-verify" class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded">
+                    Test Verify Operation
+                </button>
+                <button id="test-export" class="bg-orange-600 hover:bg-orange-700 px-4 py-2 rounded">
+                    Test Export Operation
+                </button>
+            </div>
+        </div>
+        
+        <div class="bg-gray-800 rounded-lg p-6">
+            <h2 class="text-xl font-semibold mb-4">Test Results</h2>
+            <div id="test-results" class="text-sm font-mono whitespace-pre-wrap"></div>
+        </div>
+    </div>
+
+    <script>
+        const results = document.getElementById('test-results');
+        const bridgeStatus = document.getElementById('bridge-status');
+        
+        function log(message) {
+            results.textContent += new Date().toLocaleTimeString() + ': ' + message + '\n';
+            console.log(message);
+        }
+        
+        function checkBridge() {
+            if (window.AndroidWhisper) {
+                bridgeStatus.textContent = '✓ AndroidWhisper bridge available';
+                bridgeStatus.className = 'text-green-400';
+                log('AndroidWhisper bridge is available');
+            } else {
+                bridgeStatus.textContent = '✗ AndroidWhisper bridge not available';
+                bridgeStatus.className = 'text-red-400';
+                log('AndroidWhisper bridge is NOT available');
+            }
+        }
+        
+        function testRun() {
+            log('Testing run operation...');
+            try {
+                const payload = JSON.stringify({
+                    uri: 'file:///sdcard/test.mp4',
+                    preset: 'Single',
+                    modelPath: '/sdcard/models/ggml-small-q5_1.bin',
+                    threads: 2
+                });
+                const jobId = window.AndroidWhisper.run(payload);
+                log('Run operation returned job ID: ' + jobId);
+            } catch (e) {
+                log('Run operation failed: ' + e.message);
+            }
+        }
+        
+        function testList() {
+            log('Testing list sidecars...');
+            try {
+                const sidecars = window.AndroidWhisper.listSidecars();
+                log('List sidecars returned: ' + sidecars);
+            } catch (e) {
+                log('List sidecars failed: ' + e.message);
+            }
+        }
+        
+        function testVerify() {
+            log('Testing verify operation...');
+            try {
+                const result = window.AndroidWhisper.verify('test_job_id');
+                log('Verify operation returned: ' + result);
+            } catch (e) {
+                log('Verify operation failed: ' + e.message);
+            }
+        }
+        
+        function testExport() {
+            log('Testing export operation...');
+            try {
+                window.AndroidWhisper.export('test_job_id');
+                log('Export operation completed');
+            } catch (e) {
+                log('Export operation failed: ' + e.message);
+            }
+        }
+        
+        // Initialize
+        checkBridge();
+        
+        // Event listeners
+        document.getElementById('test-run').addEventListener('click', testRun);
+        document.getElementById('test-list').addEventListener('click', testList);
+        document.getElementById('test-verify').addEventListener('click', testVerify);
+        document.getElementById('test-export').addEventListener('click', testExport);
+    </script>
+</body>
+</html>

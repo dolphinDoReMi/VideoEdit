@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest'};</script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>::-webkit-scrollbar { display: none;} * { font-family: 'Inter', sans-serif; }</style>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: { dark: { 900:'#0a0a0a',800:'#1a1a1a',700:'#2a2a2a',600:'#3a3a3a' }}}}
+    }
+  </script>
+</head>
+<body class="bg-dark-900 text-white overflow-x-hidden">
+
+<!-- Status Bar -->
+<div id="status-bar" class="flex justify-between items-center px-4 py-2 bg-dark-800 text-xs text-gray-300">
+  <div class="flex items-center space-x-1">
+    <div class="w-1 h-1 bg-white rounded-full"></div>
+    <div class="w-1 h-1 bg-white rounded-full"></div>
+    <div class="w-1 h-1 bg-gray-600 rounded-full"></div>
+    <span class="ml-2">Verizon</span>
+  </div>
+  <div class="font-medium">9:41</div>
+  <div class="flex items-center space-x-1">
+    <i class="fa-solid fa-signal text-xs"></i>
+    <i class="fa-solid fa-wifi text-xs"></i>
+    <div class="w-6 h-3 border border-white rounded-sm"><div class="w-4 h-2 bg-white rounded-sm m-0.5"></div></div>
+  </div>
+</div>
+
+<!-- App Header with Processing Status -->
+<div id="app-header" class="flex items-center justify-between px-6 py-4 bg-dark-800 border-b border-dark-600">
+  <div class="flex items-center space-x-3">
+    <button class="w-8 h-8 bg-dark-600 rounded-full flex items-center justify-center">
+      <i class="fa-solid fa-arrow-left text-gray-300 text-sm"></i>
+    </button>
+    <div>
+      <h1 class="text-lg font-semibold text-white">Processing Video</h1>
+      <p class="text-xs text-gray-400">AI Analysis in Progress</p>
+    </div>
+  </div>
+  <div class="flex items-center space-x-3">
+    <div class="flex items-center space-x-2">
+      <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+      <span class="text-sm text-blue-400 font-medium">Active</span>
+    </div>
+    <button class="w-8 h-8 bg-dark-600 rounded-full flex items-center justify-center">
+      <i class="fa-solid fa-ellipsis-vertical text-gray-300 text-sm"></i>
+    </button>
+  </div>
+</div>
+
+<!-- ✨ NEW: Policy & Presets (UI shows; service owns truth) -->
+<div id="policy-presets" class="px-6 pt-6">
+  <div class="bg-dark-700 rounded-2xl p-6 border border-dark-600">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-semibold text-white">Policy & Presets — Pinned Rails</h2>
+      <span class="text-xs text-gray-400">UI-only; service is source of truth</span>
+    </div>
+
+    <!-- Preset selector (advisory labels only) -->
+    <div class="mb-4">
+      <p class="text-xs text-gray-400 mb-2">Preset (advisory label only — knobs stay locked)</p>
+      <div class="flex flex-wrap gap-2">
+        <button data-preset="SINGLE" class="preset-pill px-3 py-2 rounded-lg bg-purple-600 text-white text-sm">SINGLE</button>
+        <button data-preset="ACCURACY_LEANING" class="preset-pill px-3 py-2 rounded-lg bg-dark-600 text-gray-300 text-sm">ACCURACY_LEANING</button>
+        <button data-preset="WEB_ROBUST_INGEST" class="preset-pill px-3 py-2 rounded-lg bg-dark-600 text-gray-300 text-sm">WEB_ROBUST_INGEST</button>
+        <button data-preset="HIGH_THROUGHPUT_BATCH" class="preset-pill px-3 py-2 rounded-lg bg-dark-600 text-gray-300 text-sm">HIGH_THROUGHPUT_BATCH</button>
+      </div>
+    </div>
+
+    <!-- Read-only rails -->
+    <div class="grid md:grid-cols-2 gap-4 mb-4">
+      <div class="bg-dark-800 rounded-xl p-4 border border-dark-600">
+        <p class="text-white font-medium mb-1">Deterministic Sampling</p>
+        <p class="text-sm text-gray-300">segmentMs=<b>30000</b>, overlapMs=<b>1000</b>, deterministicSampling=<b>true</b></p>
+      </div>
+      <div class="bg-dark-800 rounded-xl p-4 border border-dark-600">
+        <p class="text-white font-medium mb-1">Fixed Preprocess</p>
+        <p class="text-sm text-gray-300">randomCrop=<b>false</b>, centerCrop=<b>true</b>, target=<b>mono@16kHz</b></p>
+      </div>
+      <div class="bg-dark-800 rounded-xl p-4 border border-dark-600">
+        <p class="text-white font-medium mb-1">Timestamp Discipline</p>
+        <p class="text-sm text-gray-300">timestamp_policy=<b>ExtractorPTS</b></p>
+    </div>
+      <div class="bg-dark-800 rounded-xl p-4 border border-dark-600">
+        <p class="text-white font-medium mb-1">Decode Path</p>
+        <p class="text-sm text-gray-300">decode_path=<b>mp4_aac_hw_first</b></p>
+  </div>
+    </div>
+
+    <!-- Model picker + SHA preview -->
+    <div class="bg-dark-800 rounded-xl p-4 border border-dark-600 mb-4">
+      <div class="flex items-center justify-between mb-2">
+        <p class="text-white font-medium">Model</p>
+        <button id="pick-model-btn" class="px-3 py-2 bg-dark-600 rounded-lg text-sm">
+          <i class="fa-solid fa-file-arrow-up mr-2"></i>Pick Model (SAF)
+        </button>
+      </div>
+      <div class="grid md:grid-cols-2 gap-3">
+        <div>
+          <p class="text-xs text-gray-400">File Name</p>
+          <p id="model-file-label" class="text-sm text-gray-200 break-all">—</p>
+    </div>
+        <div>
+          <p class="text-xs text-gray-400">SHA-256 (UI preview)</p>
+          <p id="model-sha-label" class="text-sm text-gray-200 break-all">—</p>
+    </div>
+  </div>
+</div>
+
+    <!-- Config JSON (UI) -->
+    <div class="bg-dark-800 rounded-xl p-4 border border-dark-600">
+      <div class="flex items-center justify-between mb-2">
+        <p class="text-white font-medium">Config JSON (UI-side only)</p>
+        <div class="flex items-center gap-2">
+          <button id="copy-json-btn" class="px-3 py-2 bg-dark-600 rounded-lg text-sm"><i class="fa-solid fa-copy mr-2"></i>Copy JSON</button>
+        </div>
+      </div>
+      <pre id="config-json-pre" class="text-xs text-gray-200 bg-dark-700 rounded-lg p-3 overflow-x-auto">{}</pre>
+    </div>
+
+    <!-- Verification checklist -->
+    <div class="mt-4 grid md:grid-cols-3 gap-3">
+      <div class="bg-dark-800 rounded-xl p-4 border border-dark-600 flex items-center gap-3">
+        <div id="v-sha" class="w-3 h-3 rounded-full bg-gray-600"></div>
+      <div>
+          <p class="text-white text-sm font-medium">SHA preview</p>
+          <p class="text-xs text-gray-400">Computed & persists on reopen</p>
+        </div>
+      </div>
+      <div class="bg-dark-800 rounded-xl p-4 border border-dark-600 flex items-center gap-3">
+        <div id="v-rails" class="w-3 h-3 rounded-full bg-green-500"></div>
+        <div>
+          <p class="text-white text-sm font-medium">Rails locked</p>
+          <p class="text-xs text-gray-400">Preset toggles label only</p>
+    </div>
+    </div>
+      <div class="bg-dark-800 rounded-xl p-4 border border-dark-600 flex items-center gap-3">
+        <div id="v-sidecar" class="w-3 h-3 rounded-full bg-gray-600"></div>
+        <div>
+          <p class="text-white text-sm font-medium">Sidecar match</p>
+          <p class="text-xs text-gray-400">Will compare after Step 3</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Existing page content below remains unchanged (preview, status, pipeline, etc.) -->
+<!-- Video Preview Section -->
+<div id="video-preview" class="px-6 py-6">
+  <div class="bg-dark-700 rounded-2xl p-4 border border-dark-600 mb-6">
+    <div class="flex items-center space-x-4 mb-4">
+      <div class="w-16 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+        <i class="fa-solid fa-video text-white text-lg"></i>
+      </div>
+      <div class="flex-1">
+        <h3 class="text-white font-semibold">marketing_campaign_final.mp4</h3>
+        <p class="text-gray-400 text-sm">Duration: 2:34 • Size: 45.2 MB</p>
+      </div>
+      <div class="text-right">
+        <p class="text-purple-400 text-sm font-medium">1080p</p>
+        <p class="text-gray-400 text-xs">H.264</p>
+      </div>
+    </div>
+    <div class="w-full h-40 bg-dark-600 rounded-xl flex items-center justify-center mb-4 border border-dark-500 relative overflow-hidden">
+      <img class="w-full h-full object-cover rounded-xl" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/96308bda99-e123cf6d8055921c54aa.png" alt="thumbnail"/>
+      <div class="absolute inset-0 flex items-center justify-center">
+        <div class="w-12 h-12 bg-black/50 rounded-full flex items-center justify-center backdrop-blur-sm">
+          <i class="fa-solid fa-play text-white text-lg ml-1"></i>
+  </div>
+  </div>
+</div>
+    <div class="grid grid-cols-3 gap-4">
+      <div class="text-center"><p class="text-white font-semibold">30fps</p><p class="text-gray-400 text-xs">Frame Rate</p></div>
+      <div class="text-center"><p class="text-white font-semibold">4.2k</p><p class="text-gray-400 text-xs">Bitrate</p></div>
+      <div class="text-center"><p class="text-white font-semibold">Stereo</p><p class="text-gray-400 text-xs">Audio</p></div>
+</div>
+  </div>
+</div>
+
+<!-- Export & Handover (CAS) -->
+<div id="export-handover" class="px-6 mb-6">
+  <h3 class="text-lg font-semibold text-white mb-4">Export & Handover (CAS)</h3>
+  <div class="bg-dark-700 rounded-2xl border border-dark-600 p-4">
+    <div class="flex items-center justify-between mb-3">
+      <div class="space-y-1">
+        <div class="text-xs text-gray-400">Target folder</div>
+        <code class="text-xs text-gray-300 bg-dark-800 px-2 py-1 rounded">
+          /sdcard/MiraWhisper/out/<span id="job-id-text">job_demo_001</span>/
+        </code>
+      </div>
+      <div class="flex items-center space-x-2">
+        <input id="job-id-input" type="text" value="job_demo_001"
+               class="w-40 bg-dark-800 border border-dark-600 rounded-lg px-3 py-2 text-white text-xs focus:outline-none"
+               title="Job ID">
+        <button id="export-selected-btn"
+                class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-sm font-semibold px-4 py-2 rounded-lg">
+          Export Selected
+        </button>
+      </div>
+    </div>
+
+    <div class="text-xs text-gray-400 mb-2">Artifacts</div>
+    <div id="artifact-list" class="space-y-2"></div>
+
+    <div class="mt-4 bg-dark-800 rounded-lg p-3 border border-dark-600">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="text-xs text-gray-400">Manifest (sidecar.json)</div>
+          <div class="text-xs text-gray-500">sha256: <span id="manifest-digest">—</span></div>
+        </div>
+        <div class="space-x-2">
+          <button id="rebuild-manifest-btn"
+                  class="bg-dark-600 hover:bg-dark-500 text-white text-xs px-3 py-2 rounded-lg">Rebuild</button>
+          <button id="export-manifest-btn"
+                  class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-2 rounded-lg">Export Manifest</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Export All Data Button -->
+<div class="px-6 mb-6">
+  <button id="export-all-data-btn"
+    class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-4 px-6 rounded-xl flex items-center justify-center space-x-3 transition-all active:scale-95 w-full">
+    <i class="fa-solid fa-rocket text-xl"></i>
+    <span class="text-lg">Export All Data</span>
+  </button>
+</div>
+
+<!-- The rest of your original sections (status, steps, stats, details, log, controls, quick settings, recent activity, system resources, bottom nav) remain as in your base. -->
+
+<!-- ===== JS: Policy & Presets logic (UI-only) ===== -->
+<script>
+/* Rails (UI shows; service owns truth) */
+const RAILS = Object.freeze({
+  deterministicSampling: true,
+  segmentMs: 30000,
+  overlapMs: 1000,
+  randomCrop: false,
+  centerCrop: true,
+  augmentation: false,
+  targetAudio: "mono@16kHz",
+  timestamp_policy: "ExtractorPTS",
+  decode_path: "mp4_aac_hw_first"
+});
+
+/* State persisted for stability across reopen */
+const LS = {
+  PRESET: "whisper_preset_label",
+  MODEL_NAME: "whisper_model_name",
+  MODEL_SHA: "whisper_model_sha256"
+};
+
+const state = {
+  preset: localStorage.getItem(LS.PRESET) || "SINGLE",
+  modelName: localStorage.getItem(LS.MODEL_NAME) || "",
+  modelSha: localStorage.getItem(LS.MODEL_SHA) || ""
+};
+
+/* Preset pills: label only, rails do not change */
+function initPresetPills(){
+  document.querySelectorAll(".preset-pill").forEach(btn=>{
+    const label = btn.getAttribute("data-preset");
+    if(label === state.preset){
+      btn.className = "preset-pill px-3 py-2 rounded-lg bg-purple-600 text-white text-sm";
+    }
+    btn.addEventListener("click", ()=>{
+      state.preset = label;
+      localStorage.setItem(LS.PRESET, state.preset);
+      document.querySelectorAll(".preset-pill").forEach(b=>{
+        b.className = "preset-pill px-3 py-2 rounded-lg bg-dark-600 text-gray-300 text-sm";
+      });
+      btn.className = "preset-pill px-3 py-2 rounded-lg bg-purple-600 text-white text-sm";
+      renderConfigJson();
+      // Rails remain constant; verification badge for rails stays green
+    });
+  });
+}
+
+/* Model picker (SAF) → compute SHA-256 preview; persist */
+document.getElementById("pick-model-btn").addEventListener("click", ()=>{
+  const input = document.createElement("input");
+  input.type = "file";
+  input.addEventListener("change", async (e)=>{
+    if(!e.target.files || !e.target.files[0]) return;
+    const file = e.target.files[0];
+    state.modelName = file.name;
+    const buf = await file.arrayBuffer();
+    const shaHex = await sha256Hex(buf);
+    state.modelSha = shaHex;
+    localStorage.setItem(LS.MODEL_NAME, state.modelName);
+    localStorage.setItem(LS.MODEL_SHA, state.modelSha);
+    renderModelInfo();
+    renderConfigJson();
+    setBadge("v-sha", true);
+  });
+  input.click();
+});
+
+/* SHA helper */
+async function sha256Hex(arrayBuffer){
+  const hash = await crypto.subtle.digest("SHA-256", arrayBuffer);
+  return [...new Uint8Array(hash)].map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+
+/* Config JSON (UI-only; for future RUN payload) */
+function buildConfigJson(){
+  return {
+    deterministicSampling: RAILS.deterministicSampling,
+    segmentMs: RAILS.segmentMs,
+    overlapMs: RAILS.overlapMs,
+    randomCrop: RAILS.randomCrop,
+    centerCrop: RAILS.centerCrop,
+    augmentation: RAILS.augmentation,
+    modelFile: state.modelName || "—",
+    modelHash: state.modelSha || "—",
+    preset: state.preset
+  };
+}
+
+function renderConfigJson(){
+  const obj = buildConfigJson();
+  document.getElementById("config-json-pre").textContent = JSON.stringify(obj, null, 2);
+}
+
+function renderModelInfo(){
+  document.getElementById("model-file-label").textContent = state.modelName || "—";
+  document.getElementById("model-sha-label").textContent = state.modelSha ? state.modelSha : "—";
+}
+
+/* Copy JSON */
+document.getElementById("copy-json-btn").addEventListener("click", async ()=>{
+  try{
+    await navigator.clipboard.writeText(document.getElementById("config-json-pre").textContent);
+    pulseCopyBtn("copy-json-btn");
+  }catch(e){
+    // fallback
+    const ta = document.createElement("textarea");
+    ta.value = document.getElementById("config-json-pre").textContent;
+    document.body.appendChild(ta);
+    ta.select(); document.execCommand("copy"); document.body.removeChild(ta);
+    pulseCopyBtn("copy-json-btn");
+  }
+});
+function pulseCopyBtn(id){
+  const el = document.getElementById(id);
+  el.classList.add("ring-2","ring-purple-500");
+  setTimeout(()=>el.classList.remove("ring-2","ring-purple-500"), 600);
+}
+
+/* Verification badges */
+function setBadge(id, ok){
+  const dot = document.getElementById(id);
+  dot.className = "w-3 h-3 rounded-full " + (ok ? "bg-green-500" : "bg-gray-600");
+}
+
+/* Init on load: restore state, render, set badges */
+(function init(){
+  initPresetPills();
+  renderModelInfo();
+  renderConfigJson();
+  setBadge("v-rails", true);                 // rails are locked in UI
+  setBadge("v-sha", !!state.modelSha);       // green if SHA known
+  setBadge("v-sidecar", false);              // stays gray until Step 3 comparison
+})();
+
+// ====== EXPORT & HANDOVER (CAS) ======
+const EXPORT_ROOT = '/sdcard/MiraWhisper/out';  // predictable export root
+const DEFAULT_JOB_ID = 'job_demo_001';
+
+// Example inputs we already show on page; adapt to real sidecar later:
+const sampleEmbeddings = (() => {
+  // 32 tiny vectors to keep digests/snappy; replace with real 512-D later
+  return {
+    embeddings: Array.from({length: 32}, (_, i) => ({
+      timestamp: +(i * 0.5).toFixed(2),
+      vector: Array.from({length: 8}, () => +(Math.random() * 2 - 1).toFixed(6))
+    })),
+    metadata: {
+      video_id: 'marketing_campaign_2024',
+      duration: 222,
+      total_embeddings: 32,
+      export_timestamp: new Date().toISOString()
+    }
+  };
+})();
+
+const invariants = {
+  segment_ms: 30000,
+  overlap_ms: 1000,
+  timestamp_policy: 'ExtractorPTS',
+  decode_path: 'AAC HW-first',
+  decode_policy: 'greedy (beam=1, temp=0.0)'
+};
+
+const metrics = {
+  infer_ms: 12345,
+  audio_ms: 222000,
+  rtf: +(12345/222000).toFixed(4)
+};
+
+// ====== UTIL: digest, blobs, bridge ======
+async function sha256Hex(buf) {
+  const ab = (buf instanceof ArrayBuffer) ? buf
+             : (buf.buffer instanceof ArrayBuffer && buf.BYTES_PER_ELEMENT) ? buf.buffer
+             : new TextEncoder().encode(buf);
+  const hash = await crypto.subtle.digest('SHA-256', ab);
+  return [...new Uint8Array(hash)].map(b => b.toString(16).padStart(2,'0')).join('');
+}
+function toBlobJson(obj) { return new Blob([JSON.stringify(obj, null, 2)], {type: 'application/json'}); }
+function toBlobText(s)   { return new Blob([s], {type: 'text/plain'}); }
+async function blobToArrayBuffer(blob) { return await blob.arrayBuffer(); }
+
+// Try native bridge first (Android WebView/JSI). Fallback to browser download.
+async function nativeExportWrite(jobId, filename, blob) {
+  const path = `${EXPORT_ROOT}/${jobId}/${filename}`;
+  try {
+    if (window.Android && typeof window.Android.exportToSdCard === 'function') {
+      const ab = await blobToArrayBuffer(blob);
+      // Signature: exportToSdCard(jobId, filename, bytesBase64)
+      const b64 = btoa(String.fromCharCode(...new Uint8Array(ab)));
+      const ok = window.Android.exportToSdCard(jobId, filename, b64);
+      if (ok === false) throw new Error('Android bridge returned false');
+      return { method: 'bridge', path };
+    }
+    if (window.Whisper && typeof window.Whisper.export === 'function') {
+      await window.Whisper.export(jobId, filename, await blobToArrayBuffer(blob));
+      return { method: 'bridge', path };
+    }
+  } catch (e) {
+    console.warn('Bridge export failed, falling back to browser download:', e);
+  }
+  // Fallback: browser download (simulates export so you can test today)
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+  return { method: 'download', path };
+}
+
+// ====== ARTIFACT PLAN (per-row) ======
+function deriveJobId() {
+  const input = document.getElementById('job-id-input');
+  return (input?.value || DEFAULT_JOB_ID).trim();
+}
+
+function planArtifacts(jobId) {
+  // Replace with real service outputs when available
+  const transcriptJson = {
+    segments: [
+      { t0_ms: 0,    t1_ms: 1500, text: 'We launched the spring campaign.' },
+      { t0_ms: 1500, t1_ms: 3400, text: 'Engagement grew across channels.' }
+    ]
+  };
+  const transcriptText = transcriptJson.segments.map(s => s.text).join(' ').trim();
+  const modelSha = state.modelSha || 'model_sha256_placeholder';
+  const audioSha = 'audio_sha256_placeholder';
+
+  return [
+    { name: 'embeddings.json', role: 'embeddings', mime: 'application/json',   make: () => toBlobJson(sampleEmbeddings) },
+    { name: 'transcript.json', role: 'transcript', mime: 'application/json',   make: () => toBlobJson(transcriptJson) },
+    { name: 'transcript.txt',  role: 'transcript', mime: 'text/plain',         make: () => toBlobText(transcriptText) },
+    { name: 'metrics.json',    role: 'metrics',    mime: 'application/json',   make: () => toBlobJson(metrics) },
+    { name: 'config.json',     role: 'config',     mime: 'application/json',   make: () => toBlobJson(invariants) },
+    { name: 'model.sha256',    role: 'digest',     mime: 'text/plain',         make: () => toBlobText(modelSha + '\n') },
+    { name: 'audio.sha256',    role: 'digest',     mime: 'text/plain',         make: () => toBlobText(audioSha + '\n') },
+  ];
+}
+
+// ====== RENDER ARTIFACT ROWS ======
+async function computeDigestAndSize(blob) {
+  const ab = await blobToArrayBuffer(blob);
+  return { sha256: await sha256Hex(ab), bytes: ab.byteLength };
+}
+
+function artifactRowTemplate(jobId, art) {
+  const row = document.createElement('div');
+  row.className = 'artifact-row bg-dark-800 rounded-lg p-3 border border-dark-600';
+  row.dataset.name = art.name;
+  row.innerHTML = `
+    <div class="flex items-center justify-between">
+      <div>
+        <div class="text-white text-sm">${art.name} <span class="text-xs text-gray-500">(${art.role})</span></div>
+        <div class="text-xs text-gray-500">
+          sha256: <span class="digest">…</span> • <span class="bytes">…</span> bytes
+        </div>
+        <div class="text-[10px] text-gray-600 mt-1 truncate">${EXPORT_ROOT}/${jobId}/${art.name}</div>
+      </div>
+      <div class="flex items-center space-x-2">
+        <label class="text-xs text-gray-400 flex items-center space-x-1">
+          <input type="checkbox" class="artifact-check" checked>
+          <span>Select</span>
+        </label>
+        <button class="export-one-btn bg-dark-600 hover:bg-dark-500 text-white text-xs px-3 py-1.5 rounded">Export</button>
+      </div>
+    </div>
+  `;
+  return row;
+}
+
+async function buildArtifactList() {
+  const jobId = deriveJobId();
+  document.getElementById('job-id-text').textContent = jobId;
+
+  const list = document.getElementById('artifact-list');
+  list.innerHTML = '';
+  const plan = planArtifacts(jobId);
+
+  for (const art of plan) {
+    const row = artifactRowTemplate(jobId, art);
+    list.appendChild(row);
+
+    // Pre-compute digest/size for UX
+    const blob = art.make();
+    computeDigestAndSize(blob).then(({sha256, bytes}) => {
+      row.querySelector('.digest').textContent = sha256.slice(0, 12) + '…';
+      row.querySelector('.digest').title = sha256;
+      row.querySelector('.bytes').textContent = bytes.toLocaleString();
+      row.dataset.sha256 = sha256;
+      row.dataset.bytes = String(bytes);
+    });
+
+    // Row export
+    row.querySelector('.export-one-btn').addEventListener('click', async () => {
+      await exportOne(jobId, art, row);
+    });
+  }
+
+  await rebuildManifestDigest(); // compute current manifest digest preview
+}
+
+async function exportOne(jobId, art, row) {
+  const btn = row.querySelector('.export-one-btn');
+  btn.disabled = true; btn.textContent = 'Exporting…';
+  const blob = art.make();
+  const { sha256 } = await computeDigestAndSize(blob);
+  const res = await nativeExportWrite(jobId, art.name, blob);
+  btn.textContent = 'Done';
+  btn.className = 'export-one-btn bg-green-600 text-white text-xs px-3 py-1.5 rounded';
+  row.querySelector('.digest').textContent = sha256.slice(0,12) + '…';
+  row.dataset.sha256 = sha256;
+  row.dataset.exported = '1';
+  await rebuildManifestDigest();
+  setTimeout(() => { btn.disabled = false; btn.textContent = 'Export'; btn.className = 'export-one-btn bg-dark-600 hover:bg-dark-500 text-white text-xs px-3 py-1.5 rounded'; }, 1600);
+}
+
+// ====== MANIFEST (sidecar.json) ======
+function collectSelectedRows() {
+  return Array.from(document.querySelectorAll('#artifact-list .artifact-row'))
+    .filter(r => r.querySelector('.artifact-check').checked);
+}
+function manifestFromUI(jobId) {
+  const entries = collectSelectedRows().map(r => ({
+    name: r.dataset.name,
+    role: r.querySelector('.text-xs.text-gray-500')?.textContent?.match(/\((.*?)\)/)?.[1] || 'artifact',
+    mime: 'application/octet-stream',
+    bytes: Number(r.dataset.bytes || 0),
+    sha256: r.dataset.sha256 || 'unknown'
+  }));
+  return {
+    schema: 'mira.whisper.sidecar/1',
+    job_id: jobId,
+    export_root: `${EXPORT_ROOT}/${jobId}/`,
+    created: new Date().toISOString(),
+    rails: invariants,
+    metrics,
+    entries
+  };
+}
+async function rebuildManifestDigest() {
+  const jobId = deriveJobId();
+  const manifest = manifestFromUI(jobId);
+  const hex = await sha256Hex(JSON.stringify(manifest));
+  document.getElementById('manifest-digest').textContent = hex.slice(0, 12) + '…';
+  document.getElementById('manifest-digest').title = hex;
+  return { manifest, hex };
+}
+async function exportManifest() {
+  const jobId = deriveJobId();
+  const { manifest } = await rebuildManifestDigest();
+  const blob = toBlobJson(manifest);
+  await nativeExportWrite(jobId, 'sidecar.json', blob);
+}
+
+// ====== EXPORT SELECTED / ALL ======
+async function exportSelected() {
+  const jobId = deriveJobId();
+  const plan = planArtifacts(jobId);
+  const rows = collectSelectedRows();
+
+  // map name->artifact
+  const dict = Object.fromEntries(plan.map(a => [a.name, a]));
+  for (const row of rows) {
+    const art = dict[row.dataset.name];
+    if (!art) continue;
+    await exportOne(jobId, art, row);
+  }
+  await exportManifest();
+}
+
+async function exportAllData() {
+  // Select all, export, then manifest
+  Array.from(document.querySelectorAll('#artifact-list .artifact-check')).forEach(cb => cb.checked = true);
+  await exportSelected();
+  
+  // Navigate to Step 3 after successful export
+  setTimeout(() => {
+    if (window.AndroidInterface && window.AndroidInterface.openWhisperStep3) {
+      window.AndroidInterface.openWhisperStep3();
+    } else {
+      console.log('AndroidInterface not available, simulating navigation');
+      // For browser testing, show a message
+      alert('Would navigate to Step 3 (Results)');
+    }
+  }, 2000);
+}
+
+// ====== WIRING ======
+document.getElementById('job-id-input').addEventListener('input', () => buildArtifactList());
+document.getElementById('export-selected-btn').addEventListener('click', exportSelected);
+document.getElementById('rebuild-manifest-btn').addEventListener('click', rebuildManifestDigest);
+document.getElementById('export-manifest-btn').addEventListener('click', exportManifest);
+document.getElementById('export-all-data-btn')?.addEventListener('click', exportAllData);
+
+// Initial render
+buildArtifactList();
+</script>
+
+</body>
+</html>

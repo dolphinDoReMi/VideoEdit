@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebView Staging Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white p-4">
+    <h1 class="text-2xl font-bold mb-4">WebView Staging Test</h1>
+    
+    <div id="test-results" class="space-y-2"></div>
+    
+    <div class="mt-6">
+        <button onclick="testStagingBridge()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">
+            Test Staging Bridge
+        </button>
+        <button onclick="testMockBridge()" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded ml-2">
+            Test Mock Bridge
+        </button>
+    </div>
+    
+    <script>
+        function addResult(message, isSuccess = true) {
+            const results = document.getElementById('test-results');
+            const div = document.createElement('div');
+            div.className = `p-2 rounded ${isSuccess ? 'bg-green-800 text-green-200' : 'bg-red-800 text-red-200'}`;
+            div.textContent = message;
+            results.appendChild(div);
+        }
+        
+        function testStagingBridge() {
+            addResult('Testing StagingBridge...');
+            
+            if (typeof window.StagingBridge !== 'undefined') {
+                addResult('✅ StagingBridge is available');
+                
+                // Test methods
+                const methods = ['addTree', 'listTrees', 'removeTree', 'enumerateAll', 'persistedPermissions'];
+                methods.forEach(method => {
+                    if (typeof window.StagingBridge[method] === 'function') {
+                        addResult(`✅ ${method} method available`);
+                    } else {
+                        addResult(`❌ ${method} method missing`, false);
+                    }
+                });
+            } else {
+                addResult('⚠️ StagingBridge not available (using mock)', false);
+            }
+        }
+        
+        function testMockBridge() {
+            addResult('Testing Mock Bridge...');
+            
+            // Simulate the mock bridge functionality
+            try {
+                // Test localStorage for mock persistence
+                if (typeof Storage !== 'undefined') {
+                    addResult('✅ localStorage available for mock persistence');
+                    
+                    // Test mock data
+                    const mockData = {
+                        trees: [
+                            {uri: 'content://mock/1', label: 'Mock Folder 1', authority: 'com.android.externalstorage.documents', isLocal: true},
+                            {uri: 'content://mock/2', label: 'Mock Folder 2', authority: 'com.google.android.apps.docs.storage', isLocal: false}
+                        ],
+                        files: [
+                            {name: 'test1.mp4', ext: 'mp4', dur: 120, sz: 5.2, auth: 'com.android.providers.media.documents', local: true},
+                            {name: 'test2.mov', ext: 'mov', dur: 300, sz: 15.8, auth: 'com.google.android.apps.docs.storage', local: false}
+                        ]
+                    };
+                    
+                    localStorage.setItem('staging_trees_mock', JSON.stringify(mockData.trees));
+                    addResult('✅ Mock data stored successfully');
+                    
+                    const retrieved = JSON.parse(localStorage.getItem('staging_trees_mock'));
+                    if (retrieved && retrieved.length === 2) {
+                        addResult('✅ Mock data retrieved successfully');
+                    } else {
+                        addResult('❌ Mock data retrieval failed', false);
+                    }
+                } else {
+                    addResult('❌ localStorage not available', false);
+                }
+            } catch (e) {
+                addResult(`❌ Mock bridge test failed: ${e.message}`, false);
+            }
+        }
+        
+        // Auto-run tests on load
+        window.onload = function() {
+            addResult('WebView Staging Test loaded');
+            testStagingBridge();
+            setTimeout(testMockBridge, 1000);
+        };
+    </script>
+</body>
+</html>
