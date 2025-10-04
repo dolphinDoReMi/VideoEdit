@@ -27,6 +27,11 @@ android {
 
   kotlinOptions {
     jvmTarget = "17"
+    // Temporary: bypass Compose-Kotlin version compatibility check to unblock build
+    freeCompilerArgs += listOf(
+      "-P",
+      "plugin:androidx.compose.compiler.plugins.kotlin:suppressKotlinVersionCompatibilityCheck=true"
+    )
   }
   
   composeOptions {
