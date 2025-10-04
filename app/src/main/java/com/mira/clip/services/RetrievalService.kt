@@ -2,6 +2,7 @@ package com.mira.clip.services
 
 import android.content.Context
 import com.mira.clip.clip.ClipEngines
+import com.mira.clip.core.Config
 import com.mira.clip.storage.EmbeddingStore
 import com.mira.clip.storage.FileEmbeddingStore
 import org.json.JSONArray
@@ -148,5 +149,22 @@ class RetrievalService(private val context: Context) {
         }
         
         return JSONObject(file.readText())
+    }
+    
+    /**
+     * Simple top-K retrieval for testing purposes.
+     * 
+     * @param queryEmbedding Query vector
+     * @param k Number of results to return
+     * @return List of (videoId, score) pairs sorted by similarity
+     */
+    fun topK(queryEmbedding: FloatArray, k: Int = 5): List<Pair<String, Float>> {
+        val variant = Config.DEFAULT_VARIANT
+        val videoEmbeddings = loadVideoEmbeddings(variant)
+        val similarities = computeSimilarities(queryEmbedding, videoEmbeddings)
+        
+        return similarities
+            .sortedByDescending { it.second }
+            .take(k)
     }
 }

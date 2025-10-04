@@ -144,3 +144,7 @@ app/src/main/assets/processing_interface.html
 keystore/*.keystore
 !keystore/README.md*.ptl
 mobile_models/
+
+# Media files (keep local)
+*.mp4
+!app/src/androidTest/**/*.mp4

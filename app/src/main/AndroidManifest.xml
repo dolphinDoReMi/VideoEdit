@@ -73,6 +73,13 @@
                 <data android:mimeType="video/*" android:scheme="file" />
             </intent-filter>
         </activity>
+
+        <!-- Debug Embedding Activity (foreground generator) -->
+        <activity
+            android:name="com.mira.clip.debug.DebugEmbeddingActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Mira" />
         
         <!-- Video Processing Service - Dedicated CLIP4Clip video processing -->
         <service

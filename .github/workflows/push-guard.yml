@@ -1,0 +1,71 @@
+name: Policy Guard
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+  push:
+    branches: [ main ]
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }   # need history to diff against origin/main
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with: { distribution: 'zulu', java-version: '21' }
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Make scripts executable
+        run: chmod +x tools/push_guard.sh || true
+      - name: Run policy guard
+        run: tools/push_guard.sh --ci
+      - name: Fast gradle checks
+        run: ./gradlew :app:verifyConfig ktlintCheck detekt testDebugUnitTest -x lint
+      - name: Validate Documentation Structure
+        run: |
+          echo "Validating comprehensive feature-based documentation structure..."
+          
+          # Check that CLIP documents exist
+          required_docs=("docs/CLIP_ARCHITECTURE.md" "docs/CLIP_IMPLEMENTATION.md")
+          for doc in "${required_docs[@]}"; do
+            if [ ! -f "$doc" ]; then
+              echo "❌ Missing required CLIP document: $doc"
+              exit 1
+            else
+              echo "✅ Found: $doc"
+            fi
+          done
+          
+          # Check that old consolidated structure is removed
+          old_docs=("docs/ARCHITECTURE_DESIGN.md" "docs/MODULES.md" "docs/DEV_CHANGELOG.md" "docs/RELEASE.md")
+          for doc in "${old_docs[@]}"; do
+            if [ -f "$doc" ]; then
+              echo "❌ Old consolidated document still exists: $doc"
+              exit 1
+            else
+              echo "✅ Old document removed: $doc"
+            fi
+          done
+          
+          # Check that duplicate directories are removed
+          old_dirs=("docs/architecture" "docs/modules" "docs/release" "docs/dev-changelog" "releases" "scripts/modules" "scripts/architecture" "scripts/dev-changelog" "scripts/release")
+          for dir in "${old_dirs[@]}"; do
+            if [ -d "$dir" ]; then
+              echo "❌ Old directory structure still exists: $dir"
+              exit 1
+            else
+              echo "✅ Old directory removed: $dir"
+            fi
+          done
+          
+          # Check for code pointers in CLIP documents
+          if ! grep -q "Code Pointer\|File Pointer\|Script Pointer" docs/CLIP_ARCHITECTURE.md; then
+            echo "❌ CLIP_ARCHITECTURE.md missing code pointers"
+            exit 1
+          fi
+          
+          if ! grep -q "Code Pointer\|File Pointer\|Script Pointer" docs/CLIP_IMPLEMENTATION.md; then
+            echo "❌ CLIP_IMPLEMENTATION.md missing code pointers"
+            exit 1
+          fi
+          
+          echo "✅ Comprehensive feature-based documentation structure validation passed"

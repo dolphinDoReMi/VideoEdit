@@ -147,4 +147,40 @@ class ClipEngines(private val context: Context) {
             else -> Config.EMBEDDING_DIM_VIT_B32
         }
     }
+    
+    companion object {
+        /**
+         * Static convenience method for text embedding.
+         * Creates a temporary ClipEngines instance for one-time use.
+         */
+        fun embedText(context: Context, text: String): FloatArray {
+            val engines = ClipEngines(context)
+            engines.initialize()
+            return engines.encodeText(text)
+        }
+        
+        /**
+         * Static convenience method for single image embedding.
+         * Creates a temporary ClipEngines instance for one-time use.
+         */
+        fun embedImage(context: Context, bitmap: android.graphics.Bitmap): FloatArray {
+            val engines = ClipEngines(context)
+            engines.initialize()
+            return engines.encodeFrames(listOf(bitmap))
+        }
+        
+        /**
+         * Static convenience method for L2 normalization.
+         * Useful for testing and manual vector operations.
+         */
+        fun normalizeEmbedding(embedding: FloatArray): FloatArray {
+            val norm = sqrt(embedding.sumOf { it.toDouble() * it.toDouble() }.toFloat())
+            
+            if (norm == 0f) {
+                return FloatArray(embedding.size) { 0f }
+            }
+            
+            return embedding.map { it / norm.toFloat() }.toFloatArray()
+        }
+    }
 }

@@ -2,35 +2,38 @@
 
 ## 📚 Documentation Structure
 
-This documentation is organized into 4 main threads for easy navigation and maintenance:
+This documentation is organized into 6 main feature-based documents for easy navigation and maintenance:
 
-### 1. 🏗️ Architecture Design (`docs/architecture/`)
+### 1. 🎯 CLIP Feature (`CLIP_ARCHITECTURE.md` & `CLIP_IMPLEMENTATION.md`)
+- **Architecture Design**: CLIP service architecture, control knots, and verification system
+- **Implementation Details**: Complete Android/Kotlin implementation with production-ready code
+- **Control Knots**: Deterministic sampling, fixed preprocessing, model assets
+- **Verification**: SHA-256 hash comparison for deterministic pipeline validation
+- **Code Pointers**: Direct links to implementation files and scripts
+
+### 2. 🎤 Whisper Feature (Coming Soon)
+- **Architecture Design**: Whisper integration architecture and control systems
+- **Implementation Details**: Full-scale whisper.cpp integration for content-aware video editing
+
+### 3. 🎨 UI Feature (Coming Soon)
+- **Architecture Design**: User interface architecture and design patterns
+- **Implementation Details**: Complete UI implementation with Compose and Material Design
+
+### 4. 📝 DEV Changelog (Coming Soon)
+- **Development History**: Complete version history and technical implementation details
+- **Feature Tracking**: Major features and implementations across all modules
+
+### 5. 🚀 Release (Coming Soon)
+- **Deployment Guides**: Production deployment instructions for all platforms
+- **Distribution**: App store submission and distribution for iOS, Android, and macOS Web
+
+### 6. 🏗️ Architecture (Coming Soon)
 - **System Architecture**: Overall system design and components
 - **Design Principles**: Core design patterns and guidelines
-- **Verification**: Architecture validation and compliance
-- **Policy**: Change management and development policies
-
-### 2. 🧩 Modules (`docs/modules/`)
-- **Feature Modules**: Individual feature implementations
-- **Testing Guides**: Comprehensive testing documentation
-- **Progress Reports**: Development progress and status
-- **Integration Guides**: Module integration instructions
-
-### 3. 📝 DEV Changelog (`docs/dev-changelog/`)
-- **Development History**: Complete version history
-- **Feature Tracking**: Major features and implementations
-- **Technical Details**: Implementation notes and decisions
-- **Version Management**: Release versioning and tracking
-
-### 4. 🚀 Release (`docs/release/`)
-- **Deployment Guides**: Production deployment instructions
-- **Distribution**: App store submission and distribution
-- **Testing**: Release testing and validation
-- **Store Management**: Play Store, App Store, and Xiaomi Store
 
 ## 🛠️ Scripts Organization
 
-Scripts are organized to match the documentation structure:
+Scripts are organized to support the consolidated documentation structure:
 
 ### Architecture Scripts (`scripts/architecture/`)
 - Architecture validation and compliance scripts
@@ -49,7 +52,7 @@ Scripts are organized to match the documentation structure:
 - Utility scripts and helper tools
 - Thread suffix generation for CI/CD
 
-Note: This thread covers platform releases across iOS (Capacitor), Android, and macOS Web. See `docs/release/` and `scripts/release/` for platform-specific workflows.
+Note: This covers platform releases across iOS (Capacitor), Android, and macOS Web. See `RELEASE.md` for platform-specific workflows.
 
 ## 🚀 Quick Start
 
@@ -71,10 +74,10 @@ THREAD=$(./scripts/thread_suffix.sh)
 - **Artifact Management**: Uploads builds with thread suffix naming
 
 ### Documentation
-- **Architecture**: Start with `docs/architecture/README.md`
-- **Modules**: Check `docs/modules/README.md` for feature guides
-- **Release**: See `docs/release/README.md` for deployment
-- **Changelog**: Review `docs/dev-changelog/DEV_CHANGELOG.md`
+- **CLIP Architecture**: Start with `CLIP_ARCHITECTURE.md`
+- **CLIP Implementation**: Check `CLIP_IMPLEMENTATION.md` for complete implementation
+- **Feature Guides**: Each feature has dedicated architecture and implementation docs
+- **Coming Soon**: Whisper, UI, DEV Changelog, Release, and Architecture docs
 
 ## 📋 Key Features
 
@@ -95,10 +98,9 @@ THREAD=$(./scripts/thread_suffix.sh)
 
 ## 🔗 Related Documentation
 
-- [Local/Edge Builds Guide](LOCAL_EDGE_BUILDS.md) - Device testing commands
-- [CI/CD Developer Guide](architecture/CICD_DEVELOPER_GUIDE.md) - CI/CD setup
-- [CLIP Feature Guide](modules/CLIP_FEATURE_README.md) - CLIP implementation
-- [Release Guide](release/README.md) - Deployment instructions
+- [CLIP Architecture](CLIP_ARCHITECTURE.md) - CLIP service architecture and control knots
+- [CLIP Implementation](CLIP_IMPLEMENTATION.md) - Complete CLIP implementation details
+- **Coming Soon**: Whisper, UI, DEV Changelog, Release, and Architecture documentation
 
 ---
 
