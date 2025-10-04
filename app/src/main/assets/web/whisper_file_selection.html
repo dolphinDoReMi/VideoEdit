@@ -540,6 +540,28 @@
       console.error('Resource stats error:', e);
     }
   }
+  
+  // Connector service event handlers
+  function handleProcessingStart(batchId, fileCount) {
+    console.log('Processing started:', batchId, 'with', fileCount, 'files');
+    showToast(`Processing started: ${batchId} with ${fileCount} files`);
+  }
+  
+  function handleProgressUpdate(batchId, progress, fileCount, currentFile) {
+    console.log('Progress update:', batchId, progress + '%', `file ${currentFile}/${fileCount}`);
+    // File selection page doesn't need detailed progress updates
+  }
+  
+  function handleProcessingComplete(batchId) {
+    console.log('Processing complete:', batchId);
+    showToast(`Processing complete: ${batchId}`);
+  }
+  
+  // Make functions globally available for connector service
+  window.updateResourceStats = updateResourceStats;
+  window.handleProcessingStart = handleProcessingStart;
+  window.handleProgressUpdate = handleProgressUpdate;
+  window.handleProcessingComplete = handleProcessingComplete;
 
   refreshStatsBtn.onclick = updateResourceStats;
 
