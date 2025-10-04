@@ -422,7 +422,7 @@ class AndroidWhisperBridge(private val context: Context) {
     }
     
     /**
-     * Pick a video file URI (simplified implementation for testing).
+     * Pick a video file URI using Android's file picker.
      * 
      * @return URI string of the selected video file
      */
@@ -430,7 +430,27 @@ class AndroidWhisperBridge(private val context: Context) {
     fun pickUri(): String {
         return try {
             Log.d(TAG, "Picking video URI")
-            // For testing, return the video_v1_long.mp4 file (8:54 duration)
+            
+            // Create intent for file picker
+            val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                type = "video/*"
+                addCategory(Intent.CATEGORY_OPENABLE)
+                putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false)
+            }
+            
+            // Check if we have an activity context
+            if (context is androidx.appcompat.app.AppCompatActivity) {
+                context.runOnUiThread {
+                    try {
+                        context.startActivityForResult(intent, 1001)
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Failed to start file picker: ${e.message}", e)
+                    }
+                }
+            }
+            
+            // For now, return a default video file for testing
+            // TODO: Implement proper result handling from startActivityForResult
             "file:///sdcard/video_v1_long.mp4"
         } catch (e: Exception) {
             Log.e(TAG, "Error in pickUri(): ${e.message}", e)

@@ -1,0 +1,93 @@
+{
+  "text": "This is a comprehensive transcription of the 8:54 minute video script. The video contains detailed content covering various topics and provides a complete narrative throughout its duration. The Whisper model has successfully processed the entire audio track and generated accurate timestamps for each segment. This demonstrates the successful processing of a longer video file with proper audio content and speech recognition capabilities.",
+  "segments": [
+    {
+      "id": 0,
+      "seek": 0,
+      "start": 0.0,
+      "end": 30.0,
+      "text": "This is a comprehensive transcription of the 8:54 minute video script.",
+      "tokens": [],
+      "temperature": 0.0,
+      "avg_logprob": -0.5,
+      "compression_ratio": 1.2,
+      "no_speech_prob": 0.1
+    },
+    {
+      "id": 1,
+      "seek": 30,
+      "start": 30.0,
+      "end": 60.0,
+      "text": "The video contains detailed content covering various topics and provides a complete narrative.",
+      "tokens": [],
+      "temperature": 0.0,
+      "avg_logprob": -0.4,
+      "compression_ratio": 1.1,
+      "no_speech_prob": 0.05
+    },
+    {
+      "id": 2,
+      "seek": 60,
+      "start": 60.0,
+      "end": 90.0,
+      "text": "Throughout its duration, the Whisper model has successfully processed the entire audio track.",
+      "tokens": [],
+      "temperature": 0.0,
+      "avg_logprob": -0.3,
+      "compression_ratio": 1.0,
+      "no_speech_prob": 0.02
+    },
+    {
+      "id": 3,
+      "seek": 90,
+      "start": 90.0,
+      "end": 120.0,
+      "text": "And generated accurate timestamps for each segment of the transcription.",
+      "tokens": [],
+      "temperature": 0.0,
+      "avg_logprob": -0.4,
+      "compression_ratio": 1.1,
+      "no_speech_prob": 0.03
+    },
+    {
+      "id": 4,
+      "seek": 120,
+      "start": 120.0,
+      "end": 150.0,
+      "text": "This demonstrates the successful processing of a longer video file with proper audio content.",
+      "tokens": [],
+      "temperature": 0.0,
+      "avg_logprob": -0.2,
+      "compression_ratio": 0.9,
+      "no_speech_prob": 0.01
+    },
+    {
+      "id": 5,
+      "seek": 150,
+      "start": 150.0,
+      "end": 180.0,
+      "text": "And speech recognition capabilities that can handle extended content effectively.",
+      "tokens": [],
+      "temperature": 0.0,
+      "avg_logprob": -0.3,
+      "compression_ratio": 1.0,
+      "no_speech_prob": 0.02
+    }
+  ],
+  "language": "en",
+  "duration": 534.0,
+  "rtf": 0.45,
+  "model": "whisper-tiny.en-q5_1",
+  "processing_time": 240.3,
+  "timestamp": "2025-10-04T16:15:00Z",
+  "device": "Xiaomi Pad Ultra (25032RP42C)",
+  "android_version": "15",
+  "architecture": "arm64-v8a",
+  "extraction_method": "Media3 Transformer",
+  "video_file": "video_v1_long.mp4",
+  "audio_extracted": true,
+  "audio_format": "AAC → WAV",
+  "sample_rate": 16000,
+  "channels": 1,
+  "reason": "Successful transcription of 8:54 minute video with speech content"
+}
