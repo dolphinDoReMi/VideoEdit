@@ -1,0 +1,12 @@
+Improved Batch Processing Performance Analysis
+============================================
+Test Time: Sat Oct  4 17:52:58 CST 2025
+Videos Processed: 3
+Jobs Submitted: 3
+Jobs Completed: 0
+Output Files Created: 0
+Batch Sidecar Files:        0
+Memory Usage: 0KB
+Error Count:        0
+Processing Duration: ~609 seconds
+Success Rate: 0%

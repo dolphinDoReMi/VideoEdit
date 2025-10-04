@@ -1,0 +1,11 @@
+WhisperApi Processing Performance Analysis
+========================================
+Test Time: Sat Oct  4 17:54:27 CST 2025
+Jobs Submitted: 3
+Jobs Completed: 0
+Output Files Created:       18
+Sidecar Files:        3
+Memory Usage: 0KB
+Error Count:        0
+Processing Duration: ~188 seconds
+Success Rate: 0%

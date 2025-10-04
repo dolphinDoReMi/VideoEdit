@@ -2,14 +2,20 @@ package com.mira.com.whisper
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import android.webkit.JavascriptInterface
 import android.os.Environment
 import android.util.Base64
+import android.os.BatteryManager
+import android.os.Debug
+import android.content.Context.BATTERY_SERVICE
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.util.UUID
+import java.util.Timer
+import java.util.TimerTask
 
 /**
  * JavaScript interface for Whisper operations in WebView.
@@ -579,6 +585,271 @@ class AndroidWhisperBridge(private val context: Context) {
     }
     
     /**
+     * Open file picker for video files using Storage Access Framework.
+     * This method launches the system file picker.
+     */
+    @JavascriptInterface
+    fun openFilePicker(): String {
+        return try {
+            Log.d(TAG, "Opening file picker for video files")
+            
+            // Check if context is valid
+            if (context !is WhisperFileSelectionActivity) {
+                Log.e(TAG, "Context is not WhisperFileSelectionActivity")
+                return "error:invalid_context"
+            }
+            
+            // Launch file picker intent
+            val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                type = "video/*"
+                addCategory(Intent.CATEGORY_OPENABLE)
+                putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+            }
+            
+            // Check if there's an activity that can handle this intent
+            val resolveInfo = intent.resolveActivity(context.packageManager)
+            if (resolveInfo == null) {
+                Log.e(TAG, "No file picker available on this device")
+                return "error:no_file_picker"
+            }
+            
+            // Check for storage permissions
+            if (!hasStoragePermissions()) {
+                Log.e(TAG, "Storage permissions not granted")
+                return "error:no_permissions"
+            }
+            
+            // Launch the file picker
+            try {
+                context.launchFilePicker()
+                Log.d(TAG, "File picker launched successfully")
+                "file_picker_launched"
+            } catch (e: SecurityException) {
+                Log.e(TAG, "Security exception launching file picker: ${e.message}", e)
+                "error:security_exception"
+            } catch (e: Exception) {
+                Log.e(TAG, "Exception launching file picker: ${e.message}", e)
+                "error:launch_failed"
+            }
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Error opening file picker: ${e.message}", e)
+            "error:${e.message}"
+        }
+    }
+    
+    /**
+     * Check if the app has necessary storage permissions
+     */
+    private fun hasStoragePermissions(): Boolean {
+        return try {
+            // Check for READ_EXTERNAL_STORAGE permission
+            val hasReadPermission = context.checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) == 
+                android.content.pm.PackageManager.PERMISSION_GRANTED
+            
+            // Check for READ_MEDIA_VIDEO permission (Android 13+)
+            val hasMediaPermission = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                context.checkSelfPermission(android.Manifest.permission.READ_MEDIA_VIDEO) == 
+                    android.content.pm.PackageManager.PERMISSION_GRANTED
+            } else {
+                true
+            }
+            
+            Log.d(TAG, "Storage permissions - Read: $hasReadPermission, Media: $hasMediaPermission")
+            hasReadPermission && hasMediaPermission
+        } catch (e: Exception) {
+            Log.e(TAG, "Error checking storage permissions: ${e.message}", e)
+            false
+        }
+    }
+    
+    /**
+     * Handle file selection results from the file picker
+     */
+    fun handleFileSelection(uris: List<Uri>) {
+        try {
+            Log.d(TAG, "Handling file selection: ${uris.size} files")
+            
+            if (uris.isEmpty()) {
+                Log.w(TAG, "No files selected by user")
+                val response = JSONObject().apply {
+                    put("files", JSONArray())
+                    put("count", 0)
+                    put("success", false)
+                    put("error", "No files selected")
+                    put("errorType", "no_selection")
+                }
+                notifyFileSelection(response.toString())
+                return
+            }
+            
+            val fileInfoList = mutableListOf<Map<String, Any>>()
+            val errors = mutableListOf<String>()
+            
+            for (uri in uris) {
+                try {
+                    val fileName = getFileName(uri)
+                    val fileSize = getFileSize(uri)
+                    val fileFormat = getFileExtension(fileName)
+                    
+                    // Validate file format
+                    val supportedFormats = listOf("mp4", "avi", "mov", "mkv", "webm", "wmv", "flv", "m4v", "3gp")
+                    if (fileFormat.lowercase() !in supportedFormats) {
+                        errors.add("Unsupported format: $fileFormat")
+                        continue
+                    }
+                    
+                    // Validate file size (max 2GB)
+                    if (fileSize > 2L * 1024 * 1024 * 1024) {
+                        errors.add("File too large: ${fileName} (${fileSize / (1024 * 1024)}MB)")
+                        continue
+                    }
+                    
+                    // Validate file accessibility
+                    if (!isFileAccessible(uri)) {
+                        errors.add("File not accessible: ${fileName}")
+                        continue
+                    }
+                    
+                    fileInfoList.add(mapOf(
+                        "name" to fileName,
+                        "size" to fileSize,
+                        "uri" to uri.toString(),
+                        "format" to fileFormat,
+                        "path" to (uri.path ?: ""),
+                        "valid" to true
+                    ))
+                    
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error processing file ${uri}: ${e.message}", e)
+                    errors.add("Error processing file: ${e.message}")
+                }
+            }
+            
+            // Create JSON response
+            val response = JSONObject().apply {
+                put("files", JSONArray(fileInfoList))
+                put("count", fileInfoList.size)
+                put("success", fileInfoList.isNotEmpty())
+                if (errors.isNotEmpty()) {
+                    put("warnings", JSONArray(errors))
+                }
+                if (fileInfoList.isEmpty() && uris.isNotEmpty()) {
+                    put("error", "No valid files selected")
+                    put("errorType", "validation_failed")
+                }
+            }
+            
+            // Notify JavaScript about the file selection
+            notifyFileSelection(response.toString())
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Error handling file selection: ${e.message}", e)
+            val errorResponse = JSONObject().apply {
+                put("files", JSONArray())
+                put("count", 0)
+                put("error", e.message)
+                put("errorType", "processing_error")
+                put("success", false)
+            }
+            notifyFileSelection(errorResponse.toString())
+        }
+    }
+    
+    /**
+     * Check if a file URI is accessible
+     */
+    private fun isFileAccessible(uri: Uri): Boolean {
+        return try {
+            val cursor = context.contentResolver.query(uri, null, null, null, null)
+            cursor?.use {
+                it.moveToFirst()
+                true
+            } ?: false
+        } catch (e: Exception) {
+            Log.e(TAG, "Error checking file accessibility: ${e.message}", e)
+            false
+        }
+    }
+    
+    /**
+     * Get file name from URI
+     */
+    private fun getFileName(uri: Uri): String {
+        return try {
+            val cursor = context.contentResolver.query(uri, null, null, null, null)
+            cursor?.use {
+                if (it.moveToFirst()) {
+                    val nameIndex = it.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+                    if (nameIndex >= 0) {
+                        return it.getString(nameIndex)
+                    }
+                }
+            }
+            uri.lastPathSegment ?: "unknown_file"
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting file name: ${e.message}")
+            uri.lastPathSegment ?: "unknown_file"
+        }
+    }
+    
+    /**
+     * Get file size from URI
+     */
+    private fun getFileSize(uri: Uri): Long {
+        return try {
+            val cursor = context.contentResolver.query(uri, null, null, null, null)
+            cursor?.use {
+                if (it.moveToFirst()) {
+                    val sizeIndex = it.getColumnIndex(android.provider.OpenableColumns.SIZE)
+                    if (sizeIndex >= 0) {
+                        return it.getLong(sizeIndex)
+                    }
+                }
+            }
+            0L
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting file size: ${e.message}")
+            0L
+        }
+    }
+    
+    /**
+     * Get file extension from file name
+     */
+    private fun getFileExtension(fileName: String): String {
+        return try {
+            val lastDot = fileName.lastIndexOf('.')
+            if (lastDot > 0 && lastDot < fileName.length - 1) {
+                fileName.substring(lastDot + 1).lowercase()
+            } else {
+                "unknown"
+            }
+        } catch (e: Exception) {
+            "unknown"
+        }
+    }
+    
+    /**
+     * Notify JavaScript about file selection results
+     */
+    private fun notifyFileSelection(jsonResponse: String) {
+        try {
+            // Execute JavaScript to handle the file selection
+            val script = "if (window.handleFileSelection) { window.handleFileSelection('$jsonResponse'); }"
+            
+             if (context is WhisperFileSelectionActivity) {
+                 context.runOnUiThread {
+                     // Note: webView access needs to be handled by the activity
+                     context.notifyFileSelection(jsonResponse)
+                 }
+             }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error notifying file selection: ${e.message}", e)
+        }
+    }
+    
+    /**
      * Pick a model file path (simplified implementation for testing).
      * 
      * @return Path string of the selected model file
@@ -641,5 +912,247 @@ class AndroidWhisperBridge(private val context: Context) {
             Log.w(TAG, "Error computing SHA for $filePath: ${e.message}")
             "sha_error"
         }
+    }
+    
+    /**
+     * Get current Xiaomi resource usage statistics.
+     * 
+     * @return JSON string with resource stats
+     */
+    @JavascriptInterface
+    fun getResourceStats(): String {
+        return try {
+            Log.d(TAG, "Getting resource stats")
+            
+            val memoryUsage = getMemoryUsage()
+            val cpuUsage = getCpuUsage()
+            val batteryLevel = getBatteryLevel()
+            val temperature = getTemperature()
+            val batteryDetails = getBatteryDetails()
+            val gpuInfo = getGpuInfo()
+            val threadInfo = getThreadInfo()
+            
+            val stats = JSONObject().apply {
+                put("memory", memoryUsage)
+                put("cpu", cpuUsage)
+                put("battery", batteryLevel)
+                put("temperature", temperature)
+                put("batteryDetails", batteryDetails)
+                put("gpuInfo", gpuInfo)
+                put("threadInfo", threadInfo)
+                put("timestamp", System.currentTimeMillis())
+            }
+            
+            Log.d(TAG, "Resource stats collected: Memory: ${memoryUsage}%, CPU: ${cpuUsage}%, Battery: ${batteryLevel}%")
+            stats.toString()
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting resource stats: ${e.message}")
+            JSONObject().apply {
+                put("error", e.message)
+                put("timestamp", System.currentTimeMillis())
+            }.toString()
+        }
+    }
+    
+    private fun getMemoryUsage(): Long {
+        return try {
+            val memoryInfo = Debug.MemoryInfo()
+            Debug.getMemoryInfo(memoryInfo)
+            val memoryMB = memoryInfo.totalPss.toLong() / 1024
+            
+            // Calculate memory usage percentage based on total system memory (12GB for Xiaomi Pad)
+            val totalSystemMemory = 12288 // 12GB in MB for Xiaomi Pad
+            val memoryPercentage = ((memoryMB.toDouble() / totalSystemMemory) * 100.0).toLong()
+            
+            Log.d(TAG, "Memory - PSS: ${memoryInfo.totalPss}KB (${memoryMB}MB), " +
+                    "Native: ${memoryInfo.nativePss}KB, " +
+                    "Dalvik: ${memoryInfo.dalvikPss}KB, " +
+                    "System Memory: ${memoryMB}MB/12288MB, " +
+                    "Percentage: ${memoryPercentage}%")
+            
+            memoryPercentage.coerceIn(0L, 100L)
+        } catch (e: Exception) {
+            Log.e(TAG, "Memory error: ${e.message}")
+            0L
+        }
+    }
+    
+    private fun getCpuUsage(): Double {
+        return try {
+            val process = Runtime.getRuntime().exec("cat /proc/stat")
+            val reader = process.inputStream.bufferedReader()
+            val firstLine = reader.readLine()
+            reader.close()
+            process.waitFor()
+            
+            if (firstLine != null && firstLine.startsWith("cpu ")) {
+                val parts = firstLine.split("\\s+".toRegex())
+                if (parts.size >= 8) {
+                    val user = parts[1].toLong()
+                    val nice = parts[2].toLong()
+                    val system = parts[3].toLong()
+                    val idle = parts[4].toLong()
+                    val iowait = parts[5].toLong()
+                    val irq = parts[6].toLong()
+                    val softirq = parts[7].toLong()
+                    
+                    val totalCpuTime = user + nice + system + idle + iowait + irq + softirq
+                    val idleTime = idle + iowait
+                    val usedTime = totalCpuTime - idleTime
+                    
+                    val cpuPercent = if (totalCpuTime > 0) {
+                        (usedTime.toDouble() / totalCpuTime.toDouble()) * 100.0
+                    } else {
+                        0.0
+                    }
+                    
+                    Log.d(TAG, "CPU usage: ${cpuPercent.toFixed(2)}% (used: $usedTime, total: $totalCpuTime)")
+                    return cpuPercent.coerceIn(0.0, 100.0)
+                }
+            }
+            
+            // Fallback: Try to get CPU usage from /proc/loadavg
+            val loadavgProcess = Runtime.getRuntime().exec("cat /proc/loadavg")
+            val loadavgReader = loadavgProcess.inputStream.bufferedReader()
+            val loadavgLine = loadavgReader.readLine()
+            loadavgReader.close()
+            loadavgProcess.waitFor()
+            
+            if (loadavgLine != null) {
+                val loadavg = loadavgLine.split("\\s+".toRegex())[0].toDoubleOrNull() ?: 0.0
+                val cpuPercent = (loadavg * 100.0).coerceIn(0.0, 100.0)
+                Log.d(TAG, "CPU usage (loadavg): ${cpuPercent.toFixed(2)}%")
+                return cpuPercent
+            }
+            
+            0.0
+        } catch (e: Exception) {
+            Log.e(TAG, "CPU error: ${e.message}")
+            0.0
+        }
+    }
+    
+    private fun getBatteryLevel(): Int {
+        return try {
+            val batteryManager = context.getSystemService(BATTERY_SERVICE) as BatteryManager
+            batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
+        } catch (e: Exception) {
+            Log.e(TAG, "Battery error: ${e.message}")
+            0
+        }
+    }
+    
+    private fun getTemperature(): Double {
+        return try {
+            val batteryManager = context.getSystemService(BATTERY_SERVICE) as BatteryManager
+            // Note: BATTERY_PROPERTY_TEMPERATURE requires API 21+
+            // For now, return a default value
+            25.0 // Default temperature in Celsius
+        } catch (e: Exception) {
+            Log.e(TAG, "Temperature error: ${e.message}")
+            25.0 // Default room temperature
+        }
+    }
+    
+    private fun getBatteryDetails(): String {
+        return try {
+            val batteryManager = context.getSystemService(BATTERY_SERVICE) as BatteryManager
+            val level = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
+            // Note: BATTERY_PROPERTY_TEMPERATURE and BATTERY_PROPERTY_VOLTAGE require API 21+
+            // For now, return simplified battery info
+            "Level: ${level}%, Temp: N/A, Voltage: N/A"
+        } catch (e: Exception) {
+            Log.e(TAG, "Battery details error: ${e.message}")
+            "Level: N/A, Temp: N/A, Voltage: N/A"
+        }
+    }
+    
+    private fun getGpuInfo(): String {
+        return try {
+            val process = Runtime.getRuntime().exec("cat /proc/gpuinfo")
+            val reader = process.inputStream.bufferedReader()
+            val gpuInfo = StringBuilder()
+            var line: String?
+            while (reader.readLine().also { line = it } != null) {
+                gpuInfo.append(line).append(" | ")
+            }
+            reader.close()
+            process.waitFor()
+            
+            val result = gpuInfo.toString().take(100) // Limit length
+            Log.d(TAG, "GPU info collected: $result")
+            result
+        } catch (e: Exception) {
+            Log.d(TAG, "GPU info not accessible: ${e.message}")
+            "GPU: Not accessible"
+        }
+    }
+    
+    private fun getThreadInfo(): String {
+        return try {
+            val threadInfo = StringBuilder()
+            
+            // Method 1: Get process thread count
+            try {
+                val process = Runtime.getRuntime().exec("cat /proc/self/status")
+                val reader = process.inputStream.bufferedReader()
+                var line: String?
+                while (reader.readLine().also { line = it } != null) {
+                    if (line?.startsWith("Threads:") == true) {
+                        threadInfo.append("Threads: ").append(line.substringAfter("Threads:").trim())
+                        break
+                    }
+                }
+                reader.close()
+                process.waitFor()
+            } catch (e: Exception) {
+                Log.d(TAG, "Thread count not accessible: ${e.message}")
+            }
+            
+            // Method 2: Add processing thread information
+            val mainThread = Thread.currentThread()
+            threadInfo.append(" | Main: ${mainThread.name}")
+            
+            // Get thread group info
+            val threadGroup = mainThread.threadGroup
+            if (threadGroup != null) {
+                val activeThreads = threadGroup.activeCount()
+                threadInfo.append(" | Active: $activeThreads")
+            }
+            
+            // Method 3: Add video processing specific thread info
+            try {
+                val runtime = Runtime.getRuntime()
+                val availableProcessors = runtime.availableProcessors()
+                threadInfo.append(" | CPUs: $availableProcessors")
+                
+                // Estimate processing threads based on CPU cores and memory
+                val memoryInfo = Debug.MemoryInfo()
+                Debug.getMemoryInfo(memoryInfo)
+                val memoryMB = memoryInfo.totalPss.toLong() / 1024
+                
+                val estimatedProcessingThreads = when {
+                    memoryMB > 500 -> availableProcessors * 3 // High memory = more threads
+                    memoryMB > 300 -> availableProcessors * 2 // Medium memory = moderate threads
+                    else -> availableProcessors // Low memory = conservative threads
+                }
+                
+                threadInfo.append(" | Est. Processing: $estimatedProcessingThreads")
+            } catch (e: Exception) {
+                Log.d(TAG, "CPU info not accessible: ${e.message}")
+            }
+            
+            val result = threadInfo.toString()
+            Log.d(TAG, "Thread info collected: $result")
+            result
+        } catch (e: Exception) {
+            Log.e(TAG, "Thread info error: ${e.message}")
+            "Threads: Error"
+        }
+    }
+    
+    private fun Double.toFixed(digits: Int): String {
+        return String.format("%.${digits}f", this)
     }
 }

@@ -236,8 +236,8 @@ android {
 // }
 
 dependencies {
-  // Feature modules (temporarily disabled to unblock instrumented tests)
-  // implementation(project(":feature:clip"))
+  // Feature modules
+  implementation(project(":feature:whisper"))
   
   // Core orchestration dependencies (always included)
   implementation("androidx.work:work-runtime-ktx:2.9.0")

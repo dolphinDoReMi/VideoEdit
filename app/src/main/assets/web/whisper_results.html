@@ -121,6 +121,93 @@
     </div>
   </div>
 
+  <!-- Xiaomi Resource Stats -->
+  <div class="bg-dark-700 rounded-2xl p-6 border border-dark-600 mb-6">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold text-white">Xiaomi Resource Usage</h3>
+      <div class="flex items-center space-x-2">
+        <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+        <span class="text-sm text-blue-400 font-medium">Live</span>
+      </div>
+    </div>
+    
+    <!-- Resource Stats Grid -->
+    <div class="grid grid-cols-2 gap-4 mb-4">
+      <div class="bg-dark-600 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center space-x-2">
+            <i class="fa-solid fa-memory text-orange-400"></i>
+            <span class="text-sm text-gray-300">Memory</span>
+          </div>
+          <span class="text-lg font-bold text-white" id="resource-memory">0%</span>
+        </div>
+        <div class="w-full bg-dark-500 rounded-full h-2">
+          <div class="bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full transition-all duration-300" id="memory-bar" style="width: 0%"></div>
+        </div>
+      </div>
+      
+      <div class="bg-dark-600 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center space-x-2">
+            <i class="fa-solid fa-microchip text-blue-400"></i>
+            <span class="text-sm text-gray-300">CPU</span>
+          </div>
+          <span class="text-lg font-bold text-white" id="resource-cpu">0%</span>
+        </div>
+        <div class="w-full bg-dark-500 rounded-full h-2">
+          <div class="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300" id="cpu-bar" style="width: 0%"></div>
+        </div>
+      </div>
+      
+      <div class="bg-dark-600 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center space-x-2">
+            <i class="fa-solid fa-battery-half text-green-400"></i>
+            <span class="text-sm text-gray-300">Battery</span>
+          </div>
+          <span class="text-lg font-bold text-white" id="resource-battery">0%</span>
+        </div>
+        <div class="w-full bg-dark-500 rounded-full h-2">
+          <div class="bg-gradient-to-r from-green-500 to-yellow-500 h-2 rounded-full transition-all duration-300" id="battery-bar" style="width: 0%"></div>
+        </div>
+      </div>
+      
+      <div class="bg-dark-600 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center space-x-2">
+            <i class="fa-solid fa-thermometer-half text-red-400"></i>
+            <span class="text-sm text-gray-300">Temperature</span>
+          </div>
+          <span class="text-lg font-bold text-white" id="resource-temperature">0°C</span>
+        </div>
+        <div class="text-xs text-gray-400 mt-1" id="temperature-status">Normal</div>
+      </div>
+    </div>
+    
+    <!-- Detailed Stats -->
+    <div class="bg-dark-600 rounded-xl p-4">
+      <h4 class="text-sm font-semibold text-gray-300 mb-3">System Details</h4>
+      <div class="space-y-2 text-xs">
+        <div class="flex justify-between">
+          <span class="text-gray-400">Battery Details:</span>
+          <span class="text-white" id="battery-details">Loading...</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-400">GPU Info:</span>
+          <span class="text-white" id="gpu-info">Loading...</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-400">Thread Info:</span>
+          <span class="text-white" id="thread-info">Loading...</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-400">Last Update:</span>
+          <span class="text-white" id="last-update">Never</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Transcript Display -->
   <div class="bg-dark-700 rounded-2xl p-6 border border-dark-600 mb-6">
     <div class="flex items-center justify-between mb-4">
@@ -284,14 +371,15 @@
   };
 
   // Bridge contract (if running in Android WebView)
-  const hasBridge = typeof window.AndroidWhisper !== 'undefined';
+  const hasBridge = typeof window.WhisperBridge !== 'undefined';
   const bridge = hasBridge ? {
-    async exportJson(jobId) { return window.AndroidWhisper.exportJson(jobId); },
-    async exportSrt(jobId) { return window.AndroidWhisper.exportSrt(jobId); },
-    async exportTxt(jobId) { return window.AndroidWhisper.exportTxt(jobId); },
-    async exportAll(jobId) { return window.AndroidWhisper.exportAll(jobId); },
-    async goBack() { return window.AndroidWhisper.goBack(); },
-    async newAnalysis() { return window.AndroidWhisper.newAnalysis(); }
+    async exportJson(jobId) { return window.WhisperBridge.exportJson(jobId); },
+    async exportSrt(jobId) { return window.WhisperBridge.exportSrt(jobId); },
+    async exportTxt(jobId) { return window.WhisperBridge.exportTxt(jobId); },
+    async exportAll(jobId) { return window.WhisperBridge.exportAll(jobId); },
+    async goBack() { return window.WhisperBridge.goBack(); },
+    async newAnalysis() { return window.WhisperBridge.newAnalysis(); },
+    async getResourceStats() { return window.WhisperBridge.getResourceStats(); }
   } : {
     // Mock bridge for browser testing
     async exportJson(jobId) { 
@@ -323,6 +411,19 @@
         window.AndroidInterface.openWhisperFileSelection();
       }
       return 'ok';
+    },
+    async getResourceStats() { 
+      console.log('Mock: Getting resource stats');
+      return JSON.stringify({
+        memory: Math.floor(Math.random() * 50) + 20,
+        cpu: Math.floor(Math.random() * 30) + 10,
+        battery: Math.floor(Math.random() * 40) + 60,
+        temperature: Math.floor(Math.random() * 10) + 35,
+        batteryDetails: 'Level: 75%, Temp: 37.2°C, Voltage: 4.1V',
+        gpuInfo: 'GPU: Adreno 640',
+        threadInfo: 'Threads: 45 | Main: main | Active: 12 | CPUs: 8 | Est. Processing: 16',
+        timestamp: Date.now()
+      });
     }
   };
 
@@ -440,9 +541,69 @@
     }
   };
 
+  // Resource monitoring functions
+  function updateResourceStats(statsJson) {
+    try {
+      const stats = JSON.parse(statsJson);
+      
+      // Update main resource displays
+      document.getElementById('resource-memory').textContent = stats.memory + '%';
+      document.getElementById('resource-cpu').textContent = stats.cpu.toFixed(1) + '%';
+      document.getElementById('resource-battery').textContent = stats.battery + '%';
+      document.getElementById('resource-temperature').textContent = stats.temperature.toFixed(1) + '°C';
+      
+      // Update progress bars
+      document.getElementById('memory-bar').style.width = stats.memory + '%';
+      document.getElementById('cpu-bar').style.width = stats.cpu + '%';
+      document.getElementById('battery-bar').style.width = stats.battery + '%';
+      
+      // Update detailed information
+      document.getElementById('battery-details').textContent = stats.batteryDetails || 'N/A';
+      document.getElementById('gpu-info').textContent = stats.gpuInfo || 'N/A';
+      document.getElementById('thread-info').textContent = stats.threadInfo || 'N/A';
+      
+      // Update timestamp
+      const updateTime = new Date(stats.timestamp).toLocaleTimeString();
+      document.getElementById('last-update').textContent = updateTime;
+      
+      // Update temperature status
+      const tempStatus = document.getElementById('temperature-status');
+      if (stats.temperature > 40) {
+        tempStatus.textContent = 'Hot';
+        tempStatus.className = 'text-xs text-red-400 mt-1';
+      } else if (stats.temperature < 30) {
+        tempStatus.textContent = 'Cool';
+        tempStatus.className = 'text-xs text-blue-400 mt-1';
+      } else {
+        tempStatus.textContent = 'Normal';
+        tempStatus.className = 'text-xs text-green-400 mt-1';
+      }
+      
+      console.log('Resource stats updated:', stats);
+    } catch (e) {
+      console.error('Error parsing resource stats:', e);
+    }
+  }
+  
+  // Make updateResourceStats globally available for Android bridge
+  window.updateResourceStats = updateResourceStats;
+  
+  // Initialize resource monitoring
+  async function initializeResourceMonitoring() {
+    try {
+      const stats = await bridge.getResourceStats();
+      updateResourceStats(stats);
+    } catch (e) {
+      console.error('Error initializing resource monitoring:', e);
+    }
+  }
+
   // Initialize
   console.log('Whisper Step 3 initialized');
   showToast('Results loaded successfully');
+  
+  // Start resource monitoring
+  initializeResourceMonitoring();
 
 })();
 

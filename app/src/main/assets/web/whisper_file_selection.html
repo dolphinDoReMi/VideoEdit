@@ -83,6 +83,12 @@
         <span class="text-lg">Select Video Files</span>
       </button>
       
+      <button id="open-file-picker-btn"
+              class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold py-4 px-6 rounded-xl flex items-center justify-center space-x-3 transition-all duration-200 mb-4">
+        <i class="fa-solid fa-photo-film text-xl"></i>
+        <span class="text-lg">Browse Local Media</span>
+      </button>
+      
       <!-- Supported Formats Info -->
       <div class="bg-dark-600 rounded-lg p-3 mb-4">
         <div class="text-xs text-gray-400 mb-2">Supported Formats:</div>
@@ -162,6 +168,39 @@
       <span class="text-lg">Process Selected Files</span>
     </button>
 
+    <!-- Error Display Section -->
+    <div id="error-display" class="bg-red-900/20 border border-red-600 rounded-xl p-4 mb-4" style="display: none;">
+      <div class="flex items-start space-x-3">
+        <div class="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+          <i class="fa-solid fa-exclamation text-white text-xs"></i>
+        </div>
+        <div class="flex-1">
+          <h4 class="text-sm font-medium text-red-300 mb-1">File Selection Error</h4>
+          <p id="error-message" class="text-xs text-red-200 mb-2"></p>
+          <div id="error-details" class="text-xs text-red-300/80"></div>
+        </div>
+        <button id="dismiss-error" class="text-red-400 hover:text-red-300 transition-colors">
+          <i class="fa-solid fa-times text-sm"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Warning Display Section -->
+    <div id="warning-display" class="bg-yellow-900/20 border border-yellow-600 rounded-xl p-4 mb-4" style="display: none;">
+      <div class="flex items-start space-x-3">
+        <div class="w-5 h-5 bg-yellow-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+          <i class="fa-solid fa-triangle-exclamation text-white text-xs"></i>
+        </div>
+        <div class="flex-1">
+          <h4 class="text-sm font-medium text-yellow-300 mb-1">File Selection Warnings</h4>
+          <div id="warning-list" class="text-xs text-yellow-200"></div>
+        </div>
+        <button id="dismiss-warning" class="text-yellow-400 hover:text-yellow-300 transition-colors">
+          <i class="fa-solid fa-times text-sm"></i>
+        </button>
+      </div>
+    </div>
+
     <!-- Status Information -->
     <div id="analysis-status" class="bg-dark-800 rounded-xl p-4 border border-dark-600"
          role="status" aria-live="polite" aria-busy="false">
@@ -216,9 +255,14 @@
 
 // DOM Elements
 const selectVideoBtn = document.getElementById('select-video-files-btn');
+const openFilePickerBtn = document.getElementById('open-file-picker-btn');
 const selectAllBtn = document.getElementById('select-all-videos-btn');
 const clearBtn = document.getElementById('clear-selection-btn');
 const processBtn = document.getElementById('process-files-btn');
+
+// Debug: Check if buttons are found
+console.log('selectVideoBtn:', selectVideoBtn);
+console.log('openFilePickerBtn:', openFilePickerBtn);
 const filesList = document.getElementById('selected-files-list');
 const filesContainer = document.getElementById('files-container');
 const selectionSummary = document.getElementById('selection-summary');
@@ -281,7 +325,7 @@ const mockBridge = {
 };
 
 // Use real bridge if available, otherwise mock
-const bridge = window.AndroidWhisper || mockBridge;
+const bridge = window.WhisperBridge || mockBridge;
 
 // Utility functions
 function setStatus(message, color = 'gray', busy = false) {
@@ -383,16 +427,54 @@ function updateFileList() {
   }
 
 // Event handlers
+openFilePickerBtn.onclick = async () => {
+  console.log('Browse Local Media button clicked!');
+  try {
+    setStatus('Opening file picker...', 'blue', true);
+    hideErrorMessages();
+    
+    // Launch the system file picker
+    console.log('Calling bridge.openFilePicker()...');
+    const result = await bridge.openFilePicker();
+    console.log('File picker result:', result);
+    
+    if (result === 'file_picker_launched') {
+      setStatus('File picker opened', 'green', false);
+      toast('File picker opened - select your video files');
+    } else if (result.startsWith('error:')) {
+      const errorType = result.substring(6); // Remove 'error:' prefix
+      showFilePickerError(errorType);
+      setStatus('File picker error', 'red', false);
+    } else {
+      setStatus('File picker error', 'red', false);
+      toast(`File picker error: ${result}`, true);
+    }
+  } catch (e) {
+    console.error('File picker error:', e);
+    setStatus('File picker failed', 'red', false);
+    showError('File picker failed', `Unexpected error: ${String(e)}`);
+    toast(`File picker failed: ${String(e)}`, true);
+  }
+};
+
 selectVideoBtn.onclick = async () => {
   try {
     setStatus('Selecting video files...', 'blue', true);
+    hideErrorMessages();
     
     // Get video files from the bridge
     const result = await bridge.getAllVideoFiles();
     const data = JSON.parse(result);
     
     if (data.error) {
+      showError('Video File Detection Error', data.error, 'Please check storage permissions and try again.');
       throw new Error(data.error);
+    }
+    
+    if (!data.files || data.files.length === 0) {
+      showError('No Video Files Found', 'No video files were found in common directories.', 'Please ensure video files exist in DCIM/Camera, Movies, or Download folders.');
+      setStatus('No video files found', 'yellow', false);
+      return;
     }
     
     // Add files to selection
@@ -404,6 +486,7 @@ selectVideoBtn.onclick = async () => {
     
   } catch (e) {
     setStatus('File selection failed', 'red', false);
+    showError('File Selection Failed', `Failed to detect video files: ${String(e)}`, 'Please check storage permissions and try again.');
     toast(`Selection failed: ${String(e)}`, true);
   }
 };
@@ -411,13 +494,21 @@ selectVideoBtn.onclick = async () => {
 selectAllBtn.onclick = async () => {
   try {
     setStatus('Selecting all video files...', 'blue', true);
+    hideErrorMessages();
     
     // Get all video files from the bridge
     const result = await bridge.getAllVideoFiles();
     const data = JSON.parse(result);
     
     if (data.error) {
+      showError('Video File Detection Error', data.error, 'Please check storage permissions and try again.');
       throw new Error(data.error);
+    }
+    
+    if (!data.files || data.files.length === 0) {
+      showError('No Video Files Found', 'No video files were found in common directories.', 'Please ensure video files exist in DCIM/Camera, Movies, or Download folders.');
+      setStatus('No video files found', 'yellow', false);
+      return;
     }
     
     selectedFiles = data.files;
@@ -428,6 +519,7 @@ selectAllBtn.onclick = async () => {
     
     } catch (e) {
     setStatus('Select all failed', 'red', false);
+    showError('Select All Failed', `Failed to detect video files: ${String(e)}`, 'Please check storage permissions and try again.');
     toast(`Select all failed: ${String(e)}`, true);
   }
 };
@@ -531,9 +623,139 @@ btnRefresh.onclick = async () => {
   }
 };
 
+// Error handling functions
+function showError(title, message, details = '') {
+  const errorDisplay = document.getElementById('error-display');
+  const errorMessage = document.getElementById('error-message');
+  const errorDetails = document.getElementById('error-details');
+  
+  errorMessage.textContent = message;
+  errorDetails.textContent = details;
+  errorDisplay.style.display = 'block';
+  
+  // Auto-hide after 10 seconds
+  setTimeout(() => {
+    errorDisplay.style.display = 'none';
+  }, 10000);
+}
+
+function showWarning(warnings) {
+  const warningDisplay = document.getElementById('warning-display');
+  const warningList = document.getElementById('warning-list');
+  
+  if (Array.isArray(warnings)) {
+    warningList.innerHTML = warnings.map(w => `<div class="mb-1">• ${w}</div>`).join('');
+  } else {
+    warningList.innerHTML = `<div>• ${warnings}</div>`;
+  }
+  
+  warningDisplay.style.display = 'block';
+  
+  // Auto-hide after 15 seconds
+  setTimeout(() => {
+    warningDisplay.style.display = 'none';
+  }, 15000);
+}
+
+function hideErrorMessages() {
+  document.getElementById('error-display').style.display = 'none';
+  document.getElementById('warning-display').style.display = 'none';
+}
+
+function showFilePickerError(errorType) {
+  const errorMessages = {
+    'invalid_context': {
+      title: 'Invalid Context',
+      message: 'File picker cannot be launched from this context.',
+      details: 'Please restart the app and try again.'
+    },
+    'no_file_picker': {
+      title: 'No File Picker Available',
+      message: 'No file picker application is available on this device.',
+      details: 'Please install a file manager app or use a different device.'
+    },
+    'no_permissions': {
+      title: 'Storage Permission Required',
+      message: 'Storage permissions are required to access video files.',
+      details: 'Please grant storage permissions in app settings and try again.'
+    },
+    'security_exception': {
+      title: 'Security Error',
+      message: 'Security restrictions prevent file picker access.',
+      details: 'Please check app permissions and try again.'
+    },
+    'launch_failed': {
+      title: 'File Picker Launch Failed',
+      message: 'Unable to launch the file picker.',
+      details: 'Please try again or restart the app.'
+    }
+  };
+  
+  const error = errorMessages[errorType] || {
+    title: 'Unknown Error',
+    message: `File picker error: ${errorType}`,
+    details: 'Please try again or contact support.'
+  };
+  
+  showError(error.title, error.message, error.details);
+}
+
+// Error dismiss handlers
+document.getElementById('dismiss-error').onclick = () => {
+  document.getElementById('error-display').style.display = 'none';
+};
+
+document.getElementById('dismiss-warning').onclick = () => {
+  document.getElementById('warning-display').style.display = 'none';
+};
+
+// File selection handler (called from Android bridge)
+window.handleFileSelection = (jsonResponse) => {
+  try {
+    const data = JSON.parse(jsonResponse);
+    
+    if (data.success && data.files && data.files.length > 0) {
+      // Add selected files to the list
+      selectedFiles = [...selectedFiles, ...data.files];
+      updateFileList();
+      
+      setStatus(`${data.files.length} files selected from picker`, 'green', false);
+      toast(`Selected ${data.files.length} files from picker`);
+      
+      // Show warnings if any
+      if (data.warnings && data.warnings.length > 0) {
+        showWarning(data.warnings);
+      }
+    } else if (data.error) {
+      setStatus('File selection failed', 'red', false);
+      
+      // Show specific error based on error type
+      if (data.errorType === 'no_selection') {
+        showError('No Files Selected', 'No files were selected from the file picker.', 'Please try again and select at least one video file.');
+      } else if (data.errorType === 'validation_failed') {
+        showError('Invalid Files Selected', 'None of the selected files are valid for processing.', 'Please select supported video formats (MP4, AVI, MOV, MKV, WEBM, WMV, FLV).');
+      } else if (data.errorType === 'processing_error') {
+        showError('File Processing Error', data.error, 'Please try selecting different files.');
+      } else {
+        showError('File Selection Error', data.error, 'Please try again.');
+      }
+      
+      toast(`Selection failed: ${data.error}`, true);
+    } else {
+      setStatus('No files selected', 'yellow', false);
+      showError('No Selection', 'No files were selected.', 'Please try again and select video files.');
+      toast('No files selected');
+    }
+  } catch (e) {
+    setStatus('File selection error', 'red', false);
+    showError('Selection Error', `Failed to process file selection: ${String(e)}`, 'Please try again.');
+    toast(`Selection error: ${String(e)}`, true);
+  }
+};
+
 // Initialize
 console.log('Whisper Step 1 initialized');
-setStatus('Ready', 'gray', false);
+setStatus('Ready to select video files', 'green', false);
 
 </script>
 

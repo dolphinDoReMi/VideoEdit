@@ -1,0 +1,11 @@
+Direct Batch Processing Performance Analysis
+==========================================
+Test Time: Sat Oct  4 17:49:53 CST 2025
+Jobs Submitted: 3
+Jobs Completed: 0
+Output Files Created: 0
+Batch Sidecar Files:        0
+Memory Usage: 0KB
+Error Count:       16
+Processing Duration: ~309 seconds
+Success Rate: 0%

@@ -49,7 +49,7 @@ class Clip4ClipActivity : ComponentActivity() {
         }
         
         // Load the staging HTML file
-        webView.loadUrl("file:///android_asset/web/whisper-step1.html")
+        webView.loadUrl("file:///android_asset/web/whisper-file-selection.html")
         
         Log.i(TAG, "Staging interface initialized")
     }

@@ -93,7 +93,7 @@ class WhisperReceiver : BroadcastReceiver() {
             
             // Use the actual WhisperApi to enqueue real processing
             com.mira.com.feature.whisper.api.WhisperApi.enqueueTranscribe(
-                context = context,
+                ctx = context,
                 uri = uri,
                 model = modelPath,
                 threads = threads,

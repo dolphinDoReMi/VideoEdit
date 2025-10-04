@@ -6,6 +6,8 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
+import java.util.Timer
+import java.util.TimerTask
 
 /**
  * Activity for Whisper Results UI.
@@ -19,6 +21,8 @@ class WhisperResultsActivity : AppCompatActivity() {
     }
     
     private lateinit var webView: WebView
+    private var resourceTimer: Timer? = null
+    private lateinit var whisperBridge: AndroidWhisperBridge
     
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,17 +49,57 @@ class WhisperResultsActivity : AppCompatActivity() {
             }
             
             // Add the WhisperBridge
-            addJavascriptInterface(AndroidWhisperBridge(this@WhisperResultsActivity), "WhisperBridge")
+            whisperBridge = AndroidWhisperBridge(this@WhisperResultsActivity)
+            addJavascriptInterface(whisperBridge, "WhisperBridge")
             
             // Load the whisper_results.html file
             loadUrl("file:///android_asset/web/whisper_results.html")
         }
         
         setContentView(webView)
+        
+        // Start resource monitoring
+        startResourceMonitoring()
     }
     
     override fun onDestroy() {
         super.onDestroy()
+        stopResourceMonitoring()
         Log.d(TAG, "WhisperResultsActivity destroyed")
+    }
+    
+    private fun startResourceMonitoring() {
+        resourceTimer = Timer()
+        resourceTimer?.scheduleAtFixedRate(object : TimerTask() {
+            override fun run() {
+                runOnUiThread {
+                    updateResourceUsage()
+                }
+            }
+        }, 0, 2000) // Update every 2 seconds
+        Log.d(TAG, "Resource monitoring started")
+    }
+    
+    private fun stopResourceMonitoring() {
+        resourceTimer?.cancel()
+        resourceTimer = null
+        Log.d(TAG, "Resource monitoring stopped")
+    }
+    
+    private fun updateResourceUsage() {
+        try {
+            val resourceStats = whisperBridge.getResourceStats()
+            
+            // Send resource stats to WebView
+            webView.evaluateJavascript("""
+                if (typeof updateResourceStats === 'function') {
+                    updateResourceStats('$resourceStats');
+                }
+            """.trimIndent(), null)
+            
+            Log.d(TAG, "Resource stats updated: $resourceStats")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error updating resource usage: ${e.message}")
+        }
     }
 }
