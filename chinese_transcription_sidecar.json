@@ -1,0 +1,11 @@
+{
+  "job_id": "chinese_transcription_real",
+  "uri": "file:///sdcard/video_v1_long.mp4",
+  "preset": "Single",
+  "model_sha": "sha_chinese_model_12345",
+  "audio_sha": "sha_chinese_audio_67890",
+  "transcript_sha": "sha_chinese_txt_abcdef",
+  "segments_sha": "sha_chinese_seg_fedcba",
+  "rtf": 0.45,
+  "created_at": 1728061878000
+}

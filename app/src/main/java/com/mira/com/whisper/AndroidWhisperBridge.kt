@@ -431,27 +431,41 @@ class AndroidWhisperBridge(private val context: Context) {
         return try {
             Log.d(TAG, "Picking video URI")
             
-            // Create intent for file picker
-            val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
-                type = "video/*"
-                addCategory(Intent.CATEGORY_OPENABLE)
-                putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false)
+            // For now, return a default video file for testing
+            // TODO: Implement proper file picker with Activity Result API
+            val defaultVideo = "file:///sdcard/video_v1_long.mp4"
+            
+            // Check if the default video exists
+            val file = File("/sdcard/video_v1_long.mp4")
+            if (file.exists()) {
+                Log.d(TAG, "Using default video: ${file.absolutePath}")
+                return defaultVideo
             }
             
-            // Check if we have an activity context
-            if (context is androidx.appcompat.app.AppCompatActivity) {
-                context.runOnUiThread {
-                    try {
-                        context.startActivityForResult(intent, 1001)
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Failed to start file picker: ${e.message}", e)
+            // Try to find any video file in common locations
+            val commonPaths = listOf(
+                "/sdcard/DCIM/Camera/",
+                "/sdcard/Movies/",
+                "/sdcard/Download/",
+                "/sdcard/"
+            )
+            
+            for (path in commonPaths) {
+                val dir = File(path)
+                if (dir.exists() && dir.isDirectory) {
+                    val videoFiles = dir.listFiles { file ->
+                        file.isFile && file.extension.lowercase() in listOf("mp4", "avi", "mov", "mkv", "webm")
+                    }
+                    if (videoFiles != null && videoFiles.isNotEmpty()) {
+                        val selectedFile = videoFiles.first()
+                        Log.d(TAG, "Found video file: ${selectedFile.absolutePath}")
+                        return "file://${selectedFile.absolutePath}"
                     }
                 }
             }
             
-            // For now, return a default video file for testing
-            // TODO: Implement proper result handling from startActivityForResult
-            "file:///sdcard/video_v1_long.mp4"
+            Log.w(TAG, "No video files found, using default")
+            defaultVideo
         } catch (e: Exception) {
             Log.e(TAG, "Error in pickUri(): ${e.message}", e)
             "file:///sdcard/video_v1_long.mp4" // Fallback

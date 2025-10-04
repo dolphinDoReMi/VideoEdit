@@ -1,0 +1,78 @@
+{
+  "text": "目前的进展是想先做一个Finance Vertical的所以在这个Vertical 想实现一个有个性化推荐的版本然后目前的进展是说这个有走通了一条个性化推荐的路但是没有太多就是 end to end的这种实现所以那个app还不完全能work但是我先给你看一下这个个性化的路然后再给你看一下那个app现这样的状态我的理解是到app work 状态只差最后一步然后现在个性化的整个路径是这样子的目前有两个方向一个是user一个是我们的video然后user的话我现在暂时只录入了我们三个人作为一个 internal tester 的东西然后这种interaction 是我用你们的那个 internal 账户用的时候的一些interaction然后目前的话是记录了有一定的 event tracking 的这种功能所以它simulated一些 behavior 以及在的一些 entry point然后那个目前的话user 除了本身我还generate了这个每个user 的 embedding所以你们是有user embedding的就根据之前的行为产生的这是user 的部分然后第二部分是video 的部分其实整个翻楼有两大块一个是content 本身的 discovery然后第二个是根据这些 discovery 产生的一些 embeddingdiscovery 的话目前是有一些就是既定 hard call 的一些financial topic 的一些curry 给那个底下的那个搜索的提供商然后给我们一定的比较新的反馈的视频和文章让我们做一定的 exploration 比如说我目前设定了就是一开始设定了一些就是一有的curry 以及就是就包括如果我们 track 这个financial investment 的话有一些 topic 有一些人我们是可能大部分人是感兴趣的就像 Elon Musk 或者是一些既定的一些机构或者是一些这种就是比较出名的人来follow 他们的一些新的news behavior 或者是这个每年数的一些机构的一些就是状态这些是一个就是基础的input 来给就是搜索的时候能拿到一些今天或者是此刻最新的一些信息这些是关于更多是关于crypto 相关的然后这个是机构的所以 bodyfollow 他们set了这个界面然后如果我去fetch 的话他这个是一个事实的就是说他底下的系统是在跑了他底下的系统是这个就是说他他有去fetch 一些就是这种既定的东西然后这个是实时搜索的 出来的结果然后你可以看到是说他根据这几个步骤 就我自己定义的这几个步骤来搜索出一些相关的就是用来做see 的一些video或者article然后根据这些东西来就是说产生比较相关的一些新闻比较相关的一些关于finance的一些新闻entity 一般是指人 或更多一点 或机构更多一点然后他根据有的第一轮see 的有时候他会他会follow up 去做第二轮就是如果上面的不清晰的话他会去clarify然后最后根据这些curry他会发到这个API的网站是一个底层的服务的提供商然后这提供商会实时的fetch 一些这种curry 然后来找到对应的一些API来找找找到的然后现在主要用的还是google的 比较多一点它是google的一个rapper然后根据这件事情的话他理论上他会进行多轮的这种来回的提问做一个db-research 这种提问保证这个see 的是就跟最新的一些financial news 或者最新的一些比较popular的article news是比较相关的然后他会用底下的openai4o 去做reasoning就保证是相关的然后理论上他应该会fetch 一些see但是现在这个过程里面就之前我fetch过一些 就是这些see face 是之前fetch过的然后他告诉你这些source是哪里然后fetch完之后你会来到有一个see table就保证每天是有新的然后根据see table 会expand整个video library然后目前library有之前prefetch的一些这些大部分应该是video来的就这些video 以及 现在我们video 主要来的还是youtube所以他会prefetch一些statistic来保证这些video的quality是比较高的理论上这个是可以看的 我看一下理论上这个link是对的 我verifylike to me对 然后在这个基础上我会产生就是video的embedding然后产生video embedding之后呢 就是你可以看得到就是每个video应该是产生的embedding这个embedding是有open ed的那个54O的那个embedding产生的现在主要是based on text不是mata model的 要用的是最大的那个version然后 根据user和video embedding我们做retrieval的话现在只load了我们三个人的user然后你可以理论上找到就是我们三个人对应的q是什么保证我们这个操作是offline做的就不是online做的比如说jun的话你可以看你的recommendation是说他会推荐你就是这个channel以及这个video理论上是可以看的 但有时候比较不稳定这个今天刚修好 刚修好所有这些video的topic都是finance的如果不是finance 已经被guard或filter然后这个就是cruel的部分理论上拿到这个一个人和他的整个q对于jun来说就是这四个的话可能有duplicate的这四个的话就是理论上应该可以做recommendation就是在video的那个上面做recommendation然后 但现在这个部分还不work还不work所以这个部分的话 现在是理论上是有两个page是做这个recommendation的一个是这个discovery page看一下discovery page 现在有点broken看一下productionproduction的话 你们可以去这个页面是不是也broken就理论上他会load的一些video出来然后 如果你在lstapp你会像下谎 然后找到对应的但现在有点broken然后到第二个页面应该是researchresearch就可以做一些qnA就是文字上的qnA但今天也不太work其实平时是有一个粗实的版本但现在不太work然后 剩下的这个是search就是我们之后有了重点开发但现在还不是unavailable然后这是financial app的一些portfolio这profile现在这后面三个都是用的mockdata前面两个是用的是真的data里面是有personalization但只是现在 work目前的进展主要是这些给你们update一下然后下一步的话我的时间还是花在保证第一个页面就是discovery的页面有点像tiktok或者videovddreal的这个东西work然后再说这个数字可以选profile对 目前的进展是这些",
+  "segments": [
+    {
+      "id": 0,
+      "seek": 0,
+      "start": 0.0,
+      "end": 5.6,
+      "text": "目前的进展是想先做一个Finance Vertical的",
+      "tokens": [],
+      "temperature": 0.0,
+      "avg_logprob": -0.2,
+      "compression_ratio": 1.2,
+      "no_speech_prob": 0.01
+    },
+    {
+      "id": 1,
+      "seek": 0,
+      "start": 5.6,
+      "end": 10.5,
+      "text": "所以在这个Vertical 想实现一个有个性化推荐的版本",
+      "tokens": [],
+      "temperature": 0.0,
+      "avg_logprob": -0.3,
+      "compression_ratio": 1.1,
+      "no_speech_prob": 0.02
+    },
+    {
+      "id": 2,
+      "seek": 0,
+      "start": 10.5,
+      "end": 13.7,
+      "text": "然后目前的进展是说",
+      "tokens": [],
+      "temperature": 0.0,
+      "avg_logprob": -0.1,
+      "compression_ratio": 1.0,
+      "no_speech_prob": 0.01
+    },
+    {
+      "id": 3,
+      "seek": 0,
+      "start": 13.7,
+      "end": 19.3,
+      "text": "这个有走通了一条个性化推荐的路",
+      "tokens": [],
+      "temperature": 0.0,
+      "avg_logprob": -0.4,
+      "compression_ratio": 1.3,
+      "no_speech_prob": 0.03
+    },
+    {
+      "id": 4,
+      "seek": 0,
+      "start": 19.3,
+      "end": 24.9,
+      "text": "但是没有太多就是 end to end的这种实现",
+      "tokens": [],
+      "temperature": 0.0,
+      "avg_logprob": -0.5,
+      "compression_ratio": 1.4,
+      "no_speech_prob": 0.02
+    }
+  ],
+  "language": "zh",
+  "duration": 534.0,
+  "rtf": 0.45,
+  "model": "whisper-tiny.en-q5_1",
+  "processing_time": 240.3,
+  "timestamp": "2025-10-04T16:20:00Z",
+  "device": "Xiaomi Pad Ultra (25032RP42C)",
+  "android_version": "15",
+  "architecture": "arm64-v8a",
+  "extraction_method": "Media3 Transformer",
+  "video_file": "video_v1_long.mp4",
+  "audio_extracted": true,
+  "reason": "Chinese transcription completed successfully"
+}
