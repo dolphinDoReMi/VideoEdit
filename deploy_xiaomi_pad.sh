@@ -11,7 +11,7 @@ echo ""
 
 # Configuration
 APP_ID="com.mira.com"
-MAIN_ACTIVITY="com.mira.clip.Clip4ClipActivity"
+MAIN_ACTIVITY="com.mira.whisper.WhisperMainActivity"
 DEVICE_NAME="Xiaomi Pad Ultra"
 BUILD_TYPE="debug"
 
@@ -164,24 +164,24 @@ test_app() {
 test_whisper_flow() {
     log_info "Testing Whisper Step Flow..."
     
-    # Test Step 1: Setup and Run
-    log_info "Testing Step 1 (Setup & Run)..."
+    # Test Selection: Setup and Run
+    log_info "Testing Selection (Setup & Run)..."
     
     # Navigate to whisper step 1 (this would be done via UI)
     log_info "Note: Manual testing required for UI navigation"
-    log_info "1. Look for 'Whisper — Step 1' section in the app"
+    log_info "1. Look for 'Whisper — File Selection' section in the app"
     log_info "2. Test 'Pick Media (URI)' button"
     log_info "3. Test 'Pick Model' button"
     log_info "4. Test preset selection (Single/Accuracy)"
     log_info "5. Test 'Run' button (should navigate to Step 2)"
     
-    # Test Step 2: Processing
-    log_info "Testing Step 2 (Processing & Export)..."
+    # Test Processing
+    log_info "Testing Processing & Export..."
     log_info "1. Verify processing status display"
     log_info "2. Test 'Export All Data' button (should navigate to Step 3)"
     
-    # Test Step 3: Results
-    log_info "Testing Step 3 (Results & Export)..."
+    # Test Results
+    log_info "Testing Results & Export..."
     log_info "1. Verify results display"
     log_info "2. Test export options (JSON, SRT, TXT)"
     log_info "3. Test 'New Analysis' button (should go back to Step 1)"

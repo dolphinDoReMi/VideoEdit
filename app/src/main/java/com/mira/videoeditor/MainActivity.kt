@@ -16,7 +16,7 @@ import java.util.Timer
 import java.util.TimerTask
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.math.max
-import com.mira.com.whisper.AndroidWhisperBridge
+import com.mira.whisper.AndroidWhisperBridge
 import android.content.Intent
 
 class MainActivity : AppCompatActivity() {
@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity() {
             }
             addJavascriptInterface(JavaScriptInterface(), "AndroidInterface")
             addJavascriptInterface(AndroidWhisperBridge(this@MainActivity), "AndroidWhisper")
-            loadUrl("file:///android_asset/processing.html")
+            loadUrl("file:///android_asset/web/processing.html")
         }
         setContentView(webView)
     }
@@ -442,7 +442,7 @@ class MainActivity : AppCompatActivity() {
         @JavascriptInterface
         fun openWhisperFileSelection() {
             runOnUiThread {
-                val intent = Intent(this@MainActivity, com.mira.com.whisper.WhisperFileSelectionActivity::class.java)
+                val intent = Intent(this@MainActivity, com.mira.whisper.WhisperFileSelectionActivity::class.java)
                 startActivity(intent)
             }
         }
@@ -450,7 +450,7 @@ class MainActivity : AppCompatActivity() {
         @JavascriptInterface
         fun openWhisperProcessing() {
             runOnUiThread {
-                val intent = Intent(this@MainActivity, com.mira.com.whisper.WhisperProcessingActivity::class.java)
+                val intent = Intent(this@MainActivity, com.mira.whisper.WhisperProcessingActivity::class.java)
                 startActivity(intent)
             }
         }
@@ -468,7 +468,7 @@ class MainActivity : AppCompatActivity() {
         @JavascriptInterface
         fun openWhisperResults() {
             runOnUiThread {
-                val intent = Intent(this@MainActivity, com.mira.com.whisper.WhisperResultsActivity::class.java)
+                val intent = Intent(this@MainActivity, com.mira.whisper.WhisperResultsActivity::class.java)
                 startActivity(intent)
             }
         }

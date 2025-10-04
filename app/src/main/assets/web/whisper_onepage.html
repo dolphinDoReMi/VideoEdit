@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>*{font-family:'Inter',sans-serif}::-webkit-scrollbar{display:none}</style>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { dark: { 900:'#0a0a0a',800:'#1a1a1a',700:'#2a2a2a',600:'#3a3a3a' } } } } };
+  </script>
+</head>
+<body class="bg-dark-900 text-white">
+
+<div class="px-6 py-4 bg-dark-800 border-b border-dark-600 flex items-center justify-between">
+  <div>
+    <h1 class="text-lg font-semibold">Whisper — One Page</h1>
+    <p class="text-xs text-gray-400">Import • Batch • Transcribe • Export</p>
+  </div>
+</div>
+
+<div class="px-6 py-6 space-y-4">
+  <div class="bg-dark-800 rounded-xl p-4 border border-dark-600">
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center space-x-2">
+        <div id="dot" class="w-2 h-2 rounded-full bg-gray-500"></div>
+        <span id="status" class="text-gray-300 text-sm">Ready</span>
+      </div>
+      <button id="refresh-stats" class="text-xs px-2 py-1 rounded bg-dark-700 border border-dark-600">Refresh Stats</button>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3 text-xs text-gray-300 mb-3">
+      <div class="bg-dark-700 rounded-lg p-2 border border-dark-600"><span class="text-gray-400">CPU</span> <span class="float-right text-white" id="stat-cpu">—</span>%</div>
+      <div class="bg-dark-700 rounded-lg p-2 border border-dark-600"><span class="text-gray-400">Memory</span> <span class="float-right text-white" id="stat-mem">—</span>%</div>
+      <div class="bg-dark-700 rounded-lg p-2 border border-dark-600"><span class="text-gray-400">Battery</span> <span class="float-right text-white" id="stat-bat">—</span>%</div>
+      <div class="bg-dark-700 rounded-lg p-2 border border-dark-600"><span class="text-gray-400">Temp</span> <span class="float-right text-white" id="stat-temp">—</span>°C</div>
+    </div>
+
+    <div class="flex items-center space-x-2">
+      <button id="browse" class="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 rounded-xl">Browse Local Files</button>
+      <button id="run" class="flex-1 bg-dark-700 text-gray-400 font-semibold py-3 rounded-xl cursor-not-allowed" disabled>Run Batch</button>
+      <button id="refresh-progress" class="px-3 py-3 bg-dark-700 text-gray-200 rounded-xl border border-dark-600">Refresh</button>
+    </div>
+  </div>
+
+  <div id="summary" class="bg-dark-800 rounded-xl p-4 border border-dark-600 hidden">
+    <div class="flex items-center justify-between mb-2">
+      <span class="text-gray-400 text-sm">Selected Files</span>
+      <span id="count" class="text-purple-300 text-sm">0</span>
+    </div>
+    <div id="files" class="space-y-1 text-sm text-gray-300"></div>
+  </div>
+
+  <div class="bg-dark-800 rounded-xl p-4 border border-dark-600">
+    <div class="flex items-center justify-between mb-2">
+      <h3 class="text-white font-semibold">Transcript</h3>
+      <div class="space-x-2">
+        <button id="refresh-tx" class="text-xs px-2 py-1 rounded bg-dark-700 border border-dark-600">Refresh</button>
+        <button id="export-db" class="text-xs px-2 py-1 rounded bg-green-700 border border-green-600">Export to DB</button>
+      </div>
+    </div>
+    <pre id="tx" class="text-sm text-gray-200 whitespace-pre-wrap max-h-72 overflow-y-auto">—</pre>
+  </div>
+</div>
+
+<script>
+(function(){
+  const hasBridge = typeof window.WhisperBridge !== 'undefined';
+  const browseBtn = document.getElementById('browse');
+  const runBtn = document.getElementById('run');
+  const dot = document.getElementById('dot');
+  const statusEl = document.getElementById('status');
+  const summary = document.getElementById('summary');
+  const countEl = document.getElementById('count');
+  const filesEl = document.getElementById('files');
+  const txEl = document.getElementById('tx');
+  const refreshTxBtn = document.getElementById('refresh-tx');
+  const refreshProgressBtn = document.getElementById('refresh-progress');
+  const exportDbBtn = document.getElementById('export-db');
+  const refreshStatsBtn = document.getElementById('refresh-stats');
+
+  let selected = [];
+  let lastJobId = '';
+
+  function setStatus(text, color){
+    statusEl.textContent = text;
+    dot.className = 'w-2 h-2 rounded-full ' + (color||'bg-gray-500');
+  }
+
+  function renderSelection(){
+    if (selected.length === 0){ summary.classList.add('hidden'); runBtn.disabled = true; runBtn.className = 'flex-1 bg-dark-700 text-gray-400 font-semibold py-3 rounded-xl cursor-not-allowed'; countEl.textContent = '0'; filesEl.innerHTML = ''; return; }
+    summary.classList.remove('hidden');
+    countEl.textContent = String(selected.length);
+    filesEl.innerHTML = '';
+    selected.forEach(f=>{ const d=document.createElement('div'); d.textContent = f.name || f.uri || 'video'; filesEl.appendChild(d); });
+    runBtn.disabled = false; runBtn.className = 'flex-1 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-semibold py-3 rounded-xl';
+  }
+
+  function toast(msg){ setStatus(msg,'bg-blue-500'); setTimeout(()=>setStatus('Ready','bg-green-500'),1200); }
+
+  // Resource stats
+  function pullStats(){
+    try {
+      if (!hasBridge || !window.WhisperBridge.getResourceStats) return;
+      const s = window.WhisperBridge.getResourceStats();
+      const data = typeof s === 'string' ? JSON.parse(s) : s;
+      if (!data) return;
+      const q = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = String(v); };
+      q('stat-cpu', (data.cpu ?? '—'));
+      q('stat-mem', (data.memory ?? '—'));
+      q('stat-bat', (data.battery ?? '—'));
+      q('stat-temp', (data.temperature ?? '—'));
+    } catch(e) {}
+  }
+  refreshStatsBtn.onclick = pullStats;
+  if (hasBridge) { pullStats(); setInterval(pullStats, 2000); }
+
+  // File picker
+  browseBtn.onclick = () => {
+    try {
+      if (!hasBridge){ setStatus('Bridge not available','bg-yellow-500'); return; }
+      const r = window.WhisperBridge.openFilePicker();
+      if (r === 'file_picker_launched') setStatus('File picker opened','bg-green-500');
+    } catch(e){ setStatus('Browse failed','bg-red-500'); }
+  };
+
+  // Selection callback from Android
+  window.handleFileSelection = (json) => {
+    try {
+      const data = JSON.parse(json);
+      if (data && data.success && Array.isArray(data.files)){
+        selected = data.files;
+        renderSelection();
+        setStatus(`${selected.length} file(s) selected`,'bg-green-500');
+      } else { setStatus('No files selected','bg-yellow-500'); }
+    } catch(e){ setStatus('Selection error','bg-red-500'); }
+  };
+
+  // Run batch
+  runBtn.onclick = () => {
+    if (selected.length === 0 || !hasBridge) return;
+    try {
+      setStatus('Submitting batch...','bg-purple-500');
+      const uris = selected.map(f=>f.uri);
+      const args = { uris, preset:'Single', modelPath:'/sdcard/MiraWhisper/models/ggml-small-q5_1.bin', threads:6 };
+      const id = window.WhisperBridge.runBatch(JSON.stringify(args));
+      lastJobId = id; // batch id; individual jobIds will differ, but we will fallback to latest transcript
+      setStatus('Processing started','bg-purple-500');
+      // kick off progress polling
+      startProgressPolling();
+    } catch(e){ setStatus('Processing failed','bg-red-500'); }
+  };
+
+  // Transcript refresh
+  function refreshTranscript(){
+    try {
+      if (hasBridge && window.WhisperBridge.getLatestTranscript){
+        const txt = window.WhisperBridge.getLatestTranscript();
+        txEl.textContent = txt && txt.length ? txt : '—';
+      }
+    } catch(e) {}
+  }
+  refreshTxBtn.onclick = refreshTranscript;
+  if (hasBridge) { setInterval(refreshTranscript, 3000); refreshTranscript(); }
+
+  // Progress polling (UI hint only)
+  let fallbackPct = 0;
+  function pollProgressOnce(){
+    try {
+      // If BroadcastChannel events are wired on native, they'd update UI; here we emulate progress if none
+      const bar = document.createElement('div'); // no visible bar yet, just compute pct
+      fallbackPct = Math.min(95, fallbackPct + 2);
+      setStatus(`Processing... ${fallbackPct}%`,'bg-purple-500');
+    } catch(e) {}
+  }
+  function startProgressPolling(){
+    fallbackPct = 0;
+    if (window.__onepageProgressTimer) clearInterval(window.__onepageProgressTimer);
+    window.__onepageProgressTimer = setInterval(pollProgressOnce, 1500);
+  }
+  refreshProgressBtn.onclick = () => { pollProgressOnce(); };
+
+  // Export to DB
+  exportDbBtn.onclick = () => {
+    try {
+      if (!hasBridge || !window.WhisperBridge.saveTranscriptToDb){ setStatus('Export not available','bg-yellow-500'); return; }
+      // Try to get latest sidecar to find jobId
+      let jobId = '';
+      try {
+        const s = window.WhisperBridge.getLatestSidecar ? window.WhisperBridge.getLatestSidecar() : '{}';
+        const obj = typeof s === 'string' ? JSON.parse(s) : s;
+        jobId = obj.job_id || lastJobId || '';
+      } catch(e) {}
+      if (!jobId){ setStatus('No job to export','bg-yellow-500'); return; }
+      const ok = window.WhisperBridge.saveTranscriptToDb(jobId);
+      setStatus(ok ? 'Exported to DB' : 'Export failed', ok ? 'bg-green-500' : 'bg-red-500');
+    } catch(e){ setStatus('Export error','bg-red-500'); }
+  };
+})();
+</script>
+
+</body>
+</html>
+
+

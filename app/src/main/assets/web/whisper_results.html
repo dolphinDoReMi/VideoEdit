@@ -4,6 +4,115 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>* { font-family: 'Inter', sans-serif; } ::-webkit-scrollbar{display:none}</style>
+</head>
+<body class="bg-[#0a0a0a] text-white">
+
+<!-- Live Resource Top Bar -->
+<div id="live-topbar" class="px-4 py-2 bg-[#1a1a1a] border-b border-[#3a3a3a] text-xs flex items-center justify-between">
+  <div class="text-gray-300">Xiaomi Resource</div>
+  <div class="flex items-center space-x-4">
+    <div class="flex items-center space-x-1"><span class="text-gray-400">CPU</span><span id="tb-cpu" class="text-white">—%</span></div>
+    <div class="flex items-center space-x-1"><span class="text-gray-400">Mem</span><span id="tb-mem" class="text-white">—%</span></div>
+    <div class="flex items-center space-x-1"><span class="text-gray-400">Bat</span><span id="tb-bat" class="text-white">—%</span></div>
+    <div class="flex items-center space-x-1"><span class="text-gray-400">Temp</span><span id="tb-temp" class="text-white">—°C</span></div>
+  </div>
+  <div id="tb-dot" class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+  <button id="tb-refresh" class="ml-3 px-2 py-0.5 rounded border border-[#3a3a3a] text-gray-300">Refresh</button>
+  <script>
+    (function(){
+      const hasBridge = typeof window.WhisperBridge !== 'undefined';
+      function updateBar(){
+        try {
+          if (!hasBridge || !window.WhisperBridge.getResourceStats) return;
+          const s = window.WhisperBridge.getResourceStats();
+          const d = typeof s === 'string' ? JSON.parse(s) : s;
+          if (!d) return;
+          const q=(id,v)=>{const el=document.getElementById(id); if(el) el.textContent=String(v)};
+          q('tb-cpu', (d.cpu!=null? Number(d.cpu).toFixed(1):'—')+'%');
+          q('tb-mem', (d.memory!=null? d.memory:'—')+'%');
+          q('tb-bat', (d.battery!=null? d.battery:'—')+'%');
+          q('tb-temp', (d.temperature!=null? Number(d.temperature).toFixed(1):'—')+'°C');
+        } catch(e){}
+      }
+      const btn = document.getElementById('tb-refresh');
+      if (btn) btn.onclick = updateBar;
+      if (hasBridge) { updateBar(); setInterval(updateBar, 2000); }
+    })();
+  </script>
+</div>
+
+<div class="px-6 py-4 bg-[#1a1a1a] border-b border-[#3a3a3a] flex items-center justify-between">
+  <div>
+    <h1 class="text-lg font-semibold">Whisper Results</h1>
+    <p class="text-xs text-gray-400">Transcription complete</p>
+  </div>
+</div>
+
+<div class="px-6 py-6 space-y-4">
+  <div class="bg-[#1a1a1a] rounded-xl p-4 border border-[#3a3a3a]">
+    <div class="grid grid-cols-2 gap-3 text-sm">
+      <div>
+        <div class="text-gray-400">Job ID</div>
+        <div id="job" class="text-white font-medium">—</div>
+      </div>
+      <div>
+        <div class="text-gray-400">RTF</div>
+        <div id="rtf" class="text-white font-medium">—</div>
+      </div>
+      <div class="col-span-2 truncate text-xs text-gray-400">URI: <span id="uri" class="text-gray-300">—</span></div>
+    </div>
+  </div>
+
+  <div class="bg-[#1a1a1a] rounded-xl p-4 border border-[#3a3a3a]">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="text-white font-semibold">Transcription</h3>
+      <button id="copy" class="text-xs px-2 py-1 rounded bg-[#3a3a3a]">Copy</button>
+    </div>
+    <pre id="tx" class="text-sm text-gray-200 whitespace-pre-wrap max-h-80 overflow-y-auto">Loading...</pre>
+  </div>
+
+  <div class="grid grid-cols-2 gap-3">
+    <button id="new" class="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-semibold py-3 rounded-xl">New Analysis</button>
+    <button id="back" class="bg-[#3a3a3a] text-gray-200 font-semibold py-3 rounded-xl">Back</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const hasBridge = typeof window.WhisperBridge !== 'undefined';
+  async function load(){
+    try {
+      if (!hasBridge){ document.getElementById('tx').textContent='No bridge'; return; }
+      const sidecar = JSON.parse(window.WhisperBridge.getLatestSidecar());
+      document.getElementById('job').textContent = sidecar.job_id || '—';
+      document.getElementById('rtf').textContent = sidecar.rtf != null ? Number(sidecar.rtf).toFixed(2) : '—';
+      document.getElementById('uri').textContent = sidecar.uri || '—';
+      const txt = window.WhisperBridge.getLatestTranscript();
+      document.getElementById('tx').textContent = txt || 'No transcript found.';
+    } catch(e){ document.getElementById('tx').textContent='Load error'; }
+  }
+  load();
+
+  document.getElementById('copy').onclick = () => {
+    const t = document.getElementById('tx').textContent || '';
+    if (navigator.clipboard) navigator.clipboard.writeText(t);
+  };
+  document.getElementById('new').onclick = () => { if (hasBridge && window.WhisperBridge.newAnalysis) window.WhisperBridge.newAnalysis(); };
+  document.getElementById('back').onclick = () => { if (hasBridge && window.WhisperBridge.goBack) window.WhisperBridge.goBack(); };
+})();
+</script>
+
+</body>
+</html>
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
   <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest' };</script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -316,26 +425,26 @@
 <!-- Bottom Navigation -->
 <div id="bottom-navigation" class="fixed bottom-0 left-0 right-0 bg-dark-800 border-t border-dark-600 px-6 py-3 pb-[env(safe-area-inset-bottom)]">
   <div class="flex items-center justify-between">
-    <div class="flex items-center space-x-6">
-      <div class="flex items-center space-x-2">
-        <div class="w-2 h-2 bg-gray-600 rounded-full"></div>
-        <span class="text-xs text-gray-500">Step 1</span>
-      </div>
-      <div class="flex items-center space-x-2">
-        <div class="w-2 h-2 bg-gray-600 rounded-full"></div>
-        <span class="text-xs text-gray-500">Step 2</span>
-      </div>
-      <div class="flex items-center space-x-2">
-        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-        <span class="text-xs text-green-400 font-medium">Step 3</span>
-      </div>
+  <div class="flex items-center space-x-6">
+    <div class="flex items-center space-x-2">
+      <div class="w-2 h-2 bg-gray-600 rounded-full"></div>
+      <span class="text-xs text-gray-500">Select</span>
     </div>
-    <div class="text-xs text-gray-500">Whisper Results</div>
+    <div class="flex items-center space-x-2">
+      <div class="w-2 h-2 bg-gray-600 rounded-full"></div>
+      <span class="text-xs text-gray-500">Processing</span>
+    </div>
+    <div class="flex items-center space-x-2">
+      <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+      <span class="text-xs text-green-400 font-medium">Results</span>
+    </div>
+  </div>
+  <div class="text-xs text-gray-500">Whisper Results</div>
   </div>
 </div>
 
 <script>
-/* ===================== WHISPER STEP 3: RESULTS & EXPORT ===================== */
+/* ===================== WHISPER: RESULTS & EXPORT ===================== */
 
 (() => {
   // State management
@@ -599,7 +708,7 @@
   }
 
   // Initialize
-  console.log('Whisper Step 3 initialized');
+  console.log('Whisper Results initialized');
   showToast('Results loaded successfully');
   
   // Start resource monitoring

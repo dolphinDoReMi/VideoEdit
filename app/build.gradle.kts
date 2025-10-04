@@ -214,6 +214,23 @@ android {
   }
 }
 
+// --- Sync web assets from repo-root `assets/web` to packaged `app/src/main/assets/web` ---
+val syncWebAssets by tasks.registering(Copy::class) {
+  group = "assets"
+  description = "Copies repo-root assets/web into app/src/main/assets/web for packaging"
+  from(rootProject.file("assets/web"))
+  into(project.layout.projectDirectory.dir("src/main/assets/web"))
+  // Clean target first to avoid drift
+  doFirst {
+    delete(project.layout.projectDirectory.dir("src/main/assets/web").asFile)
+  }
+}
+
+// Ensure assets are synced before any Android build work starts (all variants)
+tasks.matching { it.name.startsWith("pre") && it.name.endsWith("Build") }.configureEach {
+  dependsOn(syncWebAssets)
+}
+
 // Firebase App Distribution configuration (temporarily disabled)
 // firebaseAppDistribution {
 //   appId = "1:384262830567:android:1960eb5e2470beb09ce542" // Firebase App ID

@@ -3,12 +3,115 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>* { font-family: 'Inter', sans-serif; } ::-webkit-scrollbar{display:none}</style>
+</head>
+<body class="bg-[#0a0a0a] text-white">
+
+<div class="px-6 py-4 bg-[#1a1a1a] border-b border-[#3a3a3a] flex items-center justify-between">
+  <div>
+    <h1 class="text-lg font-semibold">Whisper — File Selection</h1>
+    <p class="text-xs text-gray-400">Select one or more videos to transcribe</p>
+  </div>
+</div>
+
+<div class="px-6 py-6 space-y-4">
+  <button id="browse" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 rounded-xl">Browse Local Files</button>
+
+  <div id="summary" class="hidden bg-[#1a1a1a] rounded-xl p-4 border border-[#3a3a3a] text-sm">
+    <div class="flex justify-between mb-2">
+      <span class="text-gray-400">Selected Files</span>
+      <span id="count" class="text-purple-300">0</span>
+    </div>
+    <div id="files" class="space-y-1 text-gray-300"></div>
+  </div>
+
+  <button id="run" class="w-full bg-[#3a3a3a] text-gray-400 font-semibold py-3 rounded-xl cursor-not-allowed" disabled>Process Selected Files (Batch)</button>
+
+  <div id="status" class="bg-[#1a1a1a] rounded-xl p-4 border border-[#3a3a3a] text-sm">
+    <div class="flex items-center space-x-2"><div id="dot" class="w-2 h-2 rounded-full bg-gray-500"></div><span id="msg" class="text-gray-300">Ready — choose files</span></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const hasBridge = typeof window.WhisperBridge !== 'undefined';
+  const browseBtn = document.getElementById('browse');
+  const runBtn = document.getElementById('run');
+  const summary = document.getElementById('summary');
+  const countEl = document.getElementById('count');
+  const filesEl = document.getElementById('files');
+  const dot = document.getElementById('dot');
+  const msg = document.getElementById('msg');
+  let selected = [];
+
+  function setStatus(text, color){
+    msg.textContent = text;
+    dot.className = 'w-2 h-2 rounded-full ' + (color||'bg-gray-500');
+  }
+
+  function render(){
+    if (selected.length === 0){ summary.classList.add('hidden'); runBtn.disabled = true; runBtn.className='w-full bg-[#3a3a3a] text-gray-400 font-semibold py-3 rounded-xl cursor-not-allowed'; return; }
+    summary.classList.remove('hidden');
+    countEl.textContent = String(selected.length);
+    filesEl.innerHTML = '';
+    selected.forEach(f=>{
+      const d = document.createElement('div');
+      d.textContent = f.name || f.uri || 'video';
+      filesEl.appendChild(d);
+    });
+    runBtn.disabled = false; runBtn.className='w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-semibold py-3 rounded-xl';
+  }
+
+  browseBtn.onclick = async () => {
+    try {
+      setStatus('Opening file browser...', 'bg-blue-500');
+      if (!hasBridge){ setStatus('Bridge not available', 'bg-yellow-500'); return; }
+      const r = window.WhisperBridge.openFilePicker();
+      if (r === 'file_picker_launched') setStatus('File picker opened', 'bg-green-500');
+    } catch(e){ setStatus('Browse failed', 'bg-red-500'); }
+  };
+
+  window.handleFileSelection = (json) => {
+    try {
+      const data = JSON.parse(json);
+      if (data && data.success && Array.isArray(data.files)){
+        selected = data.files;
+        render();
+        setStatus(`${selected.length} file(s) selected`, 'bg-green-500');
+      } else { setStatus('No files selected', 'bg-yellow-500'); }
+    } catch(e){ setStatus('Selection error', 'bg-red-500'); }
+  };
+
+  runBtn.onclick = async () => {
+    if (selected.length === 0 || !hasBridge) return;
+    try {
+      setStatus('Submitting batch...', 'bg-purple-500');
+      const uris = selected.map(f=>f.uri);
+      const batchId = window.WhisperBridge.runBatch(JSON.stringify({ uris, preset:'Single', modelPath:'/sdcard/Models/ggml-small.en.bin' }));
+      setStatus('Processing started', 'bg-purple-500');
+      if (window.WhisperBridge.openWhisperStep2) window.WhisperBridge.openWhisperStep2();
+    } catch(e){ setStatus('Processing failed', 'bg-red-500'); }
+  };
+})();
+</script>
+
+</body>
+</html>
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.tailwindcss.com"></script>
   <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest' };</script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <script>
+    /* Tailwind: keep your theme, add a safelist for status dots used by JS */
         tailwind.config = {
       safelist: [
         'bg-yellow-500','bg-blue-500','bg-purple-500','bg-green-500','bg-gray-500',
@@ -31,175 +134,105 @@
 </head>
 <body class="bg-dark-900 text-white overflow-x-hidden">
 
-<!-- Status Bar -->
-<div id="status-bar" class="flex justify-between items-center px-4 py-2 bg-dark-800 text-xs text-gray-300">
-    <div class="flex items-center space-x-1">
-        <div class="w-1 h-1 bg-white rounded-full"></div>
-        <div class="w-1 h-1 bg-white rounded-full"></div>
-        <div class="w-1 h-1 bg-gray-600 rounded-full"></div>
-        <span class="ml-2">Verizon</span>
-    </div>
-    <div class="font-medium">9:41</div>
-    <div class="flex items-center space-x-1">
-        <i class="fa-solid fa-signal text-xs"></i>
-        <i class="fa-solid fa-wifi text-xs"></i>
-        <div class="w-6 h-3 border border-white rounded-sm">
-            <div class="w-4 h-2 bg-white rounded-sm m-0.5"></div>
-        </div>
-    </div>
-</div>
 
 <!-- App Header -->
 <div id="app-header" class="flex items-center justify-between px-6 py-4 bg-dark-800 border-b border-dark-600">
     <div class="flex items-center space-x-3">
+    <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+      <i class="fa-solid fa-play text-white text-sm"></i>
+    </div>
+        <div>
+      <h1 class="text-lg font-semibold text-white">Whisper</h1>
+      <p class="text-xs text-gray-400">On-device Transcription</p>
+        </div>
+    </div>
+    <div class="flex items-center space-x-3">
         <button class="w-8 h-8 bg-dark-600 rounded-full flex items-center justify-center">
-      <i class="fa-solid fa-arrow-left text-gray-300 text-sm"></i>
+      <i class="fa-solid fa-bell text-gray-300 text-sm"></i>
     </button>
-    <div>
-      <h1 class="text-lg font-semibold text-white">Whisper Processing</h1>
-      <p class="text-xs text-gray-400">Batch Video File Selection</p>
+        <button class="w-8 h-8 bg-dark-600 rounded-full flex items-center justify-center">
+      <i class="fa-solid fa-user text-gray-300 text-sm"></i>
+        </button>
     </div>
 </div>
-  <div class="flex items-center space-x-3">
+
+<!-- Main Dashboard Section -->
+<div id="main-dashboard" class="px-6 py-8">
+  <!-- Status Card -->
+  <div id="status-card" class="bg-gradient-to-r from-dark-700 to-dark-600 rounded-2xl p-6 mb-6 border border-dark-600">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-semibold text-white">Project Status</h2>
       <div class="flex items-center space-x-2">
-      <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
         <span class="text-sm text-green-400 font-medium">Ready</span>
             </div>
             </div>
+    <p class="text-gray-300 mb-4">Whisper: Select Files → Processing → Results</p>
+    <div class="flex items-center space-x-4">
+      <div class="flex items-center space-x-2">
+        <i class="fa-solid fa-clock text-purple-400"></i>
+        <span class="text-sm text-gray-400">File Selection Ready</span>
             </div>
+      <div class="flex items-center space-x-2">
+        <i class="fa-solid fa-chart-line text-blue-400"></i>
+        <span class="text-sm text-gray-400">Batch Processing Support</span>
+        </div>
+            </div>
+        </div>
+        
 
-<!-- Main Content -->
-<div class="px-6 py-6 pb-24">
-  
-  <!-- File Selection Section -->
-  <div class="bg-dark-700 rounded-2xl p-6 border border-dark-600 mb-6">
-    <h3 class="text-lg font-semibold text-white mb-6">Select Video Files for Processing</h3>
+<!-- Whisper: Step 1 Control Panel -->
+<div id="main-actions" class="px-6 mb-8">
+  <div class="bg-dark-700 rounded-2xl p-6 border border-dark-600">
+    <h3 class="text-lg font-semibold text-white mb-6">Whisper — File Selection</h3>
 
-    <!-- File Selection Button -->
-    <div class="mb-6">
-      <button id="select-video-files-btn"
+    <!-- File Selection Section -->
+    <div class="mb-4">
+      <button id="browse-local-btn"
               class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-4 px-6 rounded-xl flex items-center justify-center space-x-3 transition-all duration-200 mb-4">
         <i class="fa-solid fa-folder-open text-xl"></i>
-        <span class="text-lg">Select Video Files</span>
+        <span class="text-lg">Browse Local Files</span>
       </button>
-      
-      <button id="open-file-picker-btn"
-              class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold py-4 px-6 rounded-xl flex items-center justify-center space-x-3 transition-all duration-200 mb-4">
-        <i class="fa-solid fa-photo-film text-xl"></i>
-        <span class="text-lg">Browse Local Media</span>
-      </button>
-      
-      <!-- Supported Formats Info -->
-      <div class="bg-dark-600 rounded-lg p-3 mb-4">
-        <div class="text-xs text-gray-400 mb-2">Supported Formats:</div>
-        <div class="flex flex-wrap gap-2">
-          <span class="text-xs px-2 py-1 bg-purple-600/20 text-purple-300 rounded">MP4</span>
-          <span class="text-xs px-2 py-1 bg-blue-600/20 text-blue-300 rounded">AVI</span>
-          <span class="text-xs px-2 py-1 bg-green-600/20 text-green-300 rounded">MOV</span>
-          <span class="text-xs px-2 py-1 bg-yellow-600/20 text-yellow-300 rounded">MKV</span>
-          <span class="text-xs px-2 py-1 bg-red-600/20 text-red-300 rounded">WEBM</span>
-          <span class="text-xs px-2 py-1 bg-indigo-600/20 text-indigo-300 rounded">WMV</span>
-          <span class="text-xs px-2 py-1 bg-pink-600/20 text-pink-300 rounded">FLV</span>
-        </div>
-            </div>
-      
-      <!-- Quick Selection Options -->
-      <div class="grid grid-cols-2 gap-3 mb-4">
-        <button id="select-all-videos-btn"
-                class="bg-dark-600 hover:bg-dark-600/80 text-gray-200 font-medium py-2 px-4 rounded-lg flex items-center justify-center space-x-2 transition-all duration-200">
-          <i class="fa-solid fa-check-double text-sm text-green-300"></i>
-          <span>Select All Videos</span>
-        </button>
-        
-        <button id="clear-selection-btn"
-                class="bg-dark-600 hover:bg-dark-600/80 text-gray-200 font-medium py-2 px-4 rounded-lg flex items-center justify-center space-x-2 transition-all duration-200">
-          <i class="fa-solid fa-trash text-sm text-red-300"></i>
-          <span>Clear All</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Selected Files List -->
-    <div id="selected-files-list" class="space-y-2 mb-6" style="display: none;">
-      <div class="text-xs text-gray-400 mb-2">Selected Files:</div>
-      <div id="files-container" class="space-y-2"></div>
-            </div>
-
-    <!-- Processing Options -->
-    <div class="bg-dark-600 rounded-xl p-4 border border-dark-500 mb-4">
-      <h4 class="text-sm font-medium text-white mb-3">Processing Options</h4>
       
       <!-- Preset Selection -->
-      <div class="mb-3">
-        <label class="text-xs text-gray-400 mb-2 block">Processing Preset</label>
+      <div class="bg-dark-600 rounded-xl px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <i class="fa-solid fa-sliders text-yellow-300"></i>
+          <span class="text-sm text-gray-300">Processing Preset</span>
+        </div>
         <div class="flex items-center space-x-2">
-          <button id="preset-single" class="text-xs px-3 py-2 rounded-lg bg-purple-600 text-white font-medium">Fast</button>
-          <button id="preset-accuracy" class="text-xs px-3 py-2 rounded-lg bg-dark-700 border border-dark-600 text-gray-300">Accurate</button>
+          <button id="preset-single" class="text-xs px-3 py-1 rounded-lg bg-purple-600 text-white font-medium">Single</button>
+          <button id="preset-accuracy" class="text-xs px-3 py-1 rounded-lg bg-dark-700 border border-dark-600 text-gray-300">Accuracy</button>
         </div>
-            </div>
-      
-      <!-- Model Selection -->
-      <div class="mb-3">
-        <label class="text-xs text-gray-400 mb-2 block">Model</label>
-        <div class="text-xs text-gray-300 bg-dark-700 rounded-lg px-3 py-2">
-          <span id="sel-model">ggml-small.en.bin (Default)</span>
-        </div>
+      </div>
     </div>
-</div>
-
-    <!-- Selected Files Summary -->
-    <div id="selection-summary" class="bg-dark-800 rounded-xl p-3 border border-dark-600 mb-4 text-xs text-gray-300" style="display: none;">
-      <div class="flex justify-between items-center">
-        <div>
-          <span class="text-gray-400">Files:</span> <span id="file-count">0</span>
-          <span class="text-gray-400 ml-4">Total Size:</span> <span id="total-size">0 MB</span>
-                    </div>
-        <div>
-          <span class="text-gray-400">Preset:</span> <span id="sel-preset">Fast</span>
-        </div>
-                    </div>
-                </div>
                 
+    <!-- Selected Files Summary -->
+    <div id="selected-files-summary" class="bg-dark-800 rounded-xl p-3 border border-dark-600 mb-4 text-xs text-gray-300" style="display: none;">
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-gray-400">Selected Files:</span>
+        <div class="flex items-center space-x-2">
+          <span id="file-count" class="text-purple-300 font-medium">0</span>
+          <button id="clear-selection-btn" class="text-red-400 hover:text-red-300 text-xs px-2 py-1 rounded border border-red-600 hover:border-red-500">Clear</button>
+        </div>
+      </div>
+      <div id="files-list" class="space-y-1"></div>
+      <div class="mt-2 pt-2 border-t border-dark-600">
+        <div><span class="text-gray-400">Preset:</span> <span id="sel-preset">Single</span></div>
+        <div class="flex items-center justify-between">
+          <div><span class="text-gray-400">Model:</span> <span id="sel-model" class="break-all">ggml-small.en.bin (Default)</span></div>
+          <button id="pick-model-btn" class="text-xs px-2 py-1 rounded bg-dark-700 border border-dark-600 hover:border-purple-600">Pick</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Process Button -->
-    <button id="process-files-btn"
-            class="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-semibold py-4 px-6 rounded-xl mb-4 flex items-center justify-center space-x-3 cursor-not-allowed opacity-60"
+    <button id="run-whisper-btn"
+            class="w-full bg-dark-600 text-gray-400 font-semibold py-4 px-6 rounded-xl mb-4 flex items-center justify-center space-x-3 cursor-not-allowed opacity-60"
             disabled>
       <i class="fa-solid fa-play text-xl"></i>
-      <span class="text-lg">Process Selected Files</span>
+      <span class="text-lg">Process Selected Files (Batch)</span>
     </button>
-
-    <!-- Error Display Section -->
-    <div id="error-display" class="bg-red-900/20 border border-red-600 rounded-xl p-4 mb-4" style="display: none;">
-      <div class="flex items-start space-x-3">
-        <div class="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-          <i class="fa-solid fa-exclamation text-white text-xs"></i>
-        </div>
-        <div class="flex-1">
-          <h4 class="text-sm font-medium text-red-300 mb-1">File Selection Error</h4>
-          <p id="error-message" class="text-xs text-red-200 mb-2"></p>
-          <div id="error-details" class="text-xs text-red-300/80"></div>
-        </div>
-        <button id="dismiss-error" class="text-red-400 hover:text-red-300 transition-colors">
-          <i class="fa-solid fa-times text-sm"></i>
-        </button>
-      </div>
-    </div>
-
-    <!-- Warning Display Section -->
-    <div id="warning-display" class="bg-yellow-900/20 border border-yellow-600 rounded-xl p-4 mb-4" style="display: none;">
-      <div class="flex items-start space-x-3">
-        <div class="w-5 h-5 bg-yellow-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-          <i class="fa-solid fa-triangle-exclamation text-white text-xs"></i>
-        </div>
-        <div class="flex-1">
-          <h4 class="text-sm font-medium text-yellow-300 mb-1">File Selection Warnings</h4>
-          <div id="warning-list" class="text-xs text-yellow-200"></div>
-        </div>
-        <button id="dismiss-warning" class="text-yellow-400 hover:text-yellow-300 transition-colors">
-          <i class="fa-solid fa-times text-sm"></i>
-        </button>
-      </div>
-    </div>
 
     <!-- Status Information -->
     <div id="analysis-status" class="bg-dark-800 rounded-xl p-4 border border-dark-600"
@@ -207,556 +240,499 @@
       <div class="flex items-center space-x-3">
         <div class="w-3 h-3 bg-gray-500 rounded-full"></div>
                     <div>
-          <p class="text-sm font-medium text-white">Ready</p>
-          <p class="text-xs text-gray-400">Select MP4 files to process</p>
+          <p class="text-sm font-medium text-white">File Selection Status</p>
+          <p class="text-xs text-gray-400">Ready — Select video files to process</p>
+                    </div>
                 </div>
         </div>
             </div>
         </div>
         
-  <!-- Recent Jobs -->
-  <div id="recent-projects" class="mb-8">
+<!-- Runs / Sidecars -->
+<div id="recent-projects" class="px-6 mb-8">
         <div class="flex items-center justify-between mb-4">
-      <h3 class="text-lg font-semibold text-white">Recent Jobs</h3>
+    <h3 class="text-lg font-semibold text-white">Whisper Runs</h3>
             <div class="flex items-center space-x-2">
       <button id="refresh-runs" class="text-purple-400 text-sm font-medium">Refresh</button>
     </div>
   </div>
 
   <div id="runs-list" class="space-y-3">
-      <div class="text-sm text-gray-500">No recent jobs.</div>
+    <!-- dynamically populated -->
+    <div class="text-sm text-gray-500">No runs yet.</div>
+            </div>
         </div>
-    </div>
-</div>
+        
 
-<!-- Bottom Navigation -->
-<div id="bottom-navigation" class="fixed bottom-0 left-0 right-0 bg-dark-800 border-t border-dark-600 px-6 py-3 pb-[env(safe-area-inset-bottom)]">
-  <div class="flex items-center justify-between">
-    <div class="flex items-center space-x-6">
-      <div class="flex items-center space-x-2">
-        <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
-        <span class="text-xs text-purple-400 font-medium">Step 1</span>
-      </div>
-      <div class="flex items-center space-x-2">
-        <div class="w-2 h-2 bg-gray-600 rounded-full"></div>
-        <span class="text-xs text-gray-500">Step 2</span>
-      </div>
-      <div class="flex items-center space-x-2">
-        <div class="w-2 h-2 bg-gray-600 rounded-full"></div>
-        <span class="text-xs text-gray-500">Step 3</span>
-      </div>
-    </div>
-    <div class="text-xs text-gray-500">Whisper Processing</div>
-    </div>
-</div>
 
 <script>
-/* ===================== WHISPER STEP 1: BATCH VIDEO PROCESSING ===================== */
+/* ---------- Whisper: Combined File Selection & Processing ---------- */
 
-// DOM Elements
-const selectVideoBtn = document.getElementById('select-video-files-btn');
-const openFilePickerBtn = document.getElementById('open-file-picker-btn');
-const selectAllBtn = document.getElementById('select-all-videos-btn');
-const clearBtn = document.getElementById('clear-selection-btn');
-const processBtn = document.getElementById('process-files-btn');
+(() => {
+  const dotColor = { idle:'bg-gray-500', yellow:'bg-yellow-500', blue:'bg-blue-500', purple:'bg-purple-500', green:'bg-green-500' };
+  const statusDot = document.querySelector('#analysis-status .w-3');
+  const statusText = document.querySelector('#analysis-status .text-xs');
+  const statusCard = document.getElementById('analysis-status');
 
-// Debug: Check if buttons are found
-console.log('selectVideoBtn:', selectVideoBtn);
-console.log('openFilePickerBtn:', openFilePickerBtn);
-const filesList = document.getElementById('selected-files-list');
-const filesContainer = document.getElementById('files-container');
-const selectionSummary = document.getElementById('selection-summary');
-const fileCount = document.getElementById('file-count');
-const totalSize = document.getElementById('total-size');
-const selPreset = document.getElementById('sel-preset');
-const statusDiv = document.getElementById('analysis-status');
-  const btnPresetSingle = document.getElementById('preset-single');
-  const btnPresetAcc = document.getElementById('preset-accuracy');
-  const runsList = document.getElementById('runs-list');
-  const btnRefresh = document.getElementById('refresh-runs');
+  const setDot = (k) => statusDot.className = `w-3 h-3 rounded-full ${dotColor[k]||dotColor.idle} animate-pulse`;
+  const setStatus = (msg, k='idle', busy=false) => { statusText.textContent = msg; setDot(k); statusCard.setAttribute('aria-busy', String(busy)); };
 
-// State
-let selectedFiles = [];
-let selectedPreset = 'Fast';
-let selectedModel = 'ggml-small.en.bin (Default)';
+  const presetElement = document.getElementById('sel-preset');
+  const modelElement = document.getElementById('sel-model');
+  const processButton = document.getElementById('run-whisper-btn');
+  const browseLocalButton = document.getElementById('browse-local-btn');
+  const clearSelectionButton = document.getElementById('clear-selection-btn');
+  const presetSingleButton = document.getElementById('preset-single');
+  const presetAccuracyButton = document.getElementById('preset-accuracy');
+  const runsListElement = document.getElementById('runs-list');
+  const refreshButton = document.getElementById('refresh-runs');
+  const selectedFilesSummaryElement = document.getElementById('selected-files-summary');
+  const fileCountElement = document.getElementById('file-count');
+  const filesListElement = document.getElementById('files-list');
+
+  let selectedFiles = [];
+  let selectedPreset = 'Single';
+  let selectedModel = 'ggml-small.en.bin (Default)';
+
+  // Utility Functions
+  function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
 
   /* ---- Bridge contract (provided by Android WebView) ----
-   window.AndroidWhisper.pickUri() -> String uri (content://… or file://…)
-   window.AndroidWhisper.pickModel() -> String path
-   window.AndroidWhisper.run(json) -> String jobId
-   window.AndroidWhisper.listRuns() -> JSON string
+     window.WhisperBridge.run(json) -> String jobId
+     window.WhisperBridge.runBatch(json) -> String batchId
+     window.WhisperBridge.export(jobId) -> "ok"
+     window.WhisperBridge.listRuns() -> JSON string: [{jobId, uri, rtf, sidecarPath}]
+     window.WhisperBridge.openFilePicker() -> String result
+     window.WhisperBridge.getAllVideoFiles() -> JSON string: {files: [], count: 0}
      All may throw on error.
-*/
+     
+     Bridge also supports BroadcastChannel for real-time communication:
+     - whisper.run: Start transcription
+     - whisper.ack: Host acknowledged run
+     - whisper.progress: Progress updates
+     - whisper.done: Run completed
+     - whisper.error: Error occurred
+  ------------------------------------------------------- */
 
-// Mock bridge for browser testing
-const mockBridge = {
-  async pickUri() {
-    console.log('Mock: Picking video URI');
-    // Return a mock video file
-    return 'file:///sdcard/video_v1_long.mp4';
-  },
-  
-  async pickModel() {
-    console.log('Mock: Picking model');
-    return '/sdcard/Models/ggml-small.en.bin';
-  },
-  
-  async run(params) {
-    console.log('Mock: Running with params:', params);
-    return 'mock-job-' + Date.now();
-  },
-  
-  async getAllVideoFiles() {
-    console.log('Mock: Getting all video files');
-    // Return mock data with various formats
-    return JSON.stringify({
-      files: [
-        { name: 'video1.mp4', size: 15728640, uri: 'file:///sdcard/video1.mp4', format: 'mp4' },
-        { name: 'movie2.avi', size: 20971520, uri: 'file:///sdcard/movie2.avi', format: 'avi' },
-        { name: 'clip3.mov', size: 12582912, uri: 'file:///sdcard/clip3.mov', format: 'mov' },
-        { name: 'film4.mkv', size: 31457280, uri: 'file:///sdcard/film4.mkv', format: 'mkv' },
-        { name: 'web5.webm', size: 8388608, uri: 'file:///sdcard/web5.webm', format: 'webm' },
-        { name: 'movie6.wmv', size: 25165824, uri: 'file:///sdcard/Movies/movie6.wmv', format: 'wmv' },
-        { name: 'clip7.flv', size: 10485760, uri: 'file:///sdcard/DCIM/Camera/clip7.flv', format: 'flv' }
-      ],
-      count: 7
-    });
-  },
-};
+  const hasBridge = typeof window.WhisperBridge !== 'undefined';
+  const isDevBuild = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
-// Use real bridge if available, otherwise mock
-const bridge = window.WhisperBridge || mockBridge;
-
-// Utility functions
-function setStatus(message, color = 'gray', busy = false) {
-  const statusDot = statusDiv.querySelector('.w-3');
-  const statusText = statusDiv.querySelector('.text-sm');
-  const statusSubtext = statusDiv.querySelector('.text-xs');
-  
-  statusDot.className = `w-3 h-3 bg-${color}-500 rounded-full ${busy ? 'animate-pulse' : ''}`;
-  statusText.textContent = message;
-  statusSubtext.textContent = busy ? 'Processing...' : 'Ready';
-}
-
-function toast(message, isError = false) {
-  console.log(isError ? 'ERROR:' : 'INFO:', message);
-  // In a real app, you'd show a toast notification
-}
-
-function getFileIcon(format) {
-  const icons = {
-    'mp4': 'fa-solid fa-video text-purple-400',
-    'avi': 'fa-solid fa-video text-blue-400',
-    'mov': 'fa-solid fa-video text-green-400',
-    'mkv': 'fa-solid fa-video text-yellow-400',
-    'webm': 'fa-solid fa-video text-red-400',
-    'wmv': 'fa-solid fa-video text-indigo-400',
-    'flv': 'fa-solid fa-video text-pink-400'
-  };
-  return icons[format.toLowerCase()] || 'fa-solid fa-video text-gray-400';
-}
-
-function getFileFormatColor(format) {
-  const colors = {
-    'mp4': 'purple',
-    'avi': 'blue',
-    'mov': 'green',
-    'mkv': 'yellow',
-    'webm': 'red',
-    'wmv': 'indigo',
-    'flv': 'pink'
-  };
-  return colors[format.toLowerCase()] || 'gray';
-}
-
-function updateFileList() {
-  if (selectedFiles.length === 0) {
-    filesList.style.display = 'none';
-    selectionSummary.style.display = 'none';
-    processBtn.disabled = true;
-    processBtn.classList.add('cursor-not-allowed', 'opacity-60');
-    return;
+  // BroadcastChannel for real-time communication
+  let broadcastChannel = null;
+  if ('BroadcastChannel' in window) {
+    broadcastChannel = new BroadcastChannel('whisper-ui');
+    broadcastChannel.onmessage = (event) => {
+      switch(event.data.type) {
+        case 'whisper.ack':
+            console.log('Host acknowledged run');
+            break;
+        case 'whisper.progress':
+          console.log('Progress:', event.data.pct + '%', event.data.msg);
+            break;
+        case 'whisper.done':
+          console.log('Run completed:', event.data);
+            break;
+        case 'whisper.error':
+          console.error('Run error:', event.data.error);
+            break;
+    }
+    };
   }
-  
-  filesList.style.display = 'block';
-  selectionSummary.style.display = 'block';
-  processBtn.disabled = false;
-  processBtn.classList.remove('cursor-not-allowed', 'opacity-60');
-  
-  // Update file count and total size
-  fileCount.textContent = selectedFiles.length;
-  const totalBytes = selectedFiles.reduce((sum, file) => sum + (file.size || 0), 0);
-  totalSize.textContent = formatFileSize(totalBytes);
-  
-  // Update files container
-  filesContainer.innerHTML = '';
-  selectedFiles.forEach((file, index) => {
-    const fileExtension = file.name.split('.').pop().toLowerCase();
-    const fileIcon = getFileIcon(fileExtension);
-    const formatColor = getFileFormatColor(fileExtension);
+
+  const bridge = hasBridge ? {
+    async openFilePicker() { return window.WhisperBridge.openFilePicker(); },
+    async getAllVideoFiles() { return window.WhisperBridge.getAllVideoFiles(); },
+    async runBatch(args) { 
+      const batchId = window.WhisperBridge.runBatch(JSON.stringify(args));
+      // Send whisper.run event via BroadcastChannel
+      if (broadcastChannel) {
+        broadcastChannel.postMessage({ type: 'whisper.run', ...args, jobId: batchId });
+      }
+      return batchId;
+    },
+    async run(args)   { 
+      const jobId = window.WhisperBridge.run(JSON.stringify(args));
+      // Send whisper.run event via BroadcastChannel
+      if (broadcastChannel) {
+        broadcastChannel.postMessage({ type: 'whisper.run', ...args, jobId });
+      }
+      return jobId;
+    },
+    async export(jobId){ return window.WhisperBridge.export(jobId); },
+    async listRuns()  { const s = window.WhisperBridge.listRuns(); return JSON.parse(s); },
+    async openStep2() { if (window.WhisperBridge.openWhisperStep2) return window.WhisperBridge.openWhisperStep2(); },
+    async getResourceStats() { if (window.WhisperBridge.getResourceStats) return window.WhisperBridge.getResourceStats(); }
+  } : mockBridge(); // fallback for browser preview
+
+  function mockBridge() {
+    // Simple in-memory stub so UI can be exercised without Android
+    const mem = { runs: [] };
+    return {
+      async openFilePicker(){ return 'file_picker_launched'; },
+      async getAllVideoFiles(){ 
+        return JSON.stringify({
+          files: [
+            { name: 'video1.mp4', size: 15728640, uri: 'file:///sdcard/video1.mp4', format: 'mp4' },
+            { name: 'movie2.avi', size: 20971520, uri: 'file:///sdcard/movie2.avi', format: 'avi' },
+            { name: 'clip3.mov', size: 12582912, uri: 'file:///sdcard/clip3.mov', format: 'mov' }
+          ],
+          count: 3
+        });
+      },
+      async runBatch({uris,preset,modelPath}) {
+        const id = 'batch-' + Math.random().toString(36).slice(2,10);
+        uris.forEach(uri => {
+          mem.runs.unshift({ jobId:id, uri, rtf: Math.random()*0.8+0.3, sidecarPath:`/mock/whisper/${id}/sidecar.json` });
+        });
+        return id;
+      },
+      async run({uri,preset,modelPath}) {
+        const id = 'mock-' + Math.random().toString(36).slice(2,10);
+        mem.runs.unshift({ jobId:id, uri, rtf: Math.random()*0.8+0.3, sidecarPath:`/mock/whisper/${id}/sidecar.json` });
+        return id;
+      },
+      async export(){ return 'ok'; },
+      async listRuns(){ return mem.runs; }
+    };
+  }
+
+  // Enable/disable Process button
+  function updateProcessButtonState() {
+    const hasFiles = selectedFiles.length > 0;
+    console.log('updateProcessButtonState called - hasFiles:', hasFiles, 'selectedFiles.length:', selectedFiles.length);
+    processButton.disabled = !hasFiles;
+    processButton.className = hasFiles
+      ? 'w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-semibold py-4 px-6 rounded-xl mb-4 flex items-center justify-center space-x-3 transition-all duration-200 active:scale-95'
+      : 'w-full bg-dark-600 text-gray-400 font-semibold py-4 px-6 rounded-xl mb-4 flex items-center justify-center space-x-3 cursor-not-allowed opacity-60';
+    console.log('Button state updated - disabled:', processButton.disabled);
+  }
+
+  // Update selected files display
+  function renderSelectedFilesList() {
+    if (selectedFiles.length === 0) {
+      selectedFilesSummaryElement.style.display = 'none';
+      return;
+    }
     
-    const fileDiv = document.createElement('div');
-    fileDiv.className = 'bg-dark-700 rounded-lg p-3 border border-dark-600 flex items-center justify-between';
-    fileDiv.innerHTML = `
-      <div class="flex items-center space-x-3">
-        <i class="${fileIcon}"></i>
-        <div>
-          <div class="text-sm font-medium text-white">${file.name}</div>
-          <div class="flex items-center space-x-2">
-            <span class="text-xs text-gray-400">${formatFileSize(file.size || 0)}</span>
-            <span class="text-xs px-2 py-0.5 bg-${formatColor}-600/20 text-${formatColor}-300 rounded">${fileExtension.toUpperCase()}</span>
-          </div>
+    selectedFilesSummaryElement.style.display = 'block';
+    fileCountElement.textContent = selectedFiles.length;
+    
+    filesListElement.innerHTML = '';
+    selectedFiles.forEach((file, index) => {
+      const fileDiv = document.createElement('div');
+      fileDiv.className = 'flex items-center justify-between bg-dark-700 rounded-lg p-2';
+      fileDiv.innerHTML = `
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-video text-purple-400 text-xs"></i>
+          <span class="text-xs text-gray-300 truncate">${file.name}</span>
         </div>
-        </div>
-      <button class="text-gray-400 hover:text-red-400 transition-colors remove-file-btn" data-index="${index}">
-        <i class="fa-solid fa-times text-sm"></i>
-      </button>
-    `;
-    filesContainer.appendChild(fileDiv);
-  });
-  
-  // Add remove file event listeners
-  filesContainer.querySelectorAll('.remove-file-btn').forEach(btn => {
-    btn.onclick = () => {
-      const index = parseInt(btn.dataset.index);
-      selectedFiles.splice(index, 1);
-      updateFileList();
-      setStatus(`${selectedFiles.length} files selected`, 'blue', false);
+        <button class="text-gray-400 hover:text-red-400 transition-colors remove-file-btn" data-index="${index}">
+          <i class="fa-solid fa-times text-xs"></i>
+        </button>
+      `;
+      filesListElement.appendChild(fileDiv);
+    });
+    
+    // Add remove file event listeners
+    filesListElement.querySelectorAll('.remove-file-btn').forEach(btn => {
+      btn.onclick = () => {
+        const index = parseInt(btn.dataset.index);
+        selectedFiles.splice(index, 1);
+        renderSelectedFilesList();
+        updateProcessButtonState();
+        setStatus(`${selectedFiles.length} files selected`, 'blue', false);
       };
     });
   }
 
-// Event handlers
-openFilePickerBtn.onclick = async () => {
-  console.log('Browse Local Media button clicked!');
-  try {
-    setStatus('Opening file picker...', 'blue', true);
-    hideErrorMessages();
-    
-    // Launch the system file picker
-    console.log('Calling bridge.openFilePicker()...');
-    const result = await bridge.openFilePicker();
-    console.log('File picker result:', result);
-    
-    if (result === 'file_picker_launched') {
-      setStatus('File picker opened', 'green', false);
-      toast('File picker opened - select your video files');
-    } else if (result.startsWith('error:')) {
-      const errorType = result.substring(6); // Remove 'error:' prefix
-      showFilePickerError(errorType);
-      setStatus('File picker error', 'red', false);
-    } else {
-      setStatus('File picker error', 'red', false);
-      toast(`File picker error: ${result}`, true);
-    }
-  } catch (e) {
-    console.error('File picker error:', e);
-    setStatus('File picker failed', 'red', false);
-    showError('File picker failed', `Unexpected error: ${String(e)}`);
-    toast(`File picker failed: ${String(e)}`, true);
+  // Preset toggles
+  function updatePresetSelection(preset) {
+    selectedPreset = preset;
+    presetElement.textContent = preset;
+    [presetSingleButton, presetAccuracyButton].forEach(btn => btn.classList.remove('ring-1','ring-purple-500','text-white'));
+    const activeButton = preset === 'Single' ? presetSingleButton : presetAccuracyButton;
+    activeButton.classList.add('ring-1','ring-purple-500','text-white');
   }
-};
 
-selectVideoBtn.onclick = async () => {
-  try {
-    setStatus('Selecting video files...', 'blue', true);
-    hideErrorMessages();
-    
-    // Get video files from the bridge
-    const result = await bridge.getAllVideoFiles();
-    const data = JSON.parse(result);
-    
-    if (data.error) {
-      showError('Video File Detection Error', data.error, 'Please check storage permissions and try again.');
-      throw new Error(data.error);
-    }
-    
-    if (!data.files || data.files.length === 0) {
-      showError('No Video Files Found', 'No video files were found in common directories.', 'Please ensure video files exist in DCIM/Camera, Movies, or Download folders.');
-      setStatus('No video files found', 'yellow', false);
-      return;
-    }
-    
-    // Add files to selection
-    selectedFiles = [...selectedFiles, ...data.files];
-    updateFileList();
-    
-    setStatus(`${selectedFiles.length} video files selected`, 'green', false);
-    toast(`Selected ${data.files.length} video files`);
-    
-  } catch (e) {
-    setStatus('File selection failed', 'red', false);
-    showError('File Selection Failed', `Failed to detect video files: ${String(e)}`, 'Please check storage permissions and try again.');
-    toast(`Selection failed: ${String(e)}`, true);
-  }
-};
-
-selectAllBtn.onclick = async () => {
-  try {
-    setStatus('Selecting all video files...', 'blue', true);
-    hideErrorMessages();
-    
-    // Get all video files from the bridge
-    const result = await bridge.getAllVideoFiles();
-    const data = JSON.parse(result);
-    
-    if (data.error) {
-      showError('Video File Detection Error', data.error, 'Please check storage permissions and try again.');
-      throw new Error(data.error);
-    }
-    
-    if (!data.files || data.files.length === 0) {
-      showError('No Video Files Found', 'No video files were found in common directories.', 'Please ensure video files exist in DCIM/Camera, Movies, or Download folders.');
-      setStatus('No video files found', 'yellow', false);
-      return;
-    }
-    
-    selectedFiles = data.files;
-    updateFileList();
-    
-    setStatus(`${selectedFiles.length} video files selected`, 'green', false);
-    toast(`Selected all ${data.files.length} video files`);
-    
+  // Combined file selection handler (both file picker and local scan)
+  browseLocalButton.onclick = async () => {
+    try {
+      setStatus('Opening file browser...', 'blue', true);
+      
+      // First try file picker
+      const pickerResult = await bridge.openFilePicker();
+      console.log('File picker result:', pickerResult);
+      
+      if (pickerResult === 'file_picker_launched') {
+        setStatus('File picker opened - select your video files', 'green', false);
+        toast('File picker opened - select your video files');
+      } else {
+        // If file picker fails, try local media scan
+        setStatus('Scanning local media...', 'blue', true);
+        
+        const result = await bridge.getAllVideoFiles();
+        console.log('Local media scan result:', result);
+        
+        const data = JSON.parse(result);
+        
+        if (data.success && data.files && data.files.length > 0) {
+          // Add all found files to selection
+          selectedFiles = [...selectedFiles, ...data.files];
+          renderSelectedFilesList();
+          updateProcessButtonState();
+          
+          setStatus(`Found ${data.files.length} video files`, 'green', false);
+          toast(`Found ${data.files.length} video files in local storage`);
+        } else {
+          setStatus('No video files found', 'yellow', false);
+          toast('No video files found in common directories');
+        }
+      }
     } catch (e) {
-    setStatus('Select all failed', 'red', false);
-    showError('Select All Failed', `Failed to detect video files: ${String(e)}`, 'Please check storage permissions and try again.');
-    toast(`Select all failed: ${String(e)}`, true);
+      setStatus('File browser failed', 'red', false);
+      toast(`File browser failed: ${String(e)}`, true);
+    }
+  };
+
+  // File selection handler (called from Android bridge)
+  window.handleFileSelection = (jsonResponse) => {
+    try {
+      console.log('handleFileSelection called with:', jsonResponse);
+      const data = JSON.parse(jsonResponse);
+      console.log('Parsed data:', data);
+      
+      if (data.success && data.files && data.files.length > 0) {
+        console.log('Success case: adding files to selectedFiles');
+        selectedFiles = [...selectedFiles, ...data.files];
+        console.log('selectedFiles after addition:', selectedFiles);
+        renderSelectedFilesList();
+        updateProcessButtonState();
+        
+        setStatus(`${data.files.length} files selected from picker`, 'green', false);
+        toast(`Selected ${data.files.length} files from picker`);
+      } else if (data.error) {
+        console.log('Error case:', data.error);
+        setStatus('File selection failed', 'red', false);
+        toast(`Selection failed: ${data.error}`, true);
+      } else {
+        console.log('No files case');
+        setStatus('No files selected', 'yellow', false);
+        toast('No files selected');
+      }
+    } catch (e) {
+      console.error('Exception in handleFileSelection:', e);
+      setStatus('File selection error', 'red', false);
+      toast(`Selection error: ${String(e)}`, true);
+    }
+  };
+
+  // Render runs
+  async function refreshRuns() {
+    const runs = await bridge.listRuns();
+    runsListElement.innerHTML = '';
+    if (!runs || !runs.length) {
+      runsListElement.innerHTML = '<div class="text-sm text-gray-500">No runs yet.</div>';
+        return;
+    }
+    runs.forEach(r => {
+      const row = document.createElement('div');
+      row.className = 'bg-dark-700 rounded-xl p-4 border border-dark-600';
+      row.innerHTML = `
+        <div class="flex items-center space-x-4">
+          <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+            <i class="fa-solid fa-waveform-lines text-white"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h4 class="text-white font-medium truncate">${r.jobId}</h4>
+            <p class="text-gray-400 text-xs truncate">${r.uri || ''}</p>
+          </div>
+          <div class="text-right">
+            <p class="text-green-400 text-sm font-medium">${r.rtf ? `RTF ${Number(r.rtf).toFixed(2)}` : '—'}</p>
+            <p class="text-gray-400 text-xs break-all">${r.sidecarPath || ''}</p>
+          </div>
+        </div>
+        <div class="mt-3 flex justify-end">
+          <button data-job="${r.jobId}" class="export-btn text-xs px-3 py-1 rounded-lg bg-dark-600 border border-dark-500 hover:bg-dark-500">Export</button>
+        </div>
+      `;
+      runsListElement.appendChild(row);
+    });
+
+    // bind export buttons
+    document.querySelectorAll('.export-btn').forEach(btn => {
+      btn.onclick = async () => {
+        const id = btn.getAttribute('data-job');
+        try {
+          await bridge.export(id);
+          toast(`Exported ${id}`);
+        } catch (e) {
+          toast(`Export failed: ${String(e)}`, true);
+        }
+      };
+    });
   }
-};
 
-clearBtn.onclick = () => {
-  selectedFiles = [];
-  updateFileList();
-  setStatus('Selection cleared', 'gray', false);
-  toast('Selection cleared');
-};
+  // Tiny toast
+  let toastTimer = null;
+  function toast(msg, err=false) {
+    const t = document.createElement('div');
+    t.className = `fixed bottom-20 left-1/2 -translate-x-1/2 px-4 py-2 rounded-lg text-sm ${err ? 'bg-red-600' : 'bg-dark-600'} border border-dark-500`;
+    t.textContent = msg;
+    document.body.appendChild(t);
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=> t.remove(), 1800);
+  }
 
-// Preset selection
-btnPresetSingle.onclick = () => {
-  selectedPreset = 'Fast';
-  btnPresetSingle.className = 'text-xs px-3 py-2 rounded-lg bg-purple-600 text-white font-medium';
-  btnPresetAcc.className = 'text-xs px-3 py-2 rounded-lg bg-dark-700 border border-dark-600 text-gray-300';
-  selPreset.textContent = 'Fast';
-  setStatus('Preset set to Fast', 'blue', false);
-};
+  // Preset buttons
+  presetSingleButton.onclick = () => updatePresetSelection('Single');
+  presetAccuracyButton.onclick = () => updatePresetSelection('Accuracy');
 
-btnPresetAcc.onclick = () => {
-  selectedPreset = 'Accurate';
-  btnPresetAcc.className = 'text-xs px-3 py-2 rounded-lg bg-purple-600 text-white font-medium';
-  btnPresetSingle.className = 'text-xs px-3 py-2 rounded-lg bg-dark-700 border border-dark-600 text-gray-300';
-  selPreset.textContent = 'Accurate';
-  setStatus('Preset set to Accurate', 'blue', false);
-};
+  // Clear selection button handler
+  clearSelectionButton.onclick = () => {
+    selectedFiles = [];
+    renderSelectedFilesList();
+    updateProcessButtonState();
+    setStatus('Selection cleared', 'yellow', false);
+    toast('Selection cleared');
+  };
 
-// Process files
-processBtn.onclick = async () => {
-  if (selectedFiles.length === 0) {
-    toast('Please select at least one MP4 file', true);
+  // Process files
+  processButton.onclick = async () => {
+    if (selectedFiles.length === 0) {
+      toast('Please select at least one video file', true);
       return;
-  }
-  
-  try {
-    setStatus('Processing files...', 'purple', true);
+    }
     
-    // Process each file
-    for (let i = 0; i < selectedFiles.length; i++) {
-      const file = selectedFiles[i];
-      setStatus(`Processing ${file.name} (${i + 1}/${selectedFiles.length})...`, 'purple', true);
+    try {
+      setStatus('Processing files...', 'purple', true);
       
-      // Simulate processing
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Extract URIs from selected files
+      const uris = selectedFiles.map(file => file.uri);
       
-      // Run whisper processing
-      const jobId = await bridge.run({
-        uri: file.uri,
+      // Start batch processing
+      const batchId = await bridge.runBatch({
+        uris: uris,
         preset: selectedPreset,
         modelPath: selectedModel
       });
       
-      toast(`Started processing: ${file.name} (Job: ${jobId})`);
+      setStatus(`Processing ${selectedFiles.length} files...`, 'purple', true);
+      toast(`Started processing ${selectedFiles.length} files (Batch: ${batchId})`);
+      
+      // Navigate to Step 2 after successful submission
+      setTimeout(() => {
+        try {
+          if (hasBridge && window.WhisperBridge && window.WhisperBridge.openWhisperStep2) {
+            window.WhisperBridge.openWhisperStep2();
+          } else if (window.AndroidWhisper && window.AndroidWhisper.openWhisperProcessing) {
+            window.AndroidWhisper.openWhisperProcessing();
+          } else {
+            console.log('Bridge not available, simulating navigation to Processing');
+            toast('Would navigate to Processing');
+            setStatus('Processing started - navigate to Processing', 'green', false);
+          }
+        } catch (err) {
+          console.error('Navigation error:', err);
+        }
+      }, 800);
+      
+    } catch (e) {
+      setStatus('Processing failed', 'red', false);
+      toast(`Processing failed: ${String(e)}`, true);
     }
-    
-    setStatus('All files processed', 'green', false);
-    toast(`Successfully processed ${selectedFiles.length} files`);
-    
-    // Navigate to Step 2 after successful processing
-    setTimeout(() => {
-      if (window.AndroidInterface && window.AndroidInterface.openWhisperProcessing) {
-        window.AndroidInterface.openWhisperProcessing();
-      } else {
-        console.log('AndroidInterface not available, simulating navigation');
-        toast('Would navigate to Step 2 (Processing)');
-      }
-    }, 2000);
-    
-  } catch (e) {
-    setStatus('Processing failed', 'red', false);
-    toast(`Processing failed: ${String(e)}`, true);
-  }
-};
+  };
 
-// Refresh runs
-btnRefresh.onclick = async () => {
-  try {
-    setStatus('Refreshing jobs...', 'blue', true);
-    const runs = await bridge.listRuns();
-    const runsData = JSON.parse(runs);
-    
-    if (runsData.length === 0) {
-      runsList.innerHTML = '<div class="text-sm text-gray-500">No recent jobs.</div>';
-    } else {
-      runsList.innerHTML = runsData.map(run => `
-        <div class="bg-dark-700 rounded-lg p-3 border border-dark-600">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-sm font-medium text-white">Job ${run.jobId}</span>
-            <span class="text-xs text-green-400">Completed</span>
-          </div>
-          <div class="text-xs text-gray-400">${run.uri}</div>
+  // Manual refresh
+  refreshButton.onclick = refreshRuns;
+
+  // Defaults
+  updatePresetSelection('Single');
+  updateProcessButtonState();
+  renderSelectedFilesList();
+  refreshRuns();
+
+  // Model picker wiring
+  document.addEventListener('click', async (e) => {
+    const target = e.target;
+    if (target && target.id === 'pick-model-btn') {
+      try {
+        if (hasBridge && window.WhisperBridge.pickModel) {
+          const path = window.WhisperBridge.pickModel();
+          if (path) {
+            selectedModel = path;
+            modelElement.textContent = path;
+            toast('Model selected');
+          }
+        } else {
+          toast('Model picker not available');
+        }
+      } catch (err) {
+        toast(`Model pick failed: ${String(err)}`, true);
+      }
+    }
+  });
+
+  // Xiaomi Resource Monitor (Selection)
+  const resourcePanel = document.createElement('div');
+  resourcePanel.className = 'px-6 mb-8';
+  resourcePanel.innerHTML = `
+    <div class="bg-gradient-to-br from-dark-700 to-dark-600 rounded-2xl p-4 border border-dark-600">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center space-x-2">
+          <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+          <h3 class="text-sm font-semibold text-white">Xiaomi Resource Usage</h3>
         </div>
-      `).join('');
-    }
-    
-    setStatus('Jobs refreshed', 'green', false);
-  } catch (e) {
-    setStatus('Refresh failed', 'red', false);
-    toast(`Refresh failed: ${String(e)}`, true);
+        <button id="refresh-stats" class="text-xs px-2 py-1 rounded bg-dark-600 border border-dark-500 hover:border-purple-600">Refresh</button>
+      </div>
+      <div id="stats-body" class="grid grid-cols-2 gap-3 text-xs text-gray-300">
+        <div class="bg-dark-700 rounded-lg p-2 border border-dark-600"><span class="text-gray-400">CPU</span> <span class="float-right text-white" id="stat-cpu">—</span>%</div>
+        <div class="bg-dark-700 rounded-lg p-2 border border-dark-600"><span class="text-gray-400">Memory</span> <span class="float-right text-white" id="stat-mem">—</span>%</div>
+        <div class="bg-dark-700 rounded-lg p-2 border border-dark-600"><span class="text-gray-400">Battery</span> <span class="float-right text-white" id="stat-bat">—</span>%</div>
+        <div class="bg-dark-700 rounded-lg p-2 border border-dark-600"><span class="text-gray-400">Temp</span> <span class="float-right text-white" id="stat-temp">—</span>°C</div>
+        <div class="col-span-2 text-[11px] text-gray-400" id="stat-extra">—</div>
+      </div>
+    </div>`;
+  const recent = document.getElementById('recent-projects');
+  if (recent && recent.parentNode) {
+    recent.parentNode.insertBefore(resourcePanel, recent);
   }
-};
 
-// Error handling functions
-function showError(title, message, details = '') {
-  const errorDisplay = document.getElementById('error-display');
-  const errorMessage = document.getElementById('error-message');
-  const errorDetails = document.getElementById('error-details');
-  
-  errorMessage.textContent = message;
-  errorDetails.textContent = details;
-  errorDisplay.style.display = 'block';
-  
-  // Auto-hide after 10 seconds
-  setTimeout(() => {
-    errorDisplay.style.display = 'none';
-  }, 10000);
-}
-
-function showWarning(warnings) {
-  const warningDisplay = document.getElementById('warning-display');
-  const warningList = document.getElementById('warning-list');
-  
-  if (Array.isArray(warnings)) {
-    warningList.innerHTML = warnings.map(w => `<div class="mb-1">• ${w}</div>`).join('');
-  } else {
-    warningList.innerHTML = `<div>• ${warnings}</div>`;
-  }
-  
-  warningDisplay.style.display = 'block';
-  
-  // Auto-hide after 15 seconds
-  setTimeout(() => {
-    warningDisplay.style.display = 'none';
-  }, 15000);
-}
-
-function hideErrorMessages() {
-  document.getElementById('error-display').style.display = 'none';
-  document.getElementById('warning-display').style.display = 'none';
-}
-
-function showFilePickerError(errorType) {
-  const errorMessages = {
-    'invalid_context': {
-      title: 'Invalid Context',
-      message: 'File picker cannot be launched from this context.',
-      details: 'Please restart the app and try again.'
-    },
-    'no_file_picker': {
-      title: 'No File Picker Available',
-      message: 'No file picker application is available on this device.',
-      details: 'Please install a file manager app or use a different device.'
-    },
-    'no_permissions': {
-      title: 'Storage Permission Required',
-      message: 'Storage permissions are required to access video files.',
-      details: 'Please grant storage permissions in app settings and try again.'
-    },
-    'security_exception': {
-      title: 'Security Error',
-      message: 'Security restrictions prevent file picker access.',
-      details: 'Please check app permissions and try again.'
-    },
-    'launch_failed': {
-      title: 'File Picker Launch Failed',
-      message: 'Unable to launch the file picker.',
-      details: 'Please try again or restart the app.'
+  async function pullResourceStats() {
+    try {
+      if (!hasBridge || !window.WhisperBridge.getResourceStats) return;
+      const s = window.WhisperBridge.getResourceStats();
+      const data = typeof s === 'string' ? JSON.parse(s) : s;
+      if (!data) return;
+      const q = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = String(v); };
+      q('stat-cpu', (data.cpu ?? '—'));
+      q('stat-mem', (data.memory ?? '—'));
+      q('stat-bat', (data.battery ?? '—'));
+      q('stat-temp', (data.temperature ?? '—'));
+      const extra = document.getElementById('stat-extra');
+      if (extra) extra.textContent = `${data.batteryDetails || ''}${data.threadInfo ? ' | ' + data.threadInfo : ''}`.trim();
+    } catch(e) {
+      // ignore
     }
-  };
-  
-  const error = errorMessages[errorType] || {
-    title: 'Unknown Error',
-    message: `File picker error: ${errorType}`,
-    details: 'Please try again or contact support.'
-  };
-  
-  showError(error.title, error.message, error.details);
-}
-
-// Error dismiss handlers
-document.getElementById('dismiss-error').onclick = () => {
-  document.getElementById('error-display').style.display = 'none';
-};
-
-document.getElementById('dismiss-warning').onclick = () => {
-  document.getElementById('warning-display').style.display = 'none';
-};
-
-// File selection handler (called from Android bridge)
-window.handleFileSelection = (jsonResponse) => {
-  try {
-    const data = JSON.parse(jsonResponse);
-    
-    if (data.success && data.files && data.files.length > 0) {
-      // Add selected files to the list
-      selectedFiles = [...selectedFiles, ...data.files];
-      updateFileList();
-      
-      setStatus(`${data.files.length} files selected from picker`, 'green', false);
-      toast(`Selected ${data.files.length} files from picker`);
-      
-      // Show warnings if any
-      if (data.warnings && data.warnings.length > 0) {
-        showWarning(data.warnings);
-      }
-    } else if (data.error) {
-      setStatus('File selection failed', 'red', false);
-      
-      // Show specific error based on error type
-      if (data.errorType === 'no_selection') {
-        showError('No Files Selected', 'No files were selected from the file picker.', 'Please try again and select at least one video file.');
-      } else if (data.errorType === 'validation_failed') {
-        showError('Invalid Files Selected', 'None of the selected files are valid for processing.', 'Please select supported video formats (MP4, AVI, MOV, MKV, WEBM, WMV, FLV).');
-      } else if (data.errorType === 'processing_error') {
-        showError('File Processing Error', data.error, 'Please try selecting different files.');
-      } else {
-        showError('File Selection Error', data.error, 'Please try again.');
-      }
-      
-      toast(`Selection failed: ${data.error}`, true);
-    } else {
-      setStatus('No files selected', 'yellow', false);
-      showError('No Selection', 'No files were selected.', 'Please try again and select video files.');
-      toast('No files selected');
-    }
-  } catch (e) {
-    setStatus('File selection error', 'red', false);
-    showError('Selection Error', `Failed to process file selection: ${String(e)}`, 'Please try again.');
-    toast(`Selection error: ${String(e)}`, true);
   }
-};
+  const refreshBtn = document.getElementById('refresh-stats');
+  if (refreshBtn) refreshBtn.addEventListener('click', pullResourceStats);
+  if (hasBridge) {
+    pullResourceStats();
+    setInterval(pullResourceStats, 2000);
+  }
 
-// Initialize
-console.log('Whisper Step 1 initialized');
-setStatus('Ready to select video files', 'green', false);
+  // Keep Tailwind aware of dot colors even if CDN prunes (defensive)
+  const keep = document.createElement('div');
+  keep.className = 'hidden bg-yellow-500 bg-blue-500 bg-purple-500 bg-green-500 bg-gray-500';
+  document.body.appendChild(keep);
 
+})();
 </script>
 
 </body>
