@@ -31,10 +31,17 @@ object WhisperApi {
         lang: String?,
         translate: Boolean,
     ) {
+        // Use multilingual model by default for robust LID
+        val multilingualModel = if (model.contains(".en")) {
+            model.replace(".en", "").replace("tiny", "base")
+        } else {
+            model
+        }
+        
         val data =
             workDataOf(
                 "uri" to uri,
-                "model" to model,
+                "model" to multilingualModel,
                 "threads" to threads,
                 "beam" to beam,
                 "lang" to (lang ?: "auto"),
@@ -56,12 +63,18 @@ object WhisperApi {
         lang: String? = null,
         translate: Boolean = false,
     ) {
+        // Use multilingual model by default for robust LID
+        val multilingualModel = if (model.contains(".en")) {
+            model.replace(".en", "").replace("tiny", "base")
+        } else {
+            model
+        }
         Log.d("WhisperApi", "Enqueuing batch transcription for ${uris.size} files")
         
         uris.forEachIndexed { index, uri ->
             val data = workDataOf(
                 "uri" to uri,
-                "model" to model,
+                "model" to multilingualModel,
                 "threads" to threads,
                 "beam" to beam,
                 "lang" to (lang ?: "auto"),

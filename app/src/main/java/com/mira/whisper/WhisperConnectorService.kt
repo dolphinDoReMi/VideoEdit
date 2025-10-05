@@ -92,24 +92,24 @@ class WhisperConnectorService : Service() {
     data class BatchProcessingState(
         val batchId: String,
         val totalFiles: Int,
-        val completedFiles: Int = 0,
-        val currentFileIndex: Int = 0,
-        val currentFileProgress: Int = 0,
-        val overallProgress: Int = 0,
+        var completedFiles: Int = 0,
+        var currentFileIndex: Int = 0,
+        var currentFileProgress: Int = 0,
+        var overallProgress: Int = 0,
         val startTime: Long = System.currentTimeMillis(),
         val files: MutableList<FileProcessingState> = mutableListOf(),
-        val isActive: Boolean = true
+        var isActive: Boolean = true
     )
     
     data class FileProcessingState(
         val fileName: String,
         val fileUri: String,
-        val status: ProcessingStatus = ProcessingStatus.PENDING,
-        val progress: Int = 0,
-        val startTime: Long = 0,
-        val endTime: Long = 0,
-        val rtf: Double = 0.0,
-        val error: String? = null
+        var status: ProcessingStatus = ProcessingStatus.PENDING,
+        var progress: Int = 0,
+        var startTime: Long = 0,
+        var endTime: Long = 0,
+        var rtf: Double = 0.0,
+        var error: String? = null
     )
     
     enum class ProcessingStatus {
@@ -173,7 +173,11 @@ class WhisperConnectorService : Service() {
             addAction(AndroidWhisperBridge.ACTION_EXPORT)
             addAction(AndroidWhisperBridge.ACTION_VERIFY)
         }
-        registerReceiver(whisperReceiver, filter)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(whisperReceiver, filter, android.content.Context.RECEIVER_NOT_EXPORTED)
+        } else {
+            registerReceiver(whisperReceiver, filter)
+        }
         
         // Start resource monitoring
         startResourceMonitoring()

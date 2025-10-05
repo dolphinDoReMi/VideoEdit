@@ -508,12 +508,12 @@
     renderFileQueue();
   }
 
-  // Resource monitoring functions
+  // Global resource monitoring integration
   function updateResourceStats(statsJson) {
     try {
       const stats = JSON.parse(statsJson);
       
-      // Update main resource displays
+      // Update local resource displays
       document.getElementById('resource-memory').textContent = stats.memory + '%';
       document.getElementById('resource-cpu').textContent = stats.cpu.toFixed(1) + '%';
       document.getElementById('resource-battery').textContent = stats.battery + '%';
@@ -549,6 +549,11 @@
       // Update RTF if available
       if (stats.rtf) {
         rtfValueElement.textContent = stats.rtf.toFixed(2);
+      }
+      
+      // Update global resource monitor if available
+      if (window.updateGlobalResourceStats) {
+        window.updateGlobalResourceStats(statsJson);
       }
       
       console.log('Resource stats updated from connector service:', stats);
@@ -695,6 +700,31 @@
       }
     }, 2000);
   }
+
+  // Initialize global resource monitor
+  async function initializeGlobalResourceMonitor() {
+    try {
+      // Load the global resource monitor component
+      const monitorResponse = await fetch('global_resource_monitor.html');
+      if (monitorResponse.ok) {
+        const monitorHtml = await monitorResponse.text();
+        const monitorContainer = document.createElement('div');
+        monitorContainer.innerHTML = monitorHtml;
+        document.body.appendChild(monitorContainer);
+        
+        // Initialize the global monitor
+        if (window.initializeGlobalResourceMonitor) {
+          window.initializeGlobalResourceMonitor();
+        }
+        console.log('Global resource monitor initialized');
+      }
+    } catch (e) {
+      console.error('Error initializing global resource monitor:', e);
+    }
+  }
+
+  // Initialize global resource monitor
+  initializeGlobalResourceMonitor();
 
   console.log('Whisper Processing initialized');
 

@@ -8,6 +8,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
+import org.json.JSONObject
 import java.util.Timer
 import java.util.TimerTask
 
@@ -27,6 +28,7 @@ class WhisperResultsActivity : AppCompatActivity() {
     private var resourceTimer: Timer? = null
     private lateinit var whisperBridge: AndroidWhisperBridge
     private lateinit var connectorReceiver: WhisperConnectorReceiver
+    private lateinit var resourceReceiver: ResourceUpdateReceiver
     
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,8 +70,34 @@ class WhisperResultsActivity : AppCompatActivity() {
         // Initialize connector receiver
         connectorReceiver = WhisperConnectorReceiver(webView, "results")
         
-        // Start resource monitoring (fallback)
-        startResourceMonitoring()
+        // Initialize resource update receiver for background service
+        resourceReceiver = ResourceUpdateReceiver(
+            onResourceUpdate = { resourceData ->
+                // Send resource data to WebView
+                webView.post {
+                    webView.evaluateJavascript(
+                        "if (window.updateGlobalResourceStats) { window.updateGlobalResourceStats('${resourceData.toString()}'); }",
+                        null
+                    )
+                }
+            },
+            onCpuUpdate = { cpuUsage ->
+                Log.d(TAG, "CPU update: ${cpuUsage}%")
+            },
+            onMemoryUpdate = { memoryUsage ->
+                Log.d(TAG, "Memory update: ${memoryUsage}%")
+            },
+            onBatteryUpdate = { batteryLevel ->
+                Log.d(TAG, "Battery update: ${batteryLevel}%")
+            },
+            onTemperatureUpdate = { temperature ->
+                Log.d(TAG, "Temperature update: ${temperature}°C")
+            }
+        )
+        resourceReceiver.register(this)
+        
+        // Start background resource monitoring service
+        startBackgroundResourceMonitoring()
     }
     
     /**
@@ -101,15 +129,34 @@ class WhisperResultsActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         
-        // Unregister receiver
+        // Unregister receivers
         try {
             unregisterReceiver(connectorReceiver)
         } catch (e: Exception) {
             Log.w(TAG, "Error unregistering connector receiver: ${e.message}")
         }
         
+        try {
+            resourceReceiver.unregister(this)
+        } catch (e: Exception) {
+            Log.w(TAG, "Error unregistering resource receiver: ${e.message}")
+        }
+        
         stopResourceMonitoring()
         Log.d(TAG, "WhisperResultsActivity destroyed")
+    }
+    
+    /**
+     * Start the background DeviceResourceService for resource monitoring
+     */
+    private fun startBackgroundResourceMonitoring() {
+        try {
+            Log.d(TAG, "Starting DeviceResourceService for background resource monitoring")
+            val intent = Intent(this, DeviceResourceService::class.java)
+            startForegroundService(intent)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error starting background resource monitoring: ${e.message}")
+        }
     }
     
     private fun startResourceMonitoring() {

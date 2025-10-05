@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whisper Batch Results</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .table-container {
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        .segment-row:hover {
+            background-color: rgba(75, 85, 99, 0.3);
+        }
+        .metadata-cell {
+            font-size: 0.75rem;
+            line-height: 1.2;
+        }
+        .confidence-bar {
+            width: 100%;
+            height: 4px;
+            background-color: rgba(75, 85, 99, 0.3);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .confidence-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        .confidence-high { background-color: #10b981; }
+        .confidence-medium { background-color: #f59e0b; }
+        .confidence-low { background-color: #ef4444; }
+    </style>
+</head>
+<body class="bg-dark-900 text-white min-h-screen">
+<div class="min-h-screen bg-dark-900">
+  
+  <!-- App Header -->
+  <div id="app-header" class="flex items-center justify-between px-6 py-4 bg-dark-800 border-b border-dark-600">
+    <div class="flex items-center space-x-3">
+      <button id="back-btn" class="w-8 h-8 bg-dark-600 rounded-full flex items-center justify-center">
+        <i class="fa-solid fa-arrow-left text-gray-300 text-sm"></i>
+      </button>
+      <div>
+        <h1 class="text-lg font-semibold text-white">Batch Transcript Results</h1>
+        <p class="text-xs text-gray-400">Table View with Metadata</p>
+      </div>
+    </div>
+    <div class="flex items-center space-x-3">
+      <div class="flex items-center space-x-2">
+        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+        <span class="text-sm text-green-400 font-medium">Complete</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="px-6 py-6 pb-24">
+    
+    <!-- Batch Summary -->
+    <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-6 mb-6 border border-dark-600">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold text-white">Batch Processing Summary</h2>
+        <div class="flex items-center space-x-2">
+          <div class="w-2 h-2 bg-white rounded-full"></div>
+          <span class="text-sm text-white font-medium">Complete</span>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        <div>
+          <p class="text-gray-300">Batch ID</p>
+          <p class="text-white font-medium" id="batch-id">batch_12345</p>
+        </div>
+        <div>
+          <p class="text-gray-300">Files Processed</p>
+          <p class="text-white font-medium" id="files-count">0</p>
+        </div>
+        <div>
+          <p class="text-gray-300">Total Segments</p>
+          <p class="text-white font-medium" id="total-segments">0</p>
+        </div>
+        <div>
+          <p class="text-gray-300">Avg RTF</p>
+          <p class="text-white font-medium" id="avg-rtf">0.00</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="bg-dark-700 rounded-2xl p-4 border border-dark-600 mb-6">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <div class="flex items-center space-x-2">
+            <label class="text-sm text-gray-300">Show:</label>
+            <select id="view-mode" class="bg-dark-600 text-white text-sm px-3 py-1 rounded border border-dark-500">
+              <option value="table">Table View</option>
+              <option value="cards">Card View</option>
+              <option value="timeline">Timeline View</option>
+            </select>
+          </div>
+          <div class="flex items-center space-x-2">
+            <label class="text-sm text-gray-300">Filter:</label>
+            <select id="confidence-filter" class="bg-dark-600 text-white text-sm px-3 py-1 rounded border border-dark-500">
+              <option value="all">All Confidence</option>
+              <option value="high">High (>80%)</option>
+              <option value="medium">Medium (60-80%)</option>
+              <option value="low">Low (<60%)</option>
+            </select>
+          </div>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button id="export-csv" class="px-3 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm transition-colors">
+            <i class="fa-solid fa-download mr-2"></i>Export CSV
+          </button>
+          <button id="export-json" class="px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm transition-colors">
+            <i class="fa-solid fa-code mr-2"></i>Export JSON
+          </button>
+          <button id="refresh-data" class="px-3 py-2 bg-dark-600 hover:bg-dark-500 rounded-lg text-sm transition-colors">
+            <i class="fa-solid fa-refresh mr-2"></i>Refresh
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Table -->
+    <div id="table-view" class="bg-dark-700 rounded-2xl border border-dark-600 overflow-hidden">
+      <div class="table-container">
+        <table class="w-full">
+          <thead class="bg-dark-800 sticky top-0">
+            <tr>
+              <th class="text-left p-4 text-sm font-medium text-gray-300">Job ID</th>
+              <th class="text-left p-4 text-sm font-medium text-gray-300">File</th>
+              <th class="text-left p-4 text-sm font-medium text-gray-300">Start Time</th>
+              <th class="text-left p-4 text-sm font-medium text-gray-300">End Time</th>
+              <th class="text-left p-4 text-sm font-medium text-gray-300">Text</th>
+              <th class="text-left p-4 text-sm font-medium text-gray-300">Confidence</th>
+              <th class="text-left p-4 text-sm font-medium text-gray-300">Duration</th>
+              <th class="text-left p-4 text-sm font-medium text-gray-300">RTF</th>
+              <th class="text-left p-4 text-sm font-medium text-gray-300">Language</th>
+              <th class="text-left p-4 text-sm font-medium text-gray-300">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="transcript-table-body">
+            <!-- Table rows will be populated by JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Card View (Hidden by default) -->
+    <div id="card-view" class="hidden space-y-4">
+      <!-- Cards will be populated by JavaScript -->
+    </div>
+
+    <!-- Timeline View (Hidden by default) -->
+    <div id="timeline-view" class="hidden">
+      <div class="relative">
+        <div class="absolute left-4 top-0 bottom-0 w-0.5 bg-dark-600"></div>
+        <div id="timeline-items" class="space-y-6">
+          <!-- Timeline items will be populated by JavaScript -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loading-state" class="text-center py-12">
+      <div class="inline-flex items-center space-x-2">
+        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+        <span class="text-gray-400">Loading batch results...</span>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div id="empty-state" class="hidden text-center py-12">
+      <div class="text-gray-400">
+        <i class="fa-solid fa-inbox text-4xl mb-4"></i>
+        <p class="text-lg">No batch results found</p>
+        <p class="text-sm">Process some files to see transcript results here</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(() => {
+  // State management
+  const state = {
+    batchId: '',
+    results: [],
+    filteredResults: [],
+    viewMode: 'table',
+    confidenceFilter: 'all'
+  };
+
+  // Bridge contract (if running in Android WebView)
+  const hasBridge = typeof window.WhisperBridge !== 'undefined';
+  const bridge = hasBridge ? {
+    async getBatchResultsWithMetadata(batchId) { 
+      return window.WhisperBridge.getBatchResultsWithMetadata(batchId); 
+    },
+    async goBack() { 
+      return window.WhisperBridge.goBack(); 
+    }
+  } : null;
+
+  // DOM elements
+  const elements = {
+    backBtn: document.getElementById('back-btn'),
+    batchId: document.getElementById('batch-id'),
+    filesCount: document.getElementById('files-count'),
+    totalSegments: document.getElementById('total-segments'),
+    avgRtf: document.getElementById('avg-rtf'),
+    viewMode: document.getElementById('view-mode'),
+    confidenceFilter: document.getElementById('confidence-filter'),
+    exportCsv: document.getElementById('export-csv'),
+    exportJson: document.getElementById('export-json'),
+    refreshData: document.getElementById('refresh-data'),
+    tableView: document.getElementById('table-view'),
+    cardView: document.getElementById('card-view'),
+    timelineView: document.getElementById('timeline-view'),
+    tableBody: document.getElementById('transcript-table-body'),
+    cardContainer: document.getElementById('card-view'),
+    timelineContainer: document.getElementById('timeline-items'),
+    loadingState: document.getElementById('loading-state'),
+    emptyState: document.getElementById('empty-state')
+  };
+
+  // Utility functions
+  function formatTime(seconds) {
+    if (typeof seconds === 'string') return seconds;
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    const ms = Math.floor((seconds % 1) * 1000);
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}.${ms.toString().padStart(3, '0')}`;
+  }
+
+  function formatDuration(start, end) {
+    if (!start || !end) return '—';
+    const startSec = parseTimeToSeconds(start);
+    const endSec = parseTimeToSeconds(end);
+    if (isNaN(startSec) || isNaN(endSec)) return '—';
+    return formatTime(endSec - startSec);
+  }
+
+  function parseTimeToSeconds(timeStr) {
+    if (!timeStr) return NaN;
+    // Handle formats like "00:01:23,456" or "01:23"
+    const parts = timeStr.replace(',', '.').split(':');
+    if (parts.length === 3) {
+      return parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseFloat(parts[2]);
+    } else if (parts.length === 2) {
+      return parseInt(parts[0]) * 60 + parseFloat(parts[1]);
+    }
+    return parseFloat(timeStr);
+  }
+
+  function getConfidenceLevel(confidence) {
+    if (confidence >= 0.8) return 'high';
+    if (confidence >= 0.6) return 'medium';
+    return 'low';
+  }
+
+  function getConfidenceColor(confidence) {
+    const level = getConfidenceLevel(confidence);
+    switch (level) {
+      case 'high': return 'text-green-400';
+      case 'medium': return 'text-yellow-400';
+      case 'low': return 'text-red-400';
+      default: return 'text-gray-400';
+    }
+  }
+
+  function getConfidenceBarClass(confidence) {
+    const level = getConfidenceLevel(confidence);
+    switch (level) {
+      case 'high': return 'confidence-high';
+      case 'medium': return 'confidence-medium';
+      case 'low': return 'confidence-low';
+      default: return 'confidence-low';
+    }
+  }
+
+  function extractFileName(uri) {
+    if (!uri) return 'Unknown';
+    const parts = uri.split('/');
+    return parts[parts.length - 1] || 'Unknown';
+  }
+
+  function showToast(message, type = 'info') {
+    // Simple toast implementation
+    console.log(`Toast [${type}]: ${message}`);
+  }
+
+  // Data loading
+  async function loadBatchResults() {
+    try {
+      elements.loadingState.classList.remove('hidden');
+      elements.emptyState.classList.add('hidden');
+      
+      if (!hasBridge || !state.batchId) {
+        throw new Error('No bridge or batch ID available');
+      }
+
+      const resultsJson = await bridge.getBatchResultsWithMetadata(state.batchId);
+      const results = JSON.parse(resultsJson);
+      
+      state.results = results;
+      applyFilters();
+      updateSummary();
+      renderResults();
+      
+      elements.loadingState.classList.add('hidden');
+      
+      if (results.length === 0) {
+        elements.emptyState.classList.remove('hidden');
+      }
+      
+      showToast(`Loaded ${results.length} batch results`, 'success');
+      
+    } catch (error) {
+      console.error('Error loading batch results:', error);
+      elements.loadingState.classList.add('hidden');
+      elements.emptyState.classList.remove('hidden');
+      showToast('Failed to load batch results', 'error');
+    }
+  }
+
+  function applyFilters() {
+    let filtered = [...state.results];
+    
+    // Apply confidence filter
+    if (state.confidenceFilter !== 'all') {
+      filtered = filtered.map(result => {
+        const segments = result.segments || [];
+        const filteredSegments = segments.filter(segment => {
+          const confidence = segment.avg_logprob ? Math.exp(segment.avg_logprob) : 0.8;
+          const level = getConfidenceLevel(confidence);
+          return level === state.confidenceFilter;
+        });
+        return { ...result, segments: filteredSegments };
+      }).filter(result => result.segments.length > 0);
+    }
+    
+    state.filteredResults = filtered;
+  }
+
+  function updateSummary() {
+    const totalFiles = state.results.length;
+    const totalSegments = state.results.reduce((sum, result) => sum + (result.segments?.length || 0), 0);
+    const avgRtf = state.results.length > 0 
+      ? state.results.reduce((sum, result) => sum + (result.rtf || 0), 0) / state.results.length 
+      : 0;
+
+    elements.filesCount.textContent = totalFiles;
+    elements.totalSegments.textContent = totalSegments;
+    elements.avgRtf.textContent = avgRtf.toFixed(2);
+  }
+
+  function renderResults() {
+    switch (state.viewMode) {
+      case 'table':
+        renderTableView();
+        break;
+      case 'cards':
+        renderCardView();
+        break;
+      case 'timeline':
+        renderTimelineView();
+        break;
+    }
+  }
+
+  function renderTableView() {
+    elements.tableView.classList.remove('hidden');
+    elements.cardView.classList.add('hidden');
+    elements.timelineView.classList.add('hidden');
+    
+    elements.tableBody.innerHTML = '';
+    
+    state.filteredResults.forEach(result => {
+      const segments = result.segments || [];
+      const fileName = extractFileName(result.uri);
+      
+      segments.forEach((segment, index) => {
+        const confidence = segment.avg_logprob ? Math.exp(segment.avg_logprob) : 0.8;
+        const confidencePercent = Math.round(confidence * 100);
+        
+        const row = document.createElement('tr');
+        row.className = 'segment-row border-b border-dark-600';
+        row.innerHTML = `
+          <td class="p-4 text-xs text-gray-400">${result.jobId}</td>
+          <td class="p-4 text-sm text-gray-300" title="${result.uri}">${fileName}</td>
+          <td class="p-4 text-sm text-gray-300">${segment.start || '—'}</td>
+          <td class="p-4 text-sm text-gray-300">${segment.end || '—'}</td>
+          <td class="p-4 text-sm text-white max-w-xs truncate" title="${segment.text}">${segment.text}</td>
+          <td class="p-4">
+            <div class="flex items-center space-x-2">
+              <span class="text-xs ${getConfidenceColor(confidence)}">${confidencePercent}%</span>
+              <div class="confidence-bar w-12">
+                <div class="confidence-fill ${getConfidenceBarClass(confidence)}" style="width: ${confidencePercent}%"></div>
+              </div>
+            </div>
+          </td>
+          <td class="p-4 text-sm text-gray-300">${formatDuration(segment.start, segment.end)}</td>
+          <td class="p-4 text-sm text-gray-300">${result.rtf ? result.rtf.toFixed(2) : '—'}</td>
+          <td class="p-4 text-sm text-gray-300">${result.jsonTranscript?.language || '—'}</td>
+          <td class="p-4">
+            <button class="text-xs px-2 py-1 bg-dark-600 hover:bg-dark-500 rounded transition-colors" 
+                    onclick="showSegmentDetails('${result.jobId}', ${index})">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </td>
+        `;
+        elements.tableBody.appendChild(row);
+      });
+    });
+  }
+
+  function renderCardView() {
+    elements.tableView.classList.add('hidden');
+    elements.cardView.classList.remove('hidden');
+    elements.timelineView.classList.add('hidden');
+    
+    elements.cardContainer.innerHTML = '';
+    
+    state.filteredResults.forEach(result => {
+      const segments = result.segments || [];
+      const fileName = extractFileName(result.uri);
+      
+      const card = document.createElement('div');
+      card.className = 'bg-dark-800 rounded-xl p-6 border border-dark-600';
+      card.innerHTML = `
+        <div class="flex items-start justify-between mb-4">
+          <div>
+            <h3 class="text-lg font-semibold text-white">${fileName}</h3>
+            <p class="text-sm text-gray-400">Job ID: ${result.jobId}</p>
+            <p class="text-xs text-gray-500">${result.uri}</p>
+          </div>
+          <div class="text-right text-sm text-gray-300">
+            <p>RTF: ${result.rtf ? result.rtf.toFixed(2) : '—'}</p>
+            <p>Segments: ${segments.length}</p>
+            <p>Language: ${result.jsonTranscript?.language || '—'}</p>
+          </div>
+        </div>
+        <div class="space-y-3">
+          ${segments.map(segment => {
+            const confidence = segment.avg_logprob ? Math.exp(segment.avg_logprob) : 0.8;
+            const confidencePercent = Math.round(confidence * 100);
+            return `
+              <div class="bg-dark-700 rounded-lg p-3">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs text-gray-400">${segment.start || '—'} - ${segment.end || '—'}</span>
+                  <div class="flex items-center space-x-2">
+                    <span class="text-xs ${getConfidenceColor(confidence)}">${confidencePercent}%</span>
+                    <div class="confidence-bar w-16">
+                      <div class="confidence-fill ${getConfidenceBarClass(confidence)}" style="width: ${confidencePercent}%"></div>
+                    </div>
+                  </div>
+                </div>
+                <p class="text-sm text-white">${segment.text}</p>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+      elements.cardContainer.appendChild(card);
+    });
+  }
+
+  function renderTimelineView() {
+    elements.tableView.classList.add('hidden');
+    elements.cardView.classList.add('hidden');
+    elements.timelineView.classList.remove('hidden');
+    
+    elements.timelineContainer.innerHTML = '';
+    
+    // Flatten all segments and sort by start time
+    const allSegments = [];
+    state.filteredResults.forEach(result => {
+      const segments = result.segments || [];
+      segments.forEach(segment => {
+        allSegments.push({
+          ...segment,
+          jobId: result.jobId,
+          fileName: extractFileName(result.uri),
+          rtf: result.rtf
+        });
+      });
+    });
+    
+    allSegments.sort((a, b) => {
+      const timeA = parseTimeToSeconds(a.start);
+      const timeB = parseTimeToSeconds(b.start);
+      return timeA - timeB;
+    });
+    
+    allSegments.forEach((segment, index) => {
+      const confidence = segment.avg_logprob ? Math.exp(segment.avg_logprob) : 0.8;
+      const confidencePercent = Math.round(confidence * 100);
+      
+      const timelineItem = document.createElement('div');
+      timelineItem.className = 'relative flex items-start space-x-4';
+      timelineItem.innerHTML = `
+        <div class="flex-shrink-0 w-8 h-8 bg-dark-600 rounded-full flex items-center justify-center">
+          <span class="text-xs text-gray-300">${index + 1}</span>
+        </div>
+        <div class="flex-1 bg-dark-800 rounded-lg p-4 border border-dark-600">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center space-x-2">
+              <span class="text-sm font-medium text-white">${segment.fileName}</span>
+              <span class="text-xs text-gray-400">${segment.jobId}</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <span class="text-xs text-gray-400">${segment.start || '—'} - ${segment.end || '—'}</span>
+              <span class="text-xs ${getConfidenceColor(confidence)}">${confidencePercent}%</span>
+            </div>
+          </div>
+          <p class="text-sm text-gray-300 mb-2">${segment.text}</p>
+          <div class="flex items-center justify-between">
+            <div class="confidence-bar w-24">
+              <div class="confidence-fill ${getConfidenceBarClass(confidence)}" style="width: ${confidencePercent}%"></div>
+            </div>
+            <span class="text-xs text-gray-500">RTF: ${segment.rtf ? segment.rtf.toFixed(2) : '—'}</span>
+          </div>
+        </div>
+      `;
+      elements.timelineContainer.appendChild(timelineItem);
+    });
+  }
+
+  // Export functions
+  function exportToCSV() {
+    const csvData = [];
+    csvData.push(['Job ID', 'File', 'Start Time', 'End Time', 'Text', 'Confidence', 'Duration', 'RTF', 'Language']);
+    
+    state.filteredResults.forEach(result => {
+      const segments = result.segments || [];
+      const fileName = extractFileName(result.uri);
+      
+      segments.forEach(segment => {
+        const confidence = segment.avg_logprob ? Math.exp(segment.avg_logprob) : 0.8;
+        const confidencePercent = Math.round(confidence * 100);
+        
+        csvData.push([
+          result.jobId,
+          fileName,
+          segment.start || '',
+          segment.end || '',
+          `"${segment.text.replace(/"/g, '""')}"`,
+          `${confidencePercent}%`,
+          formatDuration(segment.start, segment.end),
+          result.rtf ? result.rtf.toFixed(2) : '',
+          result.jsonTranscript?.language || ''
+        ]);
+      });
+    });
+    
+    const csvContent = csvData.map(row => row.join(',')).join('\n');
+    downloadFile(csvContent, `batch_results_${state.batchId}.csv`, 'text/csv');
+  }
+
+  function exportToJSON() {
+    const jsonData = {
+      batchId: state.batchId,
+      timestamp: new Date().toISOString(),
+      summary: {
+        totalFiles: state.results.length,
+        totalSegments: state.results.reduce((sum, result) => sum + (result.segments?.length || 0), 0),
+        avgRtf: state.results.length > 0 
+          ? state.results.reduce((sum, result) => sum + (result.rtf || 0), 0) / state.results.length 
+          : 0
+      },
+      results: state.filteredResults
+    };
+    
+    const jsonContent = JSON.stringify(jsonData, null, 2);
+    downloadFile(jsonContent, `batch_results_${state.batchId}.json`, 'application/json');
+  }
+
+  function downloadFile(content, filename, mimeType) {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  // Event handlers
+  elements.backBtn.onclick = async () => {
+    try {
+      if (hasBridge) {
+        await bridge.goBack();
+      } else {
+        window.history.back();
+      }
+    } catch (e) {
+      console.error('Error going back:', e);
+    }
+  };
+
+  elements.viewMode.onchange = () => {
+    state.viewMode = elements.viewMode.value;
+    renderResults();
+  };
+
+  elements.confidenceFilter.onchange = () => {
+    state.confidenceFilter = elements.confidenceFilter.value;
+    applyFilters();
+    renderResults();
+  };
+
+  elements.exportCsv.onclick = exportToCSV;
+  elements.exportJson.onclick = exportToJSON;
+  elements.refreshData.onclick = loadBatchResults;
+
+  // Global function for segment details
+  window.showSegmentDetails = (jobId, segmentIndex) => {
+    const result = state.results.find(r => r.jobId === jobId);
+    if (result && result.segments[segmentIndex]) {
+      const segment = result.segments[segmentIndex];
+      const details = {
+        jobId,
+        fileName: extractFileName(result.uri),
+        segment,
+        metadata: {
+          rtf: result.rtf,
+          createdAt: result.createdAt,
+          modelSha: result.modelSha,
+          audioSha: result.audioSha,
+          transcriptSha: result.transcriptSha,
+          preset: result.preset,
+          language: result.jsonTranscript?.language
+        }
+      };
+      
+      alert(`Segment Details:\n\nJob ID: ${details.jobId}\nFile: ${details.fileName}\nTime: ${segment.start} - ${segment.end}\nText: ${segment.text}\nConfidence: ${segment.avg_logprob ? Math.round(Math.exp(segment.avg_logprob) * 100) : 80}%\nRTF: ${result.rtf ? result.rtf.toFixed(2) : '—'}`);
+    }
+  };
+
+  // Global function to set batch ID from activity
+  window.setBatchId = (batchId) => {
+    state.batchId = batchId;
+    elements.batchId.textContent = batchId;
+    loadBatchResults();
+  };
+
+  // Initialize
+  console.log('Whisper Batch Results initialized');
+  
+  // Get batch ID from URL or use default
+  const urlParams = new URLSearchParams(window.location.search);
+  state.batchId = urlParams.get('batchId') || 'batch_12345';
+  elements.batchId.textContent = state.batchId;
+  
+  // Load data
+  loadBatchResults();
+  
+})();
+</script>
+
+</body>
+</html>
