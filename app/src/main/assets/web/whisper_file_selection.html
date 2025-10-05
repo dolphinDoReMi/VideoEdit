@@ -73,7 +73,7 @@
         <span class="text-sm text-white font-medium">Step 1/3</span>
       </div>
     </div>
-    <p class="text-gray-100 mb-4">Choose one or more video files to transcribe using Whisper AI. Supported formats: MP4, AVI, MOV, MKV, WebM</p>
+    <p class="text-gray-100 mb-4">Choose one or more video or photo files to transcribe using Whisper AI. <strong class="text-yellow-300">You can select multiple files at once for batch processing!</strong> Supported formats: MP4, AVI, MOV, MKV, WebM, JPG, PNG, GIF</p>
     <div class="flex items-center space-x-4">
       <div class="flex items-center space-x-2">
         <i class="fa-solid fa-video text-white"></i>
@@ -95,7 +95,23 @@
             class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-4 px-6 rounded-xl flex items-center justify-center space-x-3 transition-all duration-200 mb-6">
       <i class="fa-solid fa-folder-open text-xl"></i>
       <span class="text-lg">Browse Video Files</span>
+      <div class="flex items-center space-x-1 ml-2">
+        <i class="fa-solid fa-plus text-sm"></i>
+        <span class="text-sm">Multiple</span>
+      </div>
     </button>
+    
+    <!-- Multiple Selection Tip -->
+    <div class="bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-xl p-4 mb-6 border border-blue-500/30">
+      <div class="flex items-center space-x-3 mb-2">
+        <i class="fa-solid fa-lightbulb text-yellow-400"></i>
+        <span class="text-sm font-medium text-blue-300">Batch Processing Tip</span>
+      </div>
+      <p class="text-xs text-blue-200">
+        <strong>Hold Ctrl/Cmd</strong> while clicking files to select multiple videos at once, or use the file picker's multi-select mode. 
+        All selected files will be processed together for faster transcription!
+      </p>
+    </div>
     
     <!-- Preset Selection -->
     <div class="bg-dark-600 rounded-xl p-4 mb-6">
@@ -499,7 +515,7 @@
       
       const uris = state.selectedFiles.map(file => file.uri);
       
-      const batchId = await bridge.runBatch({
+      const batchId = bridge.runBatch({
         uris: uris,
         preset: state.selectedPreset,
         modelPath: state.selectedModel,
@@ -509,15 +525,13 @@
       setStatus(`Processing ${state.selectedFiles.length} files...`, 'processing', true);
       showToast(`Started processing ${state.selectedFiles.length} files (Batch: ${batchId})`);
       
-      // Navigate to Step 2 after successful submission
-      setTimeout(async () => {
-        try {
-          await bridge.openWhisperStep2();
-        } catch (err) {
-          console.error('Navigation error:', err);
-          setStatus('Processing started - navigate to Processing', 'success', false);
-        }
-      }, 1000);
+      // Navigate to Step 2 immediately after submission (no waiting)
+      try {
+        await bridge.openWhisperStep2();
+      } catch (err) {
+        console.error('Navigation error:', err);
+        setStatus('Processing started - navigate to Processing', 'success', false);
+      }
       
     } catch (e) {
       state.isProcessing = false;

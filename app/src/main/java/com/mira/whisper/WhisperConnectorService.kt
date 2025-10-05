@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
 import java.util.Timer
 import java.util.TimerTask
+import com.mira.com.feature.whisper.data.db.AsrDb
 
 /**
  * WhisperConnectorService - Central service that connects all 3 whisper pages
@@ -181,9 +182,6 @@ class WhisperConnectorService : Service() {
         
         // Start resource monitoring
         startResourceMonitoring()
-        
-        // Start progress monitoring
-        startProgressMonitoring()
     }
     
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -254,111 +252,141 @@ class WhisperConnectorService : Service() {
     }
     
     /**
-     * Start actual whisper processing using the existing bridge
+     * Start actual whisper processing using WorkManager monitoring
      */
     private fun startActualWhisperProcessing(batchId: String, fileCount: Int) {
         try {
-            // This would integrate with the existing WhisperApi
-            // For now, we'll simulate the processing
-            Log.d(TAG, "Integrating with WhisperApi for batch: $batchId")
-            
-            // Simulate file processing
+            Log.d(TAG, "Starting actual whisper processing for batch: $batchId")
+
             val batchState = activeBatches[batchId]
             if (batchState != null) {
-                // Create mock file states
+                // Initialize file states for tracking
                 for (i in 0 until fileCount) {
                     val fileState = FileProcessingState(
-                        fileName = "video_${i + 1}.mp4",
-                        fileUri = "file:///sdcard/video_${i + 1}.mp4",
-                        status = if (i == 0) ProcessingStatus.PROCESSING else ProcessingStatus.PENDING
+                        fileName = "video_${i + 1}.mp4", // Placeholder, actual names will come from metadata
+                        fileUri = "file:///sdcard/video_${i + 1}.mp4", // Placeholder
+                        status = ProcessingStatus.PENDING
                     )
                     batchState.files.add(fileState)
                 }
-                
-                // Start processing simulation
-                simulateFileProcessing(batchId)
+
+                // Start monitoring WorkManager jobs
+                startWorkManagerMonitoring(batchId)
             }
-            
+
         } catch (e: Exception) {
             Log.e(TAG, "Error starting whisper processing: ${e.message}", e)
         }
     }
-    
+
     /**
-     * Simulate file processing with realistic progress updates
+     * Monitor WorkManager jobs for this batch
      */
-    private fun simulateFileProcessing(batchId: String) {
-        val batchState = activeBatches[batchId] ?: return
-        
-        val handler = Handler(Looper.getMainLooper())
-        
-        val processingRunnable = object : Runnable {
+    private fun startWorkManagerMonitoring(batchId: String) {
+        Log.d(TAG, "Starting WorkManager monitoring for batch: $batchId")
+
+        // Start a timer to periodically check WorkManager status
+        progressTimer = Timer()
+        progressTimer?.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
-                if (!batchState.isActive) return
-                
-                val currentFile = batchState.files.getOrNull(batchState.currentFileIndex)
-                if (currentFile != null && currentFile.status == ProcessingStatus.PROCESSING) {
-                    // Update progress
-                    val newProgress = minOf(currentFile.progress + (Math.random() * 5).toInt(), 100)
-                    currentFile.progress = newProgress
-                    
-                    // Update batch progress
-                    batchState.currentFileProgress = newProgress
-                    batchState.overallProgress = ((batchState.completedFiles * 100 + newProgress) / batchState.totalFiles)
-                    
-                    // Broadcast progress update
-                    broadcastProgressUpdate(batchId, batchState)
-                    
-                    // Check if file is complete
-                    if (newProgress >= 100) {
-                        currentFile.status = ProcessingStatus.COMPLETED
-                        currentFile.endTime = System.currentTimeMillis()
-                        batchState.completedFiles++
-                        
-                        // Move to next file
-                        batchState.currentFileIndex++
-                        if (batchState.currentFileIndex < batchState.totalFiles) {
-                            batchState.files[batchState.currentFileIndex].status = ProcessingStatus.PROCESSING
-                            batchState.files[batchState.currentFileIndex].startTime = System.currentTimeMillis()
-                        } else {
-                            // All files completed
-                            completeBatchProcessing(batchId)
-                            return
+                try {
+                    checkWorkManagerProgress(batchId)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error checking WorkManager progress: ${e.message}", e)
+                }
+            }
+        }, 1000, 2000) // Check every 2 seconds
+    }
+
+    /**
+     * Check WorkManager job progress for a batch
+     */
+    private fun checkWorkManagerProgress(batchId: String) {
+        Log.d(TAG, "checkWorkManagerProgress called for batch: $batchId")
+        val batchState = activeBatches[batchId] ?: return
+
+        try {
+            Log.d(TAG, "Querying database for jobs...")
+            // Query the database for job status
+            val dao = AsrDb.get(this).dao()
+            val jobs = dao.getAllJobs()
+            Log.d(TAG, "Found ${jobs.size} jobs in database")
+
+            var completedJobs = 0
+            var currentJobIndex = 0
+
+            // Count completed jobs and find current processing job
+            for (i in 0 until batchState.totalFiles) {
+                val jobIdPrefix = "batch_${i}_" // Match the job ID pattern from TranscribeWorker
+                val matchingJobs = jobs.filter { it.jobId.startsWith(jobIdPrefix) }
+                Log.d(TAG, "Looking for jobs with prefix: $jobIdPrefix, found: ${matchingJobs.size}")
+
+                if (matchingJobs.isNotEmpty()) {
+                    val job = matchingJobs.first()
+                    Log.d(TAG, "Job ${job.jobId} status: ${job.status}")
+                    when (job.status) {
+                        "DONE" -> {
+                            completedJobs++
+                            batchState.files[i].status = ProcessingStatus.COMPLETED
+                            batchState.files[i].progress = 100
+                            batchState.files[i].rtf = job.rtf ?: 0.0
+                        }
+                        "RUNNING" -> {
+                            batchState.files[i].status = ProcessingStatus.PROCESSING
+                            batchState.files[i].progress = 50 // Estimate progress
+                            currentJobIndex = i
+                        }
+                        "ERROR" -> {
+                            batchState.files[i].status = ProcessingStatus.ERROR
+                            batchState.files[i].error = job.error ?: "Unknown error"
+                            // Count ERROR jobs as completed to avoid infinite waiting
+                            completedJobs++
+                        }
+                        else -> {
+                            batchState.files[i].status = ProcessingStatus.PENDING
+                            batchState.files[i].progress = 0
                         }
                     }
                 }
-                
-                // Schedule next update
-                handler.postDelayed(this, 1000)
             }
+
+            // Update batch state
+            batchState.completedFiles = completedJobs
+            batchState.currentFileIndex = currentJobIndex
+            batchState.overallProgress = Math.floor((completedJobs.toDouble() / batchState.totalFiles) * 100).toInt()
+
+            Log.d(TAG, "Batch $batchId: completedJobs=$completedJobs, totalFiles=${batchState.totalFiles}, overallProgress=${batchState.overallProgress}%")
+
+            // Broadcast progress update
+            broadcastProgressUpdate(batchId, batchState)
+
+            // Check if all jobs are complete
+            if (completedJobs >= batchState.totalFiles) {
+                Log.d(TAG, "All jobs completed for batch: $batchId")
+                progressTimer?.cancel()
+                broadcastProcessingComplete(batchId)
+            } else {
+                Log.d(TAG, "Batch $batchId not yet complete: $completedJobs/${batchState.totalFiles}")
+            }
+
+        } catch (e: Exception) {
+            Log.e(TAG, "Error checking WorkManager progress: ${e.message}", e)
         }
-        
-        handler.post(processingRunnable)
     }
-    
-    /**
-     * Update batch progress
-     */
-    private fun updateBatchProgress(batchId: String, progress: Int) {
-        val batchState = activeBatches[batchId] ?: return
-        batchState.overallProgress = progress
-        
-        broadcastProgressUpdate(batchId, batchState)
-    }
-    
+
     /**
      * Complete batch processing
      */
     private fun completeBatchProcessing(batchId: String) {
         Log.d(TAG, "Completing batch processing: $batchId")
-        
+
         val batchState = activeBatches[batchId] ?: return
         batchState.isActive = false
         batchState.overallProgress = 100
-        
+
         // Broadcast completion
         broadcastProcessingComplete(batchId)
-        
+
         // Clean up after delay
         Handler(Looper.getMainLooper()).postDelayed({
             activeBatches.remove(batchId)
@@ -370,92 +398,117 @@ class WhisperConnectorService : Service() {
      */
     private fun startResourceMonitoring() {
         if (isMonitoring.get()) return
-        
+
         isMonitoring.set(true)
         Log.d(TAG, "Starting resource monitoring")
-        
+
         resourceTimer = Timer("ResourceMonitor", true).apply {
             scheduleAtFixedRate(object : TimerTask() {
                 override fun run() {
-                    updateResourceStats()
+                    try {
+                        val stats = getResourceStats()
+                        resourceStats.update(stats)
+                        broadcastResourceUpdate(resourceStats)
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error in resource monitoring task: ${e.message}", e)
+                    }
                 }
             }, 0, RESOURCE_UPDATE_INTERVAL)
         }
     }
-    
+
     /**
      * Stop resource monitoring
      */
     private fun stopResourceMonitoring() {
+        if (!isMonitoring.get()) return
+
         isMonitoring.set(false)
         resourceTimer?.cancel()
         resourceTimer = null
         Log.d(TAG, "Stopped resource monitoring")
     }
-    
-    /**
-     * Start progress monitoring
-     */
-    private fun startProgressMonitoring() {
-        progressTimer = Timer("ProgressMonitor", true).apply {
-            scheduleAtFixedRate(object : TimerTask() {
-                override fun run() {
-                    broadcastResourceUpdate()
-                }
-            }, 0, PROGRESS_UPDATE_INTERVAL)
-        }
-    }
-    
+
     /**
      * Stop progress monitoring
      */
     private fun stopProgressMonitoring() {
         progressTimer?.cancel()
         progressTimer = null
+        Log.d(TAG, "Stopped progress monitoring")
     }
-    
+
     /**
-     * Update resource statistics
+     * Get current resource stats
      */
-    private fun updateResourceStats() {
-        try {
-            val memoryUsage = getMemoryUsage()
-            val cpuUsage = getCpuUsage()
-            val batteryLevel = getBatteryLevel()
-            val temperature = getTemperature()
-            val batteryDetails = getBatteryDetails()
-            val gpuInfo = getGpuInfo()
-            val threadInfo = getThreadInfo()
-            
-            val stats = ResourceStats(
-                memory = memoryUsage,
-                cpu = cpuUsage,
-                battery = batteryLevel,
-                temperature = temperature,
-                batteryDetails = batteryDetails,
-                gpuInfo = gpuInfo,
-                threadInfo = threadInfo
-            )
-            
-            resourceStats.update(stats)
-            
-            Log.d(TAG, "Resource stats updated: Memory: ${memoryUsage}%, CPU: ${cpuUsage}%, Battery: ${batteryLevel}%")
-            
+    private fun getResourceStats(): ResourceStats {
+        val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as android.app.ActivityManager
+        val memoryInfo = android.app.ActivityManager.MemoryInfo()
+        activityManager.getMemoryInfo(memoryInfo)
+        val totalMemory = memoryInfo.totalMem
+        val availableMemory = memoryInfo.availMem
+
+        // CPU usage (simplified, for real usage needs /proc/stat parsing)
+        val cpuUsage = try {
+            val reader = java.io.RandomAccessFile("/proc/stat", "r")
+            val load = reader.readLine()
+            reader.close()
+            val toks = load.split(" +".toRegex()).drop(1).map { it.toLong() }
+            val idle = toks[3]
+            val total = toks.sum()
+            val diffIdle = idle - lastIdleCpu
+            val diffTotal = total - lastTotalCpu
+            lastIdleCpu = idle
+            lastTotalCpu = total
+            if (diffTotal > 0) (100.0 * (diffTotal - diffIdle) / diffTotal) else 0.0
         } catch (e: Exception) {
-            Log.e(TAG, "Error updating resource stats: ${e.message}", e)
+            Log.e(TAG, "Error getting CPU stats: ${e.message}", e)
+            0.0
+        }
+
+        // Battery info
+        val batteryManager = getSystemService(BATTERY_SERVICE) as BatteryManager
+        val batteryLevel = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
+        val batteryTemp = getBatteryTemperature()
+        val batteryStatus = getBatteryStatus(batteryManager)
+
+        // GPU info (placeholder, actual GPU monitoring is complex and device-specific)
+        val gpuInfo = "N/A"
+
+        // Thread info (placeholder)
+        val threadInfo = "Threads: ${Debug.getThreadAllocCount()}"
+
+        return ResourceStats(
+            memory = totalMemory - availableMemory, // Used memory
+            cpu = cpuUsage,
+            battery = batteryLevel,
+            temperature = batteryTemp,
+            batteryDetails = batteryStatus,
+            gpuInfo = gpuInfo,
+            threadInfo = threadInfo
+        )
+    }
+
+    private var lastIdleCpu: Long = 0
+    private var lastTotalCpu: Long = 0
+
+    private fun getBatteryTemperature(): Double {
+        val intent: Intent? = applicationContext.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+        val temp = intent?.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0)?.div(10.0) ?: 0.0
+        return temp
+    }
+
+    private fun getBatteryStatus(bm: BatteryManager): String {
+        val status = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_STATUS)
+        return when (status) {
+            BatteryManager.BATTERY_STATUS_CHARGING -> "Charging"
+            BatteryManager.BATTERY_STATUS_DISCHARGING -> "Discharging"
+            BatteryManager.BATTERY_STATUS_FULL -> "Full"
+            BatteryManager.BATTERY_STATUS_NOT_CHARGING -> "Not Charging"
+            else -> "Unknown"
         }
     }
-    
-    /**
-     * Broadcast resource update to all connected pages
-     */
-    private fun broadcastResourceUpdate() {
-        val intent = Intent(ACTION_RESOURCE_UPDATE).apply {
-            putExtra(EXTRA_RESOURCE_STATS, resourceStats.toJson())
-        }
-        sendBroadcast(intent)
-    }
-    
+
     /**
      * Broadcast processing start
      */
@@ -466,7 +519,7 @@ class WhisperConnectorService : Service() {
         }
         sendBroadcast(intent)
     }
-    
+
     /**
      * Broadcast progress update
      */
@@ -476,18 +529,35 @@ class WhisperConnectorService : Service() {
             putExtra(EXTRA_PROGRESS, batchState.overallProgress)
             putExtra(EXTRA_FILE_COUNT, batchState.totalFiles)
             putExtra(EXTRA_CURRENT_FILE, batchState.currentFileIndex)
+            putExtra("completed_files", batchState.completedFiles)
+            putExtra("current_file_progress", batchState.currentFileProgress)
+            // Add file details as JSON array
+            val filesJson = JSONArray()
+            batchState.files.forEach { fileState ->
+                filesJson.put(JSONObject().apply {
+                    put("fileName", fileState.fileName)
+                    put("fileUri", fileState.fileUri)
+                    put("status", fileState.status.name)
+                    put("progress", fileState.progress)
+                    put("rtf", fileState.rtf)
+                    put("error", fileState.error)
+                })
+            }
+            putExtra("file_states", filesJson.toString())
         }
         sendBroadcast(intent)
     }
-    
+
     /**
      * Broadcast processing complete
      */
     private fun broadcastProcessingComplete(batchId: String) {
+        Log.d(TAG, "Broadcasting processing complete for batch: $batchId")
         val intent = Intent(ACTION_PROCESSING_COMPLETE).apply {
             putExtra(EXTRA_BATCH_ID, batchId)
         }
         sendBroadcast(intent)
+        Log.d(TAG, "Broadcast sent for batch: $batchId")
     }
 
     /**
@@ -499,7 +569,17 @@ class WhisperConnectorService : Service() {
         }
         sendBroadcast(intent)
     }
-    
+
+    /**
+     * Broadcast resource update
+     */
+    private fun broadcastResourceUpdate(resourceStats: AtomicResourceStats) {
+        val intent = Intent(ACTION_RESOURCE_UPDATE).apply {
+            putExtra(EXTRA_RESOURCE_STATS, resourceStats.toJson())
+        }
+        sendBroadcast(intent)
+    }
+
     /**
      * Handle whisper run events
      */
@@ -507,216 +587,48 @@ class WhisperConnectorService : Service() {
         val jobId = intent.getStringExtra("job_id") ?: return
         val uri = intent.getStringExtra("uri") ?: return
         val preset = intent.getStringExtra("preset") ?: "Single"
-        
+
         Log.d(TAG, "Handling whisper run: $jobId for $uri")
-        
+
         // Create single-file batch
         val batchId = "single_$jobId"
         startBatchProcessing(batchId, 1)
     }
-    
+
     /**
      * Handle whisper batch run events
      */
     private fun handleWhisperBatchRun(intent: Intent) {
         val batchId = intent.getStringExtra("batch_id") ?: "batch_${System.currentTimeMillis()}"
         val fileCount = intent.getIntExtra("file_count", 1)
-        
+
         Log.d(TAG, "Handling whisper batch run: $batchId with $fileCount files")
-        
+
         startBatchProcessing(batchId, fileCount)
     }
-    
+
     /**
      * Handle whisper export events
      */
     private fun handleWhisperExport(intent: Intent) {
-        val jobId = intent.getStringExtra("job_id") ?: return
-        Log.d(TAG, "Handling whisper export: $jobId")
-        
-        // Export logic would be handled by the existing bridge
+        // Implementation for export
+        Log.d(TAG, "Handling whisper export event")
     }
-    
+
     /**
      * Handle whisper verify events
      */
     private fun handleWhisperVerify(intent: Intent) {
-        val jobId = intent.getStringExtra("job_id") ?: return
-        Log.d(TAG, "Handling whisper verify: $jobId")
-        
-        // Verification logic would be handled by the existing bridge
+        // Implementation for verify
+        Log.d(TAG, "Handling whisper verify event")
     }
-    
-    // Resource monitoring methods (similar to AndroidWhisperBridge)
-    private fun getMemoryUsage(): Long {
-        return try {
-            val memoryInfo = Debug.MemoryInfo()
-            Debug.getMemoryInfo(memoryInfo)
-            val memoryMB = memoryInfo.totalPss.toLong() / 1024
-            
-            val totalSystemMemory = 12288 // 12GB in MB for Xiaomi Pad
-            val memoryPercentage = ((memoryMB.toDouble() / totalSystemMemory) * 100.0).toLong()
-            
-            memoryPercentage.coerceIn(0L, 100L)
-        } catch (e: Exception) {
-            Log.e(TAG, "Memory error: ${e.message}")
-            0L
-        }
+
+    /**
+     * Update batch progress (legacy method for compatibility)
+     */
+    private fun updateBatchProgress(batchId: String, progress: Int) {
+        val batchState = activeBatches[batchId] ?: return
+        batchState.overallProgress = progress
+        broadcastProgressUpdate(batchId, batchState)
     }
-    
-    private fun getCpuUsage(): Double {
-        return try {
-            val process = Runtime.getRuntime().exec("cat /proc/stat")
-            val reader = process.inputStream.bufferedReader()
-            val firstLine = reader.readLine()
-            reader.close()
-            process.waitFor()
-            
-            if (firstLine != null && firstLine.startsWith("cpu ")) {
-                val parts = firstLine.split("\\s+".toRegex())
-                if (parts.size >= 8) {
-                    val user = parts[1].toLong()
-                    val nice = parts[2].toLong()
-                    val system = parts[3].toLong()
-                    val idle = parts[4].toLong()
-                    val iowait = parts[5].toLong()
-                    val irq = parts[6].toLong()
-                    val softirq = parts[7].toLong()
-                    
-                    val totalCpuTime = user + nice + system + idle + iowait + irq + softirq
-                    val idleTime = idle + iowait
-                    val usedTime = totalCpuTime - idleTime
-                    
-                    val cpuPercent = if (totalCpuTime > 0) {
-                        (usedTime.toDouble() / totalCpuTime.toDouble()) * 100.0
-                    } else {
-                        0.0
-                    }
-                    
-                    return cpuPercent.coerceIn(0.0, 100.0)
-                }
-            }
-            
-            0.0
-        } catch (e: Exception) {
-            Log.e(TAG, "CPU error: ${e.message}")
-            0.0
-        }
-    }
-    
-    private fun getBatteryLevel(): Int {
-        return try {
-            val batteryManager = getSystemService(BATTERY_SERVICE) as BatteryManager
-            batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
-        } catch (e: Exception) {
-            Log.e(TAG, "Battery error: ${e.message}")
-            0
-        }
-    }
-    
-    private fun getTemperature(): Double {
-        return try {
-            val batteryManager = getSystemService(BATTERY_SERVICE) as BatteryManager
-            // Note: BATTERY_PROPERTY_TEMPERATURE requires API 21+
-            25.0 // Default temperature in Celsius
-        } catch (e: Exception) {
-            Log.e(TAG, "Temperature error: ${e.message}")
-            25.0
-        }
-    }
-    
-    private fun getBatteryDetails(): String {
-        return try {
-            val batteryManager = getSystemService(BATTERY_SERVICE) as BatteryManager
-            val level = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
-            "Level: ${level}%, Temp: N/A, Voltage: N/A"
-        } catch (e: Exception) {
-            Log.e(TAG, "Battery details error: ${e.message}")
-            "Level: N/A, Temp: N/A, Voltage: N/A"
-        }
-    }
-    
-    private fun getGpuInfo(): String {
-        return try {
-            val process = Runtime.getRuntime().exec("cat /proc/gpuinfo")
-            val reader = process.inputStream.bufferedReader()
-            val gpuInfo = StringBuilder()
-            var line: String?
-            while (reader.readLine().also { line = it } != null) {
-                gpuInfo.append(line).append(" | ")
-            }
-            reader.close()
-            process.waitFor()
-            
-            gpuInfo.toString().take(100)
-        } catch (e: Exception) {
-            Log.d(TAG, "GPU info not accessible: ${e.message}")
-            "GPU: Not accessible"
-        }
-    }
-    
-    private fun getThreadInfo(): String {
-        return try {
-            val threadInfo = StringBuilder()
-            
-            try {
-                val process = Runtime.getRuntime().exec("cat /proc/self/status")
-                val reader = process.inputStream.bufferedReader()
-                var line: String?
-                while (reader.readLine().also { line = it } != null) {
-                    if (line?.startsWith("Threads:") == true) {
-                        threadInfo.append("Threads: ").append(line.substringAfter("Threads:").trim())
-                        break
-                    }
-                }
-                reader.close()
-                process.waitFor()
-            } catch (e: Exception) {
-                Log.d(TAG, "Thread count not accessible: ${e.message}")
-            }
-            
-            val mainThread = Thread.currentThread()
-            threadInfo.append(" | Main: ${mainThread.name}")
-            
-            val threadGroup = mainThread.threadGroup
-            if (threadGroup != null) {
-                val activeThreads = threadGroup.activeCount()
-                threadInfo.append(" | Active: $activeThreads")
-            }
-            
-            try {
-                val runtime = Runtime.getRuntime()
-                val availableProcessors = runtime.availableProcessors()
-                threadInfo.append(" | CPUs: $availableProcessors")
-                
-                val memoryInfo = Debug.MemoryInfo()
-                Debug.getMemoryInfo(memoryInfo)
-                val memoryMB = memoryInfo.totalPss.toLong() / 1024
-                
-                val estimatedProcessingThreads = when {
-                    memoryMB > 500 -> availableProcessors * 3
-                    memoryMB > 300 -> availableProcessors * 2
-                    else -> availableProcessors
-                }
-                
-                threadInfo.append(" | Est. Processing: $estimatedProcessingThreads")
-            } catch (e: Exception) {
-                Log.d(TAG, "CPU info not accessible: ${e.message}")
-            }
-            
-            threadInfo.toString()
-        } catch (e: Exception) {
-            Log.e(TAG, "Thread info error: ${e.message}")
-            "Threads: Error"
-        }
-    }
-    
-    // Public API methods for activities to use
-    fun getCurrentResourceStats(): String = resourceStats.toJson()
-    
-    fun getActiveBatches(): Map<String, BatchProcessingState> = activeBatches.toMap()
-    
-    fun getBatchState(batchId: String): BatchProcessingState? = activeBatches[batchId]
-    
-    fun isServiceRunning(): Boolean = isMonitoring.get()
 }

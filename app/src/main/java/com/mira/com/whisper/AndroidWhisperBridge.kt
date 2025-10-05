@@ -621,18 +621,36 @@ class AndroidWhisperBridge(private val context: Context) {
                 return "error:invalid_context"
             }
             
-            // Launch file picker intent
+            // Launch file picker intent with proper multiple selection support
             val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
-                type = "video/*"
-                addCategory(Intent.CATEGORY_OPENABLE)
+                type = "*/*"
                 putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+                putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("video/*", "image/*"))
+                addCategory(Intent.CATEGORY_OPENABLE)
             }
             
-            // Check if there's an activity that can handle this intent
-            val resolveInfo = intent.resolveActivity(context.packageManager)
-            if (resolveInfo == null) {
-                Log.e(TAG, "No file picker available on this device")
-                return "error:no_file_picker"
+            // Fallback to ACTION_OPEN_DOCUMENT if GET_CONTENT doesn't work
+            val fallbackIntent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type = "*/*"
+                putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+                putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("video/*", "image/*"))
+                putExtra(Intent.EXTRA_LOCAL_ONLY, true)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+            }
+            
+            // Check which intent can be resolved
+            val primaryResolver = intent.resolveActivity(context.packageManager)
+            val fallbackResolver = fallbackIntent.resolveActivity(context.packageManager)
+            
+            val finalIntent = when {
+                primaryResolver != null -> intent
+                fallbackResolver != null -> fallbackIntent
+                else -> {
+                    Log.e(TAG, "No file picker available on this device")
+                    return "error:no_file_picker"
+                }
             }
             
             // Check for storage permissions
@@ -651,12 +669,20 @@ class AndroidWhisperBridge(private val context: Context) {
                 
                 // Launch the file picker using the activity's method
                 if (activityRef is com.mira.whisper.WhisperMainActivity) {
-                    activityRef.launchFilePicker()
-                    Log.d(TAG, "File picker launched successfully")
-                    "file_picker_launched"
+                    activityRef.runOnUiThread {
+                        activityRef.launchFilePicker()
+                    }
+                    Log.d(TAG, "File picker launched successfully via WhisperMainActivity")
+                    return "file_picker_launched"
+                } else if (activityRef is com.mira.whisper.WhisperFileSelectionActivity) {
+                    activityRef.runOnUiThread {
+                        activityRef.launchFilePicker()
+                    }
+                    Log.d(TAG, "File picker launched successfully via WhisperFileSelectionActivity")
+                    return "file_picker_launched"
                 } else {
-                    Log.e(TAG, "Activity is not WhisperMainActivity")
-                    "error:invalid_activity"
+                    Log.e(TAG, "Activity is not supported: ${activityRef.javaClass.simpleName}")
+                    return "error:invalid_activity"
                 }
             } catch (e: SecurityException) {
                 Log.e(TAG, "Security exception launching file picker: ${e.message}", e)
@@ -713,26 +739,6 @@ class AndroidWhisperBridge(private val context: Context) {
             Log.d(TAG, "Handling file selection: ${uris.size} files")
             Log.d(TAG, "URIs received: $uris")
             
-            // TEMPORARY: Send test response immediately to bypass all validation
-            val testResponse = JSONObject().apply {
-                put("files", JSONArray().apply {
-                    put(JSONObject().apply {
-                        put("name", "test_video.mp4")
-                        put("size", 1000000L)
-                        put("uri", uris.firstOrNull()?.toString() ?: "")
-                        put("format", "mp4")
-                        put("path", "")
-                        put("valid", true)
-                    })
-                })
-                put("count", 1)
-                put("success", true)
-            }
-            
-            Log.d(TAG, "Sending immediate test response: ${testResponse.toString()}")
-            notifyFileSelection(testResponse.toString())
-            return
-            
             if (uris.isEmpty()) {
                 Log.w(TAG, "No files selected by user")
                 val response = JSONObject().apply {
@@ -757,8 +763,8 @@ class AndroidWhisperBridge(private val context: Context) {
                     val fileFormat = getFileExtension(fileName)
                     Log.d(TAG, "File info - Name: $fileName, Size: $fileSize, Format: $fileFormat")
                     
-                    // Validate file format
-                    val supportedFormats = listOf("mp4", "avi", "mov", "mkv", "webm", "wmv", "flv", "m4v", "3gp")
+                    // Validate file format - support both video and image formats
+                    val supportedFormats = listOf("mp4", "avi", "mov", "mkv", "webm", "wmv", "flv", "m4v", "3gp", "jpg", "jpeg", "png", "gif", "bmp", "webp")
                     Log.d(TAG, "Validating format: $fileFormat")
                     if (fileFormat.lowercase() !in supportedFormats) {
                         Log.w(TAG, "Unsupported format: $fileFormat")

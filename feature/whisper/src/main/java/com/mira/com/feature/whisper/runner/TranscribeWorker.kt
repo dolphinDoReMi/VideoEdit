@@ -40,6 +40,27 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
         
         Log.d("TranscribeWorker", "Starting job $jobId for $uri (batch: $batchIndex/$batchTotal)")
         
+        // Create AsrFile first to avoid foreign key constraint
+        val asrFile = AsrFile(
+            id = fileId,
+            uri = uri,
+            mime = null, // Will be updated later
+            durationMs = null, // Will be updated later
+            srHz = null, // Will be updated later
+            channels = null, // Will be updated later
+            state = "NEW",
+            updatedAtMs = System.currentTimeMillis()
+        )
+        
+        // Insert or update the file record
+        try {
+            dao.upsertFile(asrFile)
+        } catch (e: Exception) {
+            // File might already exist, that's okay
+            Log.d("TranscribeWorker", "File $fileId already exists or insert failed: ${e.message}")
+        }
+        
+        // Now create the job
         dao.insertJob(
             AsrJob(
                 jobId, fileId, model, threads, beam, lang, translate,
@@ -48,8 +69,50 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
         )
 
         return try {
+            Log.d("TranscribeWorker", "Attempting to load audio from URI: $uri")
+            
+            // Check file size to prevent OutOfMemoryError
+            try {
+                val contentResolver = ctx.contentResolver
+                val cursor = contentResolver.query(Uri.parse(uri), arrayOf("_size"), null, null, null)
+                cursor?.use {
+                    if (it.moveToFirst()) {
+                        val sizeIndex = it.getColumnIndex("_size")
+                        if (sizeIndex >= 0) {
+                            val fileSize = it.getLong(sizeIndex)
+                            val maxSize = 100 * 1024 * 1024 // 100MB limit
+                            if (fileSize > maxSize) {
+                                Log.w("TranscribeWorker", "File too large: ${fileSize / (1024 * 1024)}MB (limit: ${maxSize / (1024 * 1024)}MB)")
+                                dao.finishJob(jobId, null, null, "ERROR", null, "File too large (>100MB)")
+                                dao.updateFile(AsrFile(fileId, uri, null, null, null, null, "ERROR", System.currentTimeMillis()))
+                                return Result.success()
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.w("TranscribeWorker", "Could not check file size: ${e.message}")
+            }
+            
             // 1) Load & condition audio
-            val pcm = AudioIO.loadPcm16(ctx, Uri.parse(uri))
+            val pcm = try {
+                AudioIO.loadPcm16(ctx, Uri.parse(uri))
+            } catch (e: IllegalArgumentException) {
+                if (e.message?.contains("No audio track") == true) {
+                    Log.w("TranscribeWorker", "Video file has no audio track: $uri")
+                    dao.finishJob(jobId, null, null, "ERROR", null, "No audio track in video file")
+                    dao.updateFile(AsrFile(fileId, uri, null, null, null, null, "ERROR", System.currentTimeMillis()))
+                    return Result.success() // Return success to avoid retry
+                } else {
+                    throw e
+                }
+            } catch (e: OutOfMemoryError) {
+                Log.w("TranscribeWorker", "Out of memory loading audio from: $uri")
+                dao.finishJob(jobId, null, null, "ERROR", null, "File too large - out of memory")
+                dao.updateFile(AsrFile(fileId, uri, null, null, null, null, "ERROR", System.currentTimeMillis()))
+                return Result.success() // Return success to avoid retry
+            }
+            
             val mono = AudioResampler.downmixToMono(pcm.pcm16, pcm.ch)
             val pcm16k = AudioResampler.resampleLinear(mono, pcm.sr, 16_000)
 
@@ -139,6 +202,9 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
             
             Result.success()
         } catch (t: Throwable) {
+            Log.e("TranscribeWorker", "Error processing job $jobId: ${t.message}", t)
+            Log.e("TranscribeWorker", "URI that failed: $uri")
+            Log.e("TranscribeWorker", "Error type: ${t.javaClass.simpleName}")
             dao.finishJob(jobId, null, null, "ERROR", null, t.message)
             dao.updateFile(AsrFile(fileId, uri, null, null, null, null, "ERROR", System.currentTimeMillis()))
             Result.failure()

@@ -159,18 +159,43 @@ class WhisperMainActivity : ComponentActivity() {
     }
     
     /**
-     * Launch the file picker for video files
+     * Launch the file picker for video and photo files with multiple selection
      */
     fun launchFilePicker() {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-            addCategory(Intent.CATEGORY_OPENABLE)
-            type = "video/*"
+        // Try multiple approaches for better multiple selection support
+        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+            type = "*/*"
             putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+            putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("video/*", "image/*"))
+            addCategory(Intent.CATEGORY_OPENABLE)
+        }
+        
+        // Fallback to ACTION_OPEN_DOCUMENT if GET_CONTENT doesn't work
+        val fallbackIntent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "*/*"
+            putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+            putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("video/*", "image/*"))
             putExtra(Intent.EXTRA_LOCAL_ONLY, true)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
         }
-        filePickerLauncher.launch(intent)
+        
+        // Check which intent can be resolved
+        val primaryResolver = intent.resolveActivity(packageManager)
+        val fallbackResolver = fallbackIntent.resolveActivity(packageManager)
+        
+        val finalIntent = when {
+            primaryResolver != null -> intent
+            fallbackResolver != null -> fallbackIntent
+            else -> {
+                Log.e(TAG, "No file picker available on this device")
+                return
+            }
+        }
+        
+        Log.d(TAG, "Launching file picker with multiple selection support")
+        filePickerLauncher.launch(finalIntent)
     }
     
     /**

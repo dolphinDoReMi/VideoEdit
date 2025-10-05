@@ -33,12 +33,24 @@ import com.mira.resource.DeviceResourceService
 class AndroidWhisperBridge(private val context: Context) {
     
     private var activity: Activity? = null
+    private var webView: android.webkit.WebView? = null
     
     /**
      * Set the activity reference for file picker functionality
      */
     fun setActivity(activity: Activity) {
         this.activity = activity
+    }
+    
+    /**
+     * Set the WebView reference for JavaScript communication
+     */
+    fun setWebView(webView: android.webkit.WebView) {
+        Log.d(TAG, "setWebView called")
+        this.webView = webView
+        Log.d(TAG, "WebView reference set, registering broadcast receiver...")
+        registerBroadcastReceiver()
+        Log.d(TAG, "Broadcast receiver registration completed")
     }
     
     companion object {
@@ -51,6 +63,10 @@ class AndroidWhisperBridge(private val context: Context) {
         const val ACTION_EXPORT = "com.mira.whisper.EXPORT"
         const val ACTION_VERIFY = "com.mira.whisper.VERIFY"
         const val ACTION_RUN_BATCH = "com.mira.whisper.RUN_BATCH"
+        const val ACTION_PROCESSING_COMPLETE = "com.mira.whisper.PROCESSING_COMPLETE"
+        const val ACTION_PAGE_NAVIGATION = "com.mira.whisper.PAGE_NAVIGATION"
+        const val EXTRA_BATCH_ID = "batch_id"
+        const val EXTRA_NAVIGATION_TARGET = "navigation_target"
     }
     
     data class RunRequest(
@@ -748,24 +764,38 @@ class AndroidWhisperBridge(private val context: Context) {
                 return "error:invalid_context"
             }
 
-            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                addCategory(Intent.CATEGORY_OPENABLE)
-                type = "video/*"
+            val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                type = "*/*"
                 putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+                putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("video/*", "image/*"))
+                addCategory(Intent.CATEGORY_OPENABLE)
+            }
+            
+            val fallbackIntent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type = "*/*"
+                putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+                putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("video/*", "image/*"))
                 putExtra(Intent.EXTRA_LOCAL_ONLY, true)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
             }
 
-            val resolveInfo = intent.resolveActivity(context.packageManager)
-            if (resolveInfo == null) {
-                Log.e(TAG, "No file picker available on this device")
-                return "error:no_file_picker"
+            val primaryResolver = intent.resolveActivity(context.packageManager)
+            val fallbackResolver = fallbackIntent.resolveActivity(context.packageManager)
+            
+            val finalIntent = when {
+                primaryResolver != null -> intent
+                fallbackResolver != null -> fallbackIntent
+                else -> {
+                    Log.e(TAG, "No file picker available on this device")
+                    return "error:no_file_picker"
+                }
             }
 
             // Last-resort: startActivity (single-select) – result won't be bridged
             return try {
-                context.startActivity(intent)
+                context.startActivity(finalIntent)
                 Log.d(TAG, "File picker launched via startActivity")
                 "file_picker_launched"
             } catch (e: Exception) {
@@ -841,8 +871,8 @@ class AndroidWhisperBridge(private val context: Context) {
                     val fileSize = getFileSize(uri)
                     val fileFormat = getFileExtension(fileName)
                     
-                    // Validate file format
-                    val supportedFormats = listOf("mp4", "avi", "mov", "mkv", "webm", "wmv", "flv", "m4v", "3gp")
+                    // Validate file format - support both video and image formats
+                    val supportedFormats = listOf("mp4", "avi", "mov", "mkv", "webm", "wmv", "flv", "m4v", "3gp", "jpg", "jpeg", "png", "gif", "bmp", "webp")
                     if (fileFormat.lowercase() !in supportedFormats) {
                         errors.add("Unsupported format: $fileFormat")
                         continue
@@ -1926,5 +1956,44 @@ class AndroidWhisperBridge(private val context: Context) {
     
     private fun Double.toFixed(digits: Int): String {
         return String.format("%.${digits}f", this)
+    }
+    
+    /**
+     * Register broadcast receiver for processing completion events
+     */
+    private fun registerBroadcastReceiver() {
+        val filter = IntentFilter().apply {
+            addAction(ACTION_PROCESSING_COMPLETE)
+            addAction(ACTION_PAGE_NAVIGATION)
+        }
+        
+        val receiver = object : android.content.BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                when (intent?.action) {
+                    ACTION_PROCESSING_COMPLETE -> {
+                        val batchId = intent.getStringExtra(EXTRA_BATCH_ID)
+                        Log.d(TAG, "Received processing complete broadcast for batch: $batchId")
+                        webView?.post {
+                            webView?.evaluateJavascript("handleProcessingComplete('$batchId')", null)
+                        }
+                    }
+                    ACTION_PAGE_NAVIGATION -> {
+                        val targetPage = intent.getStringExtra(EXTRA_NAVIGATION_TARGET)
+                        Log.d(TAG, "Received page navigation broadcast: $targetPage")
+                        webView?.post {
+                            webView?.evaluateJavascript("handlePageNavigation('$targetPage')", null)
+                        }
+                    }
+                }
+            }
+        }
+        
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            context.registerReceiver(receiver, filter, android.content.Context.RECEIVER_NOT_EXPORTED)
+        } else {
+            context.registerReceiver(receiver, filter)
+        }
+        
+        Log.d(TAG, "Broadcast receiver registered for processing events")
     }
 }

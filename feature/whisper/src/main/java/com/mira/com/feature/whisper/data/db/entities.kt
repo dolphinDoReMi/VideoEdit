@@ -93,6 +93,9 @@ interface AsrDao {
 
     @Insert fun insertJob(job: AsrJob)
 
+    @Query("SELECT * FROM asr_jobs ORDER BY createdAtMs DESC")
+    fun getAllJobs(): List<AsrJob>
+
     @Query("UPDATE asr_jobs SET inferMs=:inferMs, rtf=:rtf, status=:status, sidecarPath=:sidecarPath, error=:error WHERE jobId=:jobId")
     fun finishJob(
         jobId: String,

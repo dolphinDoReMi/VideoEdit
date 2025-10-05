@@ -52,7 +52,11 @@ class WhisperProcessingActivity : AppCompatActivity() {
             }
             
             // Add the WhisperBridge
-            addJavascriptInterface(AndroidWhisperBridge(this@WhisperProcessingActivity), "WhisperBridge")
+            val bridge = AndroidWhisperBridge(this@WhisperProcessingActivity)
+            Log.d(TAG, "Setting WebView on bridge...")
+            bridge.setWebView(webView)
+            Log.d(TAG, "WebView set on bridge, adding JavaScript interface...")
+            addJavascriptInterface(bridge, "WhisperBridge")
             
             // Load the processing page (Step 2 of 3-page flow)
             loadUrl("file:///android_asset/web/whisper_processing.html")
