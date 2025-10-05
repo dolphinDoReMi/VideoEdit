@@ -559,6 +559,19 @@
     });
     
     const csvContent = csvData.map(row => row.join(',')).join('\n');
+
+    // If running in Android WebView with bridge, write to SD card for easy adb pull
+    if (hasBridge && window.WhisperBridge && window.WhisperBridge.exportToSdCard) {
+      try {
+        const filename = `batch_results_${state.batchId}.csv`;
+        const base64 = btoa(unescape(encodeURIComponent(csvContent)));
+        window.WhisperBridge.exportToSdCard(state.batchId || 'batch_12345', filename, base64);
+        return;
+      } catch (e) {
+        console.error('Bridge CSV export failed, falling back to browser download', e);
+      }
+    }
+
     downloadFile(csvContent, `batch_results_${state.batchId}.csv`, 'text/csv');
   }
 
@@ -577,6 +590,18 @@
     };
     
     const jsonContent = JSON.stringify(jsonData, null, 2);
+
+    if (hasBridge && window.WhisperBridge && window.WhisperBridge.exportToSdCard) {
+      try {
+        const filename = `batch_results_${state.batchId}.json`;
+        const base64 = btoa(unescape(encodeURIComponent(jsonContent)));
+        window.WhisperBridge.exportToSdCard(state.batchId || 'batch_12345', filename, base64);
+        return;
+      } catch (e) {
+        console.error('Bridge JSON export failed, falling back to browser download', e);
+      }
+    }
+
     downloadFile(jsonContent, `batch_results_${state.batchId}.json`, 'application/json');
   }
 
@@ -619,6 +644,12 @@
   elements.exportCsv.onclick = exportToCSV;
   elements.exportJson.onclick = exportToJSON;
   elements.refreshData.onclick = loadBatchResults;
+
+  // Expose a debug helper to trigger both exports from native
+  window.triggerExport = () => {
+    try { exportToCSV(); } catch (e) { console.error('CSV export failed', e); }
+    try { exportToJSON(); } catch (e) { console.error('JSON export failed', e); }
+  };
 
   // Global function for segment details
   window.showSegmentDetails = (jobId, segmentIndex) => {
