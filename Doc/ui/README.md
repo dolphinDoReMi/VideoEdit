@@ -1,322 +1,159 @@
-# UI README.md
+# UI Documentation
 
-## Multi-Lens Explanation for Experts
+## Architecture Design and Control Knot
 
-### 1. Plain-text: How it Works (Step-by-step)
+**Status: READY FOR VERIFICATION**
 
-1. **Load web assets**: HTML, CSS, JavaScript files from Android assets
-2. **Initialize WebView**: Configure JavaScript bridge and permissions
-3. **Render UI components**: Load and display interface elements
-4. **Handle user interactions**: Capture clicks, touches, keyboard input
-5. **Process events**: Route interactions to appropriate handlers
-6. **Update state**: Modify application state based on user actions
-7. **Re-render components**: Update DOM based on state changes
-8. **Communicate with native**: Send data to Android via JavaScript bridge
-9. **Receive responses**: Handle native Android responses
-10. **Update UI**: Reflect native responses in user interface
+**Control knots:**
+- Seedless pipeline: deterministic sampling
+- Fixed preprocess: no random crop
+- Same model assets: fixed hypothesis f_θ
 
-**Why this works**: WebView provides cross-platform UI rendering; JavaScript bridge enables native communication; component-based architecture ensures maintainability; responsive design adapts to different screen sizes.
+**Implementation:**
+- Deterministic sampling: uniform frame timestamps
+- Fixed preprocessing: center-crop, no augmentation
+- Re-ingest twice: SHA-256 hash comparison
 
-### 2. For a Frontend Expert
+**Verification:** Hash comparison script in `ops/verify_all.sh`
 
-- **Architecture**: Component-based with centralized state management
-- **Styling**: CSS-in-JS with CSS custom properties for theming
-- **Performance**: Virtual scrolling, lazy loading, bundle optimization
-- **Accessibility**: WCAG 2.1 AA compliance with keyboard navigation
-- **Responsive**: Mobile-first design with progressive enhancement
-- **Testing**: Unit tests with Jest, integration tests with Cypress
-- **Build**: Webpack with code splitting and tree shaking
-- **Deployment**: Progressive Web App with service worker caching
+## Full Scale Implementation Details
 
-### 3. For a Mobile Expert
+### Problem Disaggregation
+- **Inputs**: User interactions, touch events, gesture recognition
+- **Outputs**: Responsive UI updates, real-time feedback, accessibility support
+- **Runtime surfaces**: WebView → JavaScript Bridge → Native Android → UI Updates
+- **Isolation**: Debug variant uses applicationIdSuffix ".debug" (installs side-by-side)
 
-- **WebView Integration**: Android WebView with JavaScript bridge
-- **Native Communication**: Bidirectional data exchange with Android
-- **Performance**: Hardware acceleration and memory optimization
-- **Platform Features**: Access to device capabilities via native bridge
-- **Offline Support**: Service worker for offline functionality
-- **Push Notifications**: Native notification integration
-- **Deep Linking**: URL routing for deep app integration
-- **Security**: Content Security Policy and secure communication
+### Analysis with Trade-offs
+- **WebView vs Native**: Cross-platform consistency vs platform optimization. We choose WebView for rapid development
+- **JavaScript Bridge**: Direct calls vs message passing. We use @JavascriptInterface for performance
+- **State Management**: Local state vs centralized store. We implement centralized state with broadcast system
+- **Resource Monitoring**: Polling vs event-driven. We use background service with broadcast updates
 
-### 4. For a UX Expert
-
-- **User Flow**: Intuitive navigation with clear visual hierarchy
-- **Interaction Design**: Touch-friendly with appropriate feedback
-- **Visual Design**: Consistent design system with accessible colors
-- **Information Architecture**: Logical content organization
-- **Responsive Design**: Seamless experience across devices
-- **Accessibility**: Screen reader support and keyboard navigation
-- **Performance**: Fast loading with smooth animations
-- **Error Handling**: Clear error messages and recovery paths
-
-### 5. For a Backend Expert
-
-- **API Integration**: RESTful API communication with Android backend
-- **Data Flow**: Unidirectional data flow with state management
-- **Caching**: Service worker for offline data caching
-- **Security**: HTTPS communication with token-based authentication
-- **Monitoring**: Performance metrics and error tracking
-- **Scalability**: Component-based architecture for easy scaling
-- **Testing**: Automated testing with CI/CD integration
-- **Deployment**: Progressive Web App with version management
-
-## Key Design Decisions
-
-### 1. WebView Architecture
-**Decision**: Use Android WebView instead of native Android UI
-**Rationale**: 
-- Cross-platform compatibility (Android, iOS, Web)
-- Rapid development and iteration
-- Rich web technologies and libraries
-- Easy maintenance and updates
-
-### 2. Component-Based Architecture
-**Decision**: Modular component system with centralized state
-**Rationale**:
-- Reusable and maintainable code
-- Clear separation of concerns
-- Easy testing and debugging
-- Scalable development
-
-### 3. Responsive Design Strategy
-**Decision**: Mobile-first with progressive enhancement
-**Rationale**:
-- Optimal mobile experience
-- Graceful degradation on larger screens
-- Consistent across devices
-- Future-proof design
-
-### 4. Performance Optimization
-**Decision**: Bundle optimization with lazy loading
-**Rationale**:
-- Fast initial load times
-- Efficient memory usage
-- Smooth user experience
-- Battery optimization
-
-## Performance Characteristics
-
-### Loading Performance
-- **First Contentful Paint**: < 1.5s
-- **Largest Contentful Paint**: < 2.5s
-- **Time to Interactive**: < 3.0s
-- **Bundle Size**: < 200KB gzipped
-
-### Runtime Performance
-- **Animation Frame Rate**: 60fps target
-- **Memory Usage**: < 100MB peak
-- **CPU Usage**: < 30% during interaction
-- **Battery Impact**: Minimal background usage
-
-### Cross-Platform Compatibility
-- **Android WebView**: Chrome 120+ support
-- **iOS Safari**: Safari 17+ support
-- **Desktop Browsers**: Chrome, Firefox, Safari support
-- **Responsive Breakpoints**: 768px, 1024px, 1440px
-
-## Code Architecture
-
-### Core Components
+### Design Pipeline
 ```
-app/src/main/assets/web/
-├── whisper_file_selection.html    # File selection UI
-├── whisper_processing.html        # Processing status UI
-├── whisper_results.html          # Results display UI
-├── whisper_batch_results.html     # Batch results UI
-├── global_resource_monitor.html   # Resource monitoring UI
-├── components/                    # Reusable components
-├── styles/                        # CSS styling
-└── js/                           # JavaScript logic
+User Input → WebView → JavaScript Bridge → Native Handler → State Update → UI Refresh
 ```
 
-### Native Integration
-```
-app/src/main/java/com/mira/whisper/
-├── AndroidWhisperBridge.kt       # JavaScript bridge
-├── WhisperConnectorService.kt    # Background service
-├── WhisperResultsActivity.kt     # Results activity
-└── WhisperBatchResultsActivity.kt # Batch results activity
-```
+### Key Control-knots (all exposed)
+- `UI_FRAMEWORK` (WebView | Native | Hybrid)
+- `BRIDGE_TYPE` (JavascriptInterface | MessageChannel | Custom)
+- `STATE_MANAGEMENT` (Local | Centralized | Broadcast)
+- `UPDATE_FREQUENCY` (60fps | 30fps | Event-driven)
+- `RESOURCE_MONITORING` (Polling | Service | Event-driven)
+- `ACCESSIBILITY` (Basic | Full | Custom)
+- `THEME_SYSTEM` (Light | Dark | Auto | Custom)
+- `ANIMATION_LEVEL` (None | Basic | Full | Custom)
 
-## Getting Started
+### Isolation & Namespacing
+- **Broadcast actions**: `${applicationId}.action.UI_UPDATE`
+- **WebView namespaces**: `${BuildConfig.APPLICATION_ID}.ui`
+- **State keys**: `${applicationId}.state.*`
+- **Debug install**: `applicationIdSuffix ".debug"` → all names differ automatically
 
-### Quick Start
-```bash
-# 1. Build and install app
-./gradlew :app:assembleDebug
-./gradlew :app:installDebug
+### Prioritization & Rationale
+- **P0**: WebView integration, JavaScript bridge, basic state management
+- **P1**: Real-time resource monitoring, accessibility support, theme system
+- **P2**: Advanced animations, gesture recognition, custom UI components
 
-# 2. Test UI components
-./Doc/ui/scripts/test_ui_components.sh
+### Workplan to Execute
+1. Scaffold WebView integration + build variants
+2. Implement JavaScript bridge with @JavascriptInterface
+3. State management system with broadcast updates
+4. Resource monitoring integration
+5. E2E test via UI automation
+6. Bench/verify: responsiveness, memory usage, accessibility compliance
 
-# 3. Test responsive design
-./Doc/ui/scripts/test_responsive_design.sh
-```
+### Scale-out Plan: Control Knots and Impact
 
-### Development Setup
-```bash
-# 1. Clone repository
-git clone https://github.com/dolphinDoReMi/VideoEdit.git
+#### Single (one per knot)
+| Knot | Choice | Rationale (technical • user goals) |
+|------|--------|-----------------------------------|
+| UI Framework | WebView | Tech: Cross-platform consistency; rapid development. • User: Consistent experience across devices |
+| Bridge Type | JavascriptInterface | Tech: Direct native calls; minimal overhead. • User: Responsive interactions |
+| State Management | Centralized | Tech: Single source of truth; predictable updates. • User: Consistent UI state |
+| Update Frequency | Event-driven | Tech: Efficient resource usage; responsive to changes. • User: Smooth, reactive interface |
+| Resource Monitoring | Background Service | Tech: Real-time data; minimal UI impact. • User: Live system information |
+| Accessibility | Full | Tech: WCAG compliance; screen reader support. • User: Inclusive design |
+| Theme System | Auto | Tech: System integration; user preference respect. • User: Comfortable viewing experience |
+| Animation Level | Basic | Tech: Smooth transitions; performance balance. • User: Polished, responsive feel |
 
-# 2. Checkout main branch
-git checkout main
+#### Ablations (combos)
+| Combo | Knot changes (vs Single) | Rationale (technical • user goals) |
+|-------|-------------------------|-----------------------------------|
+| A. High Performance | Update Frequency: 60fps; Animation Level: None | Tech: Maximum responsiveness; minimal overhead. • User: Fastest possible interactions |
+| B. Rich Experience | Animation Level: Full; Theme System: Custom | Tech: Enhanced visual appeal; advanced theming. • User: Premium, polished interface |
+| C. Accessibility Focus | Accessibility: Custom; Update Frequency: Event-driven | Tech: Advanced accessibility features; efficient updates. • User: Superior accessibility support |
+| D. Resource Efficient | Resource Monitoring: Polling; Animation Level: Basic | Tech: Reduced background processing; minimal animations. • User: Battery-friendly operation |
 
-# 3. Start development server
-cd app/src/main/assets/web
-python -m http.server 8080
+### Configuration Presets
 
-# 4. Test in browser
-open http://localhost:8080
-```
-
-## Contributing
-
-### Code Standards
-- Follow HTML5 semantic structure
-- Use CSS custom properties for theming
-- Write modular JavaScript with clear interfaces
-- Include comprehensive tests
-
-### Testing Requirements
-- Unit tests for JavaScript components
-- Integration tests for WebView communication
-- Cross-platform compatibility testing
-- Accessibility compliance testing
-
-### Documentation Updates
-- Update component documentation
-- Include usage examples
-- Document API interfaces
-- Maintain style guide
-
-## UI Components
-
-### Core Components
-- **FileSelector**: File picker with drag-and-drop
-- **ProgressIndicator**: Processing status with progress bar
-- **ResultsDisplay**: Transcription results with timestamps
-- **ResourceMonitor**: Real-time resource usage display
-- **BatchResults**: Batch processing results table
-
-### Layout Components
-- **Header**: Navigation and branding
-- **Sidebar**: Secondary navigation
-- **MainContent**: Primary content area
-- **Footer**: Status and additional info
-
-### Interactive Components
-- **Button**: Primary and secondary actions
-- **Input**: Text and file inputs
-- **Select**: Dropdown selections
-- **Modal**: Overlay dialogs
-- **Toast**: Notification messages
-
-## Styling System
-
-### Design Tokens
-```css
-:root {
-    /* Colors */
-    --color-primary: #3b82f6;
-    --color-secondary: #64748b;
-    --color-success: #10b981;
-    --color-warning: #f59e0b;
-    --color-error: #ef4444;
-    
-    /* Spacing */
-    --spacing-xs: 0.25rem;
-    --spacing-sm: 0.5rem;
-    --spacing-md: 1rem;
-    --spacing-lg: 1.5rem;
-    --spacing-xl: 2rem;
-    
-    /* Typography */
-    --font-size-xs: 0.75rem;
-    --font-size-sm: 0.875rem;
-    --font-size-base: 1rem;
-    --font-size-lg: 1.125rem;
-    --font-size-xl: 1.25rem;
-    
-    /* Shadows */
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+```json
+// SINGLE (default)
+{
+  "preset": "SINGLE",
+  "ui_framework": "WebView",
+  "bridge_type": "JavascriptInterface",
+  "state_management": "Centralized",
+  "update_frequency": "Event-driven",
+  "resource_monitoring": "BackgroundService",
+  "accessibility": "Full",
+  "theme_system": "Auto",
+  "animation_level": "Basic"
 }
+
+// A: HIGH_PERFORMANCE
+{ "preset": "HIGH_PERFORMANCE", "update_frequency": "60fps", "animation_level": "None" }
+
+// B: RICH_EXPERIENCE
+{ "preset": "RICH_EXPERIENCE", "animation_level": "Full", "theme_system": "Custom" }
+
+// C: ACCESSIBILITY_FOCUS
+{ "preset": "ACCESSIBILITY_FOCUS", "accessibility": "Custom", "update_frequency": "Event-driven" }
+
+// D: RESOURCE_EFFICIENT
+{ "preset": "RESOURCE_EFFICIENT", "resource_monitoring": "Polling", "animation_level": "Basic" }
 ```
 
-### Responsive Breakpoints
-```css
-/* Mobile First */
-@media (min-width: 768px) { /* Tablet */ }
-@media (min-width: 1024px) { /* Desktop */ }
-@media (min-width: 1440px) { /* Large Desktop */ }
-```
+## Device Deployment
 
-### Dark Mode Support
-```css
-@media (prefers-color-scheme: dark) {
-    :root {
-        --color-background: #1e293b;
-        --color-text: #f1f5f9;
-        --color-surface: #334155;
-    }
-}
-```
+### Xiaomi Pad Deployment
+- **Target Device**: Xiaomi Pad 6 (Android 13+)
+- **Screen**: 11" 2560x1600 (WQXGA)
+- **Touch**: Multi-touch support, stylus compatibility
+- **Testing**: UI responsiveness, touch accuracy, resource monitoring
 
-## Accessibility Features
+### iPad Deployment
+- **Target Device**: iPad Pro (iOS 16+)
+- **Screen**: 12.9" 2732x2048 (Retina)
+- **Touch**: Multi-touch, Apple Pencil support
+- **Testing**: iOS-specific UI patterns, accessibility compliance
 
-### WCAG 2.1 AA Compliance
-- **Color Contrast**: 4.5:1 minimum ratio
-- **Keyboard Navigation**: Full keyboard accessibility
-- **Screen Reader**: ARIA labels and semantic HTML
-- **Focus Management**: Visible focus indicators
+## Release
 
-### Implementation
-```html
-<!-- Semantic HTML structure -->
-<main role="main">
-    <section aria-labelledby="section-heading">
-        <h1 id="section-heading">Section Title</h1>
-        <button aria-describedby="button-help">Action</button>
-        <div id="button-help" class="sr-only">
-            Additional help text
-        </div>
-    </section>
-</main>
-```
+### Android Release Pipeline
+1. **WebView Version**: Chrome WebView 120+ compatibility
+2. **Permissions**: POST_NOTIFICATIONS, FOREGROUND_SERVICE_DATA_SYNC
+3. **Testing**: UI automation tests, accessibility validation
+4. **Deployment**: APK with embedded WebView assets
 
-## Performance Optimization
+### iOS Release Pipeline
+1. **WKWebView**: iOS 16+ WebKit integration
+2. **Capabilities**: Background processing, accessibility
+3. **Testing**: XCTest UI automation, accessibility audit
+4. **Deployment**: App Store with WebView optimization
 
-### Bundle Optimization
-- **Code Splitting**: Lazy load components
-- **Tree Shaking**: Remove unused code
-- **Minification**: Compress JavaScript and CSS
-- **Compression**: Gzip compression for assets
+### macOS Web Version
+1. **Browser Support**: Chrome, Safari, Firefox compatibility
+2. **Responsive Design**: Desktop and tablet layouts
+3. **Testing**: Cross-browser validation, responsive design tests
+4. **Deployment**: Static hosting with progressive web app features
 
-### Runtime Optimization
-- **Virtual Scrolling**: Efficient large list rendering
-- **Lazy Loading**: Defer non-critical resources
-- **Debouncing**: Optimize user input handling
-- **Caching**: Service worker for offline support
+## Scripts
 
-### Monitoring
-```javascript
-// Performance monitoring
-const performanceMonitor = {
-    measureRenderTime: (componentName) => {
-        const start = performance.now();
-        return () => {
-            const end = performance.now();
-            console.log(`${componentName} render time: ${end - start}ms`);
-        };
-    },
-    
-    measureMemoryUsage: () => {
-        if ('memory' in performance) {
-            const memory = performance.memory;
-            console.log(`Memory usage: ${memory.usedJSHeapSize / 1024 / 1024}MB`);
-        }
-    }
-};
-```
+See `scripts/` folder for:
+- `test_ui_automation.sh` - UI interaction testing
+- `test_accessibility.sh` - Accessibility compliance validation
+- `test_webview_bridge.sh` - JavaScript bridge testing
+- `test_resource_monitoring.sh` - Real-time resource monitoring
+- `test_responsive_design.sh` - Cross-device layout validation

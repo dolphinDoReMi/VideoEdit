@@ -1,290 +1,171 @@
 # Cursor Rules for VideoEdit Project
 
 ## Project Overview
-This is a video editing application with robust language detection (LID) pipeline, clip processing, and UI components. The project uses Android/Kotlin for the main app, with Whisper integration for speech recognition and multilingual support.
+This is a multi-platform video editing application with three main feature areas:
+- **CLIP**: Video understanding and embedding generation
+- **Whisper**: Speech-to-text transcription and processing
+- **UI**: Cross-platform user interface with real-time resource monitoring
 
-## Code Organization
+## Development Guidelines
 
-### Core Modules
-- **app/**: Main Android application
-- **feature/whisper/**: Whisper speech recognition module
-- **core/**: Shared core functionality
-- **Doc/**: Structured documentation by feature
+### Code Organization
+- **Package Structure**: `com.mira.videoeditor` for main app, `com.mira.clip`, `com.mira.whisper` for features
+- **Build Variants**: Debug and Release with `.debug` suffix for side-by-side installation
+- **Namespacing**: All broadcast actions, work names, and file authorities use `${applicationId}` placeholders
 
-### Key Components
-- **LanguageDetectionService**: VAD + two-pass LID pipeline
-- **TranscribeWorker**: Background processing with WorkManager
-- **WhisperApi**: Multilingual model selection and work queuing
-- **AndroidWhisperBridge**: JavaScript interface for WebView
+### Architecture Patterns
+- **Control Knots**: Expose key configuration points for deterministic behavior
+- **Background Services**: Use foreground services for persistent operations
+- **Broadcast System**: Inter-component communication via Android broadcasts
+- **WebView Bridge**: `@JavascriptInterface` for native-WebView communication
 
-## Coding Standards
+### Resource Management
+- **Memory**: Stream processing to avoid OOM on large files
+- **CPU**: Background service for resource monitoring with 2-second intervals
+- **Storage**: Sidecar JSON files for metadata and verification
+- **Battery**: Efficient polling and event-driven updates
 
-### Kotlin Conventions
-- Use camelCase for variables and functions
-- Use PascalCase for classes and interfaces
-- Use UPPER_SNAKE_CASE for constants
-- Prefer `val` over `var` when possible
-- Use data classes for simple data containers
+## Feature-Specific Rules
 
-### Android Best Practices
-- Use WorkManager for background processing
-- Implement proper error handling with Result<T>
-- Use dependency injection (Hilt/Dagger)
-- Follow MVVM architecture pattern
-- Use coroutines for async operations
+### CLIP Features
+- **Model Assets**: Bundle CLIP models in APK assets
+- **GPU Acceleration**: Use OpenCL for ARM Mali/Adreno, Metal for Apple Silicon
+- **Frame Sampling**: Uniform sampling by default, scene-based as option
+- **Embedding Storage**: JSON format with binary fallback
 
-### Documentation Standards
-- Document all public APIs with KDoc
-- Include code examples for complex functions
-- Maintain architecture decision records (ADRs)
-- Update README files for major changes
+### Whisper Features
+- **Audio Processing**: MediaCodec for hardware-accelerated decoding
+- **Resampling**: Linear resampler by default, sinc as option
+- **Language Detection**: Automatic LID with manual override
+- **Timestamp Policy**: Hybrid PTS + sample-count with drift tracking
 
-## File Structure Guidelines
+### UI Features
+- **WebView Integration**: Chrome WebView 120+ compatibility
+- **State Management**: Centralized state with broadcast updates
+- **Accessibility**: WCAG compliance with screen reader support
+- **Theme System**: Auto theme with manual override
 
-### Package Organization
-```
-com.mira.whisper/
-├── engine/           # Core Whisper functionality
-├── api/              # Public APIs
-├── runner/           # Background workers
-├── data/             # Data models and repositories
-└── ui/               # UI components
-```
+## Testing Requirements
 
-### Documentation Structure
-```
-Doc/
-├── whisper/          # Whisper-specific documentation
-├── clip/             # Clip processing documentation
-├── ui/               # UI component documentation
-└── cursor_rule.md    # This file
-```
+### Unit Tests
+- **Database Changes**: Run `./gradlew :app:testDebugUnitTest` for DAO modifications
+- **ML Models**: Run all tests for model or encoder changes
+- **Workers**: Run instrumented tests for worker modifications
 
-## Development Workflow
+### Integration Tests
+- **Video Processing**: Run frame sampler tests for video changes
+- **Resource Monitoring**: Validate background service functionality
+- **Cross-Platform**: Test on Xiaomi Pad and iPad
 
-### Branch Strategy
-- **main**: Production-ready code
-- **whisper**: Whisper feature branch
-- **feature/***: Feature development branches
-- **hotfix/***: Critical bug fixes
+### Verification Scripts
+- **Hash Comparison**: SHA-256 verification for deterministic outputs
+- **Performance Benchmarks**: RTF, memory usage, processing speed
+- **Accessibility Audit**: Screen reader compatibility validation
 
-### Commit Convention
-Use conventional commits format:
-- `feat:` New features
-- `fix:` Bug fixes
-- `docs:` Documentation changes
-- `style:` Code style changes
-- `refactor:` Code refactoring
-- `test:` Test additions/changes
-- `chore:` Build/tooling changes
+## Deployment Rules
 
-### Testing Requirements
-- Unit tests for all public APIs
-- Integration tests for LID pipeline
-- Device-specific validation tests
-- Performance benchmarking
+### Android Deployment
+- **Build Variants**: Debug and Release APKs
+- **Signing**: Debug keystore for development, release keystore for production
+- **Permissions**: Minimal required permissions with runtime requests
+- **Testing**: ADB broadcast testing for background services
 
-## Whisper Module Guidelines
+### iOS Deployment
+- **Capacitor Integration**: WebView-based hybrid app
+- **Code Signing**: Development and distribution certificates
+- **Background Processing**: Core Audio and background tasks
+- **Testing**: XCTest automation for core functionality
 
-### Language Detection Pipeline
-- Always use multilingual models (no .en suffix)
-- Implement VAD windowing for better LID accuracy
-- Use two-pass re-scoring for uncertain cases
-- Include confidence scores in sidecar data
+### macOS Web Deployment
+- **WebAssembly**: CLIP and Whisper models compiled to WASM
+- **Progressive Web App**: Offline capability and native-like experience
+- **Cross-Browser**: Chrome, Safari, Firefox compatibility
+- **Testing**: Browser automation and responsive design validation
 
-### Background Processing
-- Use WorkManager for non-blocking operations
-- Implement proper error handling and retry logic
-- Monitor RTF (Real-Time Factor) performance
-- Use appropriate thread counts for device optimization
+## Code Quality Standards
 
-### Model Management
-- Deploy multilingual models by default
-- Verify model integrity with SHA-256 checks
-- Support model fallback strategies
-- Document model performance characteristics
+### Kotlin/Java
+- **Null Safety**: Use nullable types appropriately
+- **Coroutines**: Use for async operations
+- **Broadcast Receivers**: Use `RECEIVER_NOT_EXPORTED` for Android 13+
+- **Foreground Services**: Required permissions for background operations
 
-## Performance Considerations
-
-### Memory Management
-- Stream large audio files to disk
-- Use appropriate buffer sizes for processing
-- Monitor memory usage during long operations
-- Implement proper cleanup for temporary files
-
-### Processing Optimization
-- Use device-specific thread counts
-- Implement RTF monitoring and alerting
-- Optimize for ARM64 architecture (Xiaomi Pad)
-- Support CPU+GPU compute units (iPad)
-
-### Battery Optimization
-- Use background processing efficiently
-- Implement proper wake lock management
-- Monitor thermal throttling
-- Provide power-aware processing modes
-
-## Security Guidelines
-
-### Data Privacy
-- Process audio locally (no cloud transmission)
-- Implement secure temporary file cleanup
-- Use encrypted storage for sensitive data
-- Follow Android security best practices
-
-### Model Security
-- Verify model integrity with checksums
-- Implement secure model loading
-- Use permission-based access control
-- Document security considerations
-
-## Error Handling
-
-### Exception Management
-- Use Result<T> for operations that can fail
-- Implement proper logging with appropriate levels
-- Provide user-friendly error messages
-- Include debugging information in logs
-
-### Recovery Strategies
-- Implement retry logic for transient failures
-- Provide fallback mechanisms for model loading
-- Handle device-specific limitations gracefully
-- Document error scenarios and solutions
-
-## Testing Strategy
-
-### Unit Testing
-- Test all public APIs with comprehensive coverage
-- Mock external dependencies appropriately
-- Use parameterized tests for multiple scenarios
-- Include edge cases and error conditions
-
-### Integration Testing
-- Test LID pipeline end-to-end
-- Validate multilingual model integration
-- Test background processing workflows
-- Verify sidecar data generation
-
-### Device Testing
-- Test on Xiaomi Pad Ultra (primary target)
-- Validate iPad Pro compatibility
-- Test macOS Web version
-- Include performance benchmarking
-
-## Documentation Requirements
-
-### Architecture Documentation
-- Document control knots and configuration options
-- Include performance characteristics and trade-offs
-- Provide code pointers for key implementations
-- Maintain decision records for major changes
-
-### Deployment Documentation
-- Document platform-specific deployment steps
-- Include troubleshooting guides
-- Provide validation scripts and commands
-- Maintain release notes and changelog
-
-### API Documentation
-- Document all public APIs with KDoc
-- Include usage examples and code snippets
-- Document parameter ranges and constraints
-- Provide migration guides for breaking changes
-
-## Code Review Guidelines
-
-### Review Checklist
-- [ ] Code follows project conventions
-- [ ] Tests are included and passing
-- [ ] Documentation is updated
-- [ ] Performance implications considered
-- [ ] Security considerations addressed
-- [ ] Error handling is appropriate
-
-### Review Focus Areas
-- LID pipeline implementation correctness
-- Background processing efficiency
-- Memory usage and cleanup
-- Error handling and recovery
-- Test coverage and quality
-
-## Deployment Guidelines
-
-### CI/CD Pipeline
-- Use GitHub Actions for automated testing
-- Implement automated deployment to staging
-- Include performance regression testing
-- Maintain deployment rollback procedures
-
-### Release Process
-- Follow semantic versioning
-- Include comprehensive release notes
-- Test on all target platforms
-- Validate performance metrics
-
-### Monitoring
-- Implement application performance monitoring
-- Monitor RTF and accuracy metrics
-- Track error rates and types
-- Alert on performance degradation
-
-## Common Patterns
-
-### Background Processing
-```kotlin
-class TranscribeWorker : Worker {
-    override suspend fun doWork(): Result {
-        return try {
-            // Processing logic
-            Result.success()
-        } catch (e: Exception) {
-            Log.e(TAG, "Processing failed", e)
-            Result.failure()
-        }
-    }
-}
-```
-
-### Language Detection
-```kotlin
-val lidResult = if (lang == "auto") {
-    val lidService = LanguageDetectionService()
-    lidService.detectLanguage(pcm16k, 16_000, model, threads)
-} else {
-    LanguageDetectionResult(/* forced language */)
-}
-```
-
-### Error Handling
-```kotlin
-fun processAudio(): Result<AudioResult> {
-    return try {
-        val result = performProcessing()
-        Result.success(result)
-    } catch (e: ProcessingException) {
-        Log.e(TAG, "Processing failed: ${e.message}", e)
-        Result.failure(e)
-    }
-}
-```
-
-## Resources
+### JavaScript/TypeScript
+- **ES6+**: Use modern JavaScript features
+- **Type Safety**: TypeScript for complex logic
+- **WebView Bridge**: Proper error handling and type checking
+- **State Management**: Immutable state updates
 
 ### Documentation
-- [Architecture Design](Doc/whisper/Architecture%20Design%20and%20Control%20Knot.md)
-- [Implementation Details](Doc/whisper/Full%20scale%20implementation%20Details.md)
-- [Deployment Guide](Doc/whisper/Device%20Deployment.md)
-- [CI/CD Guide](Doc/whisper/CI/CD%20Guide%20&%20Release.md)
+- **Architecture**: Document control knots and design decisions
+- **Implementation**: Detailed technical specifications
+- **Deployment**: Device-specific deployment guides
+- **Verification**: Testing and validation procedures
 
-### Scripts
-- `deploy_multilingual_models.sh` - Model deployment
-- `test_lid_pipeline.sh` - LID validation
-- `validate_cicd_pipeline.sh` - CI/CD validation
-- `work_through_xiaomi_pad.sh` - Device testing
+## Security Considerations
 
-### Key Files
-- `LanguageDetectionService.kt` - Core LID implementation
-- `TranscribeWorker.kt` - Background processing
-- `WhisperApi.kt` - Public API
-- `WhisperParams.kt` - Configuration
+### Data Protection
+- **File Access**: Use scoped storage for Android 10+
+- **Permissions**: Request minimal required permissions
+- **Broadcast Security**: Use `RECEIVER_NOT_EXPORTED` for internal broadcasts
+- **Foreground Services**: Required permissions for background operations
+
+### Code Security
+- **Input Validation**: Validate all user inputs
+- **File Handling**: Sanitize file paths and names
+- **Network Security**: Use HTTPS for all network requests
+- **Storage Security**: Encrypt sensitive data at rest
+
+## Performance Optimization
+
+### Memory Management
+- **Stream Processing**: Avoid loading large files into memory
+- **Resource Monitoring**: Efficient background service implementation
+- **WebView**: Proper memory cleanup and garbage collection
+- **Native Code**: JNI best practices for C++ integration
+
+### CPU Optimization
+- **Background Services**: Minimal CPU usage for monitoring
+- **GPU Acceleration**: Use hardware acceleration where available
+- **Threading**: Proper thread management for UI responsiveness
+- **Caching**: Intelligent caching for frequently accessed data
+
+### Battery Optimization
+- **Polling Frequency**: Optimize update intervals
+- **Background Processing**: Efficient background task scheduling
+- **Resource Monitoring**: Minimal impact on battery life
+- **Power Management**: Respect device power management policies
+
+## Troubleshooting
+
+### Common Issues
+- **Build Failures**: Check Gradle version and dependency conflicts
+- **Runtime Errors**: Verify permissions and service registration
+- **Performance Issues**: Profile memory and CPU usage
+- **Cross-Platform**: Test on target devices and browsers
+
+### Debug Tools
+- **Logging**: Use structured logging with appropriate levels
+- **Profiling**: Android Studio profiler for performance analysis
+- **WebView Debugging**: Chrome DevTools for WebView debugging
+- **Resource Monitoring**: Built-in resource monitoring service
+
+## Version Control
+
+### Branch Strategy
+- **Main Branch**: Stable, production-ready code
+- **Feature Branches**: Isolated feature development
+- **Resource Monitor**: Dedicated branch for resource monitoring features
+- **Documentation**: Separate documentation updates
+
+### Commit Messages
+- **Format**: `type: description` (feat, fix, docs, test, refactor)
+- **Scope**: Feature area (clip, whisper, ui, resource-monitor)
+- **Description**: Clear, concise description of changes
+- **Breaking Changes**: Document in commit message and PR
+
+### Pull Requests
+- **Description**: Detailed description of changes and rationale
+- **Testing**: Include test results and verification steps
+- **Documentation**: Update relevant documentation
+- **Review**: Code review required for all changes
