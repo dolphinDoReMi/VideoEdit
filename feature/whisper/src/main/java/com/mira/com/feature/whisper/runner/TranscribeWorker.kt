@@ -13,6 +13,7 @@ import com.mira.com.feature.whisper.data.db.AsrJob
 import com.mira.com.feature.whisper.data.io.AudioIO
 import com.mira.com.feature.whisper.engine.WhisperBridge
 import com.mira.com.feature.whisper.engine.WhisperParams
+import com.mira.com.feature.whisper.engine.LanguageDetectionService
 import com.mira.com.feature.whisper.util.Hash
 import com.mira.com.feature.whisper.util.Sidecars
 import org.json.JSONObject
@@ -47,28 +48,68 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
         )
 
         return try {
-            // 1) Load & condition
+            // 1) Load & condition audio
             val pcm = AudioIO.loadPcm16(ctx, Uri.parse(uri))
             val mono = AudioResampler.downmixToMono(pcm.pcm16, pcm.ch)
             val pcm16k = AudioResampler.resampleLinear(mono, pcm.sr, 16_000)
 
-            // 2) Decode (JNI) with timing
+            Log.d("TranscribeWorker", "Audio loaded: ${pcm16k.size} samples, ${pcm.durationMs}ms")
+
+            // 2) Robust LID Pipeline
+            val lidResult = if (lang == "auto") {
+                Log.d("TranscribeWorker", "Running robust LID pipeline...")
+                val lidService = LanguageDetectionService()
+                lidService.detectLanguage(pcm16k, 16_000, model, threads)
+            } else {
+                Log.d("TranscribeWorker", "Using forced language: $lang")
+                LanguageDetectionService.LanguageDetectionResult(
+                    topK = listOf(LanguageDetectionService.LanguageConfidence(lang, 1.0)),
+                    chosen = lang,
+                    method = "forced",
+                    confidence = 1.0
+                )
+            }
+
+            Log.d("TranscribeWorker", "LID Result: ${lidResult.chosen} (${lidResult.confidence}) via ${lidResult.method}")
+
+            // 3) Decode with detected/forced language
             val t0 = SystemClock.elapsedRealtime()
-            val json = WhisperBridge.decodeJson(pcm16k, 16_000, model, threads, beam, lang, translate)
+            val json = WhisperBridge.decodeJson(
+                pcm16 = pcm16k,
+                sampleRate = 16_000,
+                modelPath = model,
+                threads = threads,
+                beam = beam,
+                lang = lidResult.chosen,
+                translate = translate,
+                temperature = 0.0f,
+                enableWordTimestamps = false,
+                detectLanguage = false, // Already done above
+                noContext = true
+            )
             val t1 = SystemClock.elapsedRealtime()
             val inferMs = t1 - t0
             val rtf = inferMs.toDouble() / pcm.durationMs.coerceAtLeast(1)
 
-            // 3) Sidecar + DB
+            Log.d("TranscribeWorker", "Transcription complete: ${inferMs}ms, RTF: $rtf")
+
+            // 4) Enhanced sidecar with LID data
             val sidecar =
                 Sidecars.build(
                     uri = uri,
                     durationMs = pcm.durationMs,
-                    params = WhisperParams(model, threads, beam, lang, translate),
+                    params = WhisperParams(model, threads, beam, lidResult.chosen, translate),
                     inferMs = inferMs,
                     rtf = rtf,
                     segmentsJson = JSONObject(json).optJSONArray("segments"),
                 )
+
+            // Add LID data to sidecar
+            val lidService = LanguageDetectionService()
+            val lidSidecar = lidService.generateLidSidecar(lidResult)
+            sidecar.put("lid", lidSidecar)
+
+            Log.d("TranscribeWorker", "Enhanced sidecar with LID data")
             val outDir = File("/sdcard/MiraWhisper/out").apply { mkdirs() }
             val sidecarDir = File("/sdcard/MiraWhisper/sidecars").apply { mkdirs() }
             
@@ -91,9 +132,9 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
             dao.finishJob(jobId, inferMs, rtf, "DONE", sidecarPath, null)
             
             if (batchIndex >= 0) {
-                Log.d("TranscribeWorker", "Completed batch job $jobId ($batchIndex/$batchTotal) - RTF: $rtf")
+                Log.d("TranscribeWorker", "Completed robust LID batch job $jobId ($batchIndex/$batchTotal) - Language: ${lidResult.chosen}, RTF: $rtf")
             } else {
-                Log.d("TranscribeWorker", "Completed job $jobId - RTF: $rtf")
+                Log.d("TranscribeWorker", "Completed robust LID job $jobId - Language: ${lidResult.chosen}, RTF: $rtf")
             }
             
             Result.success()

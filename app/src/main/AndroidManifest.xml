@@ -109,6 +109,13 @@
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Mira" />
+
+        <!-- Whisper Batch Results Activity -->
+        <activity
+            android:name="com.mira.whisper.WhisperBatchResultsActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Mira" />
         
         
         <!-- Video Whisper Service - Background whisper.cpp processing -->
@@ -123,6 +130,13 @@
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="microphone" />
+        
+        <!-- Device Resource Service - Background resource monitoring -->
+        <service
+            android:name="com.mira.whisper.DeviceResourceService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
         
         <!-- Whisper Connector Service - Connects all 3 whisper pages with background service -->
         <service

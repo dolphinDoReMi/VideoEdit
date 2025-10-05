@@ -23,15 +23,15 @@ class WhisperReceiver : BroadcastReceiver() {
                 Log.i("WhisperReceiver", "Received RUN broadcast")
                 val filePath = intent.getStringExtra("filePath")
                 if (filePath != null) {
-                    WhisperApi.enqueueTranscribe(
-                        ctx = context,
-                        uri = filePath,
-                        model = intent.getStringExtra("model") ?: "base",
-                        threads = intent.getIntExtra("threads", 4),
-                        beam = intent.getIntExtra("beam", 1),
-                        lang = intent.getStringExtra("lang"),
-                        translate = intent.getBooleanExtra("translate", false),
-                    )
+                WhisperApi.enqueueTranscribe(
+                    ctx = context,
+                    uri = filePath,
+                    model = intent.getStringExtra("model") ?: "/sdcard/MiraWhisper/models/whisper-base.q5_1.bin",
+                    threads = intent.getIntExtra("threads", 4),
+                    beam = intent.getIntExtra("beam", 1),
+                    lang = intent.getStringExtra("lang") ?: "auto",
+                    translate = intent.getBooleanExtra("translate", false),
+                )
                 } else {
                     Log.w("WhisperReceiver", "RUN broadcast missing filePath extra")
                 }

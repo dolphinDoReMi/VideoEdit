@@ -86,9 +86,57 @@
         <p class="text-gray-300">Processing Time</p>
         <p class="text-white font-medium" id="processing-time">7.2s</p>
       </div>
-      <div>
+      <div class="relative group">
         <p class="text-gray-300">RTF</p>
-        <p class="text-white font-medium" id="rtf-value">0.45</p>
+        <p class="text-white font-medium cursor-pointer select-none" id="rtf-value" title="Tap to see RTF explanation">0.45</p>
+        
+        <!-- RTF Tooltip -->
+        <div id="rtf-tooltip" class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-96 bg-dark-800 border border-dark-600 rounded-lg p-4 shadow-xl opacity-0 invisible transition-all duration-200 z-50">
+          <div class="text-sm text-white space-y-3">
+            <div>
+              <h4 class="font-semibold text-blue-400 mb-2">RTF = Real-Time Factor</h4>
+              <p class="text-gray-300 mb-2">A speed metric for audio processing</p>
+              <div class="bg-dark-700 rounded p-2 font-mono text-xs">
+                <strong>RTF</strong> = <span class="text-blue-400">processing time</span> / <span class="text-green-400">audio duration</span>
+              </div>
+            </div>
+            
+            <div>
+              <h5 class="font-medium text-gray-200 mb-1">Speed Interpretation:</h5>
+              <ul class="text-xs text-gray-400 space-y-1">
+                <li>• <span class="text-green-400">RTF &lt; 1.0</span> → faster than real-time (e.g., RTF 0.4 = 2.5× real-time)</li>
+                <li>• <span class="text-yellow-400">RTF = 1.0</span> → exactly real-time</li>
+                <li>• <span class="text-red-400">RTF &gt; 1.0</span> → slower than real-time</li>
+              </ul>
+            </div>
+            
+            <div>
+              <h5 class="font-medium text-gray-200 mb-1">Why it matters:</h5>
+              <ul class="text-xs text-gray-400 space-y-1">
+                <li>• <strong>Capacity planning:</strong> estimate device throughput</li>
+                <li>• <strong>Regression detection:</strong> track p50/p95 RTF across builds</li>
+                <li>• <strong>Thread/model sizing:</strong> see how threads affect speed</li>
+                <li>• <strong>On-device viability:</strong> aim for p95 RTF &lt; 1 for smooth UX</li>
+              </ul>
+            </div>
+            
+            <div>
+              <h5 class="font-medium text-gray-200 mb-1">Target Performance:</h5>
+              <ul class="text-xs text-gray-400 space-y-1">
+                <li>• <span class="text-green-400">Shipping bar:</span> p95 RTF_e2e &lt; 1.0</li>
+                <li>• <span class="text-blue-400">Comfort bar:</span> p50 RTF_e2e ≤ 0.5 (≥2× real-time)</li>
+              </ul>
+            </div>
+            
+            <div class="text-xs text-gray-500 pt-2 border-t border-dark-600">
+              <strong>Current:</strong> <span id="rtf-tooltip-current" class="text-white">0.45</span> 
+              (<span id="rtf-speedup" class="text-green-400">2.2× real-time</span>)
+            </div>
+          </div>
+          
+          <!-- Tooltip arrow -->
+          <div class="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-dark-800"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -125,9 +173,14 @@
   <div class="bg-dark-700 rounded-2xl p-6 border border-dark-600 mb-6">
     <div class="flex items-center justify-between mb-4">
       <h3 class="text-lg font-semibold text-white">Transcript</h3>
-      <button id="copy-transcript-btn" class="px-3 py-2 bg-dark-600 hover:bg-dark-600/80 rounded-lg text-sm transition-colors">
-        <i class="fa-solid fa-copy mr-2"></i>Copy
-      </button>
+      <div class="flex items-center space-x-2">
+        <button id="table-view-btn" class="px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm transition-colors">
+          <i class="fa-solid fa-table mr-2"></i>Table View
+        </button>
+        <button id="copy-transcript-btn" class="px-3 py-2 bg-dark-600 hover:bg-dark-600/80 rounded-lg text-sm transition-colors">
+          <i class="fa-solid fa-copy mr-2"></i>Copy
+        </button>
+      </div>
     </div>
     
     <div id="transcript-content" class="space-y-3 max-h-64 overflow-y-auto">
@@ -447,11 +500,60 @@
   const exportAllBtn = document.getElementById('export-all-btn');
   const newAnalysisBtn = document.getElementById('new-analysis-btn');
   const goBackBtn = document.getElementById('go-back-btn');
+  const rtfValue = document.getElementById('rtf-value');
 
   // Utility functions
   function showToast(message, isError = false) {
     console.log(isError ? 'ERROR:' : 'SUCCESS:', message);
     // In a real app, you'd show a toast notification
+  }
+
+  // RTF utility functions
+  function calculateSpeedup(rtf) {
+    return rtf > 0 ? (1 / rtf).toFixed(1) : 'N/A';
+  }
+
+  function updateRTFTooltip(rtfValue) {
+    const rtfTooltipCurrent = document.getElementById('rtf-tooltip-current');
+    const rtfSpeedup = document.getElementById('rtf-speedup');
+    
+    if (rtfTooltipCurrent && rtfSpeedup) {
+      rtfTooltipCurrent.textContent = rtfValue.toFixed(2);
+      const speedup = calculateSpeedup(rtfValue);
+      rtfSpeedup.textContent = `${speedup}× real-time`;
+      
+      // Update color based on performance
+      if (rtfValue < 0.5) {
+        rtfSpeedup.className = 'text-green-400';
+      } else if (rtfValue < 1.0) {
+        rtfSpeedup.className = 'text-yellow-400';
+      } else {
+        rtfSpeedup.className = 'text-red-400';
+      }
+    }
+  }
+
+  // RTF tooltip functionality
+  function toggleRTFTooltip() {
+    const tooltip = document.getElementById('rtf-tooltip');
+    if (tooltip) {
+      const isVisible = !tooltip.classList.contains('invisible');
+      
+      if (isVisible) {
+        // Hide tooltip
+        tooltip.classList.add('opacity-0', 'invisible');
+      } else {
+        // Show tooltip
+        tooltip.classList.remove('opacity-0', 'invisible');
+      }
+    }
+  }
+
+  function hideRTFTooltip() {
+    const tooltip = document.getElementById('rtf-tooltip');
+    if (tooltip) {
+      tooltip.classList.add('opacity-0', 'invisible');
+    }
   }
 
   function copyToClipboard(text) {
@@ -524,6 +626,22 @@
     }
   };
 
+  // Table view button
+  const tableViewBtn = document.getElementById('table-view-btn');
+  tableViewBtn.onclick = () => {
+    try {
+      if (hasBridge && window.WhisperBridge.openWhisperBatchResults) {
+        window.WhisperBridge.openWhisperBatchResults(state.batchId);
+      } else {
+        // Fallback: open in new tab/window
+        const url = `whisper_batch_results.html?batchId=${state.batchId}`;
+        window.open(url, '_blank');
+      }
+    } catch (e) {
+      console.error('Error opening table view:', e);
+    }
+  };
+
   exportAllBtn.onclick = async () => {
     try {
       await bridge.exportAll(state.batchId);
@@ -551,6 +669,28 @@
       showToast('Failed to go back', true);
     }
   };
+
+  // RTF tooltip event handlers
+  if (rtfValue) {
+    rtfValue.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleRTFTooltip();
+    };
+
+    rtfValue.ontouchstart = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleRTFTooltip();
+    };
+  }
+
+  // Hide tooltip when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#rtf-value') && !e.target.closest('#rtf-tooltip')) {
+      hideRTFTooltip();
+    }
+  });
 
   // Resource monitoring functions
   function updateResourceStats(statsJson) {
@@ -588,6 +728,11 @@
       } else {
         tempStatus.textContent = 'Normal';
         tempStatus.className = 'text-xs text-green-400 mt-1';
+      }
+      
+      // Update global resource monitor if available
+      if (window.updateGlobalResourceStats) {
+        window.updateGlobalResourceStats(statsJson);
       }
       
       console.log('Resource stats updated:', stats);
@@ -629,6 +774,7 @@
     // Update completion status
     document.getElementById('processing-time').textContent = 'Complete';
     document.getElementById('rtf-value').textContent = state.rtf.toFixed(2);
+    updateRTFTooltip(state.rtf);
     
     showToast('Processing complete!');
     
@@ -668,6 +814,7 @@
         if (sidecarData.rtf) {
           document.getElementById('rtf-value').textContent = sidecarData.rtf.toFixed(2);
           state.rtf = sidecarData.rtf;
+          updateRTFTooltip(sidecarData.rtf);
         }
         
         // Load transcript data
@@ -701,9 +848,32 @@
     }
   }
 
+  // Initialize global resource monitor
+  async function initializeGlobalResourceMonitor() {
+    try {
+      // Load the global resource monitor component
+      const monitorResponse = await fetch('global_resource_monitor.html');
+      if (monitorResponse.ok) {
+        const monitorHtml = await monitorResponse.text();
+        const monitorContainer = document.createElement('div');
+        monitorContainer.innerHTML = monitorHtml;
+        document.body.appendChild(monitorContainer);
+        
+        // Initialize the global monitor
+        if (window.initializeGlobalResourceMonitor) {
+          window.initializeGlobalResourceMonitor();
+        }
+        console.log('Global resource monitor initialized');
+      }
+    } catch (e) {
+      console.error('Error initializing global resource monitor:', e);
+    }
+  }
+
   // Initialize
   console.log('Whisper Results initialized');
   showToast('Results loaded successfully');
+  initializeGlobalResourceMonitor();
   
   // Load real data
   loadResultsData();

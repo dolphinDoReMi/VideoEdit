@@ -105,25 +105,34 @@ build_project() {
     log_success "APK built successfully: $APK_PATH ($APK_SIZE)"
 }
 
-# Install the app
+# Install the app using hands-free script
 install_app() {
-    log_info "Installing app on $DEVICE_NAME..."
+    log_info "Installing app on $DEVICE_NAME using hands-free script..."
     
-    # Uninstall existing version if it exists
-    if adb shell pm list packages | grep -q "$APP_ID"; then
-        log_info "Uninstalling existing version..."
-        adb uninstall "$APP_ID" || true
-    fi
-    
-    # Install new version
-    log_info "Installing new version..."
-    adb install -r "$APK_PATH"
-    
-    if [ $? -eq 0 ]; then
-        log_success "App installed successfully"
+    # Use the new hands-free install script
+    if [ -f "scripts/xiaomi_hands_free_install.sh" ]; then
+        log_info "Using hands-free installation script..."
+        ./scripts/xiaomi_hands_free_install.sh "$APK_PATH" "$APP_ID"
+        log_success "App installed successfully with hands-free script"
     else
-        log_error "App installation failed"
-        exit 1
+        log_warning "Hands-free script not found, falling back to manual install..."
+        
+        # Uninstall existing version if it exists
+        if adb shell pm list packages | grep -q "$APP_ID"; then
+            log_info "Uninstalling existing version..."
+            adb uninstall "$APP_ID" || true
+        fi
+        
+        # Install new version with auto-grant permissions
+        log_info "Installing new version with auto-grant permissions..."
+        adb install -r -t -g "$APK_PATH"
+        
+        if [ $? -eq 0 ]; then
+            log_success "App installed successfully"
+        else
+            log_error "App installation failed"
+            exit 1
+        fi
     fi
 }
 

@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Resource Monitor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .resource-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(51, 65, 85, 0.8));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+        .resource-bar {
+            background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+            transition: width 0.3s ease;
+        }
+        .resource-bar.warning {
+            background: linear-gradient(90deg, #f59e0b, #d97706);
+        }
+        .resource-bar.danger {
+            background: linear-gradient(90deg, #ef4444, #dc2626);
+        }
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Global Resource Monitor Component -->
+    <div id="global-resource-monitor" class="fixed top-4 right-4 z-50 resource-card rounded-xl p-4 shadow-2xl min-w-[280px]">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-microchip text-blue-400 text-sm"></i>
+                <h3 class="text-white font-semibold text-sm">System Monitor</h3>
+            </div>
+            <div class="flex items-center space-x-2">
+                <div id="connection-status" class="w-2 h-2 bg-green-400 rounded-full pulse-animation"></div>
+                <span id="last-update" class="text-xs text-gray-400">--:--:--</span>
+            </div>
+        </div>
+
+        <!-- Resource Grid -->
+        <div class="grid grid-cols-2 gap-3">
+            <!-- Memory -->
+            <div class="bg-gray-800/50 rounded-lg p-3">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center space-x-1">
+                        <i class="fas fa-memory text-blue-400 text-xs"></i>
+                        <span class="text-white text-xs font-medium">Memory</span>
+                    </div>
+                    <span id="resource-memory" class="text-white text-xs font-bold">--%</span>
+                </div>
+                <div class="w-full bg-gray-700 rounded-full h-1.5">
+                    <div id="memory-bar" class="resource-bar h-1.5 rounded-full" style="width: 0%"></div>
+                </div>
+                <div id="memory-details" class="text-xs text-gray-400 mt-1">--</div>
+            </div>
+
+            <!-- CPU -->
+            <div class="bg-gray-800/50 rounded-lg p-3">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center space-x-1">
+                        <i class="fas fa-microchip text-green-400 text-xs"></i>
+                        <span class="text-white text-xs font-medium">CPU</span>
+                    </div>
+                    <span id="resource-cpu" class="text-white text-xs font-bold">--%</span>
+                </div>
+                <div class="w-full bg-gray-700 rounded-full h-1.5">
+                    <div id="cpu-bar" class="resource-bar h-1.5 rounded-full" style="width: 0%"></div>
+                </div>
+                <div id="cpu-details" class="text-xs text-gray-400 mt-1">--</div>
+            </div>
+
+            <!-- Battery -->
+            <div class="bg-gray-800/50 rounded-lg p-3">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center space-x-1">
+                        <i class="fas fa-battery-full text-yellow-400 text-xs"></i>
+                        <span class="text-white text-xs font-medium">Battery</span>
+                    </div>
+                    <span id="resource-battery" class="text-white text-xs font-bold">--%</span>
+                </div>
+                <div class="w-full bg-gray-700 rounded-full h-1.5">
+                    <div id="battery-bar" class="resource-bar h-1.5 rounded-full" style="width: 0%"></div>
+                </div>
+                <div id="battery-details" class="text-xs text-gray-400 mt-1">--</div>
+            </div>
+
+            <!-- Temperature -->
+            <div class="bg-gray-800/50 rounded-lg p-3">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center space-x-1">
+                        <i class="fas fa-thermometer-half text-red-400 text-xs"></i>
+                        <span class="text-white text-xs font-medium">Temp</span>
+                    </div>
+                    <span id="resource-temperature" class="text-white text-xs font-bold">--°C</span>
+                </div>
+                <div class="w-full bg-gray-700 rounded-full h-1.5">
+                    <div id="temperature-bar" class="resource-bar h-1.5 rounded-full" style="width: 0%"></div>
+                </div>
+                <div id="temperature-status" class="text-xs text-gray-400 mt-1">--</div>
+            </div>
+        </div>
+
+        <!-- Additional Info -->
+        <div class="mt-3 pt-3 border-t border-gray-700">
+            <div class="grid grid-cols-1 gap-2 text-xs">
+                <div class="flex justify-between">
+                    <span class="text-gray-400">GPU:</span>
+                    <span id="gpu-info" class="text-white">--</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Threads:</span>
+                    <span id="thread-info" class="text-white">--</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Device:</span>
+                    <span id="device-info" class="text-white">Xiaomi Pad</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="mt-3 flex justify-between items-center">
+            <button id="refresh-stats" class="text-xs text-blue-400 hover:text-blue-300 transition-colors">
+                <i class="fas fa-sync-alt mr-1"></i>Refresh
+            </button>
+            <button id="toggle-monitor" class="text-xs text-gray-400 hover:text-white transition-colors">
+                <i class="fas fa-eye mr-1"></i>Hide
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Global Resource Monitor JavaScript
+        class GlobalResourceMonitor {
+            constructor() {
+                this.isVisible = true;
+                this.updateInterval = null;
+                this.lastStats = null;
+                this.initializeElements();
+                this.setupEventListeners();
+                this.startMonitoring();
+            }
+
+            initializeElements() {
+                // Get all required elements
+                this.elements = {
+                    memory: document.getElementById('resource-memory'),
+                    cpu: document.getElementById('resource-cpu'),
+                    battery: document.getElementById('resource-battery'),
+                    temperature: document.getElementById('resource-temperature'),
+                    memoryBar: document.getElementById('memory-bar'),
+                    cpuBar: document.getElementById('cpu-bar'),
+                    batteryBar: document.getElementById('battery-bar'),
+                    temperatureBar: document.getElementById('temperature-bar'),
+                    memoryDetails: document.getElementById('memory-details'),
+                    cpuDetails: document.getElementById('cpu-details'),
+                    batteryDetails: document.getElementById('battery-details'),
+                    temperatureStatus: document.getElementById('temperature-status'),
+                    gpuInfo: document.getElementById('gpu-info'),
+                    threadInfo: document.getElementById('thread-info'),
+                    lastUpdate: document.getElementById('last-update'),
+                    connectionStatus: document.getElementById('connection-status'),
+                    refreshBtn: document.getElementById('refresh-stats'),
+                    toggleBtn: document.getElementById('toggle-monitor'),
+                    monitor: document.getElementById('global-resource-monitor')
+                };
+            }
+
+            setupEventListeners() {
+                this.elements.refreshBtn.addEventListener('click', () => this.refreshStats());
+                this.elements.toggleBtn.addEventListener('click', () => this.toggleVisibility());
+            }
+
+            startMonitoring() {
+                // Start periodic updates
+                this.updateInterval = setInterval(() => {
+                    this.updateStats();
+                }, 2000); // Update every 2 seconds
+
+                // Initial update
+                this.updateStats();
+            }
+
+            async updateStats() {
+                try {
+                    // Try to get stats from bridge if available
+                    if (window.WhisperBridge && window.WhisperBridge.getResourceStats) {
+                        const statsJson = await window.WhisperBridge.getResourceStats();
+                        this.updateUI(statsJson);
+                    } else {
+                        // Fallback to mock data for testing
+                        this.updateUI(this.getMockStats());
+                    }
+                } catch (error) {
+                    console.error('Error updating resource stats:', error);
+                    this.updateConnectionStatus(false);
+                }
+            }
+
+            updateUI(statsJson) {
+                try {
+                    const stats = typeof statsJson === 'string' ? JSON.parse(statsJson) : statsJson;
+                    this.lastStats = stats;
+
+                    // Update main values
+                    this.elements.memory.textContent = `${stats.memory || 0}%`;
+                    this.elements.cpu.textContent = `${(stats.cpu || 0).toFixed(1)}%`;
+                    this.elements.battery.textContent = `${stats.battery || 0}%`;
+                    this.elements.temperature.textContent = `${(stats.temperature || 25).toFixed(1)}°C`;
+
+                    // Update progress bars
+                    this.updateProgressBar(this.elements.memoryBar, stats.memory || 0, 'memory');
+                    this.updateProgressBar(this.elements.cpuBar, stats.cpu || 0, 'cpu');
+                    this.updateProgressBar(this.elements.batteryBar, stats.battery || 0, 'battery');
+                    this.updateProgressBar(this.elements.temperatureBar, this.normalizeTemperature(stats.temperature || 25), 'temperature');
+
+                    // Update detailed information
+                    this.elements.memoryDetails.textContent = this.formatMemoryDetails(stats);
+                    this.elements.cpuDetails.textContent = this.formatCpuDetails(stats);
+                    this.elements.batteryDetails.textContent = stats.batteryDetails || 'Level: N/A';
+                    this.elements.gpuInfo.textContent = stats.gpuInfo || 'GPU: N/A';
+                    this.elements.threadInfo.textContent = stats.threadInfo || 'Threads: N/A';
+
+                    // Update temperature status
+                    this.updateTemperatureStatus(stats.temperature || 25);
+
+                    // Update timestamp
+                    const updateTime = new Date(stats.timestamp || Date.now()).toLocaleTimeString();
+                    this.elements.lastUpdate.textContent = updateTime;
+
+                    // Update connection status
+                    this.updateConnectionStatus(true);
+
+                } catch (error) {
+                    console.error('Error parsing resource stats:', error);
+                    this.updateConnectionStatus(false);
+                }
+            }
+
+            updateProgressBar(element, value, type) {
+                element.style.width = `${Math.min(Math.max(value, 0), 100)}%`;
+                
+                // Update color based on value and type
+                element.className = 'resource-bar h-1.5 rounded-full';
+                if (type === 'memory' && value > 80) {
+                    element.classList.add('danger');
+                } else if (type === 'cpu' && value > 70) {
+                    element.classList.add('warning');
+                } else if (type === 'battery' && value < 20) {
+                    element.classList.add('danger');
+                } else if (type === 'temperature' && value > 40) {
+                    element.classList.add('danger');
+                }
+            }
+
+            normalizeTemperature(temp) {
+                // Normalize temperature to 0-100% scale (0°C = 0%, 50°C = 100%)
+                return Math.min(Math.max((temp / 50) * 100, 0), 100);
+            }
+
+            updateTemperatureStatus(temp) {
+                if (temp > 45) {
+                    this.elements.temperatureStatus.textContent = 'Hot';
+                    this.elements.temperatureStatus.className = 'text-xs text-red-400 mt-1';
+                } else if (temp < 30) {
+                    this.elements.temperatureStatus.textContent = 'Cool';
+                    this.elements.temperatureStatus.className = 'text-xs text-blue-400 mt-1';
+                } else {
+                    this.elements.temperatureStatus.textContent = 'Normal';
+                    this.elements.temperatureStatus.className = 'text-xs text-green-400 mt-1';
+                }
+            }
+
+            updateConnectionStatus(connected) {
+                if (connected) {
+                    this.elements.connectionStatus.className = 'w-2 h-2 bg-green-400 rounded-full pulse-animation';
+                } else {
+                    this.elements.connectionStatus.className = 'w-2 h-2 bg-red-400 rounded-full';
+                }
+            }
+
+            formatMemoryDetails(stats) {
+                if (stats.memoryUsed && stats.memoryTotal) {
+                    return `${stats.memoryUsed}MB / ${stats.memoryTotal}MB`;
+                }
+                return `${stats.memory || 0}% used`;
+            }
+
+            formatCpuDetails(stats) {
+                if (stats.cpuCores) {
+                    return `${stats.cpuCores} cores`;
+                }
+                return `${(stats.cpu || 0).toFixed(1)}% usage`;
+            }
+
+            async refreshStats() {
+                this.elements.refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Refreshing...';
+                await this.updateStats();
+                setTimeout(() => {
+                    this.elements.refreshBtn.innerHTML = '<i class="fas fa-sync-alt mr-1"></i>Refresh';
+                }, 1000);
+            }
+
+            toggleVisibility() {
+                this.isVisible = !this.isVisible;
+                if (this.isVisible) {
+                    this.elements.monitor.style.display = 'block';
+                    this.elements.toggleBtn.innerHTML = '<i class="fas fa-eye-slash mr-1"></i>Hide';
+                } else {
+                    this.elements.monitor.style.display = 'none';
+                    this.elements.toggleBtn.innerHTML = '<i class="fas fa-eye mr-1"></i>Show';
+                }
+            }
+
+            getMockStats() {
+                // Generate realistic mock data for testing
+                const baseTime = Date.now();
+                const variation = Math.sin(baseTime / 10000) * 10; // Slow variation
+                
+                return {
+                    memory: Math.min(Math.max(30 + variation + Math.random() * 20, 10), 90),
+                    cpu: Math.min(Math.max(20 + variation + Math.random() * 30, 5), 80),
+                    battery: Math.min(Math.max(85 - (baseTime / 1000000), 20), 100), // Slowly decreasing
+                    temperature: Math.min(Math.max(25 + variation + Math.random() * 10, 20), 45),
+                    batteryDetails: `Level: ${Math.floor(85 - (baseTime / 1000000))}%, Temp: ${(25 + variation).toFixed(1)}°C`,
+                    gpuInfo: 'Adreno 650',
+                    threadInfo: `${Math.floor(4 + Math.random() * 4)} threads`,
+                    timestamp: baseTime
+                };
+            }
+
+            destroy() {
+                if (this.updateInterval) {
+                    clearInterval(this.updateInterval);
+                }
+            }
+        }
+
+        // Initialize global resource monitor
+        let globalResourceMonitor = null;
+
+        // Function to initialize the monitor (called by pages)
+        function initializeGlobalResourceMonitor() {
+            if (!globalResourceMonitor) {
+                globalResourceMonitor = new GlobalResourceMonitor();
+                console.log('Global Resource Monitor initialized');
+            }
+            return globalResourceMonitor;
+        }
+
+        // Function to update stats from external sources
+        function updateGlobalResourceStats(statsJson) {
+            if (globalResourceMonitor) {
+                globalResourceMonitor.updateUI(statsJson);
+            }
+        }
+
+        // Make functions globally available
+        window.initializeGlobalResourceMonitor = initializeGlobalResourceMonitor;
+        window.updateGlobalResourceStats = updateGlobalResourceStats;
+
+        // Auto-initialize if this is loaded as a standalone page
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeGlobalResourceMonitor);
+        } else {
+            initializeGlobalResourceMonitor();
+        }
+    </script>
+</body>
+</html>

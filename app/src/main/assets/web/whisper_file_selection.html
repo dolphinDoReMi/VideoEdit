@@ -125,8 +125,33 @@
         <button id="pick-model-btn" class="text-xs px-3 py-1 rounded bg-dark-700 border border-dark-600 hover:border-purple-600">Change</button>
       </div>
       <div class="text-xs text-gray-400">
-        <p id="selected-model">ggml-small.en.bin (Default)</p>
-        <p>Optimized for English transcription</p>
+        <p id="selected-model">whisper-base.q5_1 (Multilingual)</p>
+        <p>Robust multilingual transcription with LID</p>
+      </div>
+    </div>
+
+    <!-- Language Detection Settings -->
+    <div class="bg-dark-600 rounded-xl p-4 mb-6">
+      <div class="flex items-center space-x-3 mb-3">
+        <i class="fa-solid fa-globe text-green-300"></i>
+        <span class="text-sm text-gray-300">Language Detection</span>
+      </div>
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-gray-400">Detection Mode</span>
+          <select id="language-mode" class="bg-dark-700 text-white text-xs px-2 py-1 rounded border border-dark-600">
+            <option value="auto">Auto (Recommended)</option>
+            <option value="zh">Chinese (中文)</option>
+            <option value="en">English</option>
+            <option value="yue">Cantonese (粵語)</option>
+            <option value="ja">Japanese (日本語)</option>
+            <option value="ko">Korean (한국어)</option>
+          </select>
+        </div>
+        <div class="text-xs text-gray-500">
+          <i class="fa-solid fa-info-circle mr-1"></i>
+          Auto mode uses robust two-pass LID for accurate multilingual detection
+        </div>
       </div>
     </div>
                 
@@ -210,7 +235,8 @@
   const state = {
     selectedFiles: [],
     selectedPreset: 'Single',
-    selectedModel: 'ggml-small.en.bin (Default)',
+    selectedModel: 'whisper-base.q5_1 (Multilingual)',
+    languageMode: 'auto',
     isProcessing: false
   };
 
@@ -225,6 +251,7 @@
   const presetAccuracyBtn = document.getElementById('preset-accuracy');
   const pickModelBtn = document.getElementById('pick-model-btn');
   const selectedModelElement = document.getElementById('selected-model');
+  const languageModeSelect = document.getElementById('language-mode');
   const statusInfo = document.getElementById('status-info');
   const statusDot = document.querySelector('#status-info .w-3');
   const statusText = document.querySelector('#status-info .text-xs');
@@ -475,7 +502,8 @@
       const batchId = await bridge.runBatch({
         uris: uris,
         preset: state.selectedPreset,
-        modelPath: state.selectedModel
+        modelPath: state.selectedModel,
+        languageMode: state.languageMode
       });
       
       setStatus(`Processing ${state.selectedFiles.length} files...`, 'processing', true);
@@ -484,7 +512,7 @@
       // Navigate to Step 2 after successful submission
       setTimeout(async () => {
         try {
-          await bridge.openStep2();
+          await bridge.openWhisperStep2();
         } catch (err) {
           console.error('Navigation error:', err);
           setStatus('Processing started - navigate to Processing', 'success', false);
@@ -525,17 +553,29 @@
     }
   };
 
-  // Resource monitoring
+  // Language mode handler
+  languageModeSelect.onchange = () => {
+    state.languageMode = languageModeSelect.value;
+    showToast(`Language mode: ${languageModeSelect.value}`);
+  };
+
+  // Global resource monitoring integration
   async function updateResourceStats() {
     try {
       if (!hasBridge || !window.WhisperBridge.getResourceStats) return;
       const stats = await bridge.getResourceStats();
-      const data = JSON.parse(stats);
       
+      // Update local stats display
+      const data = JSON.parse(stats);
       document.getElementById('stat-cpu').textContent = data.cpu ? data.cpu.toFixed(1) : '—';
       document.getElementById('stat-mem').textContent = data.memory || '—';
       document.getElementById('stat-bat').textContent = data.battery || '—';
       document.getElementById('stat-temp').textContent = data.temperature ? data.temperature.toFixed(1) : '—';
+      
+      // Update global resource monitor if available
+      if (window.updateGlobalResourceStats) {
+        window.updateGlobalResourceStats(stats);
+      }
     } catch (e) {
       console.error('Resource stats error:', e);
     }
@@ -565,11 +605,34 @@
 
   refreshStatsBtn.onclick = updateResourceStats;
 
+  // Initialize global resource monitor
+  async function initializeGlobalResourceMonitor() {
+    try {
+      // Load the global resource monitor component
+      const monitorResponse = await fetch('global_resource_monitor.html');
+      if (monitorResponse.ok) {
+        const monitorHtml = await monitorResponse.text();
+        const monitorContainer = document.createElement('div');
+        monitorContainer.innerHTML = monitorHtml;
+        document.body.appendChild(monitorContainer);
+        
+        // Initialize the global monitor
+        if (window.initializeGlobalResourceMonitor) {
+          window.initializeGlobalResourceMonitor();
+        }
+        console.log('Global resource monitor initialized');
+      }
+    } catch (e) {
+      console.error('Error initializing global resource monitor:', e);
+    }
+  }
+
   // Initialize
   updatePresetSelection('Single');
   updateProcessButtonState();
   renderSelectedFilesList();
   updateResourceStats();
+  initializeGlobalResourceMonitor();
 
   // Auto-refresh resource stats
   if (hasBridge) {
