@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
 import java.util.Timer
 import java.util.TimerTask
+import com.mira.com.feature.whisper.data.db.AsrDb
 
 /**
  * WhisperConnectorService - Central service that connects all 3 whisper pages
@@ -258,25 +259,22 @@ class WhisperConnectorService : Service() {
      */
     private fun startActualWhisperProcessing(batchId: String, fileCount: Int) {
         try {
-            // This would integrate with the existing WhisperApi
-            // For now, we'll simulate the processing
-            Log.d(TAG, "Integrating with WhisperApi for batch: $batchId")
+            Log.d(TAG, "Starting actual whisper processing for batch: $batchId")
             
-            // Simulate file processing
             val batchState = activeBatches[batchId]
             if (batchState != null) {
-                // Create mock file states
+                // Initialize file states for tracking
                 for (i in 0 until fileCount) {
                     val fileState = FileProcessingState(
                         fileName = "video_${i + 1}.mp4",
                         fileUri = "file:///sdcard/video_${i + 1}.mp4",
-                        status = if (i == 0) ProcessingStatus.PROCESSING else ProcessingStatus.PENDING
+                        status = ProcessingStatus.PENDING
                     )
                     batchState.files.add(fileState)
                 }
                 
-                // Start processing simulation
-                simulateFileProcessing(batchId)
+                // Start monitoring WorkManager jobs
+                startWorkManagerMonitoring(batchId)
             }
             
         } catch (e: Exception) {
@@ -285,65 +283,86 @@ class WhisperConnectorService : Service() {
     }
     
     /**
-     * Simulate file processing with realistic progress updates
+     * Monitor WorkManager jobs for this batch
      */
-    private fun simulateFileProcessing(batchId: String) {
-        val batchState = activeBatches[batchId] ?: return
+    private fun startWorkManagerMonitoring(batchId: String) {
+        Log.d(TAG, "Starting WorkManager monitoring for batch: $batchId")
         
-        val handler = Handler(Looper.getMainLooper())
-        
-        val processingRunnable = object : Runnable {
+        // Start a timer to periodically check WorkManager status
+        progressTimer = Timer()
+        progressTimer?.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
-                if (!batchState.isActive) return
-                
-                val currentFile = batchState.files.getOrNull(batchState.currentFileIndex)
-                if (currentFile != null && currentFile.status == ProcessingStatus.PROCESSING) {
-                    // Update progress
-                    val newProgress = minOf(currentFile.progress + (Math.random() * 5).toInt(), 100)
-                    currentFile.progress = newProgress
-                    
-                    // Update batch progress
-                    batchState.currentFileProgress = newProgress
-                    batchState.overallProgress = ((batchState.completedFiles * 100 + newProgress) / batchState.totalFiles)
-                    
-                    // Broadcast progress update
-                    broadcastProgressUpdate(batchId, batchState)
-                    
-                    // Check if file is complete
-                    if (newProgress >= 100) {
-                        currentFile.status = ProcessingStatus.COMPLETED
-                        currentFile.endTime = System.currentTimeMillis()
-                        batchState.completedFiles++
-                        
-                        // Move to next file
-                        batchState.currentFileIndex++
-                        if (batchState.currentFileIndex < batchState.totalFiles) {
-                            batchState.files[batchState.currentFileIndex].status = ProcessingStatus.PROCESSING
-                            batchState.files[batchState.currentFileIndex].startTime = System.currentTimeMillis()
-                        } else {
-                            // All files completed
-                            completeBatchProcessing(batchId)
-                            return
-                        }
-                    }
+                try {
+                    checkWorkManagerProgress(batchId)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error checking WorkManager progress: ${e.message}", e)
                 }
-                
-                // Schedule next update
-                handler.postDelayed(this, 1000)
             }
-        }
-        
-        handler.post(processingRunnable)
+        }, 1000, 2000) // Check every 2 seconds
     }
     
     /**
-     * Update batch progress
+     * Check WorkManager job progress for a batch
      */
-    private fun updateBatchProgress(batchId: String, progress: Int) {
+    private fun checkWorkManagerProgress(batchId: String) {
         val batchState = activeBatches[batchId] ?: return
-        batchState.overallProgress = progress
         
-        broadcastProgressUpdate(batchId, batchState)
+        try {
+            // Query the database for job status
+            val dao = com.mira.com.feature.whisper.data.db.AsrDb.get(this).dao()
+            val jobs = dao.getAllJobs()
+            
+            var completedJobs = 0
+            var currentJobIndex = 0
+            
+            // Count completed jobs and find current processing job
+            for (i in 0 until batchState.totalFiles) {
+                val jobId = "batch_${i}_" // Match the job ID pattern from TranscribeWorker
+                val matchingJobs = jobs.filter { it.jobId.startsWith(jobId) }
+                
+                if (matchingJobs.isNotEmpty()) {
+                    val job = matchingJobs.first()
+                    when (job.state) {
+                        "DONE" -> {
+                            completedJobs++
+                            batchState.files[i].status = ProcessingStatus.COMPLETED
+                            batchState.files[i].progress = 100
+                        }
+                        "RUNNING" -> {
+                            batchState.files[i].status = ProcessingStatus.PROCESSING
+                            batchState.files[i].progress = 50 // Estimate progress
+                            currentJobIndex = i
+                        }
+                        "ERROR" -> {
+                            batchState.files[i].status = ProcessingStatus.ERROR
+                            batchState.files[i].error = job.errorMsg
+                        }
+                        else -> {
+                            batchState.files[i].status = ProcessingStatus.PENDING
+                            batchState.files[i].progress = 0
+                        }
+                    }
+                }
+            }
+            
+            // Update batch state
+            batchState.completedFiles = completedJobs
+            batchState.currentFileIndex = currentJobIndex
+            batchState.overallProgress = Math.floor((completedJobs.toDouble() / batchState.totalFiles) * 100).toInt()
+            
+            // Broadcast progress update
+            broadcastProgressUpdate(batchId, batchState)
+            
+            // Check if all jobs are complete
+            if (completedJobs >= batchState.totalFiles) {
+                Log.d(TAG, "All jobs completed for batch: $batchId")
+                progressTimer?.cancel()
+                broadcastProcessingComplete(batchId)
+            }
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Error checking WorkManager progress: ${e.message}", e)
+        }
     }
     
     /**

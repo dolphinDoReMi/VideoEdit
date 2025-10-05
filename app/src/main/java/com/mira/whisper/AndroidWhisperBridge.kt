@@ -174,6 +174,9 @@ class AndroidWhisperBridge(private val context: Context) {
                 translate = false
             )
             
+            // Store batch metadata for tracking
+            storeBatchMetadata(batchId, uris, modelPath, preset)
+            
             Log.d(TAG, "Enqueued batch processing: $batchId")
             batchId
             
@@ -183,6 +186,30 @@ class AndroidWhisperBridge(private val context: Context) {
         }
     }
 
+
+    /**
+     * Store batch metadata for tracking
+     */
+    private fun storeBatchMetadata(batchId: String, uris: List<String>, modelPath: String, preset: String) {
+        try {
+            val batchMetadata = JSONObject().apply {
+                put("batch_id", batchId)
+                put("file_count", uris.size)
+                put("model_path", modelPath)
+                put("preset", preset)
+                put("created_at", System.currentTimeMillis())
+                put("uris", JSONArray(uris))
+            }
+            
+            val metadataFile = File("$SIDECAR_DIR/batch_${batchId}.json")
+            metadataFile.parentFile?.mkdirs()
+            metadataFile.writeText(batchMetadata.toString())
+            
+            Log.d(TAG, "Stored batch metadata: $batchId")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error storing batch metadata: ${e.message}", e)
+        }
+    }
 
     /**
      * Export results for a specific job.
