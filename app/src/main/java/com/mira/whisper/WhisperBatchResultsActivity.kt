@@ -9,6 +9,8 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
+import android.content.BroadcastReceiver
+import android.content.Context
 import java.util.Timer
 import java.util.TimerTask
 
@@ -29,6 +31,7 @@ class WhisperBatchResultsActivity : AppCompatActivity() {
     private lateinit var whisperBridge: AndroidWhisperBridge
     private lateinit var connectorReceiver: WhisperConnectorReceiver
     private var batchId: String? = null
+    private var debugExportReceiver: BroadcastReceiver? = null
     
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -85,6 +88,9 @@ class WhisperBatchResultsActivity : AppCompatActivity() {
         
         // Start resource monitoring (fallback)
         startResourceMonitoring()
+
+        // Register debug export receiver to trigger CSV/JSON export from WebView
+        registerDebugExportReceiver()
     }
     
     /**
@@ -125,6 +131,36 @@ class WhisperBatchResultsActivity : AppCompatActivity() {
         
         stopResourceMonitoring()
         Log.d(TAG, "WhisperBatchResultsActivity destroyed")
+
+        // Unregister debug export receiver
+        try {
+            if (debugExportReceiver != null) unregisterReceiver(debugExportReceiver)
+        } catch (e: Exception) {
+            Log.w(TAG, "Error unregistering debug export receiver: ${e.message}")
+        }
+    }
+
+    private fun registerDebugExportReceiver() {
+        try {
+            debugExportReceiver = object : BroadcastReceiver() {
+                override fun onReceive(context: Context?, intent: Intent?) {
+                    if (intent?.action == "com.mira.whisper.DEBUG_EXPORT") {
+                        Log.d(TAG, "Received DEBUG_EXPORT broadcast - triggering WebView export")
+                        webView.evaluateJavascript(
+                            """
+                            if (window.triggerExport) { window.triggerExport(); }
+                            """.trimIndent(),
+                            null
+                        )
+                    }
+                }
+            }
+            val filter = IntentFilter().apply { addAction("com.mira.whisper.DEBUG_EXPORT") }
+            registerReceiver(debugExportReceiver, filter, RECEIVER_NOT_EXPORTED)
+            Log.d(TAG, "Debug export receiver registered")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to register debug export receiver: ${e.message}", e)
+        }
     }
     
     private fun startResourceMonitoring() {
