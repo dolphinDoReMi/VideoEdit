@@ -1,4 +1,4 @@
-package com.mira.whisper
+package com.mira.resource
 
 import android.content.BroadcastReceiver
 import android.content.Context

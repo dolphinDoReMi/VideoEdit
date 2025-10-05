@@ -134,7 +134,7 @@
         
         <!-- Device Resource Service - Background resource monitoring -->
         <service
-            android:name="com.mira.whisper.DeviceResourceService"
+            android:name="com.mira.resource.DeviceResourceService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="dataSync" />

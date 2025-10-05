@@ -8,9 +8,8 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
-import org.json.JSONObject
-import java.util.Timer
-import java.util.TimerTask
+import com.mira.resource.DeviceResourceService
+import com.mira.resource.ResourceUpdateReceiver
 
 /**
  * Activity for Whisper Results UI.

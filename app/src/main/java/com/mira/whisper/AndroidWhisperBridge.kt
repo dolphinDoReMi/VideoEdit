@@ -19,8 +19,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.util.UUID
-import java.util.Timer
-import java.util.TimerTask
+import com.mira.resource.DeviceResourceService
 
 /**
  * JavaScript interface for Whisper operations in WebView.

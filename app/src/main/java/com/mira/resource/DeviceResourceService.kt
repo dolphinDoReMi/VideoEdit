@@ -1,4 +1,4 @@
-package com.mira.whisper
+package com.mira.resource
 
 import android.app.Notification
 import android.app.NotificationChannel
