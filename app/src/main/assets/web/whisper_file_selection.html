@@ -278,9 +278,8 @@
   const bridge = hasBridge ? {
     async openFilePicker() { return window.WhisperBridge.openFilePicker(); },
     async getAllVideoFiles() { return window.WhisperBridge.getAllVideoFiles(); },
-    async runBatch(args) { 
-      const batchId = window.WhisperBridge.runBatch(JSON.stringify(args));
-      return batchId;
+    runBatch(args) { 
+      return window.WhisperBridge.runBatch(JSON.stringify(args));
     },
     async openStep2() { 
       if (window.WhisperBridge.openWhisperStep2) {
@@ -527,7 +526,7 @@
       
       // Navigate to Step 2 immediately after submission (no waiting)
       try {
-        await bridge.openWhisperStep2();
+        await bridge.openStep2();
       } catch (err) {
         console.error('Navigation error:', err);
         setStatus('Processing started - navigate to Processing', 'success', false);

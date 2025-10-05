@@ -513,25 +513,34 @@
     try {
       const stats = JSON.parse(statsJson);
       
+      const getEl = (id) => document.getElementById(id);
+      const setText = (id, value) => { const el = getEl(id); if (el) el.textContent = value; };
+      const setWidth = (id, pct) => { const el = getEl(id); if (el) el.style.width = pct + '%'; };
+      
       // Update local resource displays
-      document.getElementById('resource-memory').textContent = stats.memory + '%';
-      document.getElementById('resource-cpu').textContent = stats.cpu.toFixed(1) + '%';
-      document.getElementById('resource-battery').textContent = stats.battery + '%';
-      document.getElementById('resource-temperature').textContent = stats.temperature.toFixed(1) + '°C';
+      setText('resource-memory', `${Math.round(stats.memory)}%`);
+      setText('resource-cpu', `${Number(stats.cpu).toFixed(1)}%`);
+      setText('resource-battery', `${stats.battery}%`);
+      setText('resource-temperature', `${Number(stats.temperature).toFixed(1)}°C`);
       
       // Update progress bars
-      document.getElementById('memory-bar').style.width = stats.memory + '%';
-      document.getElementById('cpu-bar').style.width = stats.cpu + '%';
-      document.getElementById('battery-bar').style.width = stats.battery + '%';
+      setWidth('memory-bar', Math.round(stats.memory));
+      setWidth('cpu-bar', Number(stats.cpu));
+      setWidth('battery-bar', Number(stats.battery));
       
-      // Update detailed information
-      document.getElementById('battery-details').textContent = stats.batteryDetails || 'N/A';
-      document.getElementById('gpu-info').textContent = stats.gpuInfo || 'N/A';
-      document.getElementById('thread-info').textContent = stats.threadInfo || 'N/A';
+      // Optional details (present in global monitor or results page)
+      setText('battery-details', stats.batteryDetails || 'N/A');
+      setText('gpu-info', stats.gpuInfo || 'N/A');
+      setText('thread-info', stats.threadInfo || 'N/A');
+      
+      // Update thread count in Processing Details if available
+      if (typeof stats.threadsCount === 'number') {
+        setText('thread-count', String(stats.threadsCount));
+      }
       
       // Update timestamp
       const updateTime = new Date(stats.timestamp).toLocaleTimeString();
-      document.getElementById('last-update').textContent = updateTime;
+      setText('last-update', updateTime);
       
       // Update temperature status
       const tempStatus = document.getElementById('temperature-status');

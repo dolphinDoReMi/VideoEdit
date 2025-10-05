@@ -178,6 +178,12 @@
         <i class="fa-solid fa-inbox text-4xl mb-4"></i>
         <p class="text-lg">No batch results found</p>
         <p class="text-sm">Process some files to see transcript results here</p>
+        <div class="mt-6">
+          <button id="empty-back-btn" class="px-4 py-2 bg-dark-600 hover:bg-dark-500 rounded-lg text-sm transition-colors inline-flex items-center">
+            <i class="fa-solid fa-arrow-left mr-2"></i>
+            Go Back
+          </button>
+        </div>
       </div>
     </div>
 
@@ -209,6 +215,7 @@
   // DOM elements
   const elements = {
     backBtn: document.getElementById('back-btn'),
+    emptyBackBtn: document.getElementById('empty-back-btn'),
     batchId: document.getElementById('batch-id'),
     filesCount: document.getElementById('files-count'),
     totalSegments: document.getElementById('total-segments'),
@@ -246,15 +253,17 @@
   }
 
   function parseTimeToSeconds(timeStr) {
-    if (!timeStr) return NaN;
+    if (timeStr === undefined || timeStr === null) return NaN;
+    if (typeof timeStr === 'number' && !isNaN(timeStr)) return timeStr;
+    const str = String(timeStr);
     // Handle formats like "00:01:23,456" or "01:23"
-    const parts = timeStr.replace(',', '.').split(':');
+    const parts = str.replace(',', '.').split(':');
     if (parts.length === 3) {
       return parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseFloat(parts[2]);
     } else if (parts.length === 2) {
       return parseInt(parts[0]) * 60 + parseFloat(parts[1]);
     }
-    return parseFloat(timeStr);
+    return parseFloat(str);
   }
 
   function getConfidenceLevel(confidence) {
@@ -305,7 +314,13 @@
       }
 
       const resultsJson = await bridge.getBatchResultsWithMetadata(state.batchId);
-      const results = JSON.parse(resultsJson);
+      let results = [];
+      try {
+        results = JSON.parse(resultsJson) || [];
+      } catch (e) {
+        console.error('Failed to parse batch results JSON:', e, resultsJson);
+        results = [];
+      }
       
       state.results = results;
       applyFilters();
@@ -384,6 +399,26 @@
       const segments = result.segments || [];
       const fileName = extractFileName(result.uri);
       
+      if (!Array.isArray(segments) || segments.length === 0) {
+        // Add a placeholder row if no segments are available
+        const row = document.createElement('tr');
+        row.className = 'segment-row border-b border-dark-600';
+        row.innerHTML = `
+          <td class="p-4 text-xs text-gray-400">${result.jobId || '—'}</td>
+          <td class="p-4 text-sm text-gray-300" title="${result.uri || ''}">${fileName}</td>
+          <td class="p-4 text-sm text-gray-300">—</td>
+          <td class="p-4 text-sm text-gray-300">—</td>
+          <td class="p-4 text-sm text-white max-w-xs truncate">No segments available</td>
+          <td class="p-4">—</td>
+          <td class="p-4 text-sm text-gray-300">—</td>
+          <td class="p-4 text-sm text-gray-300">${result.rtf ? result.rtf.toFixed(2) : '—'}</td>
+          <td class="p-4 text-sm text-gray-300">${result.jsonTranscript?.language || '—'}</td>
+          <td class="p-4">—</td>
+        `;
+        elements.tableBody.appendChild(row);
+        return;
+      }
+
       segments.forEach((segment, index) => {
         const confidence = segment.avg_logprob ? Math.exp(segment.avg_logprob) : 0.8;
         const confidencePercent = Math.round(confidence * 100);
@@ -618,17 +653,24 @@
   }
 
   // Event handlers
-  elements.backBtn.onclick = async () => {
+  function handleGoBack() {
     try {
       if (hasBridge) {
         await bridge.goBack();
       } else {
-        window.history.back();
+        if (window.opener) {
+          window.close();
+        } else {
+          window.history.back();
+        }
       }
     } catch (e) {
       console.error('Error going back:', e);
     }
-  };
+  }
+
+  elements.backBtn.onclick = handleGoBack;
+  if (elements.emptyBackBtn) elements.emptyBackBtn.onclick = handleGoBack;
 
   elements.viewMode.onchange = () => {
     state.viewMode = elements.viewMode.value;

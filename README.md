@@ -9,6 +9,8 @@ Mira Video Editor is an Android application that provides AI-powered automatic v
 > 
 > **🧪 Testing**: Use [Module Scripts](scripts/modules/) for comprehensive testing
 > 
+> **📦 Deployment**: See [Deployment & Release Index](Doc/DEPLOYMENT.md)
+> 
 > **📋 Release**: See [Release Documentation](docs/release/) for deployment guides
 
 ## ✨ Key Features

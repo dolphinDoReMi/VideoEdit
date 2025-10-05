@@ -1,9 +1,7 @@
 package com.mira.whisper
 
-import android.Manifest
 import android.app.Activity
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -11,7 +9,6 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import com.mira.whisper.AndroidWhisperBridge
 
 /**
@@ -27,18 +24,6 @@ class WhisperMainActivity : ComponentActivity() {
     
     private lateinit var webView: WebView
     private lateinit var bridge: AndroidWhisperBridge
-    
-    // Permission request launcher
-    private val permissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        val allGranted = permissions.values.all { it }
-        if (allGranted) {
-            Log.i(TAG, "Storage permissions granted")
-        } else {
-            Log.w(TAG, "Some storage permissions denied: $permissions")
-        }
-    }
     
     // File picker launcher (SAF: ACTION_OPEN_DOCUMENT)
     private val filePickerLauncher = registerForActivityResult(
@@ -83,9 +68,6 @@ class WhisperMainActivity : ComponentActivity() {
         
         Log.i(TAG, "Whisper app launched - initializing interface")
         
-        // Request storage permissions first
-        requestStoragePermissions()
-        
         // Initialize WebView
         webView = WebView(this)
         setContentView(webView)
@@ -129,34 +111,7 @@ class WhisperMainActivity : ComponentActivity() {
         }
     }
     
-    /**
-     * Request storage permissions for Android 13+ and older versions
-     */
-    private fun requestStoragePermissions() {
-        val permissionsToRequest = mutableListOf<String>()
-        
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            // Android 13+ - request READ_MEDIA_VIDEO and READ_MEDIA_AUDIO
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VIDEO) != PackageManager.PERMISSION_GRANTED) {
-                permissionsToRequest.add(Manifest.permission.READ_MEDIA_VIDEO)
-            }
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-                permissionsToRequest.add(Manifest.permission.READ_MEDIA_AUDIO)
-            }
-        } else {
-            // Android 12 and below - request READ_EXTERNAL_STORAGE
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                permissionsToRequest.add(Manifest.permission.READ_EXTERNAL_STORAGE)
-            }
-        }
-        
-        if (permissionsToRequest.isNotEmpty()) {
-            Log.i(TAG, "Requesting storage permissions: $permissionsToRequest")
-            permissionLauncher.launch(permissionsToRequest.toTypedArray())
-        } else {
-            Log.i(TAG, "All storage permissions already granted")
-        }
-    }
+    
     
     /**
      * Launch the file picker for video and photo files with multiple selection

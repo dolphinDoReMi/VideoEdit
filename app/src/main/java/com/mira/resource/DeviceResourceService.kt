@@ -448,6 +448,7 @@ class DeviceResourceService : Service() {
                 putExtra(EXTRA_RESOURCE_DATA, resourceData.toString())
                 putExtra(EXTRA_TIMESTAMP, System.currentTimeMillis())
             }
+            intent.setPackage(packageName)
             sendBroadcast(intent)
             
             // Broadcast individual metrics for specific listeners
@@ -456,6 +457,7 @@ class DeviceResourceService : Service() {
                     putExtra(EXTRA_CPU_USAGE, resourceData.getDouble("cpu"))
                     putExtra(EXTRA_TIMESTAMP, System.currentTimeMillis())
                 }
+                cpuIntent.setPackage(packageName)
                 sendBroadcast(cpuIntent)
             }
             
@@ -464,6 +466,7 @@ class DeviceResourceService : Service() {
                     putExtra(EXTRA_MEMORY_USAGE, resourceData.getDouble("memory"))
                     putExtra(EXTRA_TIMESTAMP, System.currentTimeMillis())
                 }
+                memoryIntent.setPackage(packageName)
                 sendBroadcast(memoryIntent)
             }
             
@@ -472,6 +475,7 @@ class DeviceResourceService : Service() {
                     putExtra(EXTRA_BATTERY_LEVEL, resourceData.getJSONObject("battery").getInt("level"))
                     putExtra(EXTRA_TIMESTAMP, System.currentTimeMillis())
                 }
+                batteryIntent.setPackage(packageName)
                 sendBroadcast(batteryIntent)
             }
             
@@ -480,6 +484,7 @@ class DeviceResourceService : Service() {
                     putExtra(EXTRA_TEMPERATURE, resourceData.getDouble("temperature"))
                     putExtra(EXTRA_TIMESTAMP, System.currentTimeMillis())
                 }
+                tempIntent.setPackage(packageName)
                 sendBroadcast(tempIntent)
             }
             

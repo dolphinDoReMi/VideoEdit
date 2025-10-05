@@ -54,6 +54,7 @@ class WhisperConnectorService : Service() {
         const val EXTRA_RESOURCE_STATS = "resource_stats"
         const val EXTRA_PAGE_NAME = "page_name"
         const val EXTRA_NAVIGATION_TARGET = "navigation_target"
+        const val EXTRA_URIS = "uris"
         
         // Resource monitoring intervals
         private const val RESOURCE_UPDATE_INTERVAL = 2000L // 2 seconds
@@ -184,6 +185,8 @@ class WhisperConnectorService : Service() {
         startResourceMonitoring()
     }
     
+    @Volatile private var lastStartUris: List<String>? = null
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "WhisperConnectorService started")
         
@@ -191,6 +194,7 @@ class WhisperConnectorService : Service() {
             ACTION_START_PROCESSING -> {
                 val batchId = intent.getStringExtra(EXTRA_BATCH_ID) ?: "unknown"
                 val fileCount = intent.getIntExtra(EXTRA_FILE_COUNT, 0)
+                lastStartUris = intent.getStringArrayListExtra(EXTRA_URIS)?.toList() ?: emptyList()
                 startBatchProcessing(batchId, fileCount)
             }
             ACTION_UPDATE_PROGRESS -> {
@@ -260,14 +264,28 @@ class WhisperConnectorService : Service() {
 
             val batchState = activeBatches[batchId]
             if (batchState != null) {
-                // Initialize file states for tracking
-                for (i in 0 until fileCount) {
-                    val fileState = FileProcessingState(
-                        fileName = "video_${i + 1}.mp4", // Placeholder, actual names will come from metadata
-                        fileUri = "file:///sdcard/video_${i + 1}.mp4", // Placeholder
-                        status = ProcessingStatus.PENDING
-                    )
-                    batchState.files.add(fileState)
+                // Initialize file states for tracking using provided URIs if available
+                val provided = lastStartUris ?: emptyList()
+                if (provided.isNotEmpty()) {
+                    provided.forEachIndexed { i, u ->
+                        val name = android.net.Uri.parse(u).lastPathSegment ?: "file_${i + 1}"
+                        batchState.files.add(
+                            FileProcessingState(
+                                fileName = name,
+                                fileUri = u,
+                                status = ProcessingStatus.PENDING
+                            )
+                        )
+                    }
+                } else {
+                    for (i in 0 until fileCount) {
+                        val fileState = FileProcessingState(
+                            fileName = "video_${i + 1}.mp4",
+                            fileUri = "file:///sdcard/video_${i + 1}.mp4",
+                            status = ProcessingStatus.PENDING
+                        )
+                        batchState.files.add(fileState)
+                    }
                 }
 
                 // Start monitoring WorkManager jobs

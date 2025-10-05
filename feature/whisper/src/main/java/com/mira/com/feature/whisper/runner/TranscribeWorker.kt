@@ -29,6 +29,7 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
         val translate = inputData.getBoolean("translate", false)
         val batchIndex = inputData.getInt("batch_index", -1)
         val batchTotal = inputData.getInt("batch_total", -1)
+        val batchIdInput = inputData.getString("batch_id")
         val ctx = applicationContext
         val dao = AsrDb.get(ctx).dao()
         val fileId = Hash.sha1(uri)
@@ -167,6 +168,12 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
                     segmentsJson = JSONObject(json).optJSONArray("segments"),
                 )
 
+            // Back-compat fields expected by aggregator
+            sidecar.put("job_id", jobId)
+            sidecar.put("uri", uri)
+            sidecar.put("rtf", rtf)
+            sidecar.put("created_at", System.currentTimeMillis())
+
             // Add LID data to sidecar
             val lidService = LanguageDetectionService()
             val lidSidecar = lidService.generateLidSidecar(lidResult)
@@ -178,7 +185,8 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
             
             // Generate batch-specific sidecar filename
             val sidecarFilename = if (batchIndex >= 0) {
-                "batch_${batchIndex}_${fileId}_$jobId.json"
+                val safeBatch = (batchIdInput ?: "batch").replace(Regex("[^a-zA-Z0-9_-]"), "_")
+                "${safeBatch}_${batchIndex}_${fileId}_$jobId.json"
             } else {
                 "${fileId}_$jobId.json"
             }

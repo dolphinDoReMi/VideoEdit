@@ -62,6 +62,7 @@ object WhisperApi {
         beam: Int = 0,
         lang: String? = null,
         translate: Boolean = false,
+        batchId: String? = null,
     ) {
         // Use multilingual model by default for robust LID
         val multilingualModel = if (model.contains(".en")) {
@@ -80,7 +81,8 @@ object WhisperApi {
                 "lang" to (lang ?: "auto"),
                 "translate" to translate,
                 "batch_index" to index,
-                "batch_total" to uris.size
+                "batch_total" to uris.size,
+                "batch_id" to (batchId ?: "")
             )
             
             val work = OneTimeWorkRequestBuilder<TranscribeWorker>()

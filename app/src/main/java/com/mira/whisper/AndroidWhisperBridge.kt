@@ -176,6 +176,7 @@ class AndroidWhisperBridge(private val context: Context) {
                 action = WhisperConnectorService.ACTION_START_PROCESSING
                 putExtra(WhisperConnectorService.EXTRA_BATCH_ID, batchId)
                 putExtra(WhisperConnectorService.EXTRA_FILE_COUNT, uris.size)
+                putStringArrayListExtra(WhisperConnectorService.EXTRA_URIS, java.util.ArrayList(uris))
             }
             context.startService(connectorIntent)
             
@@ -187,7 +188,8 @@ class AndroidWhisperBridge(private val context: Context) {
                 threads = threads,
                 beam = 0,
                 lang = "auto",
-                translate = false
+                translate = false,
+                batchId = batchId
             )
             
             Log.d(TAG, "Enqueued batch processing: $batchId")
@@ -1108,49 +1110,15 @@ class AndroidWhisperBridge(private val context: Context) {
         return try {
             Log.d(TAG, "Getting batch results with metadata for: $batchId")
             
-            // For demo purposes, return mock data
             val results = JSONArray()
-            
-            // Create mock transcript segments
-            val mockSegments = JSONArray()
-            for (i in 1..5) {
-                val segment = JSONObject().apply {
-                    put("start", i * 10.0)
-                    put("end", (i + 1) * 10.0)
-                    put("text", "This is segment $i of the transcript for batch $batchId")
-                    put("confidence", 0.8 + (Math.random() * 0.2))
-                }
-                mockSegments.put(segment)
-            }
-            
-            // Create mock result
-            val result = JSONObject().apply {
-                put("jobId", batchId)
-                put("uri", "file:///sdcard/test_video.mp4")
-                put("rtf", 0.45)
-                put("createdAt", System.currentTimeMillis())
-                put("modelSha", "sha_model_12345")
-                put("audioSha", "sha_audio_67890")
-                put("transcriptSha", "sha_transcript_abcdef")
-                put("preset", "Single")
-                put("transcript", "This is a mock transcript for demonstration purposes.")
-                put("segments", mockSegments)
-                put("jsonTranscript", JSONObject().apply {
-                    put("language", "en")
-                    put("duration", 50.0)
-                    put("segments", mockSegments)
-                })
-            }
-            results.put(result)
-            
-            Log.d(TAG, "Returning ${results.length()} mock batch results")
-            return results.toString()
             
             // Get all sidecar files
             val sidecarDir = File(SIDECAR_DIR)
             if (sidecarDir.exists()) {
+                // Sanitize batchId to match file naming convention used by TranscribeWorker
+                val safeBatch = batchId.replace(Regex("[^a-zA-Z0-9_-]"), "_")
                 val sidecarFiles = sidecarDir.listFiles { f -> 
-                    f.isFile && f.name.endsWith(".json") && f.name.contains(batchId)
+                    f.isFile && f.name.endsWith(".json") && f.name.contains(safeBatch)
                 } ?: emptyArray()
                 
                 sidecarFiles.forEach { sidecarFile ->
@@ -1182,7 +1150,6 @@ class AndroidWhisperBridge(private val context: Context) {
                         }
                         
                         results.put(result)
-                        
                     } catch (e: Exception) {
                         Log.e(TAG, "Error processing sidecar file ${sidecarFile.name}: ${e.message}", e)
                     }
