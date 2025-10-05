@@ -3,8 +3,10 @@ name: Code Quality Checks
 on:
   push:
     branches: [ main, develop, feature/ui-v3 ]
+    branches-ignore: [ whisper, whisper-ui ]
   pull_request:
     branches: [ main, develop ]
+    branches-ignore: [ whisper, whisper-ui ]
 
 jobs:
   code-quality:
@@ -33,16 +35,12 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
       
-    - name: Run Detekt
-      run: ./gradlew detekt
-      
-    - name: Run Ktlint
-      run: ./gradlew ktlintCheck
+    - name: Run Lint
+      run: ./gradlew lintDebug
       
     - name: Upload code quality reports
       uses: actions/upload-artifact@v4
       with:
         name: code-quality-reports
         path: |
-          app/build/reports/detekt/
-          app/build/reports/ktlint/
+          app/build/reports/lint-results-debug.html

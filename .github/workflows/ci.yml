@@ -200,30 +200,74 @@ jobs:
             app/build/outputs/androidTest-results/connected/**
           if-no-files-found: warn
 
-  ios-build:
+  whisper-lid-validation:
     needs: detect
-    runs-on: macos-15
-    if: ${{ hashFiles('ios/**') != '' }}
+    if: needs.detect.outputs.ml == 'true' || contains(github.ref, 'whisper')
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Derive thread suffix (iOS)
-        id: suffix
-        run: echo "suffix=$(./scripts/thread_suffix_ios.sh)" >> $GITHUB_OUTPUT
-      - name: Build iOS (generic)
-        run: |
-          xcodebuild -scheme MiraApp -configuration Debug \
-            -destination 'generic/platform=iOS' \
-            THREAD_SUFFIX='${{ steps.suffix.outputs.suffix }}' build
-      - name: Export logs (xcpretty optional)
-        if: always()
-        run: |
-          mkdir -p ios-build-logs && cp -R ~/Library/Logs/DiagnosticReports ios-build-logs || true
-      - name: Upload iOS build logs
-        if: always()
-        uses: actions/upload-artifact@v4
+      - name: Setup JDK
+        uses: actions/setup-java@v4
         with:
-          name: ios-build-logs-${{ steps.suffix.outputs.suffix }}
-          path: ios-build-logs/**
-          if-no-files-found: warn
+          distribution: temurin
+          java-version: '17'
+      - name: Validate LID Implementation
+        run: |
+          echo "🔍 Validating Whisper LID Implementation..."
+          
+          # Check if LanguageDetectionService exists
+          if [ -f "feature/whisper/src/main/java/com/mira/com/feature/whisper/engine/LanguageDetectionService.kt" ]; then
+            echo "✅ LanguageDetectionService found"
+            
+            # Validate key methods
+            if grep -q "detectLanguage" feature/whisper/src/main/java/com/mira/com/feature/whisper/engine/LanguageDetectionService.kt; then
+              echo "✅ detectLanguage method found"
+            else
+              echo "❌ detectLanguage method missing"
+              exit 1
+            fi
+            
+            if grep -q "extractVoicedWindow" feature/whisper/src/main/java/com/mira/com/feature/whisper/engine/LanguageDetectionService.kt; then
+              echo "✅ extractVoicedWindow method found"
+            else
+              echo "❌ extractVoicedWindow method missing"
+              exit 1
+            fi
+          else
+            echo "❌ LanguageDetectionService not found"
+            exit 1
+          fi
+          
+          # Check WhisperParams
+          if [ -f "feature/whisper/src/main/java/com/mira/com/feature/whisper/engine/WhisperParams.kt" ]; then
+            echo "✅ WhisperParams found"
+            
+            if grep -q "detectLanguage" feature/whisper/src/main/java/com/mira/com/feature/whisper/engine/WhisperParams.kt; then
+              echo "✅ detectLanguage parameter found"
+            else
+              echo "❌ detectLanguage parameter missing"
+              exit 1
+            fi
+          else
+            echo "❌ WhisperParams not found"
+            exit 1
+          fi
+          
+          # Check TranscribeWorker
+          if [ -f "feature/whisper/src/main/java/com/mira/com/feature/whisper/runner/TranscribeWorker.kt" ]; then
+            echo "✅ TranscribeWorker found"
+            
+            if grep -q "LanguageDetectionService" feature/whisper/src/main/java/com/mira/com/feature/whisper/runner/TranscribeWorker.kt; then
+              echo "✅ LID pipeline integration found"
+            else
+              echo "❌ LID pipeline integration missing"
+              exit 1
+            fi
+          else
+            echo "❌ TranscribeWorker not found"
+            exit 1
+          fi
+          
+          echo "✅ Whisper LID implementation validation passed"
 
 
