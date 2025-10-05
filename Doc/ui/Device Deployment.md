@@ -1,615 +1,387 @@
-# UI Device Deployment: Xiaomi Pad and iPad Deployment and Testing
+# UI Device Deployment
 
-**Status: READY FOR PRODUCTION DEPLOYMENT**
+## Cross-Platform UI Deployment
 
-## Overview
+### Android WebView Deployment
 
-This document provides comprehensive deployment and testing procedures for the Mira Video Editor UI system across device endpoints, specifically optimized for Xiaomi Pad Ultra and iPad Pro platforms. The deployment strategy ensures cross-platform consistency, performance optimization, and user experience validation.
+#### Device Specifications
+- **Target Devices**: Xiaomi Pad Ultra, Samsung Galaxy Tab, Google Pixel Tablet
+- **Android Version**: 15+
+- **WebView Version**: Chrome 120+
+- **Screen Sizes**: 10.1" to 12.4" tablets
 
-## Device Specifications and Requirements
+#### Deployment Steps
 
-### Xiaomi Pad Ultra Specifications
-- **Device**: Xiaomi Pad Ultra (25032RP42C)
-- **Android Version**: API 35 (Android 15)
-- **Architecture**: ARM64-v8a
-- **RAM**: 8GB LPDDR5-6400
-- **Storage**: 256GB UFS 3.1
-- **Display**: 12.1" 3K (2880x1920) 120Hz
-- **Processor**: Snapdragon 8+ Gen 1 (8 cores)
-- **GPU**: Adreno 730
-- **Audio**: Quad speakers with Dolby Atmos
-
-### iPad Pro Specifications (Target)
-- **Device**: iPad Pro 12.9" (6th generation)
-- **iOS Version**: iOS 18+
-- **Architecture**: ARM64 (Apple Silicon)
-- **RAM**: 8GB/16GB unified memory
-- **Storage**: 128GB-2TB SSD
-- **Display**: 12.9" Liquid Retina XDR (2732x2048) 120Hz
-- **Processor**: Apple M4 chip
-- **GPU**: 10-core GPU
-- **Audio**: Quad speakers with Spatial Audio
-
-## UI Integration Architecture
-
-### Control Knots for Device Deployment
-
-#### 1. Cross-platform UI Control
+#### 1. WebView Configuration
 ```kotlin
-// Code Pointer: app/src/main/java/mira/ui/MainActivity.kt
-data class DeviceUIConfig(
-    // Cross-platform UI settings
-    val webViewEnabled: Boolean = true,
-    val javascriptBridge: Boolean = true,
-    val responsiveDesign: Boolean = true,
-    val darkTheme: Boolean = true,
-    
-    // Device-specific optimizations
-    val xiaomiPadOptimizations: Boolean = true,
-    val ipadProOptimizations: Boolean = true,
-    val webOptimizations: Boolean = true
-)
-```
-
-#### 2. Resource Monitoring Control
-```kotlin
-// Code Pointer: app/src/main/java/mira/ui/MainActivity.kt
-data class ResourceMonitoringConfig(
-    // Monitoring settings
-    val monitoringInterval: Long = 2000L, // 2 seconds
-    val historyWindow: Long = 120000L, // 2 minutes
-    val cpuOutlierThreshold: Double = 50.0, // Filter >50%
-    
-    // Device-specific memory baselines
-    val xiaomiPadMemoryBase: Long = 12288L, // 12GB
-    val ipadProMemoryBase: Long = 8192L, // 8GB
-    val webMemoryBase: Long = 4096L // 4GB
-)
-```
-
-#### 3. Performance Control
-```kotlin
-// Code Pointer: app/src/main/java/mira/ui/MainActivity.kt
-data class PerformanceConfig(
-    // Animation settings
-    val animationEnabled: Boolean = true,
-    val smoothTransitions: Boolean = true,
-    val hardwareAcceleration: Boolean = true,
-    
-    // Performance limits
-    val maxMemoryUsage: Long = 500L, // 500MB
-    val maxCpuUsage: Double = 50.0, // 50%
-    val batteryOptimization: Boolean = true
-)
-```
-
-## Xiaomi Pad Ultra Deployment
-
-### Prerequisites
-- **Android Studio**: Latest stable version
-- **Xiaomi Pad Ultra**: Connected via USB debugging
-- **ADB**: Android Debug Bridge installed
-- **USB Drivers**: Xiaomi USB drivers installed
-
-### Build Configuration
-```kotlin
-// File: app/build.gradle.kts
-android {
-    compileSdk 34
-    
-    defaultConfig {
-        applicationId "com.mira.videoeditor"
-        minSdk 24
-        targetSdk 34
-        versionCode 1
-        versionName "1.0.0"
-        
-        // Xiaomi Pad Ultra specific optimizations
-        ndk {
-            abiFilters += listOf("arm64-v8a", "armeabi-v7a")
-        }
-    }
-    
-    buildTypes {
-        debug {
-            isDebuggable = true
-            applicationIdSuffix = ".debug"
-            versionNameSuffix = "-debug"
-        }
-        release {
-            isMinifyEnabled = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-        }
-    }
+// Android WebView setup
+webView.settings.apply {
+    javaScriptEnabled = true
+    domStorageEnabled = true
+    allowFileAccess = true
+    allowContentAccess = true
+    mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+    userAgentString = "Mozilla/5.0 (Linux; Android 15; Tablet) AppleWebKit/537.36"
 }
+
+// JavaScript bridge
+webView.addJavascriptInterface(AndroidWhisperBridge(), "bridge")
 ```
 
-### Resource Monitoring Configuration
-```kotlin
-// File: app/src/main/java/mira/ui/MainActivity.kt
-class MainActivity : AppCompatActivity() {
-    
-    // Xiaomi Pad Ultra specific configuration
-    private val maxHistorySize = 60 // 2 minutes at 2-second intervals
-    private val monitoringInterval = 2000L // 2 seconds
-    private val cpuOutlierThreshold = 50.0 // Filter values >50%
-    private val memoryCalculationBase = 12288L // 12GB Xiaomi Pad Ultra
-    
-    // Xiaomi Pad specific optimizations
-    private fun optimizeForXiaomiPad() {
-        // Enable hardware acceleration
-        webView.settings.setRenderPriority(WebSettings.RenderPriority.HIGH)
-        webView.settings.cacheMode = WebSettings.LOAD_DEFAULT
-        
-        // Optimize for large screen
-        webView.settings.useWideViewPort = true
-        webView.settings.loadWithOverviewMode = true
-        
-        // Enable JavaScript optimizations
-        webView.settings.javaScriptCanOpenWindowsAutomatically = false
-        webView.settings.setSupportMultipleWindows(false)
-    }
-}
-```
-
-### Deployment Commands
+#### 2. Asset Deployment
 ```bash
-# Build debug APK
-./gradlew assembleDebug
+# Copy web assets to app
+cp -r web-assets/* app/src/main/assets/web/
 
-# Install on Xiaomi Pad Ultra
-adb install -r app/build/outputs/apk/debug/app-debug.apk
+# Optimize assets
+./optimize_web_assets.sh
 
-# Launch app
-adb shell am start -n com.mira.videoeditor.debug/.MainActivity
-
-# Monitor logs
-adb logcat -s ResourceMonitor:V MainActivity:V
-
-# Test resource monitoring
-adb shell dumpsys meminfo com.mira.videoeditor.debug
-adb shell cat /proc/stat | head -1
+# Verify deployment
+adb shell "ls -la /data/data/com.mira.videoeditor.debug.test/app_webview/"
 ```
 
-### Performance Testing
-```bash
-# Test CPU usage accuracy
-adb shell "while true; do cat /proc/stat | head -1; sleep 2; done" > cpu_test.log
-
-# Test memory usage accuracy
-adb shell "while true; do dumpsys meminfo com.mira.videoeditor.debug | grep TOTAL; sleep 2; done" > memory_test.log
-
-# Test battery monitoring
-adb shell "while true; do cat /sys/class/power_supply/battery/capacity; sleep 2; done" > battery_test.log
-
-# Test temperature monitoring
-adb shell "while true; do cat /sys/class/thermal/thermal_zone0/temp; sleep 2; done" > temperature_test.log
-```
-
-## iPad Pro Deployment
-
-### Prerequisites
-- **Xcode**: Latest stable version
-- **Capacitor CLI**: `npm install -g @capacitor/cli`
-- **iOS Simulator**: iPad Pro simulator
-- **Apple Developer Account**: For device testing
-
-### Capacitor Configuration
-```typescript
-// File: capacitor.config.ts
-import { CapacitorConfig } from '@capacitor/cli';
-
-const config: CapacitorConfig = {
-  appId: 'com.mira.videoeditor',
-  appName: 'Mira Video Editor',
-  webDir: 'dist',
-  server: {
-    androidScheme: 'https'
-  },
-  ios: {
-    scheme: 'MiraVideoEditor',
-    contentInset: 'automatic'
-  },
-  plugins: {
-    SplashScreen: {
-      launchShowDuration: 2000,
-      backgroundColor: '#0a0a0a',
-      showSpinner: false
-    },
-    StatusBar: {
-      style: 'dark',
-      backgroundColor: '#1a1a1a'
-    }
-  }
-};
-
-export default config;
-```
-
-### iOS Resource Monitoring
-```swift
-// File: ios/App/App/AppDelegate.swift
-import UIKit
-import Capacitor
-
-@UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
-    
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        
-        // Configure WKWebView for optimal performance
-        let webView = WKWebView()
-        webView.configuration.preferences.javaScriptEnabled = true
-        webView.configuration.allowsInlineMediaPlayback = true
-        webView.configuration.mediaTypesRequiringUserActionForPlayback = []
-        
-        return true
-    }
-}
-```
-
-### JavaScript Bridge for iOS
+#### 3. Performance Optimization
 ```javascript
-// File: src/plugins/ResourceMonitor.ts
-import { Capacitor } from '@capacitor/core';
-
-export class ResourceMonitor {
-  
-  static async getSystemInfo() {
-    if (Capacitor.isNativePlatform()) {
-      // Use native iOS APIs via Capacitor
-      const result = await Capacitor.Plugins.SystemInfo.getSystemInfo();
-      return result;
-    } else {
-      // Fallback to web APIs
-      return this.getWebSystemInfo();
-    }
-  }
-  
-  static async getBatteryInfo() {
-    if (Capacitor.isNativePlatform()) {
-      const result = await Capacitor.Plugins.Battery.getBatteryInfo();
-      return result;
-    } else {
-      return this.getWebBatteryInfo();
-    }
-  }
-  
-  static async getMemoryInfo() {
-    if (Capacitor.isNativePlatform()) {
-      const result = await Capacitor.Plugins.SystemInfo.getMemoryInfo();
-      return result;
-    } else {
-      return this.getWebMemoryInfo();
-    }
-  }
-}
-```
-
-### Deployment Commands
-```bash
-# Build web assets
-npm run build
-
-# Sync Capacitor
-npx cap sync ios
-
-# Open in Xcode
-npx cap open ios
-
-# Build for device
-xcodebuild -workspace ios/App/App.xcworkspace \
-  -scheme App \
-  -configuration Release \
-  -destination 'generic/platform=iOS' \
-  -allowProvisioningUpdates \
-  clean build
-
-# Install on iPad Pro
-# Use Xcode or Apple Configurator 2
-```
-
-## Testing Procedures
-
-### Functional Testing
-
-#### 1. UI Rendering Test
-```bash
-# Android (Xiaomi Pad)
-adb shell am start -n com.mira.videoeditor.debug/.MainActivity
-adb shell input tap 500 1000  # Test button interactions
-adb shell input swipe 500 1000 500 500  # Test scrolling
-
-# iOS (iPad Pro)
-# Use Xcode Simulator or device
-# Test touch interactions and scrolling
-```
-
-#### 2. Resource Monitoring Test
-```bash
-# Android Resource Monitoring
-adb shell "while true; do echo 'CPU:'; cat /proc/stat | head -1; echo 'Memory:'; dumpsys meminfo com.mira.videoeditor.debug | grep TOTAL; echo 'Battery:'; cat /sys/class/power_supply/battery/capacity; echo '---'; sleep 2; done"
-
-# iOS Resource Monitoring
-# Use Xcode Instruments for detailed monitoring
-# Test memory usage, CPU usage, and battery drain
-```
-
-#### 3. JavaScript Bridge Test
-```bash
-# Android Bridge Test
-adb shell am start -n com.mira.videoeditor.debug/.MainActivity
-# Use browser dev tools to test JavaScript bridge
-# Verify toast notifications, video selection, processing control
-
-# iOS Bridge Test
-# Use Safari Web Inspector
-# Test Capacitor plugin integration
-# Verify native notifications and file picker
-```
-
-### Performance Testing
-
-#### 1. Memory Usage Test
-```bash
-# Android Memory Test
-adb shell "while true; do dumpsys meminfo com.mira.videoeditor.debug | grep -E 'TOTAL|Native|Dalvik'; sleep 1; done"
-
-# iOS Memory Test
-# Use Xcode Memory Graph Debugger
-# Monitor memory usage during video processing
-```
-
-#### 2. CPU Usage Test
-```bash
-# Android CPU Test
-adb shell "while true; do cat /proc/stat | head -1; sleep 1; done"
-
-# iOS CPU Test
-# Use Xcode CPU Profiler
-# Monitor CPU usage during resource monitoring
-```
-
-#### 3. Battery Drain Test
-```bash
-# Android Battery Test
-adb shell "while true; do cat /sys/class/power_supply/battery/capacity; sleep 10; done"
-
-# iOS Battery Test
-# Use Xcode Energy Log
-# Monitor battery usage over time
-```
-
-### Cross-platform Testing
-
-#### 1. UI Consistency Test
-- **Layout**: Verify responsive design across screen sizes
-- **Typography**: Ensure Inter font renders correctly
-- **Colors**: Verify dark theme consistency
-- **Animations**: Test smooth transitions
-
-#### 2. Functionality Test
-- **Video Selection**: Test file picker on both platforms
-- **Processing Control**: Verify pause/resume/cancel functionality
-- **Resource Monitoring**: Compare accuracy across platforms
-- **Navigation**: Test back button and navigation
-
-#### 3. Performance Test
-- **Startup Time**: Measure app launch time
-- **Memory Usage**: Compare memory consumption
-- **CPU Usage**: Compare CPU utilization
-- **Battery Drain**: Measure battery impact
-
-## Device-specific Optimizations
-
-### Xiaomi Pad Ultra Optimizations
-```kotlin
-// File: app/src/main/java/mira/ui/MainActivity.kt
-class MainActivity : AppCompatActivity() {
+// WebView performance optimization
+const optimizeWebView = () => {
+    // Enable hardware acceleration
+    document.body.style.transform = 'translateZ(0)';
     
-    private fun optimizeForXiaomiPad() {
-        // Enable hardware acceleration
-        webView.settings.setRenderPriority(WebSettings.RenderPriority.HIGH)
-        
-        // Optimize for large screen (12.1")
-        webView.settings.useWideViewPort = true
-        webView.settings.loadWithOverviewMode = true
-        
-        // Enable multi-window support
-        webView.settings.setSupportMultipleWindows(false)
-        
-        // Optimize for 12GB RAM
-        webView.settings.cacheMode = WebSettings.LOAD_DEFAULT
-        
-        // Enable JavaScript optimizations
-        webView.settings.javaScriptCanOpenWindowsAutomatically = false
-    }
+    // Optimize images
+    const images = document.querySelectorAll('img');
+    images.forEach(img => {
+        img.loading = 'lazy';
+        img.decoding = 'async';
+    });
     
-    private fun configureResourceMonitoring() {
-        // Xiaomi Pad Ultra specific settings
-        val xiaomiPadConfig = ResourceMonitoringConfig(
-            memoryBase = 12288L, // 12GB
-            cpuCores = 8, // Snapdragon 8+ Gen 1
-            monitoringInterval = 2000L, // 2 seconds
-            historyWindow = 120000L // 2 minutes
-        )
-        
-        resourceMonitor.configure(xiaomiPadConfig)
+    // Enable service worker for caching
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js');
     }
-}
+};
 ```
 
-### iPad Pro Optimizations
-```swift
-// File: ios/App/App/AppDelegate.swift
-import UIKit
-import Capacitor
-
-@UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
-    
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        
-        // Configure for iPad Pro
-        let webView = WKWebView()
-        webView.configuration.preferences.javaScriptEnabled = true
-        
-        // Optimize for M2/M3 chip
-        webView.configuration.allowsInlineMediaPlayback = true
-        webView.configuration.mediaTypesRequiringUserActionForPlayback = []
-        
-        // Enable hardware acceleration
-        webView.configuration.allowsAirPlayForMediaPlayback = true
-        
-        return true
-    }
-}
-```
-
-## Troubleshooting
-
-### Common Issues
-
-#### 1. WebView Not Loading
+#### 4. Testing and Validation
 ```bash
-# Android Debug
-adb logcat -s WebView:V
-adb shell "cat /proc/version"
-adb shell "getprop ro.build.version.release"
-
-# iOS Debug
-# Check Safari Web Inspector
-# Verify WKWebView configuration
-```
-
-#### 2. Resource Monitoring Inaccurate
-```bash
-# Android Debug
-adb shell "cat /proc/stat | head -1"
-adb shell "dumpsys meminfo com.mira.videoeditor.debug"
-adb shell "cat /sys/class/power_supply/battery/capacity"
-
-# iOS Debug
-# Use Xcode Instruments
-# Check system resource APIs
-```
-
-#### 3. JavaScript Bridge Not Working
-```bash
-# Android Debug
-adb shell "am start -n com.mira.videoeditor.debug/.MainActivity"
-# Use Chrome DevTools for WebView debugging
-
-# iOS Debug
-# Use Safari Web Inspector
-# Check Capacitor plugin registration
-```
-
-### Performance Issues
-
-#### 1. High Memory Usage
-- **Android**: Check WebView memory settings
-- **iOS**: Monitor WKWebView memory usage
-- **Solution**: Implement memory cleanup in JavaScript
-
-#### 2. High CPU Usage
-- **Android**: Optimize resource monitoring frequency
-- **iOS**: Use efficient native APIs
-- **Solution**: Implement CPU usage throttling
-
-#### 3. Battery Drain
-- **Android**: Reduce monitoring frequency
-- **iOS**: Use background app refresh settings
-- **Solution**: Implement adaptive monitoring
-
-## Verification Scripts
-
-### Android Verification
-```bash
-#!/bin/bash
-# File: scripts/test_android_deployment.sh
-
-echo "Testing Android deployment on Xiaomi Pad Ultra..."
-
-# Test app installation
-adb install -r app/build/outputs/apk/debug/app-debug.apk
-if [ $? -eq 0 ]; then
-    echo "✅ App installed successfully"
-else
-    echo "❌ App installation failed"
-    exit 1
-fi
-
-# Test app launch
-adb shell am start -n com.mira.videoeditor.debug/.MainActivity
-sleep 5
-
-# Test resource monitoring
-echo "Testing resource monitoring..."
-adb shell "dumpsys meminfo com.mira.videoeditor.debug | grep TOTAL"
-adb shell "cat /proc/stat | head -1"
-adb shell "cat /sys/class/power_supply/battery/capacity"
+# Test UI responsiveness
+./test_ui_responsive.sh
 
 # Test JavaScript bridge
-echo "Testing JavaScript bridge..."
-adb shell "am start -n com.mira.videoeditor.debug/.MainActivity"
-# Use Chrome DevTools for WebView debugging
+./test_js_bridge.sh
 
-echo "✅ Android deployment test completed"
+# Test performance
+./test_ui_performance.sh
 ```
 
-### iOS Verification
+### iOS Safari Deployment
+
+#### Device Specifications
+- **Target Devices**: iPad Pro, iPad Air, iPad mini
+- **iOS Version**: 17+
+- **Safari Version**: 17+
+- **Screen Sizes**: 8.3" to 12.9" tablets
+
+#### Deployment Steps
+
+#### 1. Web App Configuration
+```html
+<!-- iOS Web App meta tags -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="VideoEdit">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+```
+
+#### 2. iOS-Specific Optimizations
+```css
+/* iOS Safari optimizations */
+-webkit-touch-callout: none;
+-webkit-user-select: none;
+-webkit-tap-highlight-color: transparent;
+
+/* Safe area handling */
+padding-top: env(safe-area-inset-top);
+padding-bottom: env(safe-area-inset-bottom);
+padding-left: env(safe-area-inset-left);
+padding-right: env(safe-area-inset-right);
+```
+
+#### 3. Performance Configuration
+```javascript
+// iOS-specific performance optimizations
+const optimizeForIOS = () => {
+    // Prevent zoom on double tap
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', (e) => {
+        const now = new Date().getTime();
+        if (now - lastTouchEnd <= 300) {
+            e.preventDefault();
+        }
+        lastTouchEnd = now;
+    }, false);
+    
+    // Optimize scrolling
+    document.body.style.webkitOverflowScrolling = 'touch';
+};
+```
+
+### macOS Web Version Deployment
+
+#### System Requirements
+- **macOS**: 12.0+
+- **Browsers**: Chrome 120+, Firefox 120+, Safari 17+
+- **Screen Sizes**: 13" to 27" displays
+- **Resolution**: 1440p to 5K
+
+#### Deployment Steps
+
+#### 1. Progressive Web App Setup
+```json
+// manifest.json
+{
+    "name": "VideoEdit",
+    "short_name": "VideoEdit",
+    "description": "AI-powered video editing with Whisper",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#3b82f6",
+    "icons": [
+        {
+            "src": "/icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
+```
+
+#### 2. Service Worker Implementation
+```javascript
+// sw.js - Service Worker for caching
+const CACHE_NAME = 'videoedit-v1';
+const urlsToCache = [
+    '/',
+    '/styles/main.css',
+    '/js/main.js',
+    '/icons/icon-192.png',
+    '/icons/icon-512.png'
+];
+
+self.addEventListener('install', (event) => {
+    event.waitUntil(
+        caches.open(CACHE_NAME)
+            .then((cache) => cache.addAll(urlsToCache))
+    );
+});
+
+self.addEventListener('fetch', (event) => {
+    event.respondWith(
+        caches.match(event.request)
+            .then((response) => {
+                return response || fetch(event.request);
+            })
+    );
+});
+```
+
+#### 3. Desktop-Specific Features
+```javascript
+// Desktop-specific optimizations
+const optimizeForDesktop = () => {
+    // Enable keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey || e.metaKey) {
+            switch (e.key) {
+                case 's':
+                    e.preventDefault();
+                    saveProject();
+                    break;
+                case 'o':
+                    e.preventDefault();
+                    openProject();
+                    break;
+            }
+        }
+    });
+    
+    // Enable drag and drop
+    document.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+    });
+    
+    document.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const files = Array.from(e.dataTransfer.files);
+        handleFileDrop(files);
+    });
+};
+```
+
+### Cross-Platform Testing
+
+#### Test Scripts
 ```bash
-#!/bin/bash
-# File: scripts/test_ios_deployment.sh
+# Test all platforms
+./test_ui_cross_platform.sh
 
-echo "Testing iOS deployment on iPad Pro..."
-
-# Build web assets
-npm run build
-if [ $? -eq 0 ]; then
-    echo "✅ Web assets built successfully"
-else
-    echo "❌ Web asset build failed"
-    exit 1
-fi
-
-# Sync Capacitor
-npx cap sync ios
-if [ $? -eq 0 ]; then
-    echo "✅ Capacitor sync completed"
-else
-    echo "❌ Capacitor sync failed"
-    exit 1
-fi
-
-# Open in Xcode
-npx cap open ios
-echo "✅ iOS project opened in Xcode"
-echo "Manual testing required in Xcode Simulator or device"
-
-echo "✅ iOS deployment test completed"
+# Platform-specific tests
+./test_android_webview.sh
+./test_ios_safari.sh
+./test_desktop_browsers.sh
 ```
 
-## Success Criteria
+#### Validation Matrix
+| Platform | Browser | Performance | Features | Status |
+|----------|---------|-------------|----------|---------|
+| Android | WebView | 60fps | Full | ✅ Verified |
+| iOS | Safari | 60fps | Full | 🔄 Testing |
+| macOS | Chrome | 120fps | Full | 🔄 Testing |
+| macOS | Safari | 60fps | Full | 🔄 Testing |
+| macOS | Firefox | 60fps | Full | 🔄 Testing |
 
-### Functional Requirements
-- ✅ **UI Rendering**: WebView loads HTML5 interface correctly
-- ✅ **Resource Monitoring**: Accurate CPU/Memory/Battery tracking
-- ✅ **JavaScript Bridge**: Bidirectional communication working
-- ✅ **Processing Visualization**: Real-time progress updates
-- ✅ **Cross-platform**: Consistent experience on Android/iOS
+### Performance Optimization
 
-### Performance Requirements
-- ✅ **Startup Time**: < 3 seconds on Xiaomi Pad Ultra
-- ✅ **Memory Usage**: < 500MB during normal operation
-- ✅ **CPU Usage**: < 20% during idle, < 50% during processing
-- ✅ **Battery Drain**: < 5% per hour during idle
+#### Bundle Optimization
+```javascript
+// Webpack configuration for production
+const config = {
+    optimization: {
+        splitChunks: {
+            chunks: 'all',
+            cacheGroups: {
+                vendor: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: 'vendors',
+                    chunks: 'all',
+                },
+                common: {
+                    name: 'common',
+                    minChunks: 2,
+                    chunks: 'all',
+                }
+            }
+        }
+    },
+    performance: {
+        maxAssetSize: 200000,
+        maxEntrypointSize: 200000,
+    }
+};
+```
 
-### Quality Requirements
-- ✅ **UI Responsiveness**: Smooth animations and transitions
-- ✅ **Resource Accuracy**: ±5% accuracy for system monitoring
-- ✅ **Cross-platform**: 95% feature parity between platforms
-- ✅ **Error Handling**: Graceful failure management
+#### Runtime Performance
+```javascript
+// Performance monitoring
+const performanceMonitor = {
+    measureRenderTime: (componentName) => {
+        const start = performance.now();
+        return () => {
+            const end = performance.now();
+            console.log(`${componentName} render time: ${end - start}ms`);
+        };
+    },
+    
+    measureMemoryUsage: () => {
+        if ('memory' in performance) {
+            const memory = performance.memory;
+            console.log(`Memory usage: ${memory.usedJSHeapSize / 1024 / 1024}MB`);
+        }
+    }
+};
+```
 
-This deployment guide ensures reliable, high-performance UI deployment across target devices with comprehensive testing and verification procedures.
+### Accessibility Features
+
+#### WCAG 2.1 AA Compliance
+```html
+<!-- Semantic HTML structure -->
+<main role="main">
+    <nav role="navigation" aria-label="Main navigation">
+        <ul>
+            <li><a href="#whisper" aria-current="page">Whisper</a></li>
+            <li><a href="#clip">CLIP</a></li>
+            <li><a href="#settings">Settings</a></li>
+        </ul>
+    </nav>
+    
+    <section aria-labelledby="whisper-heading">
+        <h1 id="whisper-heading">Whisper Processing</h1>
+        <button aria-describedby="whisper-help">Start Processing</button>
+        <div id="whisper-help" class="sr-only">
+            Click to start audio transcription processing
+        </div>
+    </section>
+</main>
+```
+
+#### Keyboard Navigation
+```javascript
+// Keyboard navigation support
+const keyboardNavigation = {
+    init: () => {
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') {
+                // Handle tab navigation
+                this.handleTabNavigation(e);
+            } else if (e.key === 'Enter' || e.key === ' ') {
+                // Handle activation
+                this.handleActivation(e);
+            }
+        });
+    },
+    
+    handleTabNavigation: (e) => {
+        const focusableElements = document.querySelectorAll(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        // Tab navigation logic
+    }
+};
+```
+
+### Troubleshooting
+
+#### Common Issues
+1. **WebView Not Loading**
+   - Check JavaScript bridge configuration
+   - Verify asset paths
+   - Check network permissions
+
+2. **Performance Issues**
+   - Monitor memory usage
+   - Check for memory leaks
+   - Optimize bundle size
+
+3. **Responsive Issues**
+   - Test on different screen sizes
+   - Check CSS breakpoints
+   - Verify viewport meta tag
+
+#### Debug Commands
+```bash
+# Check WebView logs
+adb logcat | grep -i "webview\|chrome"
+
+# Test responsive design
+./test_responsive_design.sh
+
+# Check accessibility
+./test_accessibility.sh
+
+# Monitor performance
+./monitor_ui_performance.sh
+```
+
+### Deployment Scripts
+
+- **Android WebView**: `deploy_android_webview.sh`
+- **iOS Safari**: `deploy_ios_safari.sh`
+- **macOS Web**: `deploy_macos_web.sh`
+- **Cross-platform Testing**: `test_ui_cross_platform.sh`

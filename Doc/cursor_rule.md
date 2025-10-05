@@ -1,201 +1,290 @@
-# Cursor Rules for Mira Video Editor
+# Cursor Rules for VideoEdit Project
 
 ## Project Overview
-This is a comprehensive video editing application with AI-powered features including CLIP-based video analysis and Whisper speech recognition. The project uses a hybrid Android-WebView architecture for cross-platform consistency.
+This is a video editing application with robust language detection (LID) pipeline, clip processing, and UI components. The project uses Android/Kotlin for the main app, with Whisper integration for speech recognition and multilingual support.
 
-## Architecture
+## Code Organization
 
 ### Core Modules
-- **app/**: Main Android application with WebView-based UI
-- **feature/clip/**: CLIP-based video analysis and processing
-- **feature/whisper/**: Whisper speech recognition integration
-- **core/media/**: Media processing and audio/video handling
-- **core/ml/**: Machine learning model management
-- **core/infra/**: Infrastructure and utility components
+- **app/**: Main Android application
+- **feature/whisper/**: Whisper speech recognition module
+- **core/**: Shared core functionality
+- **Doc/**: Structured documentation by feature
 
-### UI Architecture
-- **Hybrid Design**: Android MainActivity with WebView container
-- **Cross-platform**: HTML5/CSS/JavaScript interface
-- **Real-time Monitoring**: System resource tracking with moving averages
-- **JavaScript Bridge**: Bidirectional communication between native and web layers
+### Key Components
+- **LanguageDetectionService**: VAD + two-pass LID pipeline
+- **TranscribeWorker**: Background processing with WorkManager
+- **WhisperApi**: Multilingual model selection and work queuing
+- **AndroidWhisperBridge**: JavaScript interface for WebView
 
-## Key Control Knots
+## Coding Standards
 
-### CLIP Feature Control Knots
-- **Deterministic Sampling**: Uniform frame timestamps with fixed intervals
-- **Fixed Preprocessing**: Center-crop video segments, no random augmentation
-- **Model Consistency**: Fixed CLIP model with deterministic initialization
+### Kotlin Conventions
+- Use camelCase for variables and functions
+- Use PascalCase for classes and interfaces
+- Use UPPER_SNAKE_CASE for constants
+- Prefer `val` over `var` when possible
+- Use data classes for simple data containers
 
-### Whisper Feature Control Knots
-- **Seedless Pipeline**: Deterministic audio sampling without random variations
-- **Fixed Preprocess**: Center-crop audio segments with fixed window sizes
-- **Same Model Assets**: Fixed Whisper model file with deterministic initialization
+### Android Best Practices
+- Use WorkManager for background processing
+- Implement proper error handling with Result<T>
+- Use dependency injection (Hilt/Dagger)
+- Follow MVVM architecture pattern
+- Use coroutines for async operations
 
-### UI Control Knots
-- **WebView-based UI**: Hybrid Android-WebView architecture
-- **Real-time Resource Monitoring**: Deterministic system resource tracking
-- **Processing Pipeline Visualization**: Step-by-step progress with real-time updates
+### Documentation Standards
+- Document all public APIs with KDoc
+- Include code examples for complex functions
+- Maintain architecture decision records (ADRs)
+- Update README files for major changes
 
-## Development Guidelines
+## File Structure Guidelines
 
-### Code Style
-- **Kotlin**: Use modern Kotlin features, coroutines for async operations
-- **JavaScript**: ES6+ features, efficient DOM manipulation
-- **CSS**: Tailwind CSS with custom dark theme
-- **HTML**: Semantic markup with proper accessibility
-
-### Testing Requirements
-- **Unit Tests**: Run `./gradlew :app:testDebugUnitTest` for database/ML changes
-- **Instrumented Tests**: Run `./gradlew :app:connectedDebugAndroidTest` for workers/engines
-- **Integration Tests**: Use provided test scripts in `scripts/test/`
-
-### Performance Standards
-- **Memory Usage**: < 500MB during normal operation
-- **CPU Usage**: < 20% during idle, < 50% during processing
-- **Battery Drain**: < 5% per hour during idle
-- **Resource Accuracy**: ±5% accuracy for system monitoring
-
-## File Organization
+### Package Organization
+```
+com.mira.whisper/
+├── engine/           # Core Whisper functionality
+├── api/              # Public APIs
+├── runner/           # Background workers
+├── data/             # Data models and repositories
+└── ui/               # UI components
+```
 
 ### Documentation Structure
 ```
 Doc/
-├── clip/
-│   ├── Architecture Design and Control Knot.md
-│   ├── Full scale implementation Details.md
-│   ├── Device Deployment.md
-│   ├── README.md
-│   └── Release (iOS, Android and MacOS Web Version).md
-├── whisper/
-│   ├── Architecture Design and Control Knot.md
-│   ├── Full scale implementation Details.md
-│   ├── Device Deployment.md
-│   ├── README.md
-│   └── Release (iOS, Android and MacOS Web Version).md
-├── ui/
-│   ├── Architecture Design and Control Knot.md
-│   ├── Full scale implementation Details.md
-│   ├── Device Deployment.md
-│   ├── README.md
-│   └── Release (iOS, Android and MacOS Web Version).md
-└── cursor_rule.md
+├── whisper/          # Whisper-specific documentation
+├── clip/             # Clip processing documentation
+├── ui/               # UI component documentation
+└── cursor_rule.md    # This file
 ```
 
-### Key Implementation Files
-- **MainActivity**: `app/src/main/java/mira/ui/MainActivity.kt`
-- **Processing UI**: `app/src/main/assets/processing.html`
-- **Whisper Bridge**: `app/src/main/java/com/mira/com/whisper/AndroidWhisperBridge.kt`
-- **CLIP Engine**: `app/src/main/java/com/mira/videoeditor/AutoCutEngine.kt`
+## Development Workflow
 
-## Deployment
+### Branch Strategy
+- **main**: Production-ready code
+- **whisper**: Whisper feature branch
+- **feature/***: Feature development branches
+- **hotfix/***: Critical bug fixes
 
-### Android (Xiaomi Pad Ultra)
-```bash
-# Build and install
-./gradlew assembleDebug
-adb install -r app/build/outputs/apk/debug/app-debug.apk
+### Commit Convention
+Use conventional commits format:
+- `feat:` New features
+- `fix:` Bug fixes
+- `docs:` Documentation changes
+- `style:` Code style changes
+- `refactor:` Code refactoring
+- `test:` Test additions/changes
+- `chore:` Build/tooling changes
 
-# Launch and test
-adb shell am start -n com.mira.videoeditor.debug/.MainActivity
-adb logcat -s ResourceMonitor:V MainActivity:V
+### Testing Requirements
+- Unit tests for all public APIs
+- Integration tests for LID pipeline
+- Device-specific validation tests
+- Performance benchmarking
+
+## Whisper Module Guidelines
+
+### Language Detection Pipeline
+- Always use multilingual models (no .en suffix)
+- Implement VAD windowing for better LID accuracy
+- Use two-pass re-scoring for uncertain cases
+- Include confidence scores in sidecar data
+
+### Background Processing
+- Use WorkManager for non-blocking operations
+- Implement proper error handling and retry logic
+- Monitor RTF (Real-Time Factor) performance
+- Use appropriate thread counts for device optimization
+
+### Model Management
+- Deploy multilingual models by default
+- Verify model integrity with SHA-256 checks
+- Support model fallback strategies
+- Document model performance characteristics
+
+## Performance Considerations
+
+### Memory Management
+- Stream large audio files to disk
+- Use appropriate buffer sizes for processing
+- Monitor memory usage during long operations
+- Implement proper cleanup for temporary files
+
+### Processing Optimization
+- Use device-specific thread counts
+- Implement RTF monitoring and alerting
+- Optimize for ARM64 architecture (Xiaomi Pad)
+- Support CPU+GPU compute units (iPad)
+
+### Battery Optimization
+- Use background processing efficiently
+- Implement proper wake lock management
+- Monitor thermal throttling
+- Provide power-aware processing modes
+
+## Security Guidelines
+
+### Data Privacy
+- Process audio locally (no cloud transmission)
+- Implement secure temporary file cleanup
+- Use encrypted storage for sensitive data
+- Follow Android security best practices
+
+### Model Security
+- Verify model integrity with checksums
+- Implement secure model loading
+- Use permission-based access control
+- Document security considerations
+
+## Error Handling
+
+### Exception Management
+- Use Result<T> for operations that can fail
+- Implement proper logging with appropriate levels
+- Provide user-friendly error messages
+- Include debugging information in logs
+
+### Recovery Strategies
+- Implement retry logic for transient failures
+- Provide fallback mechanisms for model loading
+- Handle device-specific limitations gracefully
+- Document error scenarios and solutions
+
+## Testing Strategy
+
+### Unit Testing
+- Test all public APIs with comprehensive coverage
+- Mock external dependencies appropriately
+- Use parameterized tests for multiple scenarios
+- Include edge cases and error conditions
+
+### Integration Testing
+- Test LID pipeline end-to-end
+- Validate multilingual model integration
+- Test background processing workflows
+- Verify sidecar data generation
+
+### Device Testing
+- Test on Xiaomi Pad Ultra (primary target)
+- Validate iPad Pro compatibility
+- Test macOS Web version
+- Include performance benchmarking
+
+## Documentation Requirements
+
+### Architecture Documentation
+- Document control knots and configuration options
+- Include performance characteristics and trade-offs
+- Provide code pointers for key implementations
+- Maintain decision records for major changes
+
+### Deployment Documentation
+- Document platform-specific deployment steps
+- Include troubleshooting guides
+- Provide validation scripts and commands
+- Maintain release notes and changelog
+
+### API Documentation
+- Document all public APIs with KDoc
+- Include usage examples and code snippets
+- Document parameter ranges and constraints
+- Provide migration guides for breaking changes
+
+## Code Review Guidelines
+
+### Review Checklist
+- [ ] Code follows project conventions
+- [ ] Tests are included and passing
+- [ ] Documentation is updated
+- [ ] Performance implications considered
+- [ ] Security considerations addressed
+- [ ] Error handling is appropriate
+
+### Review Focus Areas
+- LID pipeline implementation correctness
+- Background processing efficiency
+- Memory usage and cleanup
+- Error handling and recovery
+- Test coverage and quality
+
+## Deployment Guidelines
+
+### CI/CD Pipeline
+- Use GitHub Actions for automated testing
+- Implement automated deployment to staging
+- Include performance regression testing
+- Maintain deployment rollback procedures
+
+### Release Process
+- Follow semantic versioning
+- Include comprehensive release notes
+- Test on all target platforms
+- Validate performance metrics
+
+### Monitoring
+- Implement application performance monitoring
+- Monitor RTF and accuracy metrics
+- Track error rates and types
+- Alert on performance degradation
+
+## Common Patterns
+
+### Background Processing
+```kotlin
+class TranscribeWorker : Worker {
+    override suspend fun doWork(): Result {
+        return try {
+            // Processing logic
+            Result.success()
+        } catch (e: Exception) {
+            Log.e(TAG, "Processing failed", e)
+            Result.failure()
+        }
+    }
+}
 ```
 
-### iOS (iPad Pro)
-```bash
-# Build web assets
-npm run build
-
-# Sync Capacitor
-npx cap sync ios
-
-# Open in Xcode
-npx cap open ios
+### Language Detection
+```kotlin
+val lidResult = if (lang == "auto") {
+    val lidService = LanguageDetectionService()
+    lidService.detectLanguage(pcm16k, 16_000, model, threads)
+} else {
+    LanguageDetectionResult(/* forced language */)
+}
 ```
 
-### Web (macOS)
-```bash
-# Serve locally
-python -m http.server 8000
-# Open http://localhost:8000/processing.html
+### Error Handling
+```kotlin
+fun processAudio(): Result<AudioResult> {
+    return try {
+        val result = performProcessing()
+        Result.success(result)
+    } catch (e: ProcessingException) {
+        Log.e(TAG, "Processing failed: ${e.message}", e)
+        Result.failure(e)
+    }
+}
 ```
 
-## Testing Scripts
+## Resources
 
-### Available Test Scripts
-- `scripts/test/whisper_logic_test.sh` - Whisper logic verification
-- `scripts/test/whisper_real_integration_test.sh` - Real integration testing
-- `scripts/test/video_transcription_test.sh` - Video transcription testing
-- `scripts/test/whisper_step1_test.sh` - Basic WhisperEngine testing
-- `scripts/test/whisper_step2_test.sh` - Audio processing testing
+### Documentation
+- [Architecture Design](Doc/whisper/Architecture%20Design%20and%20Control%20Knot.md)
+- [Implementation Details](Doc/whisper/Full%20scale%20implementation%20Details.md)
+- [Deployment Guide](Doc/whisper/Device%20Deployment.md)
+- [CI/CD Guide](Doc/whisper/CI/CD%20Guide%20&%20Release.md)
 
-### Test Execution
-```bash
-# Run comprehensive tests
-./test_pipeline_comprehensive.sh
-./test_whisper_step_flow.sh
-./test_staging_implementation.sh
-```
+### Scripts
+- `deploy_multilingual_models.sh` - Model deployment
+- `test_lid_pipeline.sh` - LID validation
+- `validate_cicd_pipeline.sh` - CI/CD validation
+- `work_through_xiaomi_pad.sh` - Device testing
 
-## Performance Monitoring
-
-### Resource Monitoring
-- **CPU Usage**: Moving average calculation with outlier filtering
-- **Memory Usage**: PSS-based memory tracking with percentage calculation
-- **Battery Level**: Real-time battery monitoring with fallback methods
-- **Temperature**: System temperature estimation with multiple detection methods
-
-### Monitoring Configuration
-- **Monitoring Interval**: 2 seconds
-- **History Window**: 2 minutes (60 readings)
-- **Outlier Threshold**: 50% CPU usage
-- **System Memory**: 12GB (Xiaomi Pad Ultra)
-
-## Troubleshooting
-
-### Common Issues
-- **WebView Not Loading**: Check JavaScript enabled, local asset paths
-- **Resource Monitoring Inaccurate**: Verify system permissions, API access
-- **JavaScript Bridge Not Working**: Check `@JavascriptInterface` annotations
-- **Performance Issues**: Optimize monitoring frequency, memory usage
-
-### Debug Commands
-```bash
-# Android Debug
-adb logcat -s ResourceMonitor:V MainActivity:V
-adb shell dumpsys meminfo com.mira.videoeditor.debug
-
-# iOS Debug
-# Use Safari Web Inspector for WKWebView debugging
-# Use Xcode Instruments for performance monitoring
-```
-
-## Future Enhancements
-
-### Planned Features
-- **Accessibility**: Enhanced screen reader support
-- **Internationalization**: Multi-language support
-- **Performance**: Further optimization for low-end devices
-- **Features**: Additional processing visualization options
-
-### Scalability
-- **Modular Design**: Easy to add new processing engines
-- **Plugin System**: Extensible architecture for new features
-- **Cross-platform**: Unified codebase for all platforms
-- **Performance**: Optimized for high-end and low-end devices
-
-## Code Pointers
-
-### Key Functions
-- **Resource Monitoring**: `updateResourceUsage()` - Real-time system monitoring
-- **CPU Calculation**: `calculateCpuMovingAverage()` - Moving average with outlier filtering
-- **Memory Tracking**: `getRealMemoryUsage()` - PSS-based memory calculation
-- **JavaScript Bridge**: `JavaScriptInterface` - Bidirectional communication
-- **Step Updates**: `updateStep()` - Processing pipeline visualization
-
-### Key Configuration
-- **Monitoring Interval**: 2 seconds
-- **History Window**: 2 minutes (60 readings)
-- **Outlier Threshold**: 50% CPU usage
-- **System Memory**: 12GB (Xiaomi Pad Ultra)
-
-This cursor rule provides comprehensive guidance for developing and maintaining the Mira Video Editor application with its AI-powered features and cross-platform UI architecture.
+### Key Files
+- `LanguageDetectionService.kt` - Core LID implementation
+- `TranscribeWorker.kt` - Background processing
+- `WhisperApi.kt` - Public API
+- `WhisperParams.kt` - Configuration

@@ -1,261 +1,322 @@
-# UI Feature Documentation
+# UI README.md
 
-## Overview
+## Multi-Lens Explanation for Experts
 
-The Mira Video Editor UI system is a hybrid Android-WebView architecture designed for cross-platform consistency, real-time resource monitoring, and professional video processing visualization. This system provides a unified interface across Android, iOS, and Web platforms with deterministic resource tracking and smooth user interactions.
+### 1. Plain-text: How it Works (Step-by-step)
 
-## Multi-Lens Technical Explanation
+1. **Load web assets**: HTML, CSS, JavaScript files from Android assets
+2. **Initialize WebView**: Configure JavaScript bridge and permissions
+3. **Render UI components**: Load and display interface elements
+4. **Handle user interactions**: Capture clicks, touches, keyboard input
+5. **Process events**: Route interactions to appropriate handlers
+6. **Update state**: Modify application state based on user actions
+7. **Re-render components**: Update DOM based on state changes
+8. **Communicate with native**: Send data to Android via JavaScript bridge
+9. **Receive responses**: Handle native Android responses
+10. **Update UI**: Reflect native responses in user interface
 
-### 1. Plain-text: How it works (step-by-step)
+**Why this works**: WebView provides cross-platform UI rendering; JavaScript bridge enables native communication; component-based architecture ensures maintainability; responsive design adapts to different screen sizes.
 
-- **App Launch**: Android MainActivity creates WebView container with JavaScript enabled
-- **UI Loading**: WebView loads local HTML5 interface (`file:///android_asset/processing.html`)
-- **Resource Monitoring**: Background timer starts collecting CPU, memory, battery, and temperature data
-- **JavaScript Bridge**: Bidirectional communication established between WebView and Android
-- **Processing Visualization**: Real-time progress updates show step-by-step video analysis
-- **User Interactions**: Touch events trigger JavaScript functions that call Android methods
-- **Resource Display**: Moving average calculations filter outliers and provide smooth resource graphs
-- **Cross-platform**: Same HTML5 interface works on Android WebView, iOS WKWebView, and Web browsers
+### 2. For a Frontend Expert
 
-**Why this works**: Hybrid architecture combines native performance with web flexibility; deterministic resource monitoring provides accurate feedback; JavaScript bridge enables seamless platform integration.
+- **Architecture**: Component-based with centralized state management
+- **Styling**: CSS-in-JS with CSS custom properties for theming
+- **Performance**: Virtual scrolling, lazy loading, bundle optimization
+- **Accessibility**: WCAG 2.1 AA compliance with keyboard navigation
+- **Responsive**: Mobile-first design with progressive enhancement
+- **Testing**: Unit tests with Jest, integration tests with Cypress
+- **Build**: Webpack with code splitting and tree shaking
+- **Deployment**: Progressive Web App with service worker caching
 
-### 2. For a UI/UX Expert
+### 3. For a Mobile Expert
 
-- **Design System**: Tailwind CSS with custom dark theme (`dark-900`, `dark-800`, `dark-700`)
-- **Typography**: Inter font family for modern, readable interface
-- **Responsive Design**: Adaptive layouts that work on tablets (12.1" Xiaomi Pad) and phones
-- **Animation System**: Smooth transitions with CSS transforms and JavaScript animations
-- **Accessibility**: Proper ARIA labels, keyboard navigation, and screen reader support
-- **User Feedback**: Real-time progress bars, status indicators, and toast notifications
-- **Error Handling**: Graceful failure management with user-friendly error messages
-- **Performance**: Optimized rendering with hardware acceleration and efficient DOM updates
+- **WebView Integration**: Android WebView with JavaScript bridge
+- **Native Communication**: Bidirectional data exchange with Android
+- **Performance**: Hardware acceleration and memory optimization
+- **Platform Features**: Access to device capabilities via native bridge
+- **Offline Support**: Service worker for offline functionality
+- **Push Notifications**: Native notification integration
+- **Deep Linking**: URL routing for deep app integration
+- **Security**: Content Security Policy and secure communication
 
-**Key UX Principles**: 
-- **Transparency**: Users see exactly what the system is doing
-- **Responsiveness**: Immediate feedback for all user actions
-- **Consistency**: Same interface across all platforms
-- **Professional**: Enterprise-grade monitoring and visualization
+### 4. For a UX Expert
 
-### 3. For a Mobile Development Expert
-
-- **Android Integration**: MainActivity with WebView, JavaScript bridge, and native resource APIs
-- **iOS Integration**: Capacitor-based WKWebView with native plugin system
-- **WebView Optimization**: Hardware acceleration, efficient rendering, and memory management
-- **Resource Monitoring**: Native Android APIs (`/proc/stat`, `dumpsys meminfo`, BatteryManager)
-- **JavaScript Bridge**: `@JavascriptInterface` annotations for secure Android-Web communication
-- **Performance**: Moving average filtering, outlier detection, and efficient data structures
-- **Memory Management**: Proper WebView cleanup and resource monitoring optimization
-- **Cross-platform**: Unified codebase with platform-specific optimizations
-
-**Technical Highlights**:
-- **WebView Performance**: Optimized for large screens (12.1" tablets)
-- **Resource Accuracy**: ±5% accuracy for system monitoring
-- **Battery Efficiency**: Adaptive monitoring frequency based on system load
-- **Memory Efficiency**: Efficient data structures and cleanup procedures
-
-### 4. For a Web Development Expert
-
-- **HTML5 Architecture**: Modern semantic HTML with responsive design
-- **CSS Framework**: Tailwind CSS with custom dark theme and responsive utilities
-- **JavaScript**: Vanilla JS with modern ES6+ features and efficient DOM manipulation
-- **Animation System**: CSS transitions and JavaScript-based progress animations
-- **Real-time Updates**: Efficient DOM updates with minimal reflows and repaints
-- **Cross-browser**: Compatible with Chrome WebView, Safari WKWebView, and modern browsers
-- **Performance**: Optimized rendering with efficient selectors and minimal DOM queries
-- **Accessibility**: Proper semantic markup and ARIA attributes
-
-**Web Technologies**:
-- **CSS**: Tailwind CSS with custom configuration
-- **JavaScript**: Modern ES6+ with efficient event handling
-- **HTML5**: Semantic markup with proper accessibility
-- **Performance**: Optimized for 60fps animations and smooth scrolling
-
-### 5. For a System Architecture Expert
-
-- **Hybrid Architecture**: Native container with web-based UI layer
-- **Resource Monitoring**: Real-time system metrics with moving average filtering
-- **JavaScript Bridge**: Secure bidirectional communication between native and web layers
-- **Cross-platform**: Unified codebase with platform-specific optimizations
-- **Performance**: Optimized for high-end tablets (12GB RAM, 8-core CPU)
-- **Scalability**: Modular design supporting multiple processing engines
-- **Monitoring**: Comprehensive system resource tracking and visualization
-- **Integration**: Seamless integration with CLIP and Whisper processing engines
-
-**Architecture Benefits**:
-- **Consistency**: Same UI across Android, iOS, and Web
-- **Performance**: Native resource monitoring with web flexibility
-- **Maintainability**: Single codebase for multiple platforms
-- **Scalability**: Easy to add new features and processing engines
-
-## Key Features
-
-### Real-time Resource Monitoring
-- **CPU Usage**: Moving average calculation with outlier filtering
-- **Memory Usage**: PSS-based memory tracking with percentage calculation
-- **Battery Level**: Real-time battery monitoring with fallback methods
-- **Temperature**: System temperature estimation with multiple detection methods
-- **GPU Info**: GPU frequency and utilization tracking
-- **Thread Info**: Process thread count and CPU core utilization
-
-### Processing Pipeline Visualization
-- **Step-by-step Progress**: 5-stage processing pipeline with real-time updates
-- **Progress Bars**: Visual progress indicators with smooth animations
-- **Status Indicators**: Color-coded status (pending, in-progress, complete)
-- **Time Estimation**: Dynamic time remaining calculation
-- **Log Entries**: Real-time processing log with timestamps
-
-### Cross-platform Compatibility
-- **Android**: WebView with JavaScript bridge
-- **iOS**: WKWebView with Capacitor plugins
-- **Web**: Standard HTML5/CSS/JavaScript
-- **Responsive**: Adaptive layouts for all screen sizes
-
-### User Interface Design
-- **Dark Theme**: Professional dark color scheme
-- **Modern Typography**: Inter font family for readability
-- **Smooth Animations**: CSS transitions and JavaScript animations
-- **Responsive Layout**: Adaptive design for tablets and phones
+- **User Flow**: Intuitive navigation with clear visual hierarchy
+- **Interaction Design**: Touch-friendly with appropriate feedback
+- **Visual Design**: Consistent design system with accessible colors
+- **Information Architecture**: Logical content organization
+- **Responsive Design**: Seamless experience across devices
 - **Accessibility**: Screen reader support and keyboard navigation
+- **Performance**: Fast loading with smooth animations
+- **Error Handling**: Clear error messages and recovery paths
 
-## Technical Implementation
+### 5. For a Backend Expert
 
-### Architecture Overview
+- **API Integration**: RESTful API communication with Android backend
+- **Data Flow**: Unidirectional data flow with state management
+- **Caching**: Service worker for offline data caching
+- **Security**: HTTPS communication with token-based authentication
+- **Monitoring**: Performance metrics and error tracking
+- **Scalability**: Component-based architecture for easy scaling
+- **Testing**: Automated testing with CI/CD integration
+- **Deployment**: Progressive Web App with version management
+
+## Key Design Decisions
+
+### 1. WebView Architecture
+**Decision**: Use Android WebView instead of native Android UI
+**Rationale**: 
+- Cross-platform compatibility (Android, iOS, Web)
+- Rapid development and iteration
+- Rich web technologies and libraries
+- Easy maintenance and updates
+
+### 2. Component-Based Architecture
+**Decision**: Modular component system with centralized state
+**Rationale**:
+- Reusable and maintainable code
+- Clear separation of concerns
+- Easy testing and debugging
+- Scalable development
+
+### 3. Responsive Design Strategy
+**Decision**: Mobile-first with progressive enhancement
+**Rationale**:
+- Optimal mobile experience
+- Graceful degradation on larger screens
+- Consistent across devices
+- Future-proof design
+
+### 4. Performance Optimization
+**Decision**: Bundle optimization with lazy loading
+**Rationale**:
+- Fast initial load times
+- Efficient memory usage
+- Smooth user experience
+- Battery optimization
+
+## Performance Characteristics
+
+### Loading Performance
+- **First Contentful Paint**: < 1.5s
+- **Largest Contentful Paint**: < 2.5s
+- **Time to Interactive**: < 3.0s
+- **Bundle Size**: < 200KB gzipped
+
+### Runtime Performance
+- **Animation Frame Rate**: 60fps target
+- **Memory Usage**: < 100MB peak
+- **CPU Usage**: < 30% during interaction
+- **Battery Impact**: Minimal background usage
+
+### Cross-Platform Compatibility
+- **Android WebView**: Chrome 120+ support
+- **iOS Safari**: Safari 17+ support
+- **Desktop Browsers**: Chrome, Firefox, Safari support
+- **Responsive Breakpoints**: 768px, 1024px, 1440px
+
+## Code Architecture
+
+### Core Components
 ```
-Android MainActivity (Kotlin)
-├── WebView Container
-│   ├── HTML5 Processing UI (Tailwind CSS)
-│   ├── JavaScript Bridge Interface
-│   └── Real-time Resource Monitoring
-├── Resource Monitoring System
-│   ├── CPU Usage Tracking (Moving Average)
-│   ├── Memory Usage Tracking (PSS-based)
-│   ├── Battery Level Monitoring
-│   └── Temperature Estimation
-└── JavaScript Interface
-    ├── Toast Notifications
-    ├── Video Selection
-    ├── Processing Control
-    └── Navigation Actions
+app/src/main/assets/web/
+├── whisper_file_selection.html    # File selection UI
+├── whisper_processing.html        # Processing status UI
+├── whisper_results.html          # Results display UI
+├── whisper_batch_results.html     # Batch results UI
+├── global_resource_monitor.html   # Resource monitoring UI
+├── components/                    # Reusable components
+├── styles/                        # CSS styling
+└── js/                           # JavaScript logic
 ```
 
-### Key Control Knots
-- **WEBVIEW_ENABLED** (true) - Enable/disable WebView-based UI
-- **REAL_TIME_MONITORING** (true) - Enable real-time resource tracking
-- **MONITORING_INTERVAL** (2000ms) - Resource update frequency
-- **CPU_OUTLIER_THRESHOLD** (50.0%) - Filter extreme CPU readings
-- **MEMORY_CALCULATION_BASE** (12288MB) - System memory baseline
+### Native Integration
+```
+app/src/main/java/com/mira/whisper/
+├── AndroidWhisperBridge.kt       # JavaScript bridge
+├── WhisperConnectorService.kt    # Background service
+├── WhisperResultsActivity.kt     # Results activity
+└── WhisperBatchResultsActivity.kt # Batch results activity
+```
 
-### Performance Characteristics
-- **Startup Time**: < 3 seconds on Xiaomi Pad Ultra
-- **Memory Usage**: < 500MB during normal operation
-- **CPU Usage**: < 20% during idle, < 50% during processing
-- **Battery Drain**: < 5% per hour during idle
-- **Resource Accuracy**: ±5% accuracy for system monitoring
+## Getting Started
 
-## Code Structure
-
-### Key Files
-- **MainActivity**: `app/src/main/java/mira/ui/MainActivity.kt`
-- **Processing UI**: `app/src/main/assets/processing.html`
-- **Icon Guide**: `app/src/main/res/ICON_GUIDE.md`
-- **Verification**: `docs/architecture/MAINACTIVITY_VERIFICATION.md`
-
-### Key Functions
-- **Resource Monitoring**: `updateResourceUsage()` - Real-time system monitoring
-- **CPU Calculation**: `calculateCpuMovingAverage()` - Moving average with outlier filtering
-- **Memory Tracking**: `getRealMemoryUsage()` - PSS-based memory calculation
-- **JavaScript Bridge**: `JavaScriptInterface` - Bidirectional communication
-- **Step Updates**: `updateStep()` - Processing pipeline visualization
-
-### Configuration
-- **Monitoring Interval**: 2 seconds
-- **History Window**: 2 minutes (60 readings)
-- **Outlier Threshold**: 50% CPU usage
-- **System Memory**: 12GB (Xiaomi Pad Ultra)
-
-## Deployment
-
-### Android (Xiaomi Pad Ultra)
+### Quick Start
 ```bash
-# Build and install
-./gradlew assembleDebug
-adb install -r app/build/outputs/apk/debug/app-debug.apk
+# 1. Build and install app
+./gradlew :app:assembleDebug
+./gradlew :app:installDebug
 
-# Launch and test
-adb shell am start -n com.mira.videoeditor.debug/.MainActivity
-adb logcat -s ResourceMonitor:V MainActivity:V
+# 2. Test UI components
+./Doc/ui/scripts/test_ui_components.sh
+
+# 3. Test responsive design
+./Doc/ui/scripts/test_responsive_design.sh
 ```
 
-### iOS (iPad Pro)
+### Development Setup
 ```bash
-# Build web assets
-npm run build
+# 1. Clone repository
+git clone https://github.com/dolphinDoReMi/VideoEdit.git
 
-# Sync Capacitor
-npx cap sync ios
+# 2. Checkout main branch
+git checkout main
 
-# Open in Xcode
-npx cap open ios
+# 3. Start development server
+cd app/src/main/assets/web
+python -m http.server 8080
+
+# 4. Test in browser
+open http://localhost:8080
 ```
 
-### Web
-```bash
-# Serve locally
-python -m http.server 8000
-# Open http://localhost:8000/processing.html
+## Contributing
+
+### Code Standards
+- Follow HTML5 semantic structure
+- Use CSS custom properties for theming
+- Write modular JavaScript with clear interfaces
+- Include comprehensive tests
+
+### Testing Requirements
+- Unit tests for JavaScript components
+- Integration tests for WebView communication
+- Cross-platform compatibility testing
+- Accessibility compliance testing
+
+### Documentation Updates
+- Update component documentation
+- Include usage examples
+- Document API interfaces
+- Maintain style guide
+
+## UI Components
+
+### Core Components
+- **FileSelector**: File picker with drag-and-drop
+- **ProgressIndicator**: Processing status with progress bar
+- **ResultsDisplay**: Transcription results with timestamps
+- **ResourceMonitor**: Real-time resource usage display
+- **BatchResults**: Batch processing results table
+
+### Layout Components
+- **Header**: Navigation and branding
+- **Sidebar**: Secondary navigation
+- **MainContent**: Primary content area
+- **Footer**: Status and additional info
+
+### Interactive Components
+- **Button**: Primary and secondary actions
+- **Input**: Text and file inputs
+- **Select**: Dropdown selections
+- **Modal**: Overlay dialogs
+- **Toast**: Notification messages
+
+## Styling System
+
+### Design Tokens
+```css
+:root {
+    /* Colors */
+    --color-primary: #3b82f6;
+    --color-secondary: #64748b;
+    --color-success: #10b981;
+    --color-warning: #f59e0b;
+    --color-error: #ef4444;
+    
+    /* Spacing */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    
+    /* Typography */
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
 ```
 
-## Testing
-
-### Functional Testing
-- **UI Rendering**: WebView loads HTML5 interface correctly
-- **Resource Monitoring**: Accurate CPU/Memory/Battery tracking
-- **JavaScript Bridge**: Bidirectional communication working
-- **Processing Visualization**: Real-time progress updates
-- **Cross-platform**: Consistent experience on Android/iOS
-
-### Performance Testing
-- **Memory Usage**: Monitor memory consumption during operation
-- **CPU Usage**: Track CPU utilization during resource monitoring
-- **Battery Drain**: Measure battery impact over time
-- **Startup Time**: Measure app launch performance
-
-### Cross-platform Testing
-- **UI Consistency**: Verify responsive design across screen sizes
-- **Functionality**: Test all features on both platforms
-- **Performance**: Compare performance metrics across platforms
-
-## Troubleshooting
-
-### Common Issues
-- **WebView Not Loading**: Check JavaScript enabled, local asset paths
-- **Resource Monitoring Inaccurate**: Verify system permissions, API access
-- **JavaScript Bridge Not Working**: Check `@JavascriptInterface` annotations
-- **Performance Issues**: Optimize monitoring frequency, memory usage
-
-### Debug Commands
-```bash
-# Android Debug
-adb logcat -s ResourceMonitor:V MainActivity:V
-adb shell dumpsys meminfo com.mira.videoeditor.debug
-
-# iOS Debug
-# Use Safari Web Inspector for WKWebView debugging
-# Use Xcode Instruments for performance monitoring
+### Responsive Breakpoints
+```css
+/* Mobile First */
+@media (min-width: 768px) { /* Tablet */ }
+@media (min-width: 1024px) { /* Desktop */ }
+@media (min-width: 1440px) { /* Large Desktop */ }
 ```
 
-## Future Enhancements
+### Dark Mode Support
+```css
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-background: #1e293b;
+        --color-text: #f1f5f9;
+        --color-surface: #334155;
+    }
+}
+```
 
-### Planned Features
-- **Accessibility**: Enhanced screen reader support
-- **Internationalization**: Multi-language support
-- **Performance**: Further optimization for low-end devices
-- **Features**: Additional processing visualization options
+## Accessibility Features
 
-### Scalability
-- **Modular Design**: Easy to add new processing engines
-- **Plugin System**: Extensible architecture for new features
-- **Cross-platform**: Unified codebase for all platforms
-- **Performance**: Optimized for high-end and low-end devices
+### WCAG 2.1 AA Compliance
+- **Color Contrast**: 4.5:1 minimum ratio
+- **Keyboard Navigation**: Full keyboard accessibility
+- **Screen Reader**: ARIA labels and semantic HTML
+- **Focus Management**: Visible focus indicators
 
-This UI system provides a robust, scalable foundation for video processing applications with professional-grade monitoring and cross-platform consistency.
+### Implementation
+```html
+<!-- Semantic HTML structure -->
+<main role="main">
+    <section aria-labelledby="section-heading">
+        <h1 id="section-heading">Section Title</h1>
+        <button aria-describedby="button-help">Action</button>
+        <div id="button-help" class="sr-only">
+            Additional help text
+        </div>
+    </section>
+</main>
+```
+
+## Performance Optimization
+
+### Bundle Optimization
+- **Code Splitting**: Lazy load components
+- **Tree Shaking**: Remove unused code
+- **Minification**: Compress JavaScript and CSS
+- **Compression**: Gzip compression for assets
+
+### Runtime Optimization
+- **Virtual Scrolling**: Efficient large list rendering
+- **Lazy Loading**: Defer non-critical resources
+- **Debouncing**: Optimize user input handling
+- **Caching**: Service worker for offline support
+
+### Monitoring
+```javascript
+// Performance monitoring
+const performanceMonitor = {
+    measureRenderTime: (componentName) => {
+        const start = performance.now();
+        return () => {
+            const end = performance.now();
+            console.log(`${componentName} render time: ${end - start}ms`);
+        };
+    },
+    
+    measureMemoryUsage: () => {
+        if ('memory' in performance) {
+            const memory = performance.memory;
+            console.log(`Memory usage: ${memory.usedJSHeapSize / 1024 / 1024}MB`);
+        }
+    }
+};
+```
