@@ -246,6 +246,8 @@ class WhisperConnectorService : Service() {
         
         // Broadcast start event
         broadcastProcessingStart(batchId, fileCount)
+        // Immediately request UI navigation to processing page (async queue -> navigate)
+        broadcastPageNavigation("processing")
         
         // Start actual whisper processing via the bridge
         startActualWhisperProcessing(batchId, fileCount)
@@ -484,6 +486,16 @@ class WhisperConnectorService : Service() {
     private fun broadcastProcessingComplete(batchId: String) {
         val intent = Intent(ACTION_PROCESSING_COMPLETE).apply {
             putExtra(EXTRA_BATCH_ID, batchId)
+        }
+        sendBroadcast(intent)
+    }
+
+    /**
+     * Broadcast page navigation request to all connected pages
+     */
+    private fun broadcastPageNavigation(targetPage: String) {
+        val intent = Intent(ACTION_PAGE_NAVIGATION).apply {
+            putExtra(EXTRA_NAVIGATION_TARGET, targetPage)
         }
         sendBroadcast(intent)
     }

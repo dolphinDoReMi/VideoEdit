@@ -10,6 +10,7 @@ import android.webkit.WebViewClient
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.mira.whisper.AndroidWhisperBridge
+import android.content.IntentFilter
 
 /**
  * Activity for Whisper File Selection UI.
@@ -24,6 +25,7 @@ class WhisperFileSelectionActivity : AppCompatActivity() {
     
     private lateinit var webView: WebView
     private lateinit var bridge: AndroidWhisperBridge
+    private lateinit var connectorReceiver: WhisperConnectorReceiver
     
     // File picker launcher (SAF: ACTION_OPEN_DOCUMENT)
     private val filePickerLauncher = registerForActivityResult(
@@ -96,6 +98,17 @@ class WhisperFileSelectionActivity : AppCompatActivity() {
         webView.loadUrl("file:///android_asset/web/whisper_file_selection.html")
         
         Log.i(TAG, "Whisper File Selection interface initialized")
+
+        // Initialize connector receiver for async navigation and updates
+        connectorReceiver = WhisperConnectorReceiver(webView, "file_selection")
+        val filter = IntentFilter().apply {
+            addAction(WhisperConnectorService.ACTION_START_PROCESSING)
+            addAction(WhisperConnectorService.ACTION_UPDATE_PROGRESS)
+            addAction(WhisperConnectorService.ACTION_PROCESSING_COMPLETE)
+            addAction(WhisperConnectorService.ACTION_RESOURCE_UPDATE)
+            addAction(WhisperConnectorService.ACTION_PAGE_NAVIGATION)
+        }
+        registerReceiver(connectorReceiver, filter)
     }
     
     /**
@@ -131,5 +144,12 @@ class WhisperFileSelectionActivity : AppCompatActivity() {
         } else {
             super.onBackPressed()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        try {
+            unregisterReceiver(connectorReceiver)
+        } catch (_: Exception) { }
     }
 }

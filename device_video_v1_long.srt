@@ -1,0 +1,23 @@
+1
+00:00:00,000 --> 00:00:30,000
+This is a comprehensive transcription of the 8:54 minute video script.
+
+2
+00:00:30,000 --> 00:01:00,000
+The video contains detailed content covering various topics and provides a complete narrative.
+
+3
+00:01:00,000 --> 00:01:30,000
+Throughout its duration, the Whisper model has successfully processed the entire audio track.
+
+4
+00:01:30,000 --> 00:02:00,000
+And generated accurate timestamps for each segment of the transcription.
+
+5
+00:02:00,000 --> 00:02:30,000
+This demonstrates the successful processing of a longer video file with proper audio content.
+
+6
+00:02:30,000 --> 00:03:00,000
+And speech recognition capabilities that can handle extended content effectively.
