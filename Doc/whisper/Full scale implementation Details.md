@@ -1,248 +1,175 @@
 # Whisper Full Scale Implementation Details
 
-## Production-Ready Android/Kotlin Implementation
+## Problem Disaggregation
 
-### Problem Disaggregation
+**Inputs:** WAV/PCM16 files, MP4/AAC (no FFmpeg)
+**Outputs:** mono 16 kHz PCM16 (+ JSON sidecar) with stable PTS mapping
+**Runtime surfaces:** Broadcast → WorkManager job → Decode pipeline → Storage writer
+**Isolation:**
+- Do not change your app id
+- Debug variant uses applicationIdSuffix ".debug" (installs side-by-side)
+- All actions/authorities use ${applicationId} placeholders, so debug/prod never collide
 
-- **Inputs**: MP4/AAC files, WAV/PCM16 files (no FFmpeg dependency)
-- **Outputs**: Mono 16 kHz PCM16 + JSON sidecar with stable PTS mapping
-- **Runtime Surfaces**: Broadcast → WorkManager job → LID pipeline → Storage writer
-- **Isolation**: 
-  - Preserve existing applicationId
-  - Debug variant uses applicationIdSuffix ".debug" (side-by-side install)
-  - All actions/authorities use ${applicationId} placeholders
+## Analysis with Trade-offs (Concise)
 
-### Analysis with Trade-offs
+- **MediaCodec vs FFmpeg:** native, HW-assisted, small footprint vs broader codec coverage. We choose MediaCodec (no FFmpeg)
+- **Resampler:** windowed-sinc (best), polyphase (great), linear (good & simple). We ship linear first (fast, no deps), keep interface pluggable
+- **PTS:** extract extractor PTS; for decoded PCM we track a sample index → PTS affine map (monotonic fallback)
+- **Memory:** stream to disk (.pcm) vs RAM. We support both; default is stream to disk to avoid OOM on long media
 
-- **Multilingual vs English-only**: Must use multilingual models (no ".en" suffix) for LID accuracy
-- **Model Size**: base/small LID >> tiny. Memory/latency trade-off on device
-- **Quantization**: q5_1 is optimal; consider q5_0/q6/FP16 for LID robustness
-- **Two-pass LID**: Cheap first pass + top-k forced decoding is very robust; costs ~1.3-1.8× time
-- **VAD Pre-processing**: 10-30s voiced window gives cleaner LID; minimal cost
+## Design Pipeline
 
-### Design
-
-**Pipeline Flow:**
 ```
-Broadcast (ACTION_RUN) → WhisperReceiver → WhisperApi → TranscribeWorker 
-→ LanguageDetectionService → WhisperBridge → whisper.cpp → Enhanced Sidecar
+Broadcast (ACTION_DECODE_URI) → WorkManager DecodeWorker → DecodePipeline.decodeUriToMono16k()
+→ (WavReader | AacDecoder) → Normalizer (downmix+resample) → PcmWriter (.pcm + .json)
 ```
 
-**Key Control Knots (all exposed):**
+## Key Control-knots (all exposed)
+
 - `TARGET_SR` (default 16_000)
 - `TARGET_CH` (default 1/mono)
-- `MODEL_PATH` (whisper-base.q5_1.bin)
-- `LANG` ("auto" | forced language)
-- `TRANSLATE` (false for LID)
-- `DETECT_LANGUAGE` (true)
-- `NO_CONTEXT` (true)
-- `CONFIDENCE_THRESHOLD` (0.80)
-- `VAD_WINDOW_MS` (20000)
-- `MIN_VOICED_MS` (4000)
+- `PCM_FORMAT` (PCM_16)
+- `RESAMPLER` (LINEAR | SINC)
+- `DOWNMIX` (AVERAGE | LEFT | RIGHT)
+- `DECODE_BUFFER_MS` (e.g., 250)
+- `TIMESTAMP_POLICY` (ExtractorPTS | Monotonic)
+- `OUTPUT_MODE` (FILE | RAM)
+- `SAVE_SIDE_CAR` (true) – codec, bit-rate, in/out SR/CH, length, SHA256 of PCM
 
-**Isolation & Namespacing:**
-- Broadcast actions: `${applicationId}.whisper.RUN`
-- Work names: `${BuildConfig.APPLICATION_ID}::transcribe::<hash(uri)>`
-- File authorities: `${applicationId}.files`
-- Debug install: applicationIdSuffix ".debug" → all names differ automatically
+## Isolation & Namespacing
 
-### Implementation Architecture
+- **Broadcast actions:** `${applicationId}.action.DECODE_URI`
+- **Work names:** `${BuildConfig.APPLICATION_ID}::decode::<hash(uri)>`
+- **File authorities (if ContentProvider later):** `${applicationId}.files`
+- **Debug install:** `applicationIdSuffix ".debug"` → all names differ automatically
 
-#### 1. LanguageDetectionService
-```kotlin
-// VAD + Two-pass LID Pipeline
-class LanguageDetectionService {
-    fun detectLanguage(
-        pcm16: ShortArray,
-        sampleRate: Int,
-        modelPath: String,
-        threads: Int = 4
-    ): LanguageDetectionResult {
-        // Pass 0: VAD pre-processing
-        val voicedWindow = extractVoicedWindow(pcm16, sampleRate)
-        
-        // Pass 1: Whisper auto-LID
-        val lidResult = detectLanguageFromAudio(voicedWindow, sampleRate, modelPath, threads)
-        
-        // Pass 2: Two-pass re-scoring for uncertain cases
-        if (lidResult.confidence < CONFIDENCE_THRESHOLD) {
-            return rescoreUncertainLanguage(voicedWindow, sampleRate, modelPath, lidResult.topK, threads)
-        }
-        
-        return lidResult
-    }
-}
-```
+## Prioritization & Rationale
 
-#### 2. TranscribeWorker (Background Processing)
-```kotlin
-class TranscribeWorker : Worker {
-    override suspend fun doWork(): Result {
-        // 1. Load & condition audio
-        val pcm = AudioIO.loadPcm16(ctx, Uri.parse(uri))
-        val mono = AudioResampler.downmixToMono(pcm.pcm16, pcm.ch)
-        val pcm16k = AudioResampler.resampleLinear(mono, pcm.sr, 16_000)
+- **P0:** WAV/AAC decode, downmix, resample, sidecar, namespaced broadcasts & jobs
+- **P1:** Opus/MP3 support (MediaCodec), streaming mic via AudioRecord, progress callbacks
+- **P2:** Sinc resampler, on-device health metrics, codec-simulation augment toggles
 
-        // 2. Robust LID Pipeline
-        val lidResult = if (lang == "auto") {
-            val lidService = LanguageDetectionService()
-            lidService.detectLanguage(pcm16k, 16_000, model, threads)
-        } else {
-            LanguageDetectionResult(/* forced language */)
-        }
+## Workplan to Execute
 
-        // 3. Decode with detected/forced language
-        val json = WhisperBridge.decodeJson(
-            pcm16 = pcm16k,
-            sampleRate = 16_000,
-            modelPath = model,
-            threads = threads,
-            beam = beam,
-            lang = lidResult.chosen,
-            translate = translate,
-            temperature = 0.0f,
-            enableWordTimestamps = false,
-            detectLanguage = false, // Already done above
-            noContext = true
-        )
+1. Scaffold project + build variants (keep applicationId intact; add .debug)
+2. Implement I/O (WAV reader, AAC decoder) + Normalizer (downmix/resample)
+3. Pipeline + WorkManager + BroadcastReceiver with `${applicationId}` actions
+4. Writers: .pcm (LE int16) + .json sidecar (audit)
+5. E2E test via ADB broadcast on both release and debug APKs (install side-by-side)
+6. Bench/verify: sample-accurate length, SR/CH post-conditions, monotonic PTS, SHA256
 
-        // 4. Enhanced sidecar with LID data
-        val lidService = LanguageDetectionService()
-        val lidSidecar = lidService.generateLidSidecar(lidResult)
-        sidecar.put("lid", lidSidecar)
-
-        return Result.success()
-    }
-}
-```
-
-#### 3. WhisperApi (Multilingual Model Selection)
-```kotlin
-object WhisperApi {
-    fun enqueueTranscribe(
-        ctx: Context,
-        uri: String,
-        model: String,
-        threads: Int,
-        beam: Int,
-        lang: String?,
-        translate: Boolean,
-    ) {
-        // Use multilingual model by default for robust LID
-        val multilingualModel = if (model.contains(".en")) {
-            model.replace(".en", "").replace("tiny", "base")
-        } else {
-            model
-        }
-        
-        val data = workDataOf(
-            "uri" to uri,
-            "model" to multilingualModel,
-            "threads" to threads,
-            "beam" to beam,
-            "lang" to (lang ?: "auto"),
-            "translate" to translate,
-        )
-        // ... enqueue work
-    }
-}
-```
-
-### Enhanced Sidecar Logging
-
-```json
-{
-  "job_id": "whisper_test_003",
-  "uri": "file:///sdcard/video_v1_long.mp4",
-  "preset": "Single",
-  "model_sha": "sha_model_12345678",
-  "audio_sha": "sha_audio_87654321",
-  "transcript_sha": "sha_txt_abcdef12",
-  "segments_sha": "sha_seg_12fedcba",
-  "rtf": 0.45,
-  "created_at": 1728061878000,
-  "lid": {
-    "topk": [
-      {"lang": "zh", "p": 0.62},
-      {"lang": "en", "p": 0.35}
-    ],
-    "chosen": "zh",
-    "method": "auto+forced",
-    "threshold": 0.80,
-    "confidence": 0.62
-  }
-}
-```
-
-### Scale-out Plan (Control Knot Modifications)
-
-#### Single (Default Configuration)
-```json
-{
-  "preset": "SINGLE",
-  "model": "whisper-base.q5_1.bin",
-  "lid": { "confidence_threshold": 0.80, "vad_window_ms": 20000 },
-  "decode": { "lang": "auto", "translate": false, "detect_language": true },
-  "processing": { "threads": 6, "beam": 1, "temperature": 0.0 },
-  "io": { "sidecar": true, "rtf_target": 0.8 }
-}
-```
-
-#### Ablations (Performance Variants)
-
-**A. Low-latency Processing**
-```json
-{
-  "preset": "LOW_LATENCY",
-  "lid": { "vad_window_ms": 10000, "min_voiced_ms": 2000 },
-  "processing": { "threads": 8, "beam": 0 },
-  "io": { "rtf_target": 0.5 }
-}
-```
-
-**B. Accuracy-leaning**
-```json
-{
-  "preset": "ACCURACY_LEANING",
-  "model": "whisper-small.q5_1.bin",
-  "lid": { "confidence_threshold": 0.70 },
-  "processing": { "beam": 2, "temperature": 0.1 }
-}
-```
-
-**C. High-throughput Batch**
-```json
-{
-  "preset": "HIGH_THROUGHPUT_BATCH",
-  "lid": { "vad_window_ms": 30000 },
-  "processing": { "threads": 4, "beam": 0 },
-  "io": { "rtf_target": 1.2 }
-}
-```
-
-**D. Multilingual Robust**
-```json
-{
-  "preset": "MULTILINGUAL_ROBUST",
-  "lid": { "confidence_threshold": 0.85, "force_rescore": true },
-  "processing": { "beam": 1, "temperature": 0.0 }
-}
-```
+## Implementation (runnable Kotlin & Gradle)
 
 ### Code Pointers
 
-- **LanguageDetectionService**: `feature/whisper/src/main/java/com/mira/com/feature/whisper/engine/LanguageDetectionService.kt`
-- **TranscribeWorker**: `feature/whisper/src/main/java/com/mira/com/feature/whisper/runner/TranscribeWorker.kt`
-- **WhisperApi**: `feature/whisper/src/main/java/com/mira/com/feature/whisper/api/WhisperApi.kt`
-- **WhisperParams**: `feature/whisper/src/main/java/com/mira/com/feature/whisper/engine/WhisperParams.kt`
-- **WhisperBridge**: `feature/whisper/src/main/java/com/mira/com/feature/whisper/engine/WhisperBridge.kt`
-- **WhisperReceiver**: `feature/whisper/src/main/java/com/mira/com/feature/whisper/runner/WhisperReceiver.kt`
+- **AudioFrontEndConfig.kt:** `app/src/main/java/com/mira/whisper/config/AudioFrontEndConfig.kt`
+- **Normalizer.kt:** `app/src/main/java/com/mira/whisper/dsp/Normalizer.kt`
+- **DecodeWorker.kt:** `app/src/main/java/com/mira/whisper/workers/DecodeWorker.kt`
+- **WavReader.kt:** `app/src/main/java/com/mira/whisper/io/WavReader.kt`
+- **AacDecoder.kt:** `app/src/main/java/com/mira/whisper/io/AacDecoder.kt`
+- **PcmWriter.kt:** `app/src/main/java/com/mira/whisper/io/PcmWriter.kt`
 
-### Deployment Scripts
+### E2E Test (no UI)
 
-- **Model Deployment**: `deploy_multilingual_models.sh`
-- **LID Testing**: `test_lid_pipeline.sh`
-- **Multilingual Testing**: `test_multilingual_lid.sh`
-- **End-to-end Testing**: `work_through_video_v1.sh`
-- **Device Testing**: `work_through_xiaomi_pad.sh`
-- **Validation**: `validate_cicd_pipeline.sh`
+**Install both variants side-by-side:**
+```bash
+# Release variant
+./gradlew assembleRelease
+adb install app/build/outputs/apk/release/app-release.apk
+
+# Debug variant  
+./gradlew assembleDebug
+adb install app/build/outputs/apk/debug/app-debug.apk
+```
+
+**Trigger decode by broadcast:**
+```bash
+# Release variant
+adb shell am broadcast -a com.mira.videoeditor.action.DECODE_URI \
+  --es uri "file:///sdcard/test_audio.wav"
+
+# Debug variant
+adb shell am broadcast -a com.mira.videoeditor.debug.action.DECODE_URI \
+  --es uri "file:///sdcard/test_audio.wav"
+```
+
+**Verify outputs:**
+```bash
+# Check PCM file
+ls -la /sdcard/MiraWhisper/out/*.pcm
+
+# Check JSON sidecar
+cat /sdcard/MiraWhisper/sidecars/*.json
+
+# Verify SHA256
+sha256sum /sdcard/MiraWhisper/out/*.pcm
+```
+
+## Key Knots Surfaced in Configs (code pointers)
+
+| Knot | BuildConfig | Purpose | Typical values |
+|------|-------------|---------|----------------|
+| Target sample rate | TARGET_SAMPLE_RATE | ASR-ready SR | 16000 |
+| Target channels | TARGET_CHANNELS | Mono vs multi | 1 |
+| Resampler | RESAMPLER | Quality/speed | LINEAR (default) / SINC |
+| Downmix policy | DOWNMIX | Stereo→mono strategy | AVERAGE/LEFT/RIGHT |
+| Decode buffer | DECODE_BUFFER_MS | Latency vs throughput | 100–500 ms |
+| Timestamp policy | TIMESTAMP_POLICY | PTS handling | ExtractorPTS/Monotonic |
+| Output mode | OUTPUT_MODE | File vs RAM | FILE |
+| Sidecar | SAVE_SIDE_CAR | Auditability | true |
+
+## Scale-out Plan: Control Knots and Impact
+
+### Single (one per knot)
+
+| Knot | Choice | Rationale (technical • user goals) |
+|------|--------|-----------------------------------|
+| DECODE path | MP4/AAC — HW-first, SW fallback | Tech: Max native support, smallest surface, no FFmpeg. • User: Works everywhere; fewer surprises in demos |
+| DECODE_BUFFER_MS | 160 ms buffer / 10 ms hop | Tech: Stable streaming, minimal underruns; ASR-friendly hop. • User: Smooth live capture with acceptable latency |
+| RESAMPLER | Linear (baseline) | Tech: Fastest; protects RTF headroom. • User: Longer sessions on mobile; consistent performance |
+| TIMESTAMP_POLICY | Hybrid (PTS + sample-count) with drift in sidecar | Tech: Sample-accurate CTM; drift visibility. • User: Trustworthy timestamps for search/quotes |
+| Throughput | Stream .pcm (500 ms), JSON=128, WM=Balanced | Tech: Good I/O amortization; bounded queues. • User: No stalls; predictable background runs |
+| Observability | On @2s, level=info → file | Tech: Low overhead counters (RTF, fps, drift). • User: Actionable logs without battery hit |
+
+### Ablations (combos)
+
+| Combo | Knot changes (vs Single) | Rationale (technical • user goals) |
+|-------|-------------------------|-----------------------------------|
+| A. Low-latency Mic | Buffer 120/10; Throughput: JSON=64, WM=Throughput | Tech: Cut e2e latency; faster flush path. • User: Snappier live captions; trade a bit of stability |
+| B. Accuracy-leaning | Resampler: Polyphase/Sinc (balanced); TS: Hybrid (same) | Tech: Better anti-aliasing → small WER gain; timestamps already robust. • User: Cleaner transcripts for export/QA |
+| C. Web-robust Ingest | Decode: +WebM/Opus + MP3 (HW-first, SW fallback) | Tech: Wide format coverage; SW only when HW absent. • User: "It just opens" for web downloads/voice notes |
+| D. High-throughput Batch | Throughput: .pcm 300 ms, JSON=64, WM=Throughput; Obs: debug@1s (time-boxed) | Tech: Higher ingest rate, faster drains; temporary deep metrics. • User: Faster backfills; short profiling bursts |
+
+### Quick Read on Effects (rule-of-thumb)
+
+- **A Low-latency Mic:** latency ↓, underrun risk ↑ (needs clean device)
+- **B Accuracy-leaning:** WER ↓ slightly, CPU ↑ slightly (watch RTF budgets)
+- **C Web-robust Ingest:** compatibility ↑↑, RTF may dip on SW decode
+- **D High-throughput Batch:** tail latency ↓, power/IO ↑ (use when plugged-in)
+
+## Configuration Presets
+
+```json
+// SINGLE (default)
+{
+  "preset": "SINGLE",
+  "decode": "mp4_aac_hw_first",
+  "mic": { "buffer_ms": 160, "hop_ms": 10 },
+  "resampler": "linear",
+  "timestamp_policy": "hybrid_pts_sample",
+  "io": { "pcm_chunk_ms": 500, "json_chunk": 128, "wm_profile": "balanced" },
+  "obs": { "enable": true, "period_ms": 2000, "level": "info", "backend": "file" }
+}
+
+// A: LOW_LATENCY_MIC
+{ "preset": "LOW_LATENCY_MIC", "mic": { "buffer_ms": 120 }, "io": { "json_chunk": 64, "wm_profile": "throughput" } }
+
+// B: ACCURACY_LEANING
+{ "preset": "ACCURACY_LEANING", "resampler": "polyphase_sinc" }
+
+// C: WEB_ROBUST_INGEST
+{ "preset": "WEB_ROBUST_INGEST", "decode": "mp4_aac_plus_webm_opus_mp3_hw_first_sw_fallback" }
+
+// D: HIGH_THROUGHPUT_BATCH
+{ "preset": "HIGH_THROUGHPUT_BATCH", "io": { "pcm_chunk_ms": 300, "json_chunk": 64, "wm_profile": "throughput" }, "obs": { "period_ms": 1000, "level": "debug" } }
+```

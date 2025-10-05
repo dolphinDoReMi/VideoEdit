@@ -1,152 +1,66 @@
-# Whisper ASR Documentation
+# Whisper README.md
 
-## Architecture Design and Control Knot
+## Multi-Lens Explanation
 
-**Status: READY FOR VERIFICATION**
+### 1/ Plain-text: How it Works (Step-by-Step)
 
-**Control knots:**
-- Seedless pipeline: deterministic sampling
-- Fixed preprocess: no random crop
-- Same model assets: fixed hypothesis f_θ
+- **Locate an input file (static):** .wav or .mp4 (AAC inside container)
+- **Decode to waveform:**
+  - WAV → parse RIFF → PCM16
+  - MP4 → MediaExtractor/MediaCodec → AAC→PCM16
+- **Normalize front-end:** downmix to mono, resample to 16 kHz, clamp to int16 range
+- **Feed PCM to whisper.cpp via JNI** with explicit config (threads, language or auto-LID, translate on/off, greedy/beam, temperature)
+- **Whisper computes log-mel,** runs the Transformer decoder, and returns time-stamped segments (10 ms tick base): [t0Ms, t1Ms, text]
+- **Optional:** enable word timestamps for word-level CTM
+- **Serialize artifacts next to the audio:**
+  - JSON sidecar: {segments[], model_variant, model_sha, decode_cfg, audio_sha256, created_at, rtf}
+  - (Optional) SRT/VTT generated from segments
+- **Persist run metadata** in asr.db (asr_files, asr_jobs, asr_segments) for audit/replay
+- **Verify with sanity checks:** sample rate==16 kHz mono, non-empty segments, ordered times (t0≤t1), finite text, RTF < target, optional WER ≤ threshold on a reference clip
 
-**Implementation:**
-- Deterministic sampling: uniform frame timestamps
-- Fixed preprocessing: center-crop, no augmentation
-- Re-ingest twice: SHA-256 hash comparison
+**Why this works:** End-to-end ASR (Whisper) maps normalized audio to subword text with learned alignment; strict front-end (mono/16k) removes domain mismatch; JSON+DB make outputs reproducible and time-addressable.
 
-**Verification:** Hash comparison script in `ops/verify_all.sh`
+### 2/ For a Recsys System Design Expert
 
-## Full Scale Implementation Details
+- **Indexing contract:** one immutable transcript JSON per (asset, variant); path convention: {variant}/{audioId}.json (+ SHA of audio and model)
+- **Online latency path:** user query → text retrieval over transcripts (BM25/ANN on text embeddings) with time-coded jumps back to media
+- **ANN build:** store raw JSON for audit; build a serving index over text embeddings (e.g., E5/MPNet) or n-gram inverted index; keep Whisper confidence/timing as features
+- **MIPS/cosine:** if using unit-norm text embeddings, cosine==dot; standard ANN (Faiss/ScaNN/HNSW) applies
+- **Freshness & TTL:** decouple offline ASR ingest from online retrieval; sidecar has created_at, model_sha, decode_cfg for rollbacks and replays
+- **Feature stability:** fixed resample/downmix and pinned decode params → deterministic transcripts (minus inherent stochasticity like temperature/beam)
+- **Ranking fusion:** score = α·text_match(q, t) + β·ASR_quality(seg) + γ·user_personalization(u, asset) + δ·recency(asset); fuse at segment or asset level
+- **Safety/observability:** metrics = recall@K, latency p99, RTF distribution, segment coverage (% voiced), WER on labeled panels; verify integrity via audio_sha256 and model_sha
+- **AB discipline:** treat model change or decode config change (beam/temp) as new variant keys; support shadow deployments with side-by-side JSONs
 
-### Problem Disaggregation
-- **Inputs**: WAV/PCM16 files, MP4/AAC (no FFmpeg)
-- **Outputs**: mono 16 kHz PCM16 (+ JSON sidecar) with stable PTS mapping
-- **Runtime surfaces**: Broadcast → WorkManager job → Decode pipeline → Storage writer
-- **Isolation**: Debug variant uses applicationIdSuffix ".debug" (installs side-by-side)
+### 3/ For a Deep Learning Expert
 
-### Analysis with Trade-offs
-- **MediaCodec vs FFmpeg**: Native, HW-assisted, small footprint vs broader codec coverage. We choose MediaCodec (no FFmpeg)
-- **Resampler**: Windowed-sinc (best), polyphase (great), linear (good & simple). We ship linear first (fast, no deps)
-- **PTS**: Extract extractor PTS; for decoded PCM we track sample index → PTS affine map (monotonic fallback)
-- **Memory**: Stream to disk (.pcm) vs RAM. We support both; default is stream to disk to avoid OOM
+- **Front-end:** mono 16 kHz, log-mel computed inside Whisper; ensure amplitude in [−1,1]
+- **Tokenizer/units:** BPE (Whisper's vocabulary); timestamps at 10 ms tick resolution if enabled
+- **Search:** greedy (fast) vs. beam (beamSize, patience); temperature for exploration; translate toggles X→EN decoding; language can be forced to avoid LID flips
+- **Chunking:** whisper.cpp internally handles ~30 s contexts; for long files, do windowed decode with overlap and stitch segments
+- **Numerical hygiene:** check isFinite, no NaNs; verify RTF vs threads; keep resampler and downmix deterministic; hold temperature fixed in eval runs
+- **Quantization:** GGUF quantization reduces RAM/latency but may raise WER; keep a float (or higher-precision) baseline for audits; report ΔWER/ΔRTF
+- **Known limitations:** no diarization/speaker turns by default; far-field/noisy audio benefits from better resampling and optional VAD; cross-talk and code-switching can degrade unless language is forced
+- **Upgrades:** band-limited resampler (SoX-style) for noisy domains; VAD pre-trim; long-form strategies (context carryover); optional speaker diarization for CU tasks
 
-### Design Pipeline
-```
-Broadcast (ACTION_DECODE_URI) → WorkManager DecodeWorker → DecodePipeline.decodeUriToMono16k()
-→ (WavReader | AacDecoder) → Normalizer (downmix+resample) → PcmWriter (.pcm + .json)
-```
+### 4/ For a Content Understanding Expert
 
-### Key Control-knots (all exposed)
-- `TARGET_SR` (default 16_000)
-- `TARGET_CH` (default 1/mono)
-- `PCM_FORMAT` (PCM_16)
-- `RESAMPLER` (LINEAR | SINC)
-- `DOWNMIX` (AVERAGE | LEFT | RIGHT)
-- `DECODE_BUFFER_MS` (e.g., 250)
-- `TIMESTAMP_POLICY` (ExtractorPTS | Monotonic)
-- `OUTPUT_MODE` (FILE | RAM)
-- `SAVE_SIDE_CAR` (true) – codec, bit-rate, in/out SR/CH, length, SHA256 of PCM
+- **Primitive you get:** {t0Ms, t1Ms, text} spans—exact anchors for highlights, topic segmentation, summarization, safety tagging, and retrieval-augmented QA
+- **Segmentation quality:** phrase-level segments are stable for CU; enable word timestamps only when you need word-level alignment (costs compute)
+- **Diagnostics:** coverage (voiced duration / file duration), gap distribution (silences), language stability, OOV rates, ASR confidence proxy (beam entropy or log-probs if exposed)
+- **Sampling bias:** front-end normalization prevents drift across corpora; watch domain shift (far-field, music overlap, accents)
+- **Multimodal hooks:** align transcripts with video frames or shots by time; late-fuse with image/video embeddings for better retrieval and summarization; transcripts also seed topic labels and entity graphs
+- **Safety:** time-pin policy flags (e.g., abuse/PII) to exact spans for explainability and partial redaction
 
-### Isolation & Namespacing
-- **Broadcast actions**: `${applicationId}.action.DECODE_URI`
-- **Work names**: `${BuildConfig.APPLICATION_ID}::decode::<hash(uri)>`
-- **File authorities**: `${applicationId}.files`
-- **Debug install**: `applicationIdSuffix ".debug"` → all names differ automatically
+### 5/ For an Audio/LLM Generation & Agents Expert
 
-### Prioritization & Rationale
-- **P0**: WAV/AAC decode, downmix, resample, sidecar, namespaced broadcasts & jobs
-- **P1**: Opus/MP3 support (MediaCodec), streaming mic via AudioRecord, progress callbacks
-- **P2**: Sinc resampler, on-device health metrics, codec-simulation augment toggles
+- **RAG over audio:** treat transcripts as the retrieval layer; for a prompt, fetch top-K spans by cosine/BM25, then ground an LLM/agent with verbatim time-linked evidence
+- **Dubbing/localization:** translate=true yields EN targets; keep source timestamps to drive subtitle timing and guide TTS alignment
+- **Guidance signals:** during A/V generation, periodically score rendered audio/text vs target transcript; use similarity (text or audio embeddings) as auxiliary guidance to reduce semantic drift
+- **Editing ops:** time-aligned text enables text-based editing workflows (cut, copy, replace) that map back to waveform spans deterministically
+- **Telemetry & safety:** because artifacts are auditable (JSON+SHA), you can trace which spans conditioned a generation and gate disallowed content by time
 
-### Workplan to Execute
-1. Scaffold project + build variants (keep applicationId intact; add .debug)
-2. Implement I/O (WAV reader, AAC decoder) + Normalizer (downmix/resample)
-3. Pipeline + WorkManager + BroadcastReceiver with `${applicationId}` actions
-4. Writers: .pcm (LE int16) + .json sidecar (audit)
-5. E2E test via ADB broadcast on both release and debug APKs (install side-by-side)
-6. Bench/verify: sample-accurate length, SR/CH post-conditions, monotonic PTS, SHA256
-
-### Scale-out Plan: Control Knots and Impact
-
-#### Single (one per knot)
-| Knot | Choice | Rationale (technical • user goals) |
-|------|--------|-----------------------------------|
-| DECODE path | MP4/AAC — HW-first, SW fallback | Tech: Max native support, smallest surface, no FFmpeg. • User: Works everywhere; fewer surprises in demos |
-| DECODE_BUFFER_MS | 160 ms buffer / 10 ms hop | Tech: Stable streaming, minimal underruns; ASR-friendly hop. • User: Smooth live capture with acceptable latency |
-| RESAMPLER | Linear (baseline) | Tech: Fastest; protects RTF headroom. • User: Longer sessions on mobile; consistent performance |
-| TIMESTAMP_POLICY | Hybrid (PTS + sample-count) with drift in sidecar | Tech: Sample-accurate CTM; drift visibility. • User: Trustworthy timestamps for search/quotes |
-| Throughput | Stream .pcm (500 ms), JSON=128, WM=Balanced | Tech: Good I/O amortization; bounded queues. • User: No stalls; predictable background runs |
-| Observability | On @2s, level=info → file | Tech: Low overhead counters (RTF, fps, drift). • User: Actionable logs without battery hit |
-
-#### Ablations (combos)
-| Combo | Knot changes (vs Single) | Rationale (technical • user goals) |
-|-------|-------------------------|-----------------------------------|
-| A. Low-latency Mic | Buffer 120/10; Throughput: JSON=64, WM=Throughput | Tech: Cut e2e latency; faster flush path. • User: Snappier live captions; trade a bit of stability |
-| B. Accuracy-leaning | Resampler: Polyphase/Sinc (balanced); TS: Hybrid (same) | Tech: Better anti-aliasing → small WER gain; timestamps already robust. • User: Cleaner transcripts for export/QA |
-| C. Web-robust Ingest | Decode: +WebM/Opus + MP3 (HW-first, SW fallback) | Tech: Wide format coverage; SW only when HW absent. • User: "It just opens" for web downloads/voice notes |
-| D. High-throughput Batch | Throughput: .pcm 300 ms, JSON=64, WM=Throughput; Obs: debug@1s (time-boxed) | Tech: Higher ingest rate, faster drains; temporary deep metrics. • User: Faster backfills; short profiling bursts |
-
-### Configuration Presets
-
-```json
-// SINGLE (default)
-{
-  "preset": "SINGLE",
-  "decode": "mp4_aac_hw_first",
-  "mic": { "buffer_ms": 160, "hop_ms": 10 },
-  "resampler": "linear",
-  "timestamp_policy": "hybrid_pts_sample",
-  "io": { "pcm_chunk_ms": 500, "json_chunk": 128, "wm_profile": "balanced" },
-  "obs": { "enable": true, "period_ms": 2000, "level": "info", "backend": "file" }
-}
-
-// A: LOW_LATENCY_MIC
-{ "preset": "LOW_LATENCY_MIC", "mic": { "buffer_ms": 120 }, "io": { "json_chunk": 64, "wm_profile": "throughput" } }
-
-// B: ACCURACY_LEANING
-{ "preset": "ACCURACY_LEANING", "resampler": "polyphase_sinc" }
-
-// C: WEB_ROBUST_INGEST
-{ "preset": "WEB_ROBUST_INGEST", "decode": "mp4_aac_plus_webm_opus_mp3_hw_first_sw_fallback" }
-
-// D: HIGH_THROUGHPUT_BATCH
-{ "preset": "HIGH_THROUGHPUT_BATCH", "io": { "pcm_chunk_ms": 300, "json_chunk": 64, "wm_profile": "throughput" }, "obs": { "period_ms": 1000, "level": "debug" } }
-```
-
-## Device Deployment
-
-### Xiaomi Pad Deployment
-- **Target Device**: Xiaomi Pad 6 (Android 13+)
-- **Architecture**: ARM64-v8a
-- **Permissions**: RECORD_AUDIO, FOREGROUND_SERVICE_DATA_SYNC, POST_NOTIFICATIONS
-- **Testing**: Real-time resource monitoring, background service validation
-
-### iPad Deployment  
-- **Target Device**: iPad Pro (iOS 16+)
-- **Architecture**: ARM64
-- **Capabilities**: Background processing, Core Audio integration
-- **Testing**: Cross-platform compatibility validation
-
-## CI/CD Guide & Release
-
-### Android Release Pipeline
-1. **Build Variants**: Release and Debug (side-by-side installation)
-2. **Signing**: Debug keystore for development, release keystore for production
-3. **Testing**: Automated E2E tests via ADB broadcast
-4. **Deployment**: APK distribution via internal channels
-
-### iOS Release Pipeline
-1. **Build Configuration**: Debug and Release schemes
-2. **Code Signing**: Development and Distribution certificates
-3. **Testing**: XCTest automation for core functionality
-4. **Deployment**: TestFlight for beta, App Store for production
-
-### macOS Web Version
-1. **Build Target**: WebAssembly compilation
-2. **Testing**: Browser compatibility testing
-3. **Deployment**: Static hosting with CDN distribution
-
-## README.md
+## Key Design Decisions
 
 ### For Content Understanding Experts
 - **Primitive Output**: `{t0Ms, t1Ms, text}` spans provide exact anchors for highlights, topic segmentation, summarization, safety tagging, and retrieval-augmented QA
@@ -163,24 +77,34 @@ Broadcast (ACTION_DECODE_URI) → WorkManager DecodeWorker → DecodePipeline.de
 - **Online Latency**: Text retrieval over transcripts with time-coded jumps back to media
 - **Feature Stability**: Fixed resample/downmix and pinned decode params ensure deterministic transcripts
 
-### For Deep Learning Experts
-- **Front-end**: Mono 16 kHz, log-mel computed inside Whisper; ensure amplitude in [−1,1]
-- **Tokenizer/units**: BPE (Whisper's vocabulary); timestamps at 10 ms tick resolution
-- **Search**: Greedy (fast) vs. beam (beamSize, patience); temperature for exploration
-- **Numerical Hygiene**: Check isFinite, no NaNs; verify RTF vs threads
+## Quick Start
 
-### For Audio/LLM Generation & Agents Experts
-- **RAG over Audio**: Treat transcripts as retrieval layer; fetch top-K spans by cosine/BM25
-- **Dubbing/Localization**: Translate=true yields EN targets; keep source timestamps
-- **Guidance Signals**: Score rendered audio/text vs target transcript during A/V generation
-- **Editing Ops**: Time-aligned text enables text-based editing workflows
+1. **Install Dependencies**: Ensure Android SDK and NDK are configured
+2. **Build Project**: Run `./gradlew assembleDebug` for debug build
+3. **Deploy to Device**: Use `adb install` to deploy to Xiaomi Pad or iPad
+4. **Test Pipeline**: Run verification scripts in `scripts/` directory
+5. **Monitor Resources**: Use background resource monitoring service
 
-## Scripts
+## Architecture Overview
 
-See `scripts/` folder for:
-- `test_whisper.sh` - Core functionality testing
-- `test_whisper_api.sh` - API endpoint validation
-- `test_whisper_bridge.sh` - Android bridge testing
-- `test_whisper_resource_monitoring.sh` - Resource monitoring validation
-- `deploy_multilingual_models.sh` - Model deployment
-- `verify_lid_implementation.sh` - Language detection verification
+```
+Audio Input → MediaCodec Decoder → Normalizer → Whisper.cpp → Transcript Output
+     ↓              ↓                ↓            ↓              ↓
+  WAV/MP4      PCM16 Buffer    Mono 16kHz    Segments      JSON Sidecar
+```
+
+## Control Knots
+
+- **TARGET_SR**: 16000 Hz (ASR-ready sample rate)
+- **TARGET_CH**: 1 (mono channel)
+- **RESAMPLER**: LINEAR (fast, deterministic)
+- **TIMESTAMP_POLICY**: Hybrid (PTS + sample-count)
+- **OUTPUT_MODE**: FILE (stream to disk)
+- **SAVE_SIDE_CAR**: true (auditability)
+
+## Verification
+
+- **Hash Comparison**: SHA-256 verification for deterministic outputs
+- **Performance Benchmarks**: RTF, memory usage, processing speed
+- **Quality Validation**: WER testing on reference clips
+- **Cross-Platform**: Testing on Xiaomi Pad and iPad

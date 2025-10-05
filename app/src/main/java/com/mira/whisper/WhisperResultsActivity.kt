@@ -10,6 +10,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import com.mira.resource.DeviceResourceService
 import com.mira.resource.ResourceUpdateReceiver
+import java.util.Timer
+import java.util.TimerTask
 
 /**
  * Activity for Whisper Results UI.

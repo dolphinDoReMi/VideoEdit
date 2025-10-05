@@ -17,6 +17,7 @@ import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.mira.whisper.WhisperMainActivity
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.FileReader

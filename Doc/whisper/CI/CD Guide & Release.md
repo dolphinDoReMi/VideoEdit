@@ -1,421 +1,466 @@
 # Whisper CI/CD Guide & Release
 
-## CI/CD Pipeline Overview
+## Android Release Pipeline
 
-### Workflow Configuration
-**File**: `.github/workflows/robust-lid-cicd.yml`
+### Build Configuration
 
-### Pipeline Jobs
-
-#### 1. Code Quality
-- **Detekt**: Static analysis for Kotlin code
-- **Unit Tests**: `./gradlew :app:testDebugUnitTest`
-- **Lint**: `./gradlew :app:lintDebug`
-
-#### 2. Build & Test
-- **Debug APK**: `./gradlew :app:assembleDebug`
-- **Release APK**: `./gradlew :app:assembleRelease`
-- **Artifact Upload**: Debug and Release APKs
-
-#### 3. LID Validation
-- **Core Implementation**: Verify LanguageDetectionService
-- **Parameter Validation**: Check WhisperParams LID parameters
-- **Pipeline Integration**: Validate TranscribeWorker LID pipeline
-- **Model Selection**: Confirm multilingual model usage
-
-#### 4. Documentation Validation
-- **Implementation Docs**: ROBUST_LID_IMPLEMENTATION.md
-- **Background Docs**: BACKGROUND_LID_IMPLEMENTATION.md
-- **Deployment Scripts**: Validate script completeness
-
-#### 5. Integration Tests
-- **Device Testing**: Conditional on device availability
-- **LID Pipeline**: End-to-end validation
-- **Performance Metrics**: RTF and accuracy verification
-
-#### 6. Deployment Preparation
-- **Package Creation**: Robust LID deployment package
-- **Script Validation**: Deployment and testing scripts
-- **Documentation**: Implementation guides
-
-#### 7. Auto Merge
-- **Whisper → Main**: Automatic merge on whisper branch push
-- **Release Creation**: Automated versioning and release notes
-
-## Release Process
-
-### Version Strategy
-- **Major**: Breaking changes or new features
-- **Minor**: New functionality, backward compatible
-- **Patch**: Bug fixes and improvements
-
-### Release Workflow
-
-#### 1. Feature Development
-```bash
-# Create feature branch
-git checkout -b feature/robust-lid
-
-# Implement changes
-# ... development work ...
-
-# Commit with conventional format
-git commit -m "feat: implement robust LID pipeline"
-
-# Push to feature branch
-git push origin feature/robust-lid
-```
-
-#### 2. Integration Testing
-```bash
-# Merge to whisper branch
-git checkout whisper
-git merge feature/robust-lid
-
-# Push to trigger CI/CD
-git push origin whisper
-```
-
-#### 3. Automated Release
-- CI/CD pipeline automatically merges whisper → main
-- Creates release with version tag
-- Generates release notes
-- Uploads deployment artifacts
-
-### Release Artifacts
-
-#### Android APKs
-- **Debug APK**: `app-debug.apk`
-- **Release APK**: `app-release.apk`
-- **Architecture**: arm64-v8a optimized
-
-#### Deployment Package
-```
-robust-lid-deployment/
-├── LanguageDetectionService.kt
-├── TranscribeWorker.kt
-├── WhisperApi.kt
-├── WhisperParams.kt
-├── WhisperBridge.kt
-├── deploy_multilingual_models.sh
-├── test_lid_pipeline.sh
-├── ROBUST_LID_IMPLEMENTATION.md
-└── BACKGROUND_LID_IMPLEMENTATION.md
-```
-
-## Platform-Specific Releases
-
-### Android Release
-
-#### Build Configuration
-```kotlin
-// app/build.gradle.kts
+**Debug Variant:**
+```gradle
 android {
     buildTypes {
         debug {
             applicationIdSuffix ".debug"
-            isDebuggable = true
+            debuggable true
+            minifyEnabled false
         }
+    }
+}
+```
+
+**Release Variant:**
+```gradle
+android {
+    buildTypes {
         release {
-            isMinifyEnabled = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
 }
 ```
 
-#### Signing Configuration
-```kotlin
-// keystore configuration
-signingConfigs {
-    create("release") {
-        storeFile = file("keystore/release.keystore")
-        storePassword = System.getenv("KEYSTORE_PASSWORD")
-        keyAlias = System.getenv("KEY_ALIAS")
-        keyPassword = System.getenv("KEY_PASSWORD")
+### Build Commands
+
+**Debug Build:**
+```bash
+./gradlew assembleDebug
+# Output: app/build/outputs/apk/debug/app-debug.apk
+```
+
+**Release Build:**
+```bash
+./gradlew assembleRelease
+# Output: app/build/outputs/apk/release/app-release.apk
+```
+
+### Signing Configuration
+
+**Debug Signing (automatic):**
+- Uses debug keystore from Android SDK
+- No additional configuration required
+
+**Release Signing:**
+```gradle
+android {
+    signingConfigs {
+        release {
+            storeFile file('keystore/release.keystore')
+            storePassword System.getenv("KEYSTORE_PASSWORD")
+            keyAlias System.getenv("KEY_ALIAS")
+            keyPassword System.getenv("KEY_PASSWORD")
+        }
     }
 }
 ```
 
-#### Release Process
+### Testing Pipeline
+
+**Unit Tests:**
 ```bash
-# Build release APK
-./gradlew :app:assembleRelease
-
-# Sign APK
-jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 \
-    -keystore keystore/release.keystore \
-    app-release-unsigned.apk release
-
-# Align APK
-zipalign -v 4 app-release-unsigned.apk app-release.apk
+./gradlew testDebugUnitTest
 ```
 
-### iOS Release
-
-#### Build Configuration
-```swift
-// WhisperKit configuration
-let config = WhisperKitConfig(
-    modelFolder: Bundle.main.url(forResource: "whisper-small.q5_1", withExtension: "bin")!,
-    computeUnits: .cpuAndGPU,
-    verbose: true
-)
+**Instrumented Tests:**
+```bash
+./gradlew connectedDebugAndroidTest
 ```
 
-#### Release Process
+**E2E Testing:**
 ```bash
-# Build iOS app
+# Install both variants
+adb install app/build/outputs/apk/debug/app-debug.apk
+adb install app/build/outputs/apk/release/app-release.apk
+
+# Test debug variant
+adb shell am broadcast -a com.mira.videoeditor.debug.action.DECODE_URI \
+  --es uri "file:///sdcard/test_audio.wav"
+
+# Test release variant  
+adb shell am broadcast -a com.mira.videoeditor.action.DECODE_URI \
+  --es uri "file:///sdcard/test_audio.wav"
+```
+
+### Deployment
+
+**Internal Distribution:**
+```bash
+# Upload to internal distribution platform
+curl -X POST "https://internal-distribution.com/api/upload" \
+  -F "file=@app/build/outputs/apk/release/app-release.apk" \
+  -F "version=${VERSION_NAME}" \
+  -F "notes=${RELEASE_NOTES}"
+```
+
+**Play Store Release:**
+```bash
+# Bundle for Play Store
+./gradlew bundleRelease
+# Output: app/build/outputs/bundle/release/app-release.aab
+```
+
+## iOS Release Pipeline
+
+### Capacitor Configuration
+
+**capacitor.config.ts:**
+```typescript
+import { CapacitorConfig } from '@capacitor/core';
+
+const config: CapacitorConfig = {
+  appId: 'com.mira.videoeditor',
+  appName: 'VideoEdit',
+  webDir: 'dist',
+  server: {
+    androidScheme: 'https'
+  },
+  ios: {
+    scheme: 'VideoEdit'
+  }
+};
+
+export default config;
+```
+
+### Build Commands
+
+**Web Build:**
+```bash
+pnpm build
+```
+
+**iOS Sync:**
+```bash
+pnpm exec cap sync ios
+cd ios/App && pod install --repo-update && cd -
+```
+
+**iOS Build:**
+```bash
+cd ios/App
+agvtool next-version -all
+cd -
 xcodebuild -workspace ios/App/App.xcworkspace \
-    -scheme App -configuration Release \
-    -destination 'generic/platform=iOS' \
-    clean archive -archivePath ios/build/App.xcarchive
-
-# Export for App Store
-xcodebuild -exportArchive \
-    -archivePath ios/build/App.xcarchive \
-    -exportOptionsPlist ios/build/ExportOptions.plist \
-    -exportPath ios/build
+  -scheme App -configuration Release \
+  -destination 'generic/platform=iOS' \
+  -allowProvisioningUpdates \
+  clean archive \
+  -archivePath ios/build/App.xcarchive
 ```
 
-### macOS Web Version Release
+### Code Signing
 
-#### WebAssembly Build
+**Development Certificate:**
+- Xcode automatically manages development certificates
+- Requires Apple Developer account
+
+**Distribution Certificate:**
+- Create distribution certificate in Apple Developer portal
+- Configure in Xcode project settings
+
+### Testing
+
+**XCTest Automation:**
 ```bash
-# Build whisper.cpp for WebAssembly
+# Run UI tests
+xcodebuild test \
+  -workspace ios/App/App.xcworkspace \
+  -scheme App \
+  -destination 'platform=iOS Simulator,name=iPhone 14'
+```
+
+**Device Testing:**
+```bash
+# Install on device
+xcrun devicectl device install app --device [DEVICE_ID] ios/build/App.ipa
+```
+
+### Deployment
+
+**TestFlight:**
+```bash
+# Export for TestFlight
+xcodebuild -exportArchive \
+  -archivePath ios/build/App.xcarchive \
+  -exportOptionsPlist ios/build/ExportOptions.plist \
+  -exportPath ios/build
+
+# Upload to TestFlight
+xcrun altool --upload-app -f ios/build/App.ipa -t ios \
+  --apiKey "$ASC_API_KEY_ID" --apiIssuer "$ASC_API_ISSUER_ID"
+```
+
+**App Store:**
+- Use Xcode Organizer to upload to App Store Connect
+- Submit for review through App Store Connect portal
+
+## macOS Web Version
+
+### Build Configuration
+
+**WebAssembly Build:**
+```bash
+# Build Whisper WASM
 cd whisper.cpp
+make clean
 make wasm
 
-# Generate optimized WebAssembly module
-emcc -O3 -s WASM=1 -s EXPORTED_FUNCTIONS="['_whisper_init', '_whisper_decode']" \
-     -s ALLOW_MEMORY_GROWTH=1 -s INITIAL_MEMORY=64MB \
-     whisper.cpp -o whisper.wasm
+# Build CLIP WASM  
+cd ../clip
+make wasm
 ```
 
-#### Web Distribution
+**Web Build:**
 ```bash
-# Package web assets
-mkdir -p web-dist/
-cp whisper.wasm web-dist/
-cp whisper.js web-dist/
-cp index.html web-dist/
+pnpm build
+```
 
-# Create distribution package
-tar -czf whisper-web-v1.0.0.tar.gz web-dist/
+### Progressive Web App Features
+
+**Service Worker:**
+```javascript
+// sw.js
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open('videoedit-v1').then(cache => {
+      return cache.addAll([
+        '/',
+        '/static/js/bundle.js',
+        '/static/css/main.css'
+      ]);
+    })
+  );
+});
+```
+
+**Manifest:**
+```json
+{
+  "name": "VideoEdit",
+  "short_name": "VideoEdit",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
+```
+
+### Testing
+
+**Cross-Browser Testing:**
+```bash
+# Chrome
+google-chrome --enable-webassembly
+
+# Safari
+/Applications/Safari.app/Contents/MacOS/Safari
+
+# Firefox
+firefox --enable-webassembly
+```
+
+**Responsive Design Testing:**
+```bash
+# Test different screen sizes
+# Use browser dev tools to simulate various devices
+```
+
+### Deployment
+
+**Static Hosting:**
+```bash
+# Deploy to Netlify
+netlify deploy --prod --dir=dist
+
+# Deploy to Vercel
+vercel --prod
+
+# Deploy to GitHub Pages
+gh-pages -d dist
+```
+
+## CI/CD Pipeline
+
+### GitHub Actions
+
+**Android Build:**
+```yaml
+name: Android Build
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+      - name: Build
+        run: ./gradlew assembleDebug
+      - name: Test
+        run: ./gradlew testDebugUnitTest
+```
+
+**iOS Build:**
+```yaml
+name: iOS Build
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: pnpm install
+      - name: Build web
+        run: pnpm build
+      - name: Sync iOS
+        run: pnpm exec cap sync ios
+```
+
+### Release Automation
+
+**Version Bumping:**
+```bash
+# Update version in build.gradle
+sed -i "s/versionName \".*\"/versionName \"$VERSION\"/" app/build.gradle
+
+# Update version in package.json
+npm version $VERSION
+```
+
+**Release Notes:**
+```bash
+# Generate release notes
+git log --oneline $(git describe --tags --abbrev=0)..HEAD > RELEASE_NOTES.md
 ```
 
 ## Quality Assurance
 
-### Testing Strategy
+### Code Quality
 
-#### Unit Tests
-```kotlin
-@Test
-fun testLanguageDetection() {
-    val lidService = LanguageDetectionService()
-    val result = lidService.detectLanguage(pcm16, 16000, modelPath, 4)
-    
-    assertThat(result.chosen).isEqualTo("zh")
-    assertThat(result.confidence).isGreaterThan(0.80)
+**Linting:**
+```bash
+# Android
+./gradlew detekt
+
+# Web
+pnpm lint
+```
+
+**Security Scanning:**
+```bash
+# Android
+./gradlew dependencyCheckAnalyze
+
+# Web
+npm audit
+```
+
+### Performance Testing
+
+**Android Performance:**
+```bash
+# Memory profiling
+adb shell dumpsys meminfo com.mira.videoeditor
+
+# CPU profiling
+adb shell top -p $(adb shell pidof com.mira.videoeditor)
+```
+
+**iOS Performance:**
+```bash
+# Memory usage
+xcrun simctl spawn booted log stream --predicate 'process == "VideoEdit"'
+
+# CPU usage
+xcrun simctl spawn booted top -pid $(xcrun simctl spawn booted pgrep VideoEdit)
+```
+
+## Monitoring & Analytics
+
+### Crash Reporting
+
+**Android (Firebase Crashlytics):**
+```gradle
+dependencies {
+    implementation 'com.google.firebase:firebase-crashlytics-gradle:2.9.9'
 }
 ```
 
-#### Integration Tests
-```bash
-# Test LID pipeline
-./test_lid_pipeline.sh
+**iOS (Firebase Crashlytics):**
+```swift
+import FirebaseCrashlytics
 
-# Test multilingual support
-./test_multilingual_lid.sh
-
-# Test device deployment
-./work_through_xiaomi_pad.sh
+Crashlytics.crashlytics().record(error: error)
 ```
 
-#### Performance Tests
-```bash
-# Benchmark RTF performance
-./benchmark_rtf.sh
+### Performance Monitoring
 
-# Memory usage analysis
-./profile_memory.sh
-
-# Accuracy validation
-./validate_accuracy.sh
+**Android (Firebase Performance):**
+```gradle
+dependencies {
+    implementation 'com.google.firebase:firebase-perf:20.4.1'
+}
 ```
 
-### Code Quality Metrics
-
-#### Static Analysis
-- **Detekt**: Kotlin code analysis
-- **Lint**: Android-specific checks
-- **Code Coverage**: Unit test coverage
-
-#### Performance Metrics
-- **RTF**: Real-Time Factor < 1.0
-- **Memory**: < 200MB for base model
-- **Accuracy**: Chinese detection > 85%
-
-### Security Considerations
-
-#### Model Security
-- **SHA-256 Verification**: Model integrity checks
-- **Secure Storage**: Encrypted model storage
-- **Access Control**: Permission-based model access
-
-#### Data Privacy
-- **Local Processing**: No cloud data transmission
-- **Temporary Files**: Secure cleanup of audio files
-- **Sidecar Data**: Encrypted metadata storage
-
-## Deployment Automation
-
-### CI/CD Triggers
-
-#### Push Triggers
-- **whisper branch**: Full CI/CD pipeline
-- **main branch**: Release deployment
-- **feature branches**: Code quality checks
-
-#### Pull Request Triggers
-- **Code Review**: Automated quality checks
-- **Integration Tests**: Feature validation
-- **Documentation**: Update verification
-
-### Automated Deployment
-
-#### Development Environment
-```bash
-# Auto-deploy to development
-./deploy_dev.sh
-
-# Run smoke tests
-./smoke_tests.sh
+**Custom Metrics:**
+```kotlin
+// Track Whisper processing time
+val startTime = System.currentTimeMillis()
+// ... processing ...
+val processingTime = System.currentTimeMillis() - startTime
+FirebasePerformance.getInstance().newTrace("whisper_processing").apply {
+    start()
+    putMetric("processing_time_ms", processingTime)
+    stop()
+}
 ```
 
-#### Staging Environment
-```bash
-# Deploy to staging
-./deploy_staging.sh
+## Release Checklist
 
-# Run integration tests
-./integration_tests.sh
-```
+### Pre-Release
+- [ ] All tests passing
+- [ ] Code review completed
+- [ ] Security scan passed
+- [ ] Performance benchmarks met
+- [ ] Documentation updated
+- [ ] Release notes prepared
 
-#### Production Environment
-```bash
-# Deploy to production
-./deploy_production.sh
+### Release
+- [ ] Version bumped
+- [ ] Build artifacts created
+- [ ] Signing completed
+- [ ] Uploaded to distribution platform
+- [ ] Release notes published
+- [ ] Team notified
 
-# Run validation tests
-./validate_production.sh
-```
-
-## Monitoring and Observability
-
-### Metrics Collection
-
-#### Performance Metrics
-- **RTF Distribution**: Real-time factor statistics
-- **Memory Usage**: Peak and average memory consumption
-- **Processing Time**: End-to-end processing duration
-- **Accuracy Rates**: Language detection accuracy
-
-#### Error Tracking
-- **Processing Failures**: Error rate and types
-- **Model Loading**: Model deployment success rate
-- **Device Compatibility**: Platform-specific issues
-
-### Alerting
-
-#### Critical Alerts
-- **Processing Failures**: > 5% error rate
-- **Performance Degradation**: RTF > 2.0
-- **Memory Leaks**: Memory usage > 500MB
-
-#### Warning Alerts
-- **Accuracy Drop**: Detection accuracy < 80%
-- **Slow Processing**: RTF > 1.5
-- **Resource Usage**: High CPU/memory usage
-
-## Release Notes Template
-
-### Version 1.0.0 - Robust LID Pipeline
-
-#### 🎯 New Features
-- **Robust Language Detection**: VAD windowing + two-pass re-scoring
-- **Multilingual Model Support**: whisper-base.q5_1.bin integration
-- **Background Processing**: WorkManager-based non-blocking architecture
-- **Enhanced Logging**: LID data in sidecar files
-
-#### 🔧 Technical Improvements
-- **LanguageDetectionService**: VAD + two-pass LID implementation
-- **TranscribeWorker**: Background LID pipeline integration
-- **WhisperApi**: Multilingual model selection
-- **Enhanced Sidecar**: LID data with confidence scores
-
-#### 📊 Performance Improvements
-- **Chinese Detection**: 60% → 85%+ accuracy
-- **Code-switching**: Poor → Good detection
-- **Processing**: UI-blocking → Background worker
-- **RTF**: 0.3-0.8 (device-dependent)
-
-#### 🚀 Deployment
-- **Android**: Xiaomi Pad Ultra optimized
-- **iOS**: iPad Pro with WhisperKit
-- **Web**: macOS WebAssembly support
-
-#### 📚 Documentation
-- **Architecture Guide**: Complete implementation details
-- **Deployment Guide**: Platform-specific instructions
-- **Testing Framework**: Comprehensive validation scripts
-
-## Troubleshooting
-
-### Common Issues
-
-#### Build Failures
-```bash
-# Clean and rebuild
-./gradlew clean
-./gradlew :app:assembleDebug
-
-# Check dependencies
-./gradlew :app:dependencies
-```
-
-#### Deployment Issues
-```bash
-# Verify device connection
-adb devices
-
-# Check permissions
-adb shell "pm list permissions | grep mira"
-
-# Monitor logs
-adb logcat | grep -i whisper
-```
-
-#### Performance Issues
-```bash
-# Check device resources
-adb shell "top -n 1"
-
-# Monitor memory usage
-adb shell "cat /proc/meminfo"
-
-# Verify model deployment
-adb shell "ls -la /sdcard/MiraWhisper/models/"
-```
-
-### Support Channels
-
-#### Documentation
-- **Architecture**: Doc/whisper/Architecture Design and Control Knot.md
-- **Implementation**: Doc/whisper/Full scale implementation Details.md
-- **Deployment**: Doc/whisper/Device Deployment.md
-
-#### Scripts
-- **Validation**: validate_cicd_pipeline.sh
-- **Testing**: test_lid_pipeline.sh
-- **Deployment**: deploy_multilingual_models.sh
+### Post-Release
+- [ ] Monitor crash reports
+- [ ] Track performance metrics
+- [ ] Collect user feedback
+- [ ] Plan next release

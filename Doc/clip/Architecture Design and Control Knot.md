@@ -2,45 +2,41 @@
 
 **Status: READY FOR VERIFICATION**
 
-## Control Knots
+**Control knots:**
+- Seedless pipeline: deterministic sampling
+- Fixed preprocess: no random crop
+- Same model assets: fixed hypothesis f_θ
 
-- **Deterministic Sampling**: Uniform frame timestamps for consistent embeddings
-- **Fixed Preprocessing**: Center-crop, no random augmentation
-- **Same Model Assets**: Fixed hypothesis f_θ for reproducible results
-- **Re-ingest Validation**: SHA-256 hash comparison for integrity
+**Implementation:**
+- Deterministic sampling: uniform frame timestamps
+- Fixed preprocessing: center-crop, no augmentation
+- Re-ingest twice: SHA-256 hash comparison
 
-## Implementation
+**Verification:** Hash comparison script in `ops/verify_all.sh`
 
-- **Deterministic Sampling**: Uniform frame timestamps across video duration
-- **Fixed Preprocessing**: Center-crop frames, no random augmentation
-- **Re-ingest Twice**: SHA-256 hash comparison for validation
-- **Consistent Model**: Fixed CLIP model weights and configuration
+## CLIP-Specific Control Knots
 
-## Verification
+**Video Processing Control Knots:**
+- Frame sampling rate: uniform 1.0 fps (configurable)
+- CLIP model: ViT-B/32 (balanced accuracy/speed)
+- Embedding dimension: 512 (standard CLIP)
+- Normalization: L2 normalization enabled
+- Batch processing: 32 frames per batch
 
-Hash comparison script in `ops/verify_all.sh`
+**Quality Control Knots:**
+- Model versioning: SHA-256 hash of CLIP model weights
+- Frame validation: Resolution and format checks
+- Embedding validation: Dimension and range verification
+- Storage integrity: JSON + binary format with checksums
 
-## Key Control Parameters
+**Performance Control Knots:**
+- GPU acceleration: OpenCL for ARM Mali/Adreno, Metal for Apple Silicon
+- Memory management: Stream processing to avoid OOM
+- Cache strategy: Intelligent frame caching
+- Threading: Configurable worker threads
 
-| Parameter | Value | Purpose |
-|-----------|-------|---------|
-| `FRAME_SAMPLING` | "uniform" | Deterministic frame selection |
-| `PREPROCESSING` | "center_crop" | Fixed preprocessing pipeline |
-| `MODEL_VERSION` | "clip-vit-base-patch32" | Fixed model architecture |
-| `BATCH_SIZE` | 32 | Consistent batch processing |
-| `EMBEDDING_DIM` | 512 | Fixed embedding dimension |
-| `NORMALIZATION` | "l2" | Consistent normalization |
-
-## Performance Metrics
-
-- **Embedding Consistency**: 99.9% hash match on re-ingest
-- **Processing Speed**: 0.1s per frame on GPU
-- **Memory Usage**: 2GB peak for batch processing
-- **Accuracy**: 95%+ on standard benchmarks
-
-## Code Pointers
-
-- **CLIP Model**: `core/ml/clip/CLIPModel.kt`
-- **Frame Sampling**: `core/media/FrameSampler.kt`
-- **Preprocessing**: `core/ml/preprocessing/ImagePreprocessor.kt`
-- **Embedding Generation**: `core/ml/embedding/EmbeddingGenerator.kt`
+**Verification Methods:**
+- Model hash verification: `verify_clip_model.sh`
+- Frame sampling validation: `test_frame_sampling.sh`
+- Embedding quality check: `validate_embeddings.sh`
+- Performance benchmarks: `benchmark_clip_processing.sh`

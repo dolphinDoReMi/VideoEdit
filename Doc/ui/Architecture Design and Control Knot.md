@@ -2,44 +2,49 @@
 
 **Status: READY FOR VERIFICATION**
 
-## Control Knots
+**Control knots:**
+- Seedless pipeline: deterministic sampling
+- Fixed preprocess: no random crop
+- Same model assets: fixed hypothesis f_θ
 
-- **Responsive Design**: Adaptive layout for different screen sizes
-- **Component Isolation**: Modular UI components with clear interfaces
-- **State Management**: Centralized state with reactive updates
-- **Performance Optimization**: Lazy loading and efficient rendering
+**Implementation:**
+- Deterministic sampling: uniform frame timestamps
+- Fixed preprocessing: center-crop, no augmentation
+- Re-ingest twice: SHA-256 hash comparison
 
-## Implementation
+**Verification:** Hash comparison script in `ops/verify_all.sh`
 
-- **Responsive Design**: CSS Grid and Flexbox for adaptive layouts
-- **Component Isolation**: Web Components with shadow DOM
-- **State Management**: Redux pattern with immutable updates
-- **Performance**: Virtual scrolling and image lazy loading
+## UI-Specific Control Knots
 
-## Verification
+**WebView Integration Control Knots:**
+- WebView version: Chrome WebView 120+ compatibility
+- JavaScript bridge: @JavascriptInterface for native calls
+- State management: Centralized with broadcast updates
+- Update frequency: Event-driven (responsive)
+- Resource monitoring: Background service integration
 
-UI testing scripts in `test/ui_components.sh`
+**Accessibility Control Knots:**
+- Screen reader support: Full WCAG compliance
+- Keyboard navigation: Complete keyboard accessibility
+- High contrast: System theme integration
+- Font scaling: Dynamic text size support
+- Focus management: Logical tab order
 
-## Key Control Parameters
+**Performance Control Knots:**
+- UI responsiveness: 60fps target with fallback
+- Memory management: Efficient WebView cleanup
+- Animation level: Basic (performance balanced)
+- Theme system: Auto (system integration)
+- Resource efficiency: Minimal background processing
 
-| Parameter | Value | Purpose |
-|-----------|-------|---------|
-| `BREAKPOINTS` | "mobile: 768px, tablet: 1024px, desktop: 1440px" | Responsive breakpoints |
-| `COMPONENT_SIZE` | "small: 32px, medium: 48px, large: 64px" | Component sizing |
-| `ANIMATION_DURATION` | "fast: 150ms, normal: 300ms, slow: 500ms" | Animation timing |
-| `COLOR_SCHEME` | "light, dark, auto" | Theme support |
-| `FONT_SCALE` | "0.875, 1.0, 1.125, 1.25" | Typography scaling |
+**Cross-Platform Control Knots:**
+- Android: WebView with native bridge
+- iOS: WKWebView with Core ML integration
+- macOS Web: Progressive Web App features
+- Responsive design: Multi-device layout support
 
-## Performance Metrics
-
-- **First Contentful Paint**: < 1.5s
-- **Largest Contentful Paint**: < 2.5s
-- **Cumulative Layout Shift**: < 0.1
-- **Time to Interactive**: < 3.0s
-
-## Code Pointers
-
-- **Main UI**: `app/src/main/assets/web/`
-- **Component Library**: `app/src/main/assets/web/components/`
-- **Styling**: `app/src/main/assets/web/styles/`
-- **JavaScript**: `app/src/main/assets/web/js/`
+**Verification Methods:**
+- UI automation: `test_ui_automation.sh`
+- Accessibility audit: `test_accessibility.sh`
+- WebView bridge: `test_webview_bridge.sh`
+- Cross-platform: `test_responsive_design.sh`

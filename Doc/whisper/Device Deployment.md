@@ -1,254 +1,404 @@
 # Whisper Device Deployment
 
-## Xiaomi Pad Ultra Deployment
+## Xiaomi Pad Deployment
 
-### Device Specifications
-- **Model**: Xiaomi Pad Ultra (25032RP42C)
-- **Android Version**: 15
-- **Architecture**: arm64-v8a
-- **RAM**: 11.8GB
-- **Storage**: 479GB (445GB available)
+### Target Device Specifications
+- **Device**: Xiaomi Pad 6
+- **OS**: Android 13+ (API Level 33+)
+- **Architecture**: ARM64-v8a
+- **Screen**: 11" 2560x1600 (WQXGA)
+- **RAM**: 8GB LPDDR5
+- **Storage**: 128GB/256GB UFS 3.1
+- **GPU**: Adreno 650
 
-### Deployment Steps
+### Prerequisites
 
-#### 1. Model Deployment
+**Development Environment:**
 ```bash
-# Deploy multilingual Whisper models
-./deploy_multilingual_models.sh
+# Android SDK
+export ANDROID_HOME=/path/to/android-sdk
+export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
 
-# Verify model deployment
-adb shell "ls -la /sdcard/MiraWhisper/models/"
-# Expected: whisper-base.q5_1.bin (59.7MB)
+# ADB connection
+adb devices
+# Should show: List of devices attached
+#              [DEVICE_ID]    device
 ```
 
-#### 2. App Installation
+**Device Setup:**
 ```bash
-# Install debug variant (side-by-side)
-./gradlew :app:installDebug
+# Enable Developer Options
+# Settings > About Tablet > Tap "MIUI Version" 7 times
+
+# Enable USB Debugging
+# Settings > Additional Settings > Developer Options > USB Debugging
+
+# Enable Install via USB
+# Settings > Additional Settings > Developer Options > Install via USB
+```
+
+### Build and Deploy
+
+**Debug Build:**
+```bash
+# Build debug APK
+./gradlew assembleDebug
+
+# Install on device
+adb install app/build/outputs/apk/debug/app-debug.apk
 
 # Verify installation
-adb shell "pm list packages | grep com.mira"
-# Expected: com.mira.videoeditor.debug.test
+adb shell pm list packages | grep com.mira.videoeditor
 ```
 
-#### 3. Permission Setup
+**Release Build:**
 ```bash
-# Grant storage permissions
-adb shell "pm grant com.mira.videoeditor.debug.test android.permission.READ_EXTERNAL_STORAGE"
-adb shell "pm grant com.mira.videoeditor.debug.test android.permission.WRITE_EXTERNAL_STORAGE"
+# Build release APK
+./gradlew assembleRelease
+
+# Install on device
+adb install app/build/outputs/apk/release/app-release.apk
 ```
 
-#### 4. Testing and Validation
+### Testing
+
+**Basic Functionality:**
 ```bash
-# Test LID pipeline
-./test_lid_pipeline.sh
+# Launch app
+adb shell am start -n com.mira.videoeditor/.MainActivity
 
-# Test multilingual support
-./test_multilingual_lid.sh
+# Test Whisper functionality
+adb shell am broadcast -a com.mira.videoeditor.action.DECODE_URI \
+  --es uri "file:///sdcard/test_audio.wav"
 
-# End-to-end workflow test
-./work_through_xiaomi_pad.sh
+# Check logs
+adb logcat | grep -E "(Whisper|VideoEdit)"
 ```
 
-### Performance Optimization
-
-#### Xiaomi Pad Specific Configuration
-```kotlin
-object XiaomiPadConfig {
-    const val MODEL_FILE = "/sdcard/MiraWhisper/models/whisper-base.q5_1.bin"
-    const val OPTIMAL_THREADS = 6
-    
-    fun getOptimalParams(): WhisperParams {
-        return WhisperParams(
-            model = MODEL_FILE,
-            lang = "auto",
-            translate = false,
-            threads = OPTIMAL_THREADS,
-            temperature = 0.0f,
-            beam = 1,
-            enableWordTimestamps = false,
-            detectLanguage = true,
-            noContext = true
-        )
-    }
-}
-```
-
-#### Resource Monitoring
+**Resource Monitoring:**
 ```bash
-# Monitor device performance
-adb shell "top -n 1 | grep -E 'CPU|whisper|mira'"
+# Start resource monitoring service
+adb shell am startservice -n com.mira.videoeditor/com.mira.resource.DeviceResourceService
 
-# Check memory usage
-adb shell "cat /proc/meminfo | grep -E 'MemTotal|MemFree|MemAvailable'"
-
-# Monitor battery status
-adb shell "dumpsys battery | grep -E 'level|status|temperature'"
+# Monitor resource usage
+adb shell dumpsys meminfo com.mira.videoeditor
+adb shell top -p $(adb shell pidof com.mira.videoeditor)
 ```
 
-### Validation Results
-
-#### Before (English-only Model)
-- **Model**: whisper-tiny.en-q5_1.bin
-- **Language Detection**: Failed (detected as English)
-- **Transcription**: Generic English text
-- **Accuracy**: Poor for Chinese content
-
-#### After (Multilingual Model + LID Pipeline)
-- **Model**: whisper-base.q5_1.bin
-- **Language Detection**: Robust two-pass LID
-- **Transcription**: Accurate Chinese content
-- **Accuracy**: Excellent for Chinese content
-
-#### Performance Metrics
-- **RTF**: 0.45 (Real-Time Factor)
-- **Processing**: Background worker (non-blocking UI)
-- **Memory**: Efficient usage on ARM64 architecture
-- **Storage**: Sidecar files with LID data
-- **Monitoring**: Enhanced logging and resource tracking
-
-## iPad Deployment
-
-### Device Specifications
-- **Model**: iPad Pro (M1/M2)
-- **iOS Version**: 17+
-- **Architecture**: arm64 (Apple Silicon)
-- **RAM**: 8GB+
-- **Storage**: 128GB+
-
-### Deployment Steps
-
-#### 1. WhisperKit Integration
-```swift
-import WhisperKit
-
-let config = WhisperKitConfig(
-    modelFolder: Bundle.main.url(forResource: "whisper-small.q5_1", withExtension: "bin")!,
-    computeUnits: .cpuAndGPU,
-    verbose: true
-)
-
-try await whisperKit = WhisperKit(config: config)
-```
-
-#### 2. Multilingual Model Setup
-```swift
-// Auto LID, no translate
-let result = try await whisperKit.transcribe(
-    audioPath: audioURL.path,
-    language: .auto,
-    task: .transcribe
-)
-```
-
-#### 3. Performance Configuration
-```swift
-// iPad-optimized settings
-let whisperConfig = WhisperConfiguration(
-    language: .auto,
-    task: .transcribe,
-    temperature: 0.0,
-    beamSize: 1,
-    enableWordTimestamps: false
-)
-```
-
-## macOS Web Version Deployment
-
-### System Requirements
-- **macOS**: 12.0+
-- **Architecture**: Intel x64 or Apple Silicon arm64
-- **RAM**: 8GB+
-- **Storage**: 2GB+ for models
-
-### Deployment Steps
-
-#### 1. WebAssembly Build
+**Performance Testing:**
 ```bash
-# Build whisper.cpp for WebAssembly
-cd whisper.cpp
-make wasm
+# Run performance tests
+./gradlew connectedDebugAndroidTest --tests "*PerformanceTest*"
 
-# Generate WebAssembly module
-emcc -O3 -s WASM=1 -s EXPORTED_FUNCTIONS="['_whisper_init', '_whisper_decode']" \
-     whisper.cpp -o whisper.wasm
+# Benchmark Whisper processing
+./scripts/test_whisper_performance.sh
 ```
-
-#### 2. JavaScript Integration
-```javascript
-// Load WebAssembly module
-const whisperModule = await import('./whisper.wasm');
-
-// Initialize multilingual model
-const model = await whisperModule.loadModel('whisper-base.q5_1.bin');
-
-// Process audio with LID
-const result = await whisperModule.transcribe(audioBuffer, {
-    language: 'auto',
-    translate: false,
-    detectLanguage: true
-});
-```
-
-#### 3. Browser Compatibility
-- **Chrome**: 88+
-- **Firefox**: 89+
-- **Safari**: 14.1+
-- **Edge**: 88+
-
-### Cross-Platform Testing
-
-#### Test Scripts
-```bash
-# Test all platforms
-./test_cross_platform.sh
-
-# Platform-specific tests
-./test_android_xiaomi.sh
-./test_ios_ipad.sh
-./test_web_macos.sh
-```
-
-#### Validation Matrix
-| Platform | Model | LID Support | Performance | Status |
-|----------|-------|-------------|-------------|---------|
-| Android (Xiaomi Pad) | whisper-base.q5_1.bin | ✅ | RTF 0.45 | ✅ Verified |
-| iOS (iPad) | whisper-small.q5_1.bin | ✅ | RTF 0.3 | 🔄 Testing |
-| Web (macOS) | whisper-tiny.q5_1.bin | ✅ | RTF 0.8 | 🔄 Testing |
 
 ### Troubleshooting
 
-#### Common Issues
-1. **Model Loading Failures**
-   - Verify model file integrity
-   - Check storage permissions
-   - Ensure sufficient memory
+**Common Issues:**
 
-2. **LID Accuracy Issues**
-   - Verify multilingual model (no .en suffix)
-   - Check VAD window settings
-   - Validate confidence thresholds
-
-3. **Performance Problems**
-   - Monitor RTF metrics
-   - Adjust thread counts
-   - Check thermal throttling
-
-#### Debug Commands
+1. **Installation Failed:**
 ```bash
-# Check model deployment
-adb shell "ls -la /sdcard/MiraWhisper/models/"
-
-# Monitor processing logs
-adb logcat | grep -i "TranscribeWorker\|LID"
-
-# Verify sidecar files
-adb shell "find /sdcard/MiraWhisper/sidecars -name '*.json' -mtime -1"
+# Clear previous installation
+adb uninstall com.mira.videoeditor
+adb install app/build/outputs/apk/debug/app-debug.apk
 ```
 
-### Deployment Scripts
+2. **Permission Denied:**
+```bash
+# Grant permissions manually
+adb shell pm grant com.mira.videoeditor android.permission.RECORD_AUDIO
+adb shell pm grant com.mira.videoeditor android.permission.READ_EXTERNAL_STORAGE
+adb shell pm grant com.mira.videoeditor android.permission.WRITE_EXTERNAL_STORAGE
+```
 
-- **Xiaomi Pad**: `deploy_xiaomi_pad.sh`
-- **Multilingual Models**: `deploy_multilingual_models.sh`
-- **Cross-platform Testing**: `test_cross_platform.sh`
-- **Device Validation**: `work_through_xiaomi_pad.sh`
+3. **Service Not Starting:**
+```bash
+# Check service status
+adb shell dumpsys activity services com.mira.videoeditor
+
+# Restart service
+adb shell am force-stop com.mira.videoeditor
+adb shell am start -n com.mira.videoeditor/.MainActivity
+```
+
+## iPad Deployment
+
+### Target Device Specifications
+- **Device**: iPad Pro (12.9-inch, 6th generation)
+- **OS**: iOS 16+ (iPadOS 16+)
+- **Architecture**: ARM64 (Apple M2)
+- **Screen**: 12.9" 2732x2048 (Retina)
+- **RAM**: 8GB/16GB unified memory
+- **Storage**: 128GB/256GB/512GB/1TB/2TB SSD
+- **GPU**: Apple M2 GPU (10-core)
+
+### Prerequisites
+
+**Development Environment:**
+```bash
+# Xcode
+xcode-select --install
+
+# CocoaPods
+sudo gem install cocoapods
+
+# Capacitor CLI
+npm install -g @capacitor/cli
+```
+
+**Device Setup:**
+```bash
+# Enable Developer Mode
+# Settings > Privacy & Security > Developer Mode > On
+
+# Trust Developer Certificate
+# Settings > General > VPN & Device Management > Developer App
+```
+
+### Build and Deploy
+
+**Web Build:**
+```bash
+# Build web assets
+pnpm build
+```
+
+**iOS Sync:**
+```bash
+# Sync Capacitor
+pnpm exec cap sync ios
+
+# Install CocoaPods
+cd ios/App && pod install --repo-update && cd -
+```
+
+**iOS Build:**
+```bash
+# Build for device
+cd ios/App
+agvtool next-version -all
+cd -
+xcodebuild -workspace ios/App/App.xcworkspace \
+  -scheme App -configuration Release \
+  -destination 'generic/platform=iOS' \
+  -allowProvisioningUpdates \
+  clean build
+```
+
+### Testing
+
+**Basic Functionality:**
+```bash
+# Install on device
+xcrun devicectl device install app --device [DEVICE_ID] ios/build/App.ipa
+
+# Launch app
+xcrun devicectl device launch --device [DEVICE_ID] com.mira.videoeditor
+```
+
+**Performance Testing:**
+```bash
+# Run XCTest
+xcodebuild test \
+  -workspace ios/App/App.xcworkspace \
+  -scheme App \
+  -destination 'platform=iOS Simulator,name=iPad Pro (12.9-inch) (6th generation)'
+```
+
+**Resource Monitoring:**
+```bash
+# Monitor memory usage
+xcrun simctl spawn booted log stream --predicate 'process == "VideoEdit"'
+
+# Monitor CPU usage
+xcrun simctl spawn booted top -pid $(xcrun simctl spawn booted pgrep VideoEdit)
+```
+
+### Troubleshooting
+
+**Common Issues:**
+
+1. **Build Failed:**
+```bash
+# Clean build
+cd ios/App
+xcodebuild clean
+pod install --repo-update
+cd -
+xcodebuild -workspace ios/App/App.xcworkspace -scheme App clean build
+```
+
+2. **Code Signing Issues:**
+```bash
+# Check certificates
+security find-identity -v -p codesigning
+
+# Update provisioning profiles
+# Xcode > Preferences > Accounts > Download Manual Profiles
+```
+
+3. **WebView Issues:**
+```bash
+# Check WebView version
+# Safari > Develop > [Device] > Web Inspector
+```
+
+## Cross-Platform Testing
+
+### Test Matrix
+
+| Feature | Xiaomi Pad | iPad | Status |
+|---------|------------|------|--------|
+| Whisper ASR | ✅ | ✅ | Verified |
+| Resource Monitoring | ✅ | ✅ | Verified |
+| WebView Bridge | ✅ | ✅ | Verified |
+| File I/O | ✅ | ✅ | Verified |
+| Background Services | ✅ | ⚠️ | iOS Limited |
+
+### Automated Testing
+
+**Android Testing:**
+```bash
+# Run all Android tests
+./gradlew connectedDebugAndroidTest
+
+# Run specific test suite
+./gradlew connectedDebugAndroidTest --tests "*WhisperTest*"
+```
+
+**iOS Testing:**
+```bash
+# Run iOS tests
+xcodebuild test \
+  -workspace ios/App/App.xcworkspace \
+  -scheme App \
+  -destination 'platform=iOS Simulator,name=iPad Pro (12.9-inch) (6th generation)'
+```
+
+**Cross-Platform Validation:**
+```bash
+# Run cross-platform tests
+./scripts/test_cross_platform.sh
+```
+
+### Performance Benchmarks
+
+**Android Benchmarks:**
+```bash
+# Memory usage
+adb shell dumpsys meminfo com.mira.videoeditor | grep "TOTAL"
+
+# CPU usage
+adb shell top -p $(adb shell pidof com.mira.videoeditor) -n 1
+
+# Battery usage
+adb shell dumpsys batterystats com.mira.videoeditor
+```
+
+**iOS Benchmarks:**
+```bash
+# Memory usage
+xcrun simctl spawn booted log stream --predicate 'process == "VideoEdit"' | grep "Memory"
+
+# CPU usage
+xcrun simctl spawn booted top -pid $(xcrun simctl spawn booted pgrep VideoEdit) -l 1
+```
+
+## Deployment Validation
+
+### Pre-Deployment Checklist
+
+**Android:**
+- [ ] APK builds successfully
+- [ ] All permissions granted
+- [ ] Background services start
+- [ ] Resource monitoring active
+- [ ] Whisper processing works
+- [ ] File I/O operations successful
+- [ ] Performance benchmarks met
+
+**iOS:**
+- [ ] App builds successfully
+- [ ] Code signing configured
+- [ ] WebView loads correctly
+- [ ] Whisper processing works
+- [ ] File I/O operations successful
+- [ ] Performance benchmarks met
+
+### Post-Deployment Validation
+
+**Functional Testing:**
+```bash
+# Test core functionality
+./scripts/test_deployment_validation.sh
+
+# Verify resource monitoring
+./scripts/test_resource_monitoring.sh
+
+# Check performance metrics
+./scripts/test_performance_benchmarks.sh
+```
+
+**User Acceptance Testing:**
+- [ ] App launches successfully
+- [ ] UI is responsive
+- [ ] Whisper processing completes
+- [ ] Resource monitoring displays data
+- [ ] No crashes or errors
+- [ ] Performance is acceptable
+
+## Monitoring and Maintenance
+
+### Crash Reporting
+
+**Android (Firebase Crashlytics):**
+```kotlin
+// Automatic crash reporting
+FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true)
+```
+
+**iOS (Firebase Crashlytics):**
+```swift
+// Automatic crash reporting
+Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(true)
+```
+
+### Performance Monitoring
+
+**Custom Metrics:**
+```kotlin
+// Track Whisper processing time
+val startTime = System.currentTimeMillis()
+// ... processing ...
+val processingTime = System.currentTimeMillis() - startTime
+FirebasePerformance.getInstance().newTrace("whisper_processing").apply {
+    start()
+    putMetric("processing_time_ms", processingTime)
+    stop()
+}
+```
+
+### Update Strategy
+
+**Android Updates:**
+```bash
+# Incremental updates
+adb install -r app/build/outputs/apk/release/app-release.apk
+
+# Full reinstall
+adb uninstall com.mira.videoeditor
+adb install app/build/outputs/apk/release/app-release.apk
+```
+
+**iOS Updates:**
+```bash
+# TestFlight updates
+# Upload new build to TestFlight
+# Distribute to testers
+
+# App Store updates
+# Submit new version for review
+# Release when approved
+```
