@@ -36,7 +36,7 @@ jobs:
       run: chmod +x gradlew
       
     - name: Run Lint
-      run: ./gradlew lintDebug
+      run: ./gradlew lintDebug --continue
       
     - name: Upload code quality reports
       uses: actions/upload-artifact@v4
