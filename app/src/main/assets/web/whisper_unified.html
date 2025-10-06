@@ -15,8 +15,8 @@
     .processing-animation { animation: processing-pulse 2s ease-in-out infinite; }
     .step-indicator { transition: all 0.3s ease-in-out; }
     .section-transition { transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out; }
-    .section-hidden { opacity: 0; transform: translateY(20px); pointer-events: none; }
-    .section-visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .section-hidden { opacity: 0; transform: translateY(20px); pointer-events: none; display: none; }
+    .section-visible { opacity: 1; transform: translateY(0); pointer-events: auto; display: block; }
     @keyframes processing-pulse {
       0%, 100% { opacity: 0.6; }
       50% { opacity: 1; }
@@ -116,11 +116,11 @@
   
   <!-- STEP 1: File Selection Section -->
   <div id="step-1-section" class="section-visible section-transition">
-    <div class="p-4 space-y-4">
+    <div class="p-3 space-y-3">
       
       <!-- File Selection Card -->
-      <div class="bg-dark-800 rounded-xl p-4 border border-dark-600">
-        <div class="flex items-center justify-between mb-3">
+      <div class="bg-dark-800 rounded-xl p-3 border border-dark-600">
+        <div class="flex items-center justify-between mb-2">
           <h2 class="text-lg font-semibold text-white">Media Selection</h2>
           <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
         </div>
@@ -141,13 +141,13 @@
       </div>
 
       <!-- Model Selection Card -->
-      <div class="bg-dark-800 rounded-xl p-4 border border-dark-600">
-        <div class="flex items-center justify-between mb-3">
+      <div class="bg-dark-800 rounded-xl p-3 border border-dark-600">
+        <div class="flex items-center justify-between mb-2">
           <h2 class="text-lg font-semibold text-white">Model Configuration</h2>
           <div class="w-2 h-2 bg-green-500 rounded-full"></div>
         </div>
         
-        <div class="space-y-4">
+        <div class="space-y-3">
           <div class="flex items-center justify-between p-4 bg-dark-700 rounded-lg">
             <div class="flex items-center space-x-3">
               <i class="fa-solid fa-brain text-purple-500"></i>
@@ -159,9 +159,9 @@
             <div class="text-sm text-gray-300">whisper-base.q5_1.bin</div>
           </div>
           
-          <div class="grid grid-cols-2 gap-3">
-            <div class="p-4 bg-dark-700 rounded-lg">
-              <div class="text-sm text-gray-400 mb-1">Language</div>
+          <div class="grid grid-cols-2 gap-2">
+            <div class="p-3 bg-dark-700 rounded-lg">
+              <div class="text-sm text-gray-400 mb-0.5">Language</div>
               <select id="language-select" class="w-full bg-dark-600 text-white rounded-lg px-3 py-2 text-sm">
                 <option value="auto">Auto Detect</option>
                 <option value="en">English</option>
@@ -171,8 +171,8 @@
                 <option value="de">German</option>
               </select>
             </div>
-            <div class="p-4 bg-dark-700 rounded-lg">
-              <div class="text-sm text-gray-400 mb-1">Preset</div>
+            <div class="p-3 bg-dark-700 rounded-lg">
+              <div class="text-sm text-gray-400 mb-0.5">Preset</div>
               <select id="preset-select" class="w-full bg-dark-600 text-white rounded-lg px-3 py-2 text-sm">
                 <option value="Single">Single (Fast)</option>
                 <option value="Accuracy">Accuracy (Slow)</option>
@@ -183,20 +183,20 @@
       </div>
 
       <!-- Processing Options Card -->
-      <div class="bg-dark-800 rounded-xl p-4 border border-dark-600">
-        <div class="flex items-center justify-between mb-3">
+      <div class="bg-dark-800 rounded-xl p-3 border border-dark-600">
+        <div class="flex items-center justify-between mb-2">
           <h2 class="text-lg font-semibold text-white">Processing Options</h2>
           <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
         </div>
         
-        <div class="space-y-4">
-          <div class="grid grid-cols-2 gap-3">
-            <div class="p-4 bg-dark-700 rounded-lg">
-              <div class="text-sm text-gray-400 mb-1">Threads</div>
+        <div class="space-y-3">
+          <div class="grid grid-cols-2 gap-2">
+            <div class="p-3 bg-dark-700 rounded-lg">
+              <div class="text-sm text-gray-400 mb-0.5">Threads</div>
               <input type="number" id="threads-input" value="4" min="1" max="8" class="w-full bg-dark-600 text-white rounded-lg px-3 py-2 text-sm">
             </div>
-            <div class="p-4 bg-dark-700 rounded-lg">
-              <div class="text-sm text-gray-400 mb-1">Beam Size</div>
+            <div class="p-3 bg-dark-700 rounded-lg">
+              <div class="text-sm text-gray-400 mb-0.5">Beam Size</div>
               <input type="number" id="beam-input" value="1" min="1" max="5" class="w-full bg-dark-600 text-white rounded-lg px-3 py-2 text-sm">
             </div>
           </div>
@@ -226,22 +226,22 @@
 
   <!-- STEP 2: Processing Section -->
   <div id="step-2-section" class="section-hidden section-transition">
-    <div class="p-4 space-y-4">
+    <div class="p-2 space-y-2">
       
       <!-- Processing Status Card -->
-      <div class="bg-dark-800 rounded-xl p-4 border border-dark-600">
-        <div class="flex items-center justify-between mb-3">
+      <div class="bg-dark-800 rounded-xl p-2 border border-dark-600">
+        <div class="flex items-center justify-between mb-2">
           <h2 class="text-lg font-semibold text-white">Processing Status</h2>
           <div class="w-2 h-2 bg-blue-500 rounded-full processing-animation"></div>
         </div>
         
-        <div class="space-y-4">
+        <div class="space-y-1">
           <div class="text-center">
-            <div class="text-2xl font-bold text-white mb-2" id="processing-status">Initializing...</div>
+            <div class="text-xl font-bold text-white mb-0.5" id="processing-status">Initializing...</div>
             <div class="text-sm text-gray-400" id="processing-details">Preparing audio for transcription</div>
           </div>
           
-          <div class="space-y-2">
+          <div class="space-y-0.5">
             <div class="flex justify-between text-sm text-gray-300">
               <span>Overall Progress</span>
               <span id="overall-progress-text">0%</span>
@@ -251,7 +251,7 @@
             </div>
           </div>
           
-          <div class="space-y-2">
+          <div class="space-y-0.5">
             <div class="flex justify-between text-sm text-gray-300">
               <span>Current Chunk</span>
               <span id="chunk-progress-text">0/0</span>
@@ -264,14 +264,14 @@
       </div>
 
       <!-- Resource Monitoring Card -->
-      <div class="bg-dark-800 rounded-xl p-4 border border-dark-600">
-        <div class="flex items-center justify-between mb-3">
+      <div class="bg-dark-800 rounded-xl p-2 border border-dark-600">
+        <div class="flex items-center justify-between mb-2">
           <h2 class="text-lg font-semibold text-white">Resource Monitoring</h2>
           <div class="w-2 h-2 bg-green-500 rounded-full"></div>
         </div>
         
-        <div class="grid grid-cols-2 gap-3">
-          <div class="p-4 bg-dark-700 rounded-lg">
+        <div class="grid grid-cols-2 gap-2">
+          <div class="p-3 bg-dark-700 rounded-lg">
             <div class="flex items-center justify-between mb-2">
               <div class="text-sm text-gray-400">CPU Usage</div>
               <div class="text-sm text-white font-medium" id="cpu-usage">0%</div>
@@ -281,7 +281,7 @@
             </div>
           </div>
           
-          <div class="p-4 bg-dark-700 rounded-lg">
+          <div class="p-3 bg-dark-700 rounded-lg">
             <div class="flex items-center justify-between mb-2">
               <div class="text-sm text-gray-400">Memory</div>
               <div class="text-sm text-white font-medium" id="memory-usage">0%</div>
@@ -291,7 +291,7 @@
             </div>
           </div>
           
-          <div class="p-4 bg-dark-700 rounded-lg">
+          <div class="p-3 bg-dark-700 rounded-lg">
             <div class="flex items-center justify-between mb-2">
               <div class="text-sm text-gray-400">Battery</div>
               <div class="text-sm text-white font-medium" id="battery-level">0%</div>
@@ -301,7 +301,7 @@
             </div>
           </div>
           
-          <div class="p-4 bg-dark-700 rounded-lg">
+          <div class="p-3 bg-dark-700 rounded-lg">
             <div class="flex items-center justify-between mb-2">
               <div class="text-sm text-gray-400">Temperature</div>
               <div class="text-sm text-white font-medium" id="temperature">0°C</div>
@@ -314,8 +314,8 @@
       </div>
 
       <!-- Processing Details Card -->
-      <div class="bg-dark-800 rounded-xl p-4 border border-dark-600">
-        <div class="flex items-center justify-between mb-3">
+      <div class="bg-dark-800 rounded-xl p-2 border border-dark-600">
+        <div class="flex items-center justify-between mb-2">
           <h2 class="text-lg font-semibold text-white">Processing Details</h2>
           <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
         </div>
@@ -356,31 +356,31 @@
 
   <!-- STEP 3: Results Section -->
   <div id="step-3-section" class="section-hidden section-transition">
-    <div class="p-4 space-y-4">
+    <div class="p-2 space-y-2">
       
       <!-- Results Summary Card -->
-      <div class="bg-dark-800 rounded-xl p-4 border border-dark-600">
-        <div class="flex items-center justify-between mb-3">
+      <div class="bg-dark-800 rounded-xl p-2 border border-dark-600">
+        <div class="flex items-center justify-between mb-2">
           <h2 class="text-lg font-semibold text-white">Transcription Results</h2>
           <div class="w-2 h-2 bg-green-500 rounded-full"></div>
         </div>
         
-        <div class="space-y-4">
-          <div class="grid grid-cols-2 gap-3">
-            <div class="p-4 bg-dark-700 rounded-lg">
-              <div class="text-sm text-gray-400 mb-1">Total Segments</div>
+        <div class="space-y-3">
+          <div class="grid grid-cols-2 gap-2">
+            <div class="p-3 bg-dark-700 rounded-lg">
+              <div class="text-sm text-gray-400 mb-0.5">Total Segments</div>
               <div class="text-xl font-bold text-white" id="total-segments">0</div>
             </div>
-            <div class="p-4 bg-dark-700 rounded-lg">
-              <div class="text-sm text-gray-400 mb-1">Confidence</div>
+            <div class="p-3 bg-dark-700 rounded-lg">
+              <div class="text-sm text-gray-400 mb-0.5">Confidence</div>
               <div class="text-xl font-bold text-white" id="avg-confidence">0%</div>
             </div>
-            <div class="p-4 bg-dark-700 rounded-lg">
-              <div class="text-sm text-gray-400 mb-1">Processing Time</div>
+            <div class="p-3 bg-dark-700 rounded-lg">
+              <div class="text-sm text-gray-400 mb-0.5">Processing Time</div>
               <div class="text-xl font-bold text-white" id="processing-time">0:00</div>
             </div>
-            <div class="p-4 bg-dark-700 rounded-lg">
-              <div class="text-sm text-gray-400 mb-1">RTF</div>
+            <div class="p-3 bg-dark-700 rounded-lg">
+              <div class="text-sm text-gray-400 mb-0.5">RTF</div>
               <div class="text-xl font-bold text-white" id="final-rtf">0.0</div>
             </div>
           </div>
@@ -388,8 +388,8 @@
       </div>
 
       <!-- Transcript Display Card -->
-      <div class="bg-dark-800 rounded-xl p-4 border border-dark-600">
-        <div class="flex items-center justify-between mb-3">
+      <div class="bg-dark-800 rounded-xl p-2 border border-dark-600">
+        <div class="flex items-center justify-between mb-2">
           <h2 class="text-lg font-semibold text-white">Transcript</h2>
           <div class="flex items-center space-x-2">
             <button onclick="copyTranscript()" class="px-3 py-1 bg-dark-600 text-white text-sm rounded-lg hover:bg-dark-500 transition-colors">
@@ -401,58 +401,31 @@
           </div>
         </div>
         
-        <div id="transcript-display" class="space-y-3 max-h-96 overflow-y-auto">
-          <div class="text-center text-gray-400 py-8">
-            <i class="fa-solid fa-file-text text-4xl mb-3"></i>
-            <div>Transcript will appear here after processing</div>
+        <div id="transcript-display" class="max-h-96 overflow-y-auto">
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead class="bg-dark-700 sticky top-0">
+                <tr>
+                  <th class="px-3 py-2 text-left text-gray-300 font-medium">Time</th>
+                  <th class="px-3 py-2 text-left text-gray-300 font-medium">Text</th>
+                  <th class="px-3 py-2 text-left text-gray-300 font-medium">Confidence</th>
+                </tr>
+              </thead>
+              <tbody id="transcript-table-body">
+                <tr>
+                  <td colspan="3" class="px-3 py-4 text-center text-gray-400">
+                    <i class="fa-solid fa-file-text text-2xl mb-2 block"></i>
+                    <div>Transcript will appear here after processing</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
 
-      <!-- Export Options Card -->
-      <div class="bg-dark-800 rounded-xl p-4 border border-dark-600">
-        <div class="flex items-center justify-between mb-3">
-          <h2 class="text-lg font-semibold text-white">Export Options</h2>
-          <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-        </div>
-        
-        <div class="grid grid-cols-2 gap-3">
-          <button onclick="exportFormat('json')" class="p-4 bg-dark-700 rounded-lg hover:bg-dark-600 transition-colors">
-            <div class="text-center">
-              <i class="fa-solid fa-code text-blue-500 text-xl mb-2"></i>
-              <div class="text-white font-medium">JSON</div>
-              <div class="text-xs text-gray-400">Raw data</div>
-            </div>
-          </button>
-          
-          <button onclick="exportFormat('srt')" class="p-4 bg-dark-700 rounded-lg hover:bg-dark-600 transition-colors">
-            <div class="text-center">
-              <i class="fa-solid fa-closed-captioning text-green-500 text-xl mb-2"></i>
-              <div class="text-white font-medium">SRT</div>
-              <div class="text-xs text-gray-400">Subtitles</div>
-            </div>
-          </button>
-          
-          <button onclick="exportFormat('txt')" class="p-4 bg-dark-700 rounded-lg hover:bg-dark-600 transition-colors">
-            <div class="text-center">
-              <i class="fa-solid fa-file-alt text-yellow-500 text-xl mb-2"></i>
-              <div class="text-white font-medium">TXT</div>
-              <div class="text-xs text-gray-400">Plain text</div>
-            </div>
-          </button>
-          
-          <button onclick="exportFormat('all')" class="p-4 bg-dark-700 rounded-lg hover:bg-dark-600 transition-colors">
-            <div class="text-center">
-              <i class="fa-solid fa-download text-purple-500 text-xl mb-2"></i>
-              <div class="text-white font-medium">All</div>
-              <div class="text-xs text-gray-400">All formats</div>
-            </div>
-          </button>
-        </div>
-      </div>
-
       <!-- Action Buttons -->
-      <div class="flex space-x-3 pt-4">
+      <div class="flex space-x-3 pt-2">
         <button onclick="loadExistingResults()" class="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold py-3 px-6 rounded-xl hover:from-green-600 hover:to-emerald-600 transition-all duration-300">
           <i class="fa-solid fa-folder-open mr-2"></i>
           Load Results
@@ -463,7 +436,7 @@
         </button>
       </div>
       
-      <div class="flex space-x-3 pt-2">
+      <div class="flex space-x-3 pt-1">
         <button onclick="viewBatchResults()" class="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold py-3 px-6 rounded-xl hover:from-blue-600 hover:to-cyan-600 transition-all duration-300">
           <i class="fa-solid fa-table mr-2"></i>
           Batch Results
@@ -779,41 +752,37 @@ function displayResults(results) {
   document.getElementById('processing-time').textContent = results.processingTime;
   document.getElementById('final-rtf').textContent = results.rtf.toFixed(2);
   
-  // Display transcript
-  const transcriptContainer = document.getElementById('transcript-display');
-  transcriptContainer.innerHTML = '';
+  // Display transcript in table format
+  const tableBody = document.getElementById('transcript-table-body');
+  tableBody.innerHTML = '';
   
   if (results.segments && results.segments.length > 0) {
     results.segments.forEach((segment, index) => {
-      const segmentDiv = document.createElement('div');
-      segmentDiv.className = 'p-4 bg-dark-700 rounded-lg border border-dark-600';
-      segmentDiv.innerHTML = `
-        <div class="flex justify-between items-start mb-3">
-          <div class="flex items-center space-x-2">
-            <div class="text-sm text-gray-400">${formatTime(segment.start)} - ${formatTime(segment.end)}</div>
-            <div class="w-1 h-1 bg-gray-500 rounded-full"></div>
-            <div class="text-sm text-gray-400">${formatDuration(segment.end - segment.start)}</div>
-          </div>
-          <div class="flex items-center space-x-2">
-            <div class="text-sm text-gray-400">${Math.round(segment.confidence * 100)}%</div>
-            <div class="w-16 h-1 bg-dark-600 rounded-full">
-              <div class="h-1 rounded-full ${segment.confidence > 0.9 ? 'bg-green-500' : segment.confidence > 0.8 ? 'bg-yellow-500' : 'bg-red-500'}" 
-                   style="width: ${segment.confidence * 100}%"></div>
-            </div>
-          </div>
-        </div>
-        <div class="text-white leading-relaxed">${segment.text}</div>
+      const row = document.createElement('tr');
+      row.className = 'border-b border-dark-600 hover:bg-dark-700';
+      
+      const startTime = formatTime(segment.start);
+      const endTime = formatTime(segment.end);
+      const confidence = Math.round(segment.confidence * 100);
+      
+      row.innerHTML = `
+        <td class="px-3 py-2 text-gray-300 font-mono text-xs">${startTime} - ${endTime}</td>
+        <td class="px-3 py-2 text-white">${segment.text}</td>
+        <td class="px-3 py-2 text-gray-400">${confidence}%</td>
       `;
-      transcriptContainer.appendChild(segmentDiv);
+      
+      tableBody.appendChild(row);
     });
   } else {
     // Show message if no segments
-    transcriptContainer.innerHTML = `
-      <div class="text-center text-gray-400 py-8">
-        <i class="fa-solid fa-file-text text-4xl mb-3"></i>
-        <div>No transcription segments found</div>
-        <div class="text-sm mt-2">Try processing a file with audio content</div>
-      </div>
+    tableBody.innerHTML = `
+      <tr>
+        <td colspan="3" class="px-3 py-8 text-center text-gray-400">
+          <i class="fa-solid fa-file-text text-2xl mb-2 block"></i>
+          <div>No transcription segments found</div>
+          <div class="text-sm mt-2">Try processing a file with audio content</div>
+        </td>
+      </tr>
     `;
   }
 }
