@@ -237,6 +237,7 @@ class WhisperConnectorService : Service() {
      */
     private fun startBatchProcessing(batchId: String, fileCount: Int) {
         Log.d(TAG, "Starting batch processing: $batchId with $fileCount files")
+        Log.d(TAG, "Initial URIs for $batchId: ${lastStartUris?.joinToString() ?: "<none>"}")
         
         val batchState = BatchProcessingState(
             batchId = batchId,
@@ -248,8 +249,8 @@ class WhisperConnectorService : Service() {
         
         // Broadcast start event
         broadcastProcessingStart(batchId, fileCount)
-        // Immediately request UI navigation to processing page (async queue -> navigate)
-        broadcastPageNavigation("processing")
+        // DISABLED: Auto-navigation to processing page - already on processing page
+        // broadcastPageNavigation("processing")
         
         // Start actual whisper processing via the bridge
         startActualWhisperProcessing(batchId, fileCount)
@@ -260,12 +261,13 @@ class WhisperConnectorService : Service() {
      */
     private fun startActualWhisperProcessing(batchId: String, fileCount: Int) {
         try {
-            Log.d(TAG, "Starting actual whisper processing for batch: $batchId")
+            Log.d(TAG, "TECHNICAL: Starting actual whisper processing for batch: $batchId")
 
             val batchState = activeBatches[batchId]
             if (batchState != null) {
                 // Initialize file states for tracking using provided URIs if available
                 val provided = lastStartUris ?: emptyList()
+                Log.d(TAG, "TECHNICAL: Hydrating file list for $batchId with ${provided.size} provided URIs")
                 if (provided.isNotEmpty()) {
                     provided.forEachIndexed { i, u ->
                         val name = android.net.Uri.parse(u).lastPathSegment ?: "file_${i + 1}"
@@ -276,24 +278,37 @@ class WhisperConnectorService : Service() {
                                 status = ProcessingStatus.PENDING
                             )
                         )
+                        Log.d(TAG, "TECHNICAL: [$batchId] File[$i]: name=$name uri=$u")
                     }
                 } else {
                     for (i in 0 until fileCount) {
                         val fileState = FileProcessingState(
-                            fileName = "video_${i + 1}.mp4",
+                            fileName = "video_${i + 1}.mp4", // Fallback placeholder
                             fileUri = "file:///sdcard/video_${i + 1}.mp4",
                             status = ProcessingStatus.PENDING
                         )
                         batchState.files.add(fileState)
+                        Log.w(TAG, "TECHNICAL: [$batchId] No provided URIs. Using placeholder for index $i")
                     }
                 }
 
-                // Start monitoring WorkManager jobs
+                // Start monitoring WorkManager jobs with timeout protection
                 startWorkManagerMonitoring(batchId)
+                
+                // Add timeout protection - if no jobs appear in 10 seconds, mark as error
+                Handler(Looper.getMainLooper()).postDelayed({
+                    val dao = AsrDb.get(this).dao()
+                    val jobs = dao.getAllJobs()
+                    val batchJobs = jobs.filter { it.jobId.contains(batchId) }
+                    if (batchJobs.isEmpty()) {
+                        Log.e(TAG, "TECHNICAL: TIMEOUT - No jobs found for batch $batchId after 10 seconds")
+                        broadcastProgressUpdate(batchId, batchState, true, listOf("Timeout: No jobs were created"))
+                    }
+                }, 10000) // 10 second timeout
             }
 
         } catch (e: Exception) {
-            Log.e(TAG, "Error starting whisper processing: ${e.message}", e)
+            Log.e(TAG, "TECHNICAL: Error starting whisper processing: ${e.message}", e)
         }
     }
 
@@ -320,51 +335,73 @@ class WhisperConnectorService : Service() {
      * Check WorkManager job progress for a batch
      */
     private fun checkWorkManagerProgress(batchId: String) {
-        Log.d(TAG, "checkWorkManagerProgress called for batch: $batchId")
+        Log.d(TAG, "=== TECHNICAL LOG: checkWorkManagerProgress called for batch: $batchId ===")
         val batchState = activeBatches[batchId] ?: return
 
         try {
-            Log.d(TAG, "Querying database for jobs...")
+            Log.d(TAG, "TECHNICAL: Querying database for jobs...")
             // Query the database for job status
             val dao = AsrDb.get(this).dao()
             val jobs = dao.getAllJobs()
-            Log.d(TAG, "Found ${jobs.size} jobs in database")
+            Log.d(TAG, "TECHNICAL: Found ${jobs.size} total jobs in database")
+            
+            // Log all jobs for debugging
+            jobs.forEach { job ->
+                Log.d(TAG, "TECHNICAL: Job ${job.jobId} - Status: ${job.status}, Model: ${job.model}, Created: ${job.createdAtMs}, Error: ${job.error}")
+            }
 
             var completedJobs = 0
             var currentJobIndex = 0
+            var hasErrors = false
+            var errorMessages = mutableListOf<String>()
+            var pendingJobs = 0
+            var runningJobs = 0
 
             // Count completed jobs and find current processing job
             for (i in 0 until batchState.totalFiles) {
                 val jobIdPrefix = "batch_${i}_" // Match the job ID pattern from TranscribeWorker
                 val matchingJobs = jobs.filter { it.jobId.startsWith(jobIdPrefix) }
-                Log.d(TAG, "Looking for jobs with prefix: $jobIdPrefix, found: ${matchingJobs.size}")
+                Log.d(TAG, "TECHNICAL: Looking for jobs with prefix: $jobIdPrefix, found: ${matchingJobs.size}")
 
                 if (matchingJobs.isNotEmpty()) {
                     val job = matchingJobs.first()
-                    Log.d(TAG, "Job ${job.jobId} status: ${job.status}")
+                    Log.d(TAG, "TECHNICAL: Job ${job.jobId} status: ${job.status}, RTF: ${job.rtf}, Error: ${job.error}")
                     when (job.status) {
                         "DONE" -> {
                             completedJobs++
                             batchState.files[i].status = ProcessingStatus.COMPLETED
                             batchState.files[i].progress = 100
                             batchState.files[i].rtf = job.rtf ?: 0.0
+                            Log.d(TAG, "TECHNICAL: File $i completed successfully")
                         }
                         "RUNNING" -> {
+                            runningJobs++
                             batchState.files[i].status = ProcessingStatus.PROCESSING
                             batchState.files[i].progress = 50 // Estimate progress
                             currentJobIndex = i
+                            Log.d(TAG, "TECHNICAL: File $i currently running")
                         }
                         "ERROR" -> {
                             batchState.files[i].status = ProcessingStatus.ERROR
                             batchState.files[i].error = job.error ?: "Unknown error"
+                            hasErrors = true
+                            errorMessages.add("File ${i + 1}: ${job.error ?: "Unknown error"}")
                             // Count ERROR jobs as completed to avoid infinite waiting
                             completedJobs++
+                            Log.e(TAG, "TECHNICAL: File $i failed with error: ${job.error}")
                         }
                         else -> {
+                            pendingJobs++
                             batchState.files[i].status = ProcessingStatus.PENDING
                             batchState.files[i].progress = 0
+                            Log.d(TAG, "TECHNICAL: File $i still pending (status: ${job.status})")
                         }
                     }
+                } else {
+                    pendingJobs++
+                    batchState.files[i].status = ProcessingStatus.PENDING
+                    batchState.files[i].progress = 0
+                    Log.w(TAG, "TECHNICAL: No job found for file $i with prefix $jobIdPrefix")
                 }
             }
 
@@ -373,22 +410,36 @@ class WhisperConnectorService : Service() {
             batchState.currentFileIndex = currentJobIndex
             batchState.overallProgress = Math.floor((completedJobs.toDouble() / batchState.totalFiles) * 100).toInt()
 
-            Log.d(TAG, "Batch $batchId: completedJobs=$completedJobs, totalFiles=${batchState.totalFiles}, overallProgress=${batchState.overallProgress}%")
+            Log.d(TAG, "TECHNICAL: Batch $batchId Summary:")
+            Log.d(TAG, "TECHNICAL: - Total files: ${batchState.totalFiles}")
+            Log.d(TAG, "TECHNICAL: - Completed: $completedJobs")
+            Log.d(TAG, "TECHNICAL: - Running: $runningJobs")
+            Log.d(TAG, "TECHNICAL: - Pending: $pendingJobs")
+            Log.d(TAG, "TECHNICAL: - Current file index: $currentJobIndex")
+            Log.d(TAG, "TECHNICAL: - Overall progress: ${batchState.overallProgress}%")
+            Log.d(TAG, "TECHNICAL: - Has errors: $hasErrors")
+            if (errorMessages.isNotEmpty()) {
+                Log.e(TAG, "TECHNICAL: Error messages: ${errorMessages.joinToString("; ")}")
+            }
 
-            // Broadcast progress update
-            broadcastProgressUpdate(batchId, batchState)
+            // Broadcast progress update with error information
+            broadcastProgressUpdate(batchId, batchState, hasErrors, errorMessages)
 
             // Check if all jobs are complete
             if (completedJobs >= batchState.totalFiles) {
-                Log.d(TAG, "All jobs completed for batch: $batchId")
+                Log.d(TAG, "TECHNICAL: All jobs completed for batch: $batchId")
                 progressTimer?.cancel()
+                if (hasErrors) {
+                    Log.w(TAG, "TECHNICAL: Batch $batchId completed with errors: ${errorMessages.joinToString("; ")}")
+                }
                 broadcastProcessingComplete(batchId)
             } else {
-                Log.d(TAG, "Batch $batchId not yet complete: $completedJobs/${batchState.totalFiles}")
+                Log.d(TAG, "TECHNICAL: Batch $batchId not yet complete: $completedJobs/${batchState.totalFiles}")
+                Log.d(TAG, "TECHNICAL: Next check in 2 seconds...")
             }
 
         } catch (e: Exception) {
-            Log.e(TAG, "Error checking WorkManager progress: ${e.message}", e)
+            Log.e(TAG, "TECHNICAL: Error checking WorkManager progress: ${e.message}", e)
         }
     }
 
@@ -405,6 +456,9 @@ class WhisperConnectorService : Service() {
         // Broadcast completion
         broadcastProcessingComplete(batchId)
 
+        // DISABLED: Auto-navigation to results page - let user manually navigate
+        // broadcastPageNavigation("results")
+
         // Clean up after delay
         Handler(Looper.getMainLooper()).postDelayed({
             activeBatches.remove(batchId)
@@ -412,39 +466,20 @@ class WhisperConnectorService : Service() {
     }
     
     /**
-     * Start resource monitoring
+     * Start resource monitoring - DISABLED: Use DeviceResourceService instead
      */
     private fun startResourceMonitoring() {
-        if (isMonitoring.get()) return
-
-        isMonitoring.set(true)
-        Log.d(TAG, "Starting resource monitoring")
-
-        resourceTimer = Timer("ResourceMonitor", true).apply {
-            scheduleAtFixedRate(object : TimerTask() {
-                override fun run() {
-                    try {
-                        val stats = getResourceStats()
-                        resourceStats.update(stats)
-                        broadcastResourceUpdate(resourceStats)
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Error in resource monitoring task: ${e.message}", e)
-                    }
-                }
-            }, 0, RESOURCE_UPDATE_INTERVAL)
-        }
+        // Resource monitoring is now handled by DeviceResourceService with StableResourceMonitor
+        // This prevents conflicts and ensures stable readings
+        Log.d(TAG, "Resource monitoring disabled - using DeviceResourceService instead")
     }
 
     /**
-     * Stop resource monitoring
+     * Stop resource monitoring - DISABLED: Use DeviceResourceService instead
      */
     private fun stopResourceMonitoring() {
-        if (!isMonitoring.get()) return
-
-        isMonitoring.set(false)
-        resourceTimer?.cancel()
-        resourceTimer = null
-        Log.d(TAG, "Stopped resource monitoring")
+        // Resource monitoring is now handled by DeviceResourceService with StableResourceMonitor
+        Log.d(TAG, "Resource monitoring disabled - using DeviceResourceService instead")
     }
 
     /**
@@ -457,53 +492,22 @@ class WhisperConnectorService : Service() {
     }
 
     /**
-     * Get current resource stats
+     * Get current resource stats - DISABLED: Use DeviceResourceService instead
      */
     private fun getResourceStats(): ResourceStats {
-        val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as android.app.ActivityManager
-        val memoryInfo = android.app.ActivityManager.MemoryInfo()
-        activityManager.getMemoryInfo(memoryInfo)
-        val totalMemory = memoryInfo.totalMem
-        val availableMemory = memoryInfo.availMem
-
-        // CPU usage (simplified, for real usage needs /proc/stat parsing)
-        val cpuUsage = try {
-            val reader = java.io.RandomAccessFile("/proc/stat", "r")
-            val load = reader.readLine()
-            reader.close()
-            val toks = load.split(" +".toRegex()).drop(1).map { it.toLong() }
-            val idle = toks[3]
-            val total = toks.sum()
-            val diffIdle = idle - lastIdleCpu
-            val diffTotal = total - lastTotalCpu
-            lastIdleCpu = idle
-            lastTotalCpu = total
-            if (diffTotal > 0) (100.0 * (diffTotal - diffIdle) / diffTotal) else 0.0
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting CPU stats: ${e.message}", e)
-            0.0
-        }
-
-        // Battery info
-        val batteryManager = getSystemService(BATTERY_SERVICE) as BatteryManager
-        val batteryLevel = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
-        val batteryTemp = getBatteryTemperature()
-        val batteryStatus = getBatteryStatus(batteryManager)
-
-        // GPU info (placeholder, actual GPU monitoring is complex and device-specific)
-        val gpuInfo = "N/A"
-
-        // Thread info (placeholder)
-        val threadInfo = "Threads: ${Debug.getThreadAllocCount()}"
-
+        // Resource monitoring is now handled by DeviceResourceService with StableResourceMonitor
+        // This prevents conflicts and ensures stable readings
+        Log.d(TAG, "Resource monitoring disabled - using DeviceResourceService instead")
+        
+        // Return empty stats to prevent any issues
         return ResourceStats(
-            memory = totalMemory - availableMemory, // Used memory
-            cpu = cpuUsage,
-            battery = batteryLevel,
-            temperature = batteryTemp,
-            batteryDetails = batteryStatus,
-            gpuInfo = gpuInfo,
-            threadInfo = threadInfo
+            memory = 0,
+            cpu = 0.0,
+            battery = 0,
+            temperature = 0.0,
+            batteryDetails = "Using DeviceResourceService",
+            gpuInfo = "N/A",
+            threadInfo = "N/A"
         )
     }
 
@@ -531,9 +535,25 @@ class WhisperConnectorService : Service() {
      * Broadcast processing start
      */
     private fun broadcastProcessingStart(batchId: String, fileCount: Int) {
+        val batchState = activeBatches[batchId]
         val intent = Intent(ACTION_START_PROCESSING).apply {
             putExtra(EXTRA_BATCH_ID, batchId)
             putExtra(EXTRA_FILE_COUNT, fileCount)
+            
+            // Add file information if available
+            if (batchState != null && batchState.files.isNotEmpty()) {
+                val filesJson = JSONArray()
+                batchState.files.forEach { fileState ->
+                    filesJson.put(JSONObject().apply {
+                        put("name", fileState.fileName)
+                        put("uri", fileState.fileUri)
+                        put("status", fileState.status.name)
+                        put("progress", fileState.progress)
+                    })
+                }
+                putExtra("file_info", filesJson.toString())
+                Log.d(TAG, "Broadcasting processing start with ${batchState.files.size} files")
+            }
         }
         sendBroadcast(intent)
     }
@@ -541,7 +561,7 @@ class WhisperConnectorService : Service() {
     /**
      * Broadcast progress update
      */
-    private fun broadcastProgressUpdate(batchId: String, batchState: BatchProcessingState) {
+    private fun broadcastProgressUpdate(batchId: String, batchState: BatchProcessingState, hasErrors: Boolean = false, errorMessages: List<String> = emptyList()) {
         val intent = Intent(ACTION_UPDATE_PROGRESS).apply {
             putExtra(EXTRA_BATCH_ID, batchId)
             putExtra(EXTRA_PROGRESS, batchState.overallProgress)
@@ -549,6 +569,10 @@ class WhisperConnectorService : Service() {
             putExtra(EXTRA_CURRENT_FILE, batchState.currentFileIndex)
             putExtra("completed_files", batchState.completedFiles)
             putExtra("current_file_progress", batchState.currentFileProgress)
+            putExtra("has_errors", hasErrors)
+            if (errorMessages.isNotEmpty()) {
+                putExtra("error_messages", errorMessages.joinToString("; "))
+            }
             // Add file details as JSON array
             val filesJson = JSONArray()
             batchState.files.forEach { fileState ->
@@ -563,6 +587,7 @@ class WhisperConnectorService : Service() {
             }
             putExtra("file_states", filesJson.toString())
         }
+        Log.d(TAG, "Progress update [$batchId]: overall=${batchState.overallProgress}% current=${batchState.currentFileIndex}/${batchState.totalFiles} errors=$hasErrors")
         sendBroadcast(intent)
     }
 

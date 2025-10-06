@@ -10,8 +10,12 @@ import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.os.Build
 import android.content.Context
+import androidx.lifecycle.lifecycleScope
 import com.mira.resource.DeviceResourceService
 import com.mira.resource.ResourceUpdateReceiver
+import com.mira.whisper.bus.WhisperBus
+import com.mira.whisper.bus.WhisperEvent
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 
 /**
@@ -36,7 +40,19 @@ class WhisperProcessingActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
+        Log.e(TAG, "=== PROCESSING ACTIVITY CREATED ===")
+        Log.e(TAG, "Intent extras: ${intent.extras}")
+        Log.e(TAG, "Intent data: ${intent.data}")
+        Log.e(TAG, "Intent action: ${intent.action}")
         Log.d(TAG, "Creating WhisperProcessingActivity")
+        
+        // Get batch ID from intent
+        val batchId = intent.getStringExtra("batchId")
+        Log.e(TAG, "Batch ID from intent: $batchId")
+        
+        // Load batch plan if batchId is provided
+        val plan = batchId?.let { PlanStore.get(this, it) }
+        Log.d(TAG, "Loaded plan for batch: $batchId, file count: ${plan?.uris?.size ?: 0}")
         
         val wv = WebView(this)
         webView = wv
@@ -50,6 +66,15 @@ class WhisperProcessingActivity : AppCompatActivity() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
                 Log.d(TAG, "Page finished loading: $url")
+
+                // Inject batch ID if provided
+                batchId?.let { id ->
+                    webView.evaluateJavascript("""
+                        if (window.setBatchId) {
+                            window.setBatchId('$id');
+                        }
+                    """, null)
+                }
 
                 // Initialize connector service integration
                 initializeConnectorService()
@@ -108,6 +133,9 @@ class WhisperProcessingActivity : AppCompatActivity() {
 
         // Start Xiaomi background resource monitoring service
         startBackgroundResourceMonitoring()
+        
+        // Subscribe to WhisperBus events for real-time updates
+        subscribeToWhisperEvents()
     }
     
     /**
@@ -152,6 +180,12 @@ class WhisperProcessingActivity : AppCompatActivity() {
             } else {
                 startService(intent)
             }
+            
+            // Also start the connector service resource monitoring
+            val connectorIntent = Intent(this, WhisperConnectorService::class.java)
+            startService(connectorIntent)
+            
+            Log.d(TAG, "Both DeviceResourceService and WhisperConnectorService started for resource monitoring")
         } catch (e: Exception) {
             Log.e(TAG, "Error starting background resource monitoring: ${e.message}")
         }
@@ -231,8 +265,103 @@ class WhisperProcessingActivity : AppCompatActivity() {
         return out.toString().replace("'", "\u0027")
     }
     
+    /**
+     * Subscribe to WhisperBus events for real-time UI updates
+     */
+    private fun subscribeToWhisperEvents() {
+        lifecycleScope.launch {
+            WhisperBus.events.collect { event ->
+                when (event) {
+                    is WhisperEvent.Progress -> {
+                        val progressPercent = if (event.totalMs > 0) {
+                            (event.processedMs * 100 / event.totalMs).toInt()
+                        } else 0
+                        
+                        webView.evaluateJavascript(
+                            """
+                            if (window.updateProgress) {
+                                window.updateProgress($progressPercent, ${event.processedMs}, ${event.totalMs});
+                            }
+                            """.trimIndent(),
+                            null
+                        )
+                    }
+                    
+                    is WhisperEvent.Log -> {
+                        webView.evaluateJavascript(
+                            """
+                            if (window.appendLog) {
+                                window.appendLog('${event.line.replace("'", "\\'")}');
+                            }
+                            """.trimIndent(),
+                            null
+                        )
+                    }
+                    
+                    is WhisperEvent.Heartbeat -> {
+                        webView.evaluateJavascript(
+                            """
+                            if (window.setLive) {
+                                window.setLive(true);
+                            }
+                            """.trimIndent(),
+                            null
+                        )
+                    }
+                    
+                    is WhisperEvent.Stage -> {
+                        webView.evaluateJavascript(
+                            """
+                            if (window.setStage) {
+                                window.setStage('${event.name}');
+                            }
+                            """.trimIndent(),
+                            null
+                        )
+                    }
+                    
+                    is WhisperEvent.Rtf -> {
+                        webView.evaluateJavascript(
+                            """
+                            if (window.setRtf) {
+                                window.setRtf(${event.rtf});
+                            }
+                            """.trimIndent(),
+                            null
+                        )
+                    }
+                    
+                    is WhisperEvent.Done -> {
+                        webView.evaluateJavascript(
+                            """
+                            if (window.setComplete) {
+                                window.setComplete(${event.ok});
+                            }
+                            """.trimIndent(),
+                            null
+                        )
+                    }
+                    
+                    is WhisperEvent.Error -> {
+                        webView.evaluateJavascript(
+                            """
+                            if (window.showError) {
+                                window.showError('${event.message.replace("'", "\\'")}');
+                            }
+                            """.trimIndent(),
+                            null
+                        )
+                    }
+                }
+            }
+        }
+    }
+    
     override fun onDestroy() {
         super.onDestroy()
+        
+        Log.e(TAG, "=== PROCESSING ACTIVITY DESTROYED ===")
+        Log.e(TAG, "Stack trace:", Exception("Processing activity destroyed"))
         
         // Unregister receiver
         try {

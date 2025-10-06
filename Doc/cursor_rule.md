@@ -1,171 +1,203 @@
-# Cursor Rules for VideoEdit Project
+# Cursor Rules for VideoEdit
 
 ## Project Overview
-This is a multi-platform video editing application with three main feature areas:
-- **CLIP**: Video understanding and embedding generation
-- **Whisper**: Speech-to-text transcription and processing
-- **UI**: Cross-platform user interface with real-time resource monitoring
 
-## Development Guidelines
+VideoEdit is a comprehensive video processing platform with AI-powered speech recognition (Whisper) and visual understanding (CLIP) capabilities, designed for cross-platform deployment on Android, iOS, and macOS web.
 
-### Code Organization
-- **Package Structure**: `com.mira.videoeditor` for main app, `com.mira.clip`, `com.mira.whisper` for features
-- **Build Variants**: Debug and Release with `.debug` suffix for side-by-side installation
-- **Namespacing**: All broadcast actions, work names, and file authorities use `${applicationId}` placeholders
+## Code Organization
 
-### Architecture Patterns
-- **Control Knots**: Expose key configuration points for deterministic behavior
-- **Background Services**: Use foreground services for persistent operations
-- **Broadcast System**: Inter-component communication via Android broadcasts
-- **WebView Bridge**: `@JavascriptInterface` for native-WebView communication
+### Directory Structure
+```
+VideoEdit/
+├── app/                    # Main Android application
+├── feature/whisper/        # Whisper ASR implementation
+├── feature/clip/           # CLIP visual understanding  
+├── core/                   # Shared core functionality
+├── Doc/                    # Comprehensive documentation
+│   ├── clip/              # CLIP feature documentation
+│   ├── whisper/           # Whisper feature documentation
+│   ├── ui/                # UI feature documentation
+│   └── deployment/        # Deployment guides
+└── scripts/               # Build and utility scripts
+```
 
-### Resource Management
-- **Memory**: Stream processing to avoid OOM on large files
-- **CPU**: Background service for resource monitoring with 2-second intervals
-- **Storage**: Sidecar JSON files for metadata and verification
-- **Battery**: Efficient polling and event-driven updates
+### Module Responsibilities
+- **`app/`**: Android application shell, WebView integration, native bridges
+- **`feature/whisper/`**: Speech recognition, audio processing, transcription
+- **`feature/clip/`**: Visual understanding, image processing, similarity search
+- **`core/`**: Shared utilities, database, media processing, ML infrastructure
 
-## Feature-Specific Rules
+## Coding Standards
 
-### CLIP Features
-- **Model Assets**: Bundle CLIP models in APK assets
-- **GPU Acceleration**: Use OpenCL for ARM Mali/Adreno, Metal for Apple Silicon
-- **Frame Sampling**: Uniform sampling by default, scene-based as option
-- **Embedding Storage**: JSON format with binary fallback
+### Language Preferences
+- **Android**: Kotlin (primary), Java (legacy only)
+- **iOS**: Swift (primary), Objective-C (legacy only)
+- **Web**: TypeScript (primary), JavaScript (legacy only)
+- **Scripts**: Bash (primary), Python (ML utilities)
 
-### Whisper Features
-- **Audio Processing**: MediaCodec for hardware-accelerated decoding
-- **Resampling**: Linear resampler by default, sinc as option
-- **Language Detection**: Automatic LID with manual override
-- **Timestamp Policy**: Hybrid PTS + sample-count with drift tracking
+### Code Style
+- **Kotlin**: Follow Android Kotlin Style Guide
+- **Swift**: Follow Swift API Design Guidelines
+- **TypeScript**: Follow Airbnb TypeScript Style Guide
+- **Indentation**: 4 spaces (Kotlin/Swift), 2 spaces (TypeScript/JavaScript)
 
-### UI Features
-- **WebView Integration**: Chrome WebView 120+ compatibility
-- **State Management**: Centralized state with broadcast updates
-- **Accessibility**: WCAG compliance with screen reader support
-- **Theme System**: Auto theme with manual override
+### Naming Conventions
+- **Classes**: PascalCase (`WhisperConnectorService`)
+- **Functions**: camelCase (`processAudioFile`)
+- **Constants**: UPPER_SNAKE_CASE (`TARGET_SAMPLE_RATE`)
+- **Files**: snake_case (`whisper_connector_service.kt`)
 
-## Testing Requirements
+## Architecture Principles
 
-### Unit Tests
-- **Database Changes**: Run `./gradlew :app:testDebugUnitTest` for DAO modifications
-- **ML Models**: Run all tests for model or encoder changes
-- **Workers**: Run instrumented tests for worker modifications
+### Control Knots
+All features must expose key control parameters:
+- **Deterministic processing**: Fixed seeds, no random augmentation
+- **Reproducible results**: SHA-256 hash verification
+- **Configurable quality**: Speed vs accuracy trade-offs
+- **Resource management**: Memory, CPU, battery optimization
 
-### Integration Tests
-- **Video Processing**: Run frame sampler tests for video changes
-- **Resource Monitoring**: Validate background service functionality
-- **Cross-Platform**: Test on Xiaomi Pad and iPad
+### Cross-Platform Design
+- **Unified API**: Consistent interfaces across platforms
+- **Platform-specific optimization**: Native performance where possible
+- **Shared business logic**: Common algorithms and data structures
+- **Platform abstraction**: Clean separation of concerns
 
-### Verification Scripts
-- **Hash Comparison**: SHA-256 verification for deterministic outputs
-- **Performance Benchmarks**: RTF, memory usage, processing speed
-- **Accessibility Audit**: Screen reader compatibility validation
+### Performance Requirements
+- **Whisper ASR**: RTF < 0.1 (10x faster than real-time)
+- **CLIP Vision**: < 100ms latency per frame
+- **UI Responsiveness**: 60fps target with graceful degradation
+- **Memory Usage**: < 200MB peak per feature
 
-## Deployment Rules
+## Development Workflow
 
-### Android Deployment
-- **Build Variants**: Debug and Release APKs
-- **Signing**: Debug keystore for development, release keystore for production
-- **Permissions**: Minimal required permissions with runtime requests
-- **Testing**: ADB broadcast testing for background services
+### Git Workflow
+- **Branch naming**: `feature/description`, `fix/description`, `docs/description`
+- **Commit messages**: Conventional Commits format
+- **Pull requests**: Required for all changes
+- **Code review**: Minimum 1 approval required
 
-### iOS Deployment
-- **Capacitor Integration**: WebView-based hybrid app
-- **Code Signing**: Development and distribution certificates
-- **Background Processing**: Core Audio and background tasks
-- **Testing**: XCTest automation for core functionality
+### Testing Requirements
+- **Unit tests**: Required for all new features
+- **Integration tests**: Required for cross-module functionality
+- **E2E tests**: Required for user-facing features
+- **Performance tests**: Required for ML features
 
-### macOS Web Deployment
-- **WebAssembly**: CLIP and Whisper models compiled to WASM
-- **Progressive Web App**: Offline capability and native-like experience
-- **Cross-Browser**: Chrome, Safari, Firefox compatibility
-- **Testing**: Browser automation and responsive design validation
+### CI/CD Pipeline
+- **Build validation**: All platforms must build successfully
+- **Test execution**: All tests must pass
+- **Code quality**: Lint checks must pass
+- **Security scan**: Dependency vulnerabilities must be resolved
 
-## Code Quality Standards
+## Feature-Specific Guidelines
 
-### Kotlin/Java
-- **Null Safety**: Use nullable types appropriately
-- **Coroutines**: Use for async operations
-- **Broadcast Receivers**: Use `RECEIVER_NOT_EXPORTED` for Android 13+
-- **Foreground Services**: Required permissions for background operations
+### Whisper ASR
+- **Audio processing**: Always normalize to 16kHz mono PCM16
+- **Model management**: Use GGUF quantization for mobile deployment
+- **Language detection**: Implement automatic LID with manual override
+- **Batch processing**: Use WorkManager for background processing
+- **Resource monitoring**: Track CPU, memory, and battery usage
 
-### JavaScript/TypeScript
-- **ES6+**: Use modern JavaScript features
-- **Type Safety**: TypeScript for complex logic
-- **WebView Bridge**: Proper error handling and type checking
-- **State Management**: Immutable state updates
+### CLIP Vision
+- **Frame sampling**: Use uniform sampling for deterministic results
+- **Preprocessing**: Always resize to 224x224 with center crop
+- **Embedding storage**: Use efficient binary format with JSON metadata
+- **Similarity search**: Implement cosine similarity with ANN optimization
+- **GPU acceleration**: Use platform-specific acceleration (OpenCL/Metal)
 
-### Documentation
-- **Architecture**: Document control knots and design decisions
-- **Implementation**: Detailed technical specifications
-- **Deployment**: Device-specific deployment guides
-- **Verification**: Testing and validation procedures
+### UI Components
+- **Accessibility**: Full WCAG compliance required
+- **Responsive design**: Support multiple screen sizes and orientations
+- **Performance**: 60fps target with efficient resource management
+- **Security**: Implement Content Security Policy and secure bridges
+- **Cross-platform**: Consistent behavior across Android/iOS/web
 
-## Security Considerations
+## Documentation Standards
 
-### Data Protection
-- **File Access**: Use scoped storage for Android 10+
-- **Permissions**: Request minimal required permissions
-- **Broadcast Security**: Use `RECEIVER_NOT_EXPORTED` for internal broadcasts
-- **Foreground Services**: Required permissions for background operations
+### Documentation Structure
+Each feature must have:
+- **Architecture Design and Control Knot**: Core architecture and parameters
+- **Full scale implementation Details**: Complete implementation guide
+- **Device Deployment**: Platform-specific deployment instructions
+- **README.md**: Multi-lens expert communication
+- **Release Guide**: Automated testing and release procedures
+- **scripts/**: Feature-specific scripts and tools
 
-### Code Security
-- **Input Validation**: Validate all user inputs
-- **File Handling**: Sanitize file paths and names
-- **Network Security**: Use HTTPS for all network requests
-- **Storage Security**: Encrypt sensitive data at rest
+### Code Documentation
+- **Public APIs**: Comprehensive JSDoc/KDoc documentation
+- **Complex algorithms**: Inline comments explaining logic
+- **Configuration options**: Document all control parameters
+- **Performance characteristics**: Document resource usage and timing
 
-## Performance Optimization
+## Quality Assurance
 
-### Memory Management
-- **Stream Processing**: Avoid loading large files into memory
-- **Resource Monitoring**: Efficient background service implementation
-- **WebView**: Proper memory cleanup and garbage collection
-- **Native Code**: JNI best practices for C++ integration
+### Code Quality
+- **Linting**: All code must pass linting checks
+- **Type safety**: Use strict typing (no `any` in TypeScript)
+- **Error handling**: Comprehensive error handling and logging
+- **Resource cleanup**: Proper resource management and cleanup
 
-### CPU Optimization
-- **Background Services**: Minimal CPU usage for monitoring
-- **GPU Acceleration**: Use hardware acceleration where available
-- **Threading**: Proper thread management for UI responsiveness
-- **Caching**: Intelligent caching for frequently accessed data
+### Security
+- **Input validation**: Validate all user inputs
+- **Secure storage**: Use Android Keystore/iOS Keychain for secrets
+- **Network security**: Use HTTPS and certificate pinning
+- **Content Security**: Implement CSP and secure JavaScript bridges
 
-### Battery Optimization
-- **Polling Frequency**: Optimize update intervals
-- **Background Processing**: Efficient background task scheduling
-- **Resource Monitoring**: Minimal impact on battery life
-- **Power Management**: Respect device power management policies
+### Performance
+- **Memory management**: Avoid memory leaks and OOM conditions
+- **CPU optimization**: Use efficient algorithms and data structures
+- **Battery optimization**: Minimize background processing
+- **Storage efficiency**: Use compressed formats and efficient storage
+
+## Deployment Guidelines
+
+### Android
+- **Target SDK**: Latest stable version
+- **Min SDK**: API 21 (Android 5.0)
+- **Architecture**: ARM64-v8a, ARMv7, x86, x86_64
+- **Signing**: Use release keystore for production builds
+
+### iOS
+- **Target**: iOS 13.0+
+- **Architecture**: ARM64 (device), x86_64 (simulator)
+- **Code signing**: Use Apple Developer certificates
+- **App Store**: Follow Apple App Store guidelines
+
+### Web
+- **Browsers**: Chrome 90+, Safari 14+, Firefox 88+
+- **PWA**: Implement service worker and manifest
+- **Performance**: Lighthouse score > 90
+- **Accessibility**: WCAG AA compliance
 
 ## Troubleshooting
 
 ### Common Issues
-- **Build Failures**: Check Gradle version and dependency conflicts
-- **Runtime Errors**: Verify permissions and service registration
-- **Performance Issues**: Profile memory and CPU usage
-- **Cross-Platform**: Test on target devices and browsers
+- **Build failures**: Check dependencies and environment setup
+- **Performance issues**: Profile memory and CPU usage
+- **Cross-platform bugs**: Test on multiple devices and platforms
+- **Integration issues**: Verify API contracts and data formats
 
 ### Debug Tools
-- **Logging**: Use structured logging with appropriate levels
-- **Profiling**: Android Studio profiler for performance analysis
-- **WebView Debugging**: Chrome DevTools for WebView debugging
-- **Resource Monitoring**: Built-in resource monitoring service
+- **Android**: Android Studio Profiler, ADB logging
+- **iOS**: Xcode Instruments, Console logging
+- **Web**: Chrome DevTools, Lighthouse audits
+- **General**: Logcat, crash reporting, performance monitoring
 
-## Version Control
+## Resources
 
-### Branch Strategy
-- **Main Branch**: Stable, production-ready code
-- **Feature Branches**: Isolated feature development
-- **Resource Monitor**: Dedicated branch for resource monitoring features
-- **Documentation**: Separate documentation updates
+### Documentation
+- [Android Developer Guide](https://developer.android.com/)
+- [iOS Developer Guide](https://developer.apple.com/ios/)
+- [Web Platform Guide](https://web.dev/)
+- [Whisper Documentation](./Doc/whisper/)
+- [CLIP Documentation](./Doc/clip/)
+- [UI Documentation](./Doc/ui/)
 
-### Commit Messages
-- **Format**: `type: description` (feat, fix, docs, test, refactor)
-- **Scope**: Feature area (clip, whisper, ui, resource-monitor)
-- **Description**: Clear, concise description of changes
-- **Breaking Changes**: Document in commit message and PR
+### Tools
+- **Android**: Android Studio, Gradle, ADB
+- **iOS**: Xcode, CocoaPods, Capacitor
+- **Web**: Node.js, npm/pnpm, Capacitor CLI
+- **ML**: Python, PyTorch, ONNX, Core ML
 
-### Pull Requests
-- **Description**: Detailed description of changes and rationale
-- **Testing**: Include test results and verification steps
-- **Documentation**: Update relevant documentation
-- **Review**: Code review required for all changes
+---
+
+**Remember**: This is a production-ready platform serving real users. Always prioritize stability, performance, and user experience over new features.

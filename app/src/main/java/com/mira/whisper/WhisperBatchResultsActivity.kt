@@ -164,37 +164,19 @@ class WhisperBatchResultsActivity : AppCompatActivity() {
     }
     
     private fun startResourceMonitoring() {
-        resourceTimer = Timer()
-        resourceTimer?.scheduleAtFixedRate(object : TimerTask() {
-            override fun run() {
-                runOnUiThread {
-                    updateResourceUsage()
-                }
-            }
-        }, 0, 2000) // Update every 2 seconds
-        Log.d(TAG, "Resource monitoring started")
+        // Resource monitoring is now handled by DeviceResourceService with StableResourceMonitor
+        // This prevents conflicts and ensures stable readings
+        Log.d(TAG, "Resource monitoring disabled - using DeviceResourceService instead")
     }
     
     private fun stopResourceMonitoring() {
-        resourceTimer?.cancel()
-        resourceTimer = null
-        Log.d(TAG, "Resource monitoring stopped")
+        // Resource monitoring is now handled by DeviceResourceService with StableResourceMonitor
+        Log.d(TAG, "Resource monitoring disabled - using DeviceResourceService instead")
     }
     
     private fun updateResourceUsage() {
-        try {
-            val resourceStats = whisperBridge.getResourceStats()
-            
-            // Send resource stats to WebView
-            webView.evaluateJavascript("""
-                if (typeof updateResourceStats === 'function') {
-                    updateResourceStats('$resourceStats');
-                }
-            """.trimIndent(), null)
-            
-            Log.d(TAG, "Resource stats updated: $resourceStats")
-        } catch (e: Exception) {
-            Log.e(TAG, "Error updating resource usage: ${e.message}")
-        }
+        // Resource monitoring is now handled by DeviceResourceService with StableResourceMonitor
+        // This method is disabled to prevent conflicts
+        Log.d(TAG, "Resource monitoring disabled - using DeviceResourceService instead")
     }
 }

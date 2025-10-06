@@ -48,22 +48,37 @@ class WhisperConnectorReceiver(
     private fun handleProcessingStart(intent: Intent) {
         val batchId = intent.getStringExtra(WhisperConnectorService.EXTRA_BATCH_ID) ?: return
         val fileCount = intent.getIntExtra(WhisperConnectorService.EXTRA_FILE_COUNT, 0)
+        val fileInfoJson = intent.getStringExtra("file_info")
         
-        Log.d(TAG, "Processing started: $batchId with $fileCount files on $pageName")
+        Log.d(TAG, "=== TECHNICAL LOG: Processing started ===")
+        Log.d(TAG, "TECHNICAL: Batch ID: $batchId")
+        Log.d(TAG, "TECHNICAL: File count: $fileCount")
+        Log.d(TAG, "TECHNICAL: Current page: $pageName")
+        Log.d(TAG, "TECHNICAL: File info JSON: $fileInfoJson")
         
         // Forward to WebView based on page
         when (pageName) {
             "processing" -> {
+                val fileInfoParam = if (fileInfoJson != null) {
+                    ", $fileInfoJson"
+                } else {
+                    ""
+                }
                 webView?.evaluateJavascript("""
                     if (window.handleProcessingStart) {
-                        window.handleProcessingStart('$batchId', $fileCount);
+                        window.handleProcessingStart('$batchId', $fileCount$fileInfoParam);
                     }
                 """, null)
             }
             "results" -> {
+                val fileInfoParam = if (fileInfoJson != null) {
+                    ", $fileInfoJson"
+                } else {
+                    ""
+                }
                 webView?.evaluateJavascript("""
                     if (window.handleProcessingStart) {
-                        window.handleProcessingStart('$batchId', $fileCount);
+                        window.handleProcessingStart('$batchId', $fileCount$fileInfoParam);
                     }
                 """, null)
             }
@@ -78,22 +93,56 @@ class WhisperConnectorReceiver(
         val progress = intent.getIntExtra(WhisperConnectorService.EXTRA_PROGRESS, 0)
         val fileCount = intent.getIntExtra(WhisperConnectorService.EXTRA_FILE_COUNT, 0)
         val currentFile = intent.getIntExtra(WhisperConnectorService.EXTRA_CURRENT_FILE, 0)
+        val hasErrors = intent.getBooleanExtra("has_errors", false)
+        val errorMessages = intent.getStringExtra("error_messages")
+        val fileStatesJson = intent.getStringExtra("file_states")
         
-        Log.d(TAG, "Progress update: $batchId - $progress% (file $currentFile/$fileCount) on $pageName")
+        Log.d(TAG, "=== TECHNICAL LOG: Progress update ===")
+        Log.d(TAG, "TECHNICAL: Batch ID: $batchId")
+        Log.d(TAG, "TECHNICAL: Overall progress: $progress%")
+        Log.d(TAG, "TECHNICAL: Current file: $currentFile/$fileCount")
+        Log.d(TAG, "TECHNICAL: Has errors: $hasErrors")
+        Log.d(TAG, "TECHNICAL: Current page: $pageName")
+        if (hasErrors && errorMessages != null) {
+            Log.e(TAG, "TECHNICAL: Error messages: $errorMessages")
+        }
+        if (fileStatesJson != null) {
+            Log.d(TAG, "TECHNICAL: File states JSON: $fileStatesJson")
+        }
         
         // Forward to WebView based on page
         when (pageName) {
             "processing" -> {
+                val errorParam = if (hasErrors && errorMessages != null) {
+                    ", '$errorMessages'"
+                } else {
+                    ", null"
+                }
+                val fileStatesParam = if (fileStatesJson != null) {
+                    ", '$fileStatesJson'"
+                } else {
+                    ", null"
+                }
                 webView?.evaluateJavascript("""
                     if (window.handleProgressUpdate) {
-                        window.handleProgressUpdate('$batchId', $progress, $fileCount, $currentFile);
+                        window.handleProgressUpdate('$batchId', $progress, $fileCount, $currentFile$errorParam$fileStatesParam);
                     }
                 """, null)
             }
             "results" -> {
+                val errorParam = if (hasErrors && errorMessages != null) {
+                    ", '$errorMessages'"
+                } else {
+                    ", null"
+                }
+                val fileStatesParam = if (fileStatesJson != null) {
+                    ", '$fileStatesJson'"
+                } else {
+                    ", null"
+                }
                 webView?.evaluateJavascript("""
                     if (window.handleProgressUpdate) {
-                        window.handleProgressUpdate('$batchId', $progress, $fileCount, $currentFile);
+                        window.handleProgressUpdate('$batchId', $progress, $fileCount, $currentFile$errorParam$fileStatesParam);
                     }
                 """, null)
             }

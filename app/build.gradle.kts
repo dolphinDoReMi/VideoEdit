@@ -189,9 +189,10 @@ android {
   }
   packaging { 
     resources.pickFirsts += listOf("META-INF/*")
-    // Optimize APK size
+    // Handle duplicate native libraries
     jniLibs {
       useLegacyPackaging = false
+      pickFirsts += listOf("**/libc++_shared.so")
     }
   }
   

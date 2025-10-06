@@ -74,9 +74,14 @@
   <div class="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl p-6 mb-6 border border-dark-600">
     <div class="flex items-center justify-between mb-4">
       <h2 class="text-xl font-semibold text-white">Processing Status</h2>
-      <div class="flex items-center space-x-2">
-        <div class="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-        <span class="text-sm text-white font-medium">Step 2/3</span>
+      <div class="flex items-center space-x-3">
+        <button id="technical-info-btn" onclick="showTechnicalInfo()" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-lg transition-colors">
+          <i class="fa-solid fa-info-circle mr-1"></i>Technical Info
+        </button>
+        <div class="flex items-center space-x-2">
+          <div class="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+          <span class="text-sm text-white font-medium">Step 2/3</span>
+        </div>
       </div>
     </div>
     <div class="grid grid-cols-2 gap-4 text-sm">
@@ -96,6 +101,22 @@
         <p class="text-gray-300">Preset</p>
         <p class="text-white font-medium" id="preset-name">Single</p>
       </div>
+    </div>
+  </div>
+
+  <!-- Error Message Card (hidden by default) -->
+  <div id="error-message-card" class="bg-red-600 rounded-2xl p-4 mb-6 border border-red-500" style="display: none;">
+    <div class="flex items-center space-x-3">
+      <div class="w-8 h-8 bg-red-700 rounded-lg flex items-center justify-center">
+        <i class="fa-solid fa-exclamation-triangle text-white text-sm"></i>
+      </div>
+      <div class="flex-1">
+        <h3 class="text-lg font-semibold text-white">Processing Error</h3>
+        <p id="error-message" class="text-red-100 text-sm mt-1"></p>
+      </div>
+      <button id="dismiss-error" class="w-8 h-8 bg-red-700 rounded-lg flex items-center justify-center">
+        <i class="fa-solid fa-times text-white text-sm"></i>
+      </button>
     </div>
   </div>
 
@@ -254,6 +275,51 @@
       <div class="text-gray-400">Starting whisper processing...</div>
     </div>
   </div>
+
+  <!-- Technical Logs Section -->
+  <div class="bg-dark-700 rounded-2xl p-6 border border-dark-600 mb-6">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold text-white">Technical Logs</h3>
+      <div class="flex items-center space-x-3">
+        <button id="refresh-technical-logs" onclick="refreshTechnicalLogs()" class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs rounded-lg transition-colors">
+          <i class="fa-solid fa-refresh mr-1"></i>Refresh
+        </button>
+        <button id="clear-technical-logs" onclick="clearTechnicalLogs()" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs rounded-lg transition-colors">
+          <i class="fa-solid fa-trash mr-1"></i>Clear
+        </button>
+        <div class="flex items-center space-x-2">
+          <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+          <span class="text-sm text-blue-400 font-medium">Live</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Technical Logs Container -->
+    <div id="technical-logs" class="bg-dark-800 rounded-xl p-4 max-h-96 overflow-y-auto text-xs font-mono">
+      <div class="text-gray-400">🔍 DEBUG: Processing page loaded successfully</div>
+      <div class="text-blue-400">📱 Bridge Status: <span id="bridge-status">Checking...</span></div>
+      <div class="text-green-400">🎯 Batch ID: <span id="debug-batch-id">Not set</span></div>
+      <div class="text-yellow-400">⚡ DOM Ready: <span id="dom-status">Loading...</span></div>
+      <div class="text-purple-400">🛡️ Error Handler: <span id="error-handler-status">Active</span></div>
+      <div class="text-gray-400 mt-2">Technical logs will appear here during processing...</div>
+    </div>
+    
+    <!-- Log Statistics -->
+    <div class="grid grid-cols-3 gap-4 mt-4">
+      <div class="bg-dark-600 rounded-lg p-3 text-center">
+        <div class="text-lg font-bold text-white" id="total-log-entries">0</div>
+        <div class="text-xs text-gray-400">Total Entries</div>
+      </div>
+      <div class="bg-dark-600 rounded-lg p-3 text-center">
+        <div class="text-lg font-bold text-green-400" id="chunk-log-entries">0</div>
+        <div class="text-xs text-gray-400">Chunk Logs</div>
+      </div>
+      <div class="bg-dark-600 rounded-lg p-3 text-center">
+        <div class="text-lg font-bold text-red-400" id="error-log-entries">0</div>
+        <div class="text-xs text-gray-400">Errors</div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Bottom Navigation -->
@@ -283,20 +349,167 @@
 (() => {
   // State management
   const state = {
-    batchId: 'batch_12345',
-    totalFiles: 3,
+    batchId: '',
+    totalFiles: 0,
     completedFiles: 0,
     currentFileIndex: 0,
     currentFileProgress: 0,
     overallProgress: 0,
     startTime: Date.now(),
-    isProcessing: true,
-    files: [
-      { name: 'video1.mp4', status: 'processing', progress: 0 },
-      { name: 'video2.avi', status: 'pending', progress: 0 },
-      { name: 'video3.mov', status: 'pending', progress: 0 }
-    ]
+    isProcessing: false,
+    files: [],
+    rtf: null,
+    memPct: 0,
+    cpuPct: 0,
+    battPct: 0,
+    tempC: null
   };
+  
+  // Set batch ID from external call
+  window.setBatchId = (batchId) => {
+    console.log('=== setBatchId called ===');
+    console.log('Batch ID:', batchId);
+    console.log('Current state:', state);
+    
+    try {
+      state.batchId = batchId;
+      batchIdElement.textContent = batchId;
+      
+      // Update debug status
+      updateDebugStatus();
+      
+      // Immediately load batch info from PlanStore
+      if (window.WhisperBridge && window.WhisperBridge.getBatchInfo) {
+        try {
+          console.log('Calling WhisperBridge.getBatchInfo...');
+          const batchInfo = window.WhisperBridge.getBatchInfo(batchId);
+          console.log('Batch info received:', batchInfo);
+          
+          if (batchInfo) {
+            const info = JSON.parse(batchInfo);
+            state.totalFiles = info.fileCount || 0;
+            state.files = info.files || [];
+            fileCountElement.textContent = `${state.totalFiles} videos`;
+            
+            // Update model and preset info if available
+            if (info.modelPath) {
+              modelNameElement.textContent = info.modelPath.split('/').pop() || 'Unknown Model';
+            }
+            if (info.preset) {
+              presetNameElement.textContent = info.preset;
+            }
+            
+            renderFileQueue();
+            console.log('Batch info loaded from PlanStore:', info);
+            
+            // Log the plan count for diagnostics
+            console.log(`Plan count: ${info.fileCount} files for batch ${batchId}`);
+          } else {
+            console.warn('No batch info returned for:', batchId);
+            if (window.addTechnicalLog) {
+              window.addTechnicalLog('⚠️ No batch info returned from PlanStore', 'warning');
+            }
+          }
+        } catch (e) {
+          console.error('Error loading batch info:', e);
+          // Add technical log about the error
+          if (window.addTechnicalLog) {
+            window.addTechnicalLog(`❌ Error loading batch info: ${e.message}`, 'error');
+          }
+        }
+      } else {
+        console.warn('WhisperBridge not available for batch info');
+        if (window.addTechnicalLog) {
+          window.addTechnicalLog('⚠️ WhisperBridge not available - using mock data', 'warning');
+        }
+      }
+    } catch (e) {
+      console.error('Error in setBatchId:', e);
+      if (window.addTechnicalLog) {
+        window.addTechnicalLog(`❌ Error in setBatchId: ${e.message}`, 'error');
+      }
+    }
+  };
+
+  // Global error handler to prevent WebView crashes
+  window.addEventListener('error', function(e) {
+    console.error('=== GLOBAL JAVASCRIPT ERROR ===');
+    console.error('Error:', e.error);
+    console.error('Message:', e.message);
+    console.error('Filename:', e.filename);
+    console.error('Line:', e.lineno);
+    console.error('Column:', e.colno);
+    console.error('Stack:', e.error ? e.error.stack : 'No stack trace');
+    
+    // Try to add technical log about the error
+    try {
+      if (window.addTechnicalLog) {
+        window.addTechnicalLog(`🚨 JavaScript Error: ${e.message}`, 'error');
+        window.addTechnicalLog(`📍 Location: ${e.filename}:${e.lineno}:${e.colno}`, 'error');
+        if (e.error && e.error.stack) {
+          window.addTechnicalLog(`📚 Stack: ${e.error.stack}`, 'error');
+        }
+      }
+    } catch (logError) {
+      console.error('Failed to log error:', logError);
+    }
+    
+    // Prevent default error handling
+    e.preventDefault();
+    return false;
+  });
+
+  // Unhandled promise rejection handler
+  window.addEventListener('unhandledrejection', function(e) {
+    console.error('=== UNHANDLED PROMISE REJECTION ===');
+    console.error('Reason:', e.reason);
+    console.error('Promise:', e.promise);
+    
+    try {
+      if (window.addTechnicalLog) {
+        window.addTechnicalLog(`🚨 Promise Rejection: ${e.reason}`, 'error');
+      }
+    } catch (logError) {
+      console.error('Failed to log promise rejection:', logError);
+    }
+    
+    // Prevent default handling
+    e.preventDefault();
+  });
+
+  // Initialize debug status
+  function updateDebugStatus() {
+    try {
+      // Update bridge status
+      const bridgeStatus = document.getElementById('bridge-status');
+      if (bridgeStatus) {
+        bridgeStatus.textContent = hasBridge ? 'Available' : 'Not Available';
+        bridgeStatus.className = hasBridge ? 'text-green-400' : 'text-red-400';
+      }
+      
+      // Update DOM status
+      const domStatus = document.getElementById('dom-status');
+      if (domStatus) {
+        domStatus.textContent = 'Ready';
+        domStatus.className = 'text-green-400';
+      }
+      
+      // Update batch ID
+      const debugBatchId = document.getElementById('debug-batch-id');
+      if (debugBatchId) {
+        debugBatchId.textContent = state.batchId || 'Not set';
+        debugBatchId.className = state.batchId ? 'text-green-400' : 'text-yellow-400';
+      }
+      
+      console.log('Debug status updated:', {
+        hasBridge,
+        batchId: state.batchId,
+        domReady: true
+      });
+    } catch (e) {
+      console.error('Error updating debug status:', e);
+    }
+  }
 
   // DOM Elements
   const backBtn = document.getElementById('back-btn');
@@ -319,19 +532,34 @@
   const hasBridge = typeof window.WhisperBridge !== 'undefined';
   const bridge = hasBridge ? {
     async getResourceStats() { 
-      if (window.WhisperBridge.getResourceStats) {
-        return window.WhisperBridge.getResourceStats();
+      try {
+        if (window.WhisperBridge && window.WhisperBridge.getResourceStats) {
+          return window.WhisperBridge.getResourceStats();
+        }
+      } catch (e) {
+        console.error('Bridge getResourceStats error:', e);
       }
+      return null;
     },
     async goBack() {
-      if (window.WhisperBridge.goBack) {
-        return window.WhisperBridge.goBack();
+      try {
+        if (window.WhisperBridge && window.WhisperBridge.goBack) {
+          return window.WhisperBridge.goBack();
+        }
+      } catch (e) {
+        console.error('Bridge goBack error:', e);
       }
+      return null;
     },
     async getLatestSidecar() {
-      if (window.WhisperBridge.getLatestSidecar) {
-        return window.WhisperBridge.getLatestSidecar();
+      try {
+        if (window.WhisperBridge && window.WhisperBridge.getLatestSidecar) {
+          return window.WhisperBridge.getLatestSidecar();
+        }
+      } catch (e) {
+        console.error('Bridge getLatestSidecar error:', e);
       }
+      return null;
     }
   } : mockBridge();
 
@@ -459,56 +687,212 @@
     });
   }
 
-  function simulateProcessing() {
-    if (!state.isProcessing) return;
-    
-    // Simulate current file progress
-    if (state.currentFileIndex < state.files.length) {
-      const currentFile = state.files[state.currentFileIndex];
-      if (currentFile.status === 'processing') {
-        currentFile.progress += Math.random() * 5;
-        if (currentFile.progress >= 100) {
-          currentFile.progress = 100;
-          currentFile.status = 'completed';
-          state.completedFiles++;
-          state.currentFileIndex++;
-          
-          addLogMessage(`Completed: ${currentFile.name}`, 'success');
-          
-          // Start next file
-          if (state.currentFileIndex < state.files.length) {
-            state.files[state.currentFileIndex].status = 'processing';
-            addLogMessage(`Starting: ${state.files[state.currentFileIndex].name}`, 'info');
-          } else {
-            // All files completed
-            state.isProcessing = false;
-            addLogMessage('All files processed successfully!', 'success');
-            setTimeout(() => {
-              // Navigate to results page
-              if (hasBridge && window.WhisperBridge.openWhisperResults) {
-                window.WhisperBridge.openWhisperResults();
-              } else {
-                addLogMessage('Processing complete - navigate to Results', 'success');
-              }
-            }, 2000);
-          }
+  // REMOVED: simulateProcessing() function - no more simulation
+
+  // Technical logging functions
+  function showTechnicalInfo() {
+    if (hasBridge && window.WhisperBridge.getTechnicalQueueInfo) {
+      try {
+        const technicalInfo = JSON.parse(window.WhisperBridge.getTechnicalQueueInfo(state.batchId));
+        console.log('=== TECHNICAL QUEUE INFO ===');
+        console.log('Batch ID:', technicalInfo.batchId);
+        console.log('File count:', technicalInfo.fileCount);
+        console.log('Model path:', technicalInfo.modelPath);
+        console.log('Preset:', technicalInfo.preset);
+        console.log('Total jobs in DB:', technicalInfo.totalJobsInDb);
+        console.log('Batch jobs in DB:', technicalInfo.batchJobsInDb);
+        console.log('Jobs:', technicalInfo.jobs);
+        console.log('Files:', technicalInfo.files);
+        
+        // Add technical info to log
+        addLogMessage(`TECHNICAL: Batch ${technicalInfo.batchId} - ${technicalInfo.fileCount} files, ${technicalInfo.batchJobsInDb}/${technicalInfo.totalJobsInDb} jobs`, 'info');
+        
+        // Show job statuses
+        if (technicalInfo.jobs && technicalInfo.jobs.length > 0) {
+          technicalInfo.jobs.forEach((job, index) => {
+            addLogMessage(`TECHNICAL: Job ${index + 1} - ${job.jobId} - Status: ${job.status}${job.error ? ` - Error: ${job.error}` : ''}`, job.status === 'ERROR' ? 'error' : 'info');
+          });
         }
+        
+        return technicalInfo;
+      } catch (e) {
+        console.error('Error getting technical info:', e);
+        addLogMessage(`TECHNICAL: Error getting queue info: ${e.message}`, 'error');
+        return null;
+      }
+    }
+    return null;
+  }
+
+  // Technical logs functions
+  function addTechnicalLog(message, type = 'info') {
+    const technicalLogsElement = document.getElementById('technical-logs');
+    if (!technicalLogsElement) {
+      console.warn('Technical logs element not found, DOM may not be ready');
+      return;
+    }
+    
+    const logEntry = document.createElement('div');
+    const timestamp = new Date().toLocaleTimeString();
+    const colors = {
+      info: 'text-gray-300',
+      success: 'text-green-400',
+      warning: 'text-yellow-400',
+      error: 'text-red-400',
+      chunk: 'text-blue-400',
+      streaming: 'text-purple-400'
+    };
+    
+    logEntry.className = `${colors[type]} mb-1`;
+    logEntry.textContent = `[${timestamp}] ${message}`;
+    
+    // Clear placeholder if it exists
+    if (technicalLogsElement.children.length === 1 && technicalLogsElement.children[0].textContent.includes('Technical logs will appear here')) {
+      technicalLogsElement.innerHTML = '';
+    }
+    
+    technicalLogsElement.appendChild(logEntry);
+    technicalLogsElement.scrollTop = technicalLogsElement.scrollHeight;
+    
+    // Keep only last 100 log entries
+    while (technicalLogsElement.children.length > 100) {
+      technicalLogsElement.removeChild(technicalLogsElement.firstChild);
+    }
+    
+    // Update statistics
+    updateLogStatistics();
+  }
+
+  function updateLogStatistics() {
+    const technicalLogsElement = document.getElementById('technical-logs');
+    if (!technicalLogsElement) return;
+    
+    const totalEntries = technicalLogsElement.children.length;
+    let chunkEntries = 0;
+    let errorEntries = 0;
+    
+    for (let i = 0; i < technicalLogsElement.children.length; i++) {
+      const entry = technicalLogsElement.children[i];
+      const text = entry.textContent.toLowerCase();
+      if (text.includes('chunk') || text.includes('streaming')) {
+        chunkEntries++;
+      }
+      if (text.includes('error') || entry.classList.contains('text-red-400')) {
+        errorEntries++;
       }
     }
     
-    // Update overall progress
-    state.overallProgress = Math.floor((state.completedFiles / state.totalFiles) * 100);
+    const totalElement = document.getElementById('total-log-entries');
+    const chunkElement = document.getElementById('chunk-log-entries');
+    const errorElement = document.getElementById('error-log-entries');
     
-    // Update current file progress
-    if (state.currentFileIndex < state.files.length) {
-      state.currentFileProgress = state.files[state.currentFileIndex].progress;
-    }
-    
-    updateProgress();
-    renderFileQueue();
+    if (totalElement) totalElement.textContent = totalEntries;
+    if (chunkElement) chunkElement.textContent = chunkEntries;
+    if (errorElement) errorElement.textContent = errorEntries;
   }
 
-  // Global resource monitoring integration
+  function refreshTechnicalLogs() {
+    addTechnicalLog('Refreshing technical logs...', 'info');
+    
+    // Check if batchId is available
+    if (!state.batchId) {
+      addTechnicalLog('No batch ID available - processing may not have started', 'warning');
+      return;
+    }
+    
+    if (hasBridge && window.WhisperBridge.getTechnicalQueueInfo) {
+      try {
+        const technicalInfo = JSON.parse(window.WhisperBridge.getTechnicalQueueInfo(state.batchId));
+        addTechnicalLog(`Batch: ${technicalInfo.batchId} - ${technicalInfo.fileCount} files`, 'info');
+        addTechnicalLog(`Jobs in DB: ${technicalInfo.batchJobsInDb}/${technicalInfo.totalJobsInDb}`, 'info');
+        
+        if (technicalInfo.jobs && technicalInfo.jobs.length > 0) {
+          technicalInfo.jobs.forEach((job, index) => {
+            addTechnicalLog(`Job ${index + 1}: ${job.status}${job.error ? ` - ${job.error}` : ''}`, job.status === 'ERROR' ? 'error' : 'info');
+          });
+        }
+      } catch (e) {
+        addTechnicalLog(`Error refreshing logs: ${e.message}`, 'error');
+        console.error('Technical logs refresh error:', e);
+      }
+    } else {
+      addTechnicalLog('Bridge not available for technical logs', 'warning');
+    }
+  }
+
+  function clearTechnicalLogs() {
+    const technicalLogsElement = document.getElementById('technical-logs');
+    if (technicalLogsElement) {
+      technicalLogsElement.innerHTML = '<div class="text-gray-400">Technical logs cleared...</div>';
+      updateLogStatistics();
+    }
+  }
+
+  // Make technical log functions globally available with safety checks
+  window.addTechnicalLog = function(message, type = 'info') {
+    try {
+      addTechnicalLog(message, type);
+    } catch (e) {
+      console.error('Error in addTechnicalLog:', e);
+    }
+  };
+  
+  window.refreshTechnicalLogs = function() {
+    try {
+      refreshTechnicalLogs();
+    } catch (e) {
+      console.error('Error in refreshTechnicalLogs:', e);
+    }
+  };
+  
+  window.clearTechnicalLogs = function() {
+    try {
+      clearTechnicalLogs();
+    } catch (e) {
+      console.error('Error in clearTechnicalLogs:', e);
+    }
+  };
+
+  // Initialize everything when DOM is ready
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('=== DOM CONTENT LOADED ===');
+    console.log('Initializing processing page...');
+    
+    try {
+      // Update debug status
+      updateDebugStatus();
+      
+      // Add initial technical log
+      if (window.addTechnicalLog) {
+        window.addTechnicalLog('🚀 Processing page initialized successfully', 'success');
+        window.addTechnicalLog(`🔧 Bridge available: ${hasBridge}`, 'info');
+        window.addTechnicalLog(`📱 User agent: ${navigator.userAgent}`, 'info');
+      }
+      
+      console.log('Processing page initialization complete');
+    } catch (e) {
+      console.error('Error during initialization:', e);
+      if (window.addTechnicalLog) {
+        window.addTechnicalLog(`❌ Initialization error: ${e.message}`, 'error');
+      }
+    }
+  });
+
+  // Also run initialization immediately if DOM is already loaded
+  if (document.readyState === 'loading') {
+    console.log('DOM still loading, waiting for DOMContentLoaded...');
+  } else {
+    console.log('DOM already loaded, running initialization...');
+    // Run initialization immediately
+    try {
+      updateDebugStatus();
+      if (window.addTechnicalLog) {
+        window.addTechnicalLog('🚀 Processing page loaded (immediate)', 'success');
+      }
+    } catch (e) {
+      console.error('Error in immediate initialization:', e);
+    }
+  }
   function updateResourceStats(statsJson) {
     try {
       const stats = JSON.parse(statsJson);
@@ -573,8 +957,27 @@
   }
   
   // Connector service event handlers
-  function handleProcessingStart(batchId, fileCount) {
+  function handleProcessingStart(batchId, fileCount, fileInfoJson = null) {
     console.log('Processing started:', batchId, 'with', fileCount, 'files');
+    console.log('File info JSON:', fileInfoJson);
+    
+    // Add technical logs
+    addTechnicalLog(`Processing started: ${batchId}`, 'streaming');
+    addTechnicalLog(`Files to process: ${fileCount}`, 'info');
+    
+    // Parse file information if provided
+    let fileInfo = null;
+    if (fileInfoJson) {
+      try {
+        fileInfo = JSON.parse(fileInfoJson);
+        console.log('Parsed file info:', fileInfo);
+        addTechnicalLog(`File info parsed: ${fileInfo.length} entries`, 'info');
+      } catch (e) {
+        console.error('Error parsing file info:', e);
+        addTechnicalLog(`Error parsing file info: ${e.message}`, 'error');
+        fileInfo = null;
+      }
+    }
     
     // Update UI with real batch data
     state.batchId = batchId;
@@ -582,27 +985,93 @@
     state.completedFiles = 0;
     state.currentFileIndex = 0;
     state.isProcessing = true;
+    state.startTime = Date.now();
     
     // Update display
     batchIdElement.textContent = batchId;
     fileCountElement.textContent = `${fileCount} videos`;
     
-    // Initialize file queue
+    // Initialize file queue with actual file information if available
     state.files = [];
-    for (let i = 0; i < fileCount; i++) {
-      state.files.push({
-        name: `video_${i + 1}.mp4`,
-        status: i === 0 ? 'processing' : 'pending',
-        progress: 0
-      });
+    if (fileInfo && fileInfo.length > 0) {
+      // Use actual file information
+      for (let i = 0; i < fileCount && i < fileInfo.length; i++) {
+        state.files.push({
+          name: fileInfo[i].name || `file_${i + 1}`,
+          status: i === 0 ? 'processing' : 'pending',
+          progress: 0,
+          uri: fileInfo[i].uri || ''
+        });
+        addTechnicalLog(`File ${i + 1}: ${fileInfo[i].name || `file_${i + 1}`}`, 'info');
+      }
+    } else {
+      // Fallback to generic names if no file info provided
+      for (let i = 0; i < fileCount; i++) {
+        state.files.push({
+          name: `video_${i + 1}.mp4`,
+          status: i === 0 ? 'processing' : 'pending',
+          progress: 0,
+          uri: ''
+        });
+        addTechnicalLog(`File ${i + 1}: video_${i + 1}.mp4`, 'info');
+      }
     }
     
     renderFileQueue();
     addLogMessage(`Processing started: ${batchId}`, 'info');
   }
   
-  function handleProgressUpdate(batchId, progress, fileCount, currentFile) {
-    console.log('Progress update:', batchId, progress + '%', `file ${currentFile}/${fileCount}`);
+  function handleProgressUpdate(batchId, progress, fileCount, currentFile, errorMessages, fileStatesJson) {
+    console.log('=== TECHNICAL LOG: Progress update ===');
+    console.log('TECHNICAL: Batch ID:', batchId);
+    console.log('TECHNICAL: Progress:', progress + '%');
+    console.log('TECHNICAL: Current file:', currentFile + '/' + fileCount);
+    console.log('TECHNICAL: Error messages:', errorMessages);
+    console.log('TECHNICAL: File states JSON:', fileStatesJson);
+    
+    // Add technical log messages
+    addTechnicalLog(`Progress update: ${progress}% - File ${currentFile}/${fileCount}`, 'info');
+    addLogMessage(`TECHNICAL: Progress ${progress}% - File ${currentFile}/${fileCount}`, 'info');
+    
+    // Handle error messages
+    if (errorMessages) {
+      console.error('Processing errors:', errorMessages);
+      addTechnicalLog(`Error: ${errorMessages}`, 'error');
+      addLogMessage(`TECHNICAL: Error: ${errorMessages}`, 'error');
+      
+      // Show error in UI
+      const errorDiv = document.getElementById('error-message');
+      const errorCard = document.getElementById('error-message-card');
+      if (errorDiv && errorCard) {
+        errorDiv.textContent = errorMessages;
+        errorCard.style.display = 'block';
+      }
+    }
+    
+    // Handle file states if provided
+    if (fileStatesJson) {
+      try {
+        const fileStates = JSON.parse(fileStatesJson);
+        console.log('TECHNICAL: Parsed file states:', fileStates);
+        fileStates.forEach((fileState, index) => {
+          if (index < state.files.length) {
+            state.files[index].status = fileState.status.toLowerCase();
+            state.files[index].progress = fileState.progress;
+            if (fileState.error) {
+              state.files[index].error = fileState.error;
+              addTechnicalLog(`File ${index + 1} error: ${fileState.error}`, 'error');
+              addLogMessage(`TECHNICAL: File ${index + 1} error: ${fileState.error}`, 'error');
+            }
+            addTechnicalLog(`File ${index + 1}: ${fileState.status} (${fileState.progress}%)`, 'info');
+            addLogMessage(`TECHNICAL: File ${index + 1} - ${fileState.status} (${fileState.progress}%)`, 'info');
+          }
+        });
+      } catch (e) {
+        console.error('Error parsing file states:', e);
+        addTechnicalLog(`Error parsing file states: ${e.message}`, 'error');
+        addLogMessage(`TECHNICAL: Error parsing file states: ${e.message}`, 'error');
+      }
+    }
     
     // Update state
     state.overallProgress = progress;
@@ -626,6 +1095,10 @@
   function handleProcessingComplete(batchId) {
     console.log('Processing complete:', batchId);
     
+    // Add technical logs
+    addTechnicalLog(`Processing complete: ${batchId}`, 'success');
+    addTechnicalLog('All files processed successfully!', 'success');
+    
     state.isProcessing = false;
     state.overallProgress = 100;
     state.currentFileProgress = 100;
@@ -641,14 +1114,20 @@
     
     addLogMessage('All files processed successfully!', 'success');
     
-    // Navigate to results after delay
-    setTimeout(() => {
-      if (hasBridge && window.WhisperBridge.openWhisperResults) {
-        window.WhisperBridge.openWhisperResults();
-      } else {
-        addLogMessage('Processing complete - navigate to Results', 'success');
-      }
-    }, 2000);
+    // DISABLED: Auto-navigation - let user manually navigate
+    // setTimeout(() => {
+    //   try {
+    //     if (hasBridge && window.WhisperBridge.openWhisperResults) {
+    //       window.WhisperBridge.openWhisperResults();
+    //     } else {
+    //       addLogMessage('Processing complete - open Results page', 'success');
+    //     }
+    //   } catch (e) {
+    //     console.error('Navigation to results failed:', e);
+    //   }
+    // }, 2000);
+    
+    addTechnicalLog('Processing complete - manual navigation required', 'info');
   }
   
   // Make functions globally available for connector service
@@ -666,6 +1145,17 @@
     }
   };
 
+  // Dismiss error button
+  const dismissErrorBtn = document.getElementById('dismiss-error');
+  if (dismissErrorBtn) {
+    dismissErrorBtn.onclick = () => {
+      const errorCard = document.getElementById('error-message-card');
+      if (errorCard) {
+        errorCard.style.display = 'none';
+      }
+    };
+  }
+
   // Initialize
   batchIdElement.textContent = state.batchId;
   fileCountElement.textContent = `${state.totalFiles} videos`;
@@ -679,13 +1169,17 @@
   addLogMessage(`Starting batch: ${state.batchId}`, 'info');
   addLogMessage(`Processing ${state.totalFiles} files`, 'info');
   
-  // Start processing simulation
-  const processingInterval = setInterval(() => {
-    simulateProcessing();
-    if (!state.isProcessing) {
-      clearInterval(processingInterval);
-    }
-  }, 500);
+  // DISABLED: Start processing simulation - now waits for real processing events
+  // const processingInterval = setInterval(() => {
+  //   simulateProcessing();
+  //   if (!state.isProcessing) {
+  //     clearInterval(processingInterval);
+  //   }
+  // }, 500);
+  
+  // Initialize with real processing state
+  addTechnicalLog('Processing page initialized - waiting for real processing events', 'info');
+  addTechnicalLog('Simulation disabled - will show actual processing logs', 'info');
   
   // Initialize resource monitoring
   async function initializeResourceMonitoring() {

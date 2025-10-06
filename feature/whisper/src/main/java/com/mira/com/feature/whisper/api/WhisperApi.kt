@@ -70,7 +70,7 @@ object WhisperApi {
         } else {
             model
         }
-        Log.d("WhisperApi", "Enqueuing batch transcription for ${uris.size} files")
+        Log.d("WhisperApi", "Enqueuing batch transcription for ${uris.size} files: ${uris.joinToString()}")
         
         uris.forEachIndexed { index, uri ->
             val data = workDataOf(
@@ -90,7 +90,7 @@ object WhisperApi {
                 .setInputData(data)
                 .addTag("batch_transcribe")
                 .build()
-                
+            Log.d("WhisperApi", "Enqueue job index=$index uri=$uri model=$multilingualModel threads=$threads lang=${lang ?: "auto"}")
             WorkManager.getInstance(ctx).enqueue(work)
             
             Log.d("WhisperApi", "Enqueued batch job ${index + 1}/${uris.size} for $uri")

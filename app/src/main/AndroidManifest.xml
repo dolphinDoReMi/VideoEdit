@@ -68,6 +68,19 @@
             </intent-filter>
         </activity>
 
+        <!-- Unified Whisper Activity - Single Page Interface -->
+        <activity 
+            android:name="com.mira.whisper.WhisperUnifiedActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Mira">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="video/*" android:scheme="file" />
+            </intent-filter>
+        </activity>
+
         <!-- Whisper File Selection Activity (Secondary) -->
         <activity 
             android:name="com.mira.whisper.WhisperFileSelectionActivity"

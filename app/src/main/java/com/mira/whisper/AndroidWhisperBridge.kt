@@ -146,7 +146,13 @@ class AndroidWhisperBridge(private val context: Context) {
     }
     
     /**
-     * Start batch Whisper processing for multiple files.
+     * Start batch Whisper processing for multiple files using plan-then-navigate pattern.
+     * 
+     * This method:
+     * 1. Validates inputs and persists URI permissions
+     * 2. Creates a BatchPlan and stores it to disk
+     * 3. Enqueues the processing work
+     * 4. Returns the batchId for navigation
      * 
      * @param jsonStr JSON string containing batch parameters with uris array
      * @return batch job ID as string
@@ -167,32 +173,148 @@ class AndroidWhisperBridge(private val context: Context) {
                 uris.add(urisArray.getString(i))
             }
             
+            // Bulletproof validation before processing
+            require(uris.isNotEmpty()) { "No files selected" }
+            
+            // Pre-validate file sizes and audio tracks
+            val validatedUris = mutableListOf<String>()
+            val validationErrors = mutableListOf<String>()
+            
+            uris.forEachIndexed { index, uriString ->
+                try {
+                    val uri = Uri.parse(uriString)
+                    val fileDescriptor = context.contentResolver.openFileDescriptor(uri, "r")
+                    
+                    if (fileDescriptor != null) {
+                        val fileSize = fileDescriptor.statSize
+                        fileDescriptor.close()
+                        
+                        // Check file size limits - now with streaming support
+                        when {
+                            fileSize < 1024 -> { // < 1KB
+                                validationErrors.add("File ${index + 1}: File too small (<1KB)")
+                            }
+                            fileSize > 2L * 1024 * 1024 * 1024 -> { // > 2GB - still too large even for streaming
+                                validationErrors.add("File ${index + 1}: Too large for processing (>2GB) - ${fileSize / (1024 * 1024 * 1024)}GB")
+                            }
+                            else -> {
+                                // All files > 1KB and < 2GB are now supported with streaming
+                                val fileSizeMB = fileSize / (1024 * 1024)
+                                if (fileSizeMB > 100) {
+                                    Log.d(TAG, "TECHNICAL: File ${index + 1} is large (${fileSizeMB}MB) - will use streaming processing")
+                                }
+                                // Check if file has audio track
+                                try {
+                                    val mediaMetadataRetriever = android.media.MediaMetadataRetriever()
+                                    mediaMetadataRetriever.setDataSource(context, uri)
+                                    val hasAudio = mediaMetadataRetriever.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO)
+                                    mediaMetadataRetriever.release()
+                                    
+                                    if (hasAudio == null || hasAudio != "yes") {
+                                        validationErrors.add("File ${index + 1}: No audio track detected")
+                                    } else {
+                                        validatedUris.add(uriString)
+                                        Log.d(TAG, "TECHNICAL: File ${index + 1} validated - Size: ${fileSize / (1024 * 1024)}MB, Has audio: yes")
+                                    }
+                                } catch (e: Exception) {
+                                    validationErrors.add("File ${index + 1}: Cannot read audio track - ${e.message}")
+                                }
+                            }
+                        }
+                    } else {
+                        validationErrors.add("File ${index + 1}: Cannot access file")
+                    }
+                } catch (e: Exception) {
+                    validationErrors.add("File ${index + 1}: Validation error - ${e.message}")
+                }
+            }
+            
+            // If all files failed validation, return error
+            if (validatedUris.isEmpty()) {
+                val errorMessage = if (validationErrors.isNotEmpty()) {
+                    "All files failed validation:\n${validationErrors.joinToString("\n")}"
+                } else {
+                    "No valid files found"
+                }
+                Log.e(TAG, "TECHNICAL: Batch validation failed: $errorMessage")
+                return "error: $errorMessage"
+            }
+            
+            // If some files failed validation, log warnings but continue with valid files
+            if (validationErrors.isNotEmpty()) {
+                Log.w(TAG, "TECHNICAL: Some files failed validation: ${validationErrors.joinToString("; ")}")
+                Log.w(TAG, "TECHNICAL: Proceeding with ${validatedUris.size} valid files out of ${uris.size} total")
+            }
+            
+            // Use validated URIs instead of original URIs
+            val finalUris = validatedUris
+            
+            // Persist read permission for each validated file
+            finalUris.forEach { uriString ->
+                try {
+                    val uri = Uri.parse(uriString)
+                    if (uri.scheme == "content") {
+                        context.contentResolver.openFileDescriptor(uri, "r")?.close()
+                        Log.d(TAG, "SAF permission verified for URI: $uri")
+                    }
+                } catch (e: SecurityException) {
+                    Log.e(TAG, "SecurityException on URI access: ${e.message}", e)
+                    return "error:permission_denied"
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error accessing URI $uriString: ${e.message}", e)
+                    return "error:uri_access_failed"
+                }
+            }
+            
+            // Verify model file exists
+            val modelFile = File(modelPath)
+            if (!modelFile.exists() || !modelFile.isFile()) {
+                Log.e(TAG, "Model file not found: $modelPath")
+                return "error:model_not_found"
+            }
+            
             val batchId = "batch_${UUID.randomUUID().toString().substring(0, 8)}"
             
-            Log.d(TAG, "Starting batch processing: $batchId for ${uris.size} files")
+            // Create and store the batch plan with validated files
+            val plan = BatchPlan(
+                batchId = batchId,
+                uris = finalUris,
+                modelPath = modelPath,
+                preset = preset,
+                createdAtMs = System.currentTimeMillis()
+            )
+            PlanStore.put(context, plan)
+            
+            Log.d(TAG, "TECHNICAL: Stored plan for batch: $batchId with ${plan.uris.size} validated files")
             
             // Start the connector service for real-time coordination
             val connectorIntent = Intent(context, WhisperConnectorService::class.java).apply {
                 action = WhisperConnectorService.ACTION_START_PROCESSING
                 putExtra(WhisperConnectorService.EXTRA_BATCH_ID, batchId)
-                putExtra(WhisperConnectorService.EXTRA_FILE_COUNT, uris.size)
-                putStringArrayListExtra(WhisperConnectorService.EXTRA_URIS, java.util.ArrayList(uris))
+                putExtra(WhisperConnectorService.EXTRA_FILE_COUNT, finalUris.size)
+                putStringArrayListExtra(WhisperConnectorService.EXTRA_URIS, java.util.ArrayList(finalUris))
             }
+            Log.d(TAG, "TECHNICAL: Dispatching ACTION_START_PROCESSING for $batchId with ${finalUris.size} validated URIs to WhisperConnectorService")
             context.startService(connectorIntent)
             
-            // Use the actual WhisperApi for batch processing
-            com.mira.com.feature.whisper.api.WhisperApi.enqueueBatchTranscribe(
-                ctx = context,
-                uris = uris,
-                model = modelPath,
-                threads = threads,
-                beam = 0,
-                lang = "auto",
-                translate = false,
-                batchId = batchId
-            )
-            
-            Log.d(TAG, "Enqueued batch processing: $batchId")
+            // Use the actual WhisperApi for batch processing with validated files
+            try {
+                Log.d(TAG, "TECHNICAL: About to enqueue batch processing with WhisperApi using ${finalUris.size} validated files")
+                com.mira.com.feature.whisper.api.WhisperApi.enqueueBatchTranscribe(
+                    ctx = context,
+                    uris = finalUris,
+                    model = modelPath,
+                    threads = threads,
+                    beam = 0,
+                    lang = "auto",
+                    translate = false,
+                    batchId = batchId
+                )
+                Log.d(TAG, "TECHNICAL: Successfully enqueued batch processing: $batchId with ${finalUris.size} files")
+            } catch (e: Exception) {
+                Log.e(TAG, "TECHNICAL: Error enqueuing batch processing: ${e.message}", e)
+                throw e
+            }
             batchId
             
         } catch (e: Exception) {
@@ -434,10 +556,13 @@ class AndroidWhisperBridge(private val context: Context) {
     @JavascriptInterface
     fun goBack() {
         try {
+            Log.e(TAG, "=== goBack() called from JavaScript ===")
+            Log.e(TAG, "Stack trace:", Exception("goBack called"))
             Log.d(TAG, "Navigating back")
             // This will be handled by the activity's back button or finish()
             if (context is androidx.appcompat.app.AppCompatActivity) {
                 context.runOnUiThread {
+                    Log.e(TAG, "Calling context.finish() from goBack()")
                     context.finish()
                 }
             }
@@ -452,9 +577,12 @@ class AndroidWhisperBridge(private val context: Context) {
     @JavascriptInterface
     fun newAnalysis() {
         try {
+            Log.e(TAG, "=== newAnalysis() called from JavaScript ===")
+            Log.e(TAG, "Stack trace:", Exception("newAnalysis called"))
             Log.d(TAG, "Starting new analysis")
             if (context is androidx.appcompat.app.AppCompatActivity) {
                 context.runOnUiThread {
+                    Log.e(TAG, "Calling context.finish() from newAnalysis()")
                     // Navigate to selection by finishing current activity
                     // The main activity will handle showing selection UI
                     context.finish()
@@ -482,6 +610,141 @@ class AndroidWhisperBridge(private val context: Context) {
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error opening WhisperProcessingActivity: ${e.message}", e)
+        }
+    }
+    
+    /**
+     * Navigate to Step 2 (Processing) with specific batch ID.
+     */
+    @JavascriptInterface
+    fun openStep2WithBatchId(batchId: String) {
+        try {
+            Log.d(TAG, "Opening Whisper Processing Activity with batch ID: $batchId")
+            if (context is android.app.Activity) {
+                (context as android.app.Activity).runOnUiThread {
+                    val intent = Intent(context, WhisperProcessingActivity::class.java).apply {
+                        putExtra("batchId", batchId)
+                    }
+                    context.startActivity(intent)
+                }
+            } else {
+                // Fallback: try to start activity directly
+                val intent = Intent(context, WhisperProcessingActivity::class.java).apply {
+                    putExtra("batchId", batchId)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                context.startActivity(intent)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error opening WhisperProcessingActivity with batch ID: ${e.message}", e)
+        }
+    }
+    
+    /**
+     * Validate that a model file exists.
+     */
+    @JavascriptInterface
+    fun validateModel(modelPath: String): Boolean {
+        return try {
+            val file = File(modelPath)
+            val exists = file.exists() && file.isFile() && file.length() > 0
+            Log.d(TAG, "Model validation: $modelPath -> $exists")
+            exists
+        } catch (e: Exception) {
+            Log.e(TAG, "Error validating model: ${e.message}", e)
+            false
+        }
+    }
+    
+    /**
+     * Persist URI permission for future access.
+     */
+    @JavascriptInterface
+    fun persistUriPermission(uriString: String): Boolean {
+        return try {
+            val uri = Uri.parse(uriString)
+            context.contentResolver.takePersistableUriPermission(
+                uri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
+            Log.d(TAG, "Persisted permission for: $uriString")
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "Error persisting URI permission: ${e.message}", e)
+            false
+        }
+    }
+    
+    /**
+     * Persist read permission for a list of URIs (used after file selection).
+     */
+    fun persistReadPermissions(uris: List<Uri>) {
+        uris.forEach { uri ->
+            try {
+                context.contentResolver.takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+                Log.d(TAG, "Persisted permission for: $uri")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error persisting permission for $uri: ${e.message}", e)
+            }
+        }
+    }
+    
+    /**
+     * Get batch information for a specific batch ID from PlanStore.
+     */
+    @JavascriptInterface
+    fun getBatchInfo(batchId: String): String {
+        Log.e(TAG, "=== getBatchInfo called ===")
+        Log.e(TAG, "Batch ID: $batchId")
+        Log.e(TAG, "Stack trace:", Exception("getBatchInfo called"))
+        
+        return try {
+            Log.d(TAG, "Getting batch info for: $batchId")
+            
+            val plan = PlanStore.get(context, batchId)
+            if (plan != null) {
+                val response = JSONObject().apply {
+                    put("batchId", plan.batchId)
+                    put("fileCount", plan.uris.size)
+                    put("modelPath", plan.modelPath)
+                    put("preset", plan.preset)
+                    put("createdAtMs", plan.createdAtMs)
+                    put("files", JSONArray().apply {
+                        plan.uris.forEachIndexed { index, uri ->
+                            put(JSONObject().apply {
+                                put("name", getFileName(Uri.parse(uri)))
+                                put("uri", uri)
+                                put("status", "processing")
+                                put("progress", 0)
+                            })
+                        }
+                    })
+                }
+                Log.e(TAG, "Found batch plan for $batchId with ${plan.uris.size} files")
+                Log.e(TAG, "Returning response: ${response.toString()}")
+                response.toString()
+            } else {
+                Log.w(TAG, "No batch plan found for: $batchId")
+                val response = JSONObject().apply {
+                    put("batchId", batchId)
+                    put("fileCount", 0)
+                    put("files", JSONArray())
+                    put("error", "No plan found")
+                }
+                response.toString()
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting batch info: ${e.message}", e)
+            val response = JSONObject().apply {
+                put("batchId", batchId)
+                put("fileCount", 0)
+                put("files", JSONArray())
+                put("error", e.message)
+            }
+            response.toString()
         }
     }
 
@@ -863,6 +1126,9 @@ class AndroidWhisperBridge(private val context: Context) {
                 notifyFileSelection(response.toString())
                 return
             }
+            
+            // Persist permissions immediately after file selection
+            persistReadPermissions(uris)
             
             val fileInfoList = mutableListOf<Map<String, Any>>()
             val errors = mutableListOf<String>()
@@ -1289,6 +1555,7 @@ class AndroidWhisperBridge(private val context: Context) {
             ""
         }
     }
+
 
     /**
      * Return latest sidecar JSON (most recent by created_at).
@@ -1963,4 +2230,6 @@ class AndroidWhisperBridge(private val context: Context) {
         
         Log.d(TAG, "Broadcast receiver registered for processing events")
     }
+    
+    // ============================================================================
 }
