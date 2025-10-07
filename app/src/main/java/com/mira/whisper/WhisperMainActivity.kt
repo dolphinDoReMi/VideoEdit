@@ -89,6 +89,9 @@ class WhisperMainActivity : ComponentActivity() {
         // Add JavaScript bridge for whisper functionality
         webView.addJavascriptInterface(bridge, "WhisperBridge")
         
+        // Wire WebView into bridge for JS evaluation and broadcast callbacks
+        bridge.setWebView(webView)
+        
         // Set WebView client
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {

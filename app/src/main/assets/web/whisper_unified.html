@@ -436,12 +436,6 @@
         </button>
       </div>
       
-      <div class="flex space-x-3 pt-1">
-        <button onclick="viewBatchResults()" class="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold py-3 px-6 rounded-xl hover:from-blue-600 hover:to-cyan-600 transition-all duration-300">
-          <i class="fa-solid fa-table mr-2"></i>
-          Batch Results
-        </button>
-      </div>
     </div>
   </div>
 </div>
@@ -513,8 +507,12 @@ function openFilePicker() {
       const result = window.WhisperBridge.openFilePicker();
       console.log('File picker result:', result);
       
-      // Parse the result and display selected files
-      if (result && result !== '[]') {
+      // Check if file picker was launched successfully
+      if (result === 'file_picker_launched') {
+        console.log('File picker launched successfully, waiting for results...');
+        showNotification('File picker opened - please select files', 'info');
+      } else if (result && result !== '[]' && result !== 'file_picker_launched') {
+        // Handle immediate result (fallback case)
         const files = JSON.parse(result);
         displaySelectedFiles(files);
       }
@@ -528,24 +526,88 @@ function openFilePicker() {
   }
 }
 
+// Handle file selection results from Android bridge
+function handleFileSelection(jsonResponse) {
+  try {
+    console.log('Received file selection results:', jsonResponse);
+    console.log('Raw response type:', typeof jsonResponse);
+    console.log('Raw response length:', jsonResponse.length);
+    
+    const result = JSON.parse(jsonResponse);
+    console.log('Parsed result:', result);
+    console.log('Result success:', result.success);
+    console.log('Result files:', result.files);
+    console.log('Result count:', result.count);
+    console.log('Result error:', result.error);
+    console.log('Result warnings:', result.warnings);
+    
+    if (result.success && result.files && result.files.length > 0) {
+      console.log('Files selected successfully:', result.files);
+      
+      // Store files globally for processing
+      window.selectedFiles = result.files;
+      
+      displaySelectedFiles(result.files);
+      showNotification(`${result.count} file(s) selected successfully`, 'success');
+    } else if (result.error) {
+      console.error('File selection error:', result.error);
+      showNotification(`File selection failed: ${result.error}`, 'error');
+    } else if (result.warnings && result.warnings.length > 0) {
+      console.warn('File selection warnings:', result.warnings);
+      showNotification(`File selection completed with warnings: ${result.warnings.join(', ')}`, 'warning');
+      if (result.files && result.files.length > 0) {
+        // Store files globally even with warnings
+        window.selectedFiles = result.files;
+        displaySelectedFiles(result.files);
+      }
+    } else {
+      console.log('No files selected');
+      showNotification('No files selected', 'info');
+    }
+  } catch (error) {
+    console.error('Error parsing file selection results:', error);
+    console.error('Raw response that failed to parse:', jsonResponse);
+    showNotification('Error processing file selection results', 'error');
+  }
+}
+
 function displaySelectedFiles(files) {
   const container = document.getElementById('selected-files');
   container.innerHTML = '';
   
+  if (!files || files.length === 0) {
+    container.classList.add('hidden');
+    return;
+  }
+  
   files.forEach((file, index) => {
     const fileDiv = document.createElement('div');
     fileDiv.className = 'flex items-center justify-between p-3 bg-dark-700 rounded-lg';
+    
+    // Determine file icon based on type
+    let iconClass = 'fa-file';
+    if (file.type && file.type.startsWith('video/')) {
+      iconClass = 'fa-file-video text-blue-500';
+    } else if (file.type && file.type.startsWith('audio/')) {
+      iconClass = 'fa-file-audio text-green-500';
+    } else if (file.type && file.type.startsWith('image/')) {
+      iconClass = 'fa-file-image text-purple-500';
+    } else {
+      iconClass = 'fa-file text-gray-400';
+    }
+    
     fileDiv.innerHTML = `
       <div class="flex items-center space-x-3">
-        <i class="fa-solid fa-file-video text-blue-500"></i>
+        <i class="fa-solid ${iconClass}"></i>
         <div>
-          <div class="text-white font-medium">${file.name || 'Unknown File'}</div>
+          <div class="text-white font-medium">${file.name || file.displayName || 'Unknown File'}</div>
           <div class="text-sm text-gray-400">${formatFileSize(file.size || 0)}</div>
+          ${file.type ? `<div class="text-xs text-gray-500">${file.type}</div>` : ''}
         </div>
       </div>
-        <button onclick="removeFile(${index})" class="text-red-400 hover:text-red-300">
-          <i class="fa-solid fa-times"></i>
-        </button>
+      <button onclick="removeFile(${index})" class="text-red-400 hover:text-red-300">
+        <i class="fa-solid fa-times"></i>
+      </button>
     `;
     container.appendChild(fileDiv);
   });
@@ -570,24 +632,153 @@ function formatFileSize(bytes) {
 function startProcessing() {
   if (processingState.isProcessing) return;
   
-  // Get configuration
-  const config = {
-    language: document.getElementById('language-select').value,
-    preset: document.getElementById('preset-select').value,
-    threads: parseInt(document.getElementById('threads-input').value),
-    beam: parseInt(document.getElementById('beam-input').value),
-    translate: document.getElementById('translate-checkbox').checked,
-    wordTimestamps: document.getElementById('word-timestamps-checkbox').checked
-  };
+  const btn = document.getElementById('start-processing-btn');
+  if (btn) btn.disabled = true;
   
-  console.log('Starting processing with config:', config);
+  try {
+    // Check if files are selected
+    const selectedFilesContainer = document.getElementById('selected-files');
+    if (!selectedFilesContainer || selectedFilesContainer.classList.contains('hidden')) {
+      showNotification('Please select files first', 'error');
+      return;
+    }
+    
+    // Get configuration
+    const config = {
+      language: document.getElementById('language-select').value,
+      preset: document.getElementById('preset-select').value,
+      threads: parseInt(document.getElementById('threads-input').value),
+      beam: parseInt(document.getElementById('beam-input').value),
+      translate: document.getElementById('translate-checkbox').checked,
+      wordTimestamps: document.getElementById('word-timestamps-checkbox').checked
+    };
+    
+    console.log('Starting processing with config:', config);
+    
+    // Preflight: validate model exists on device if bridge is available
+    const modelPath = '/sdcard/MiraWhisper/models/whisper-base.q5_1.bin';
+    if (window.WhisperBridge && window.WhisperBridge.validateModel) {
+      const ok = !!window.WhisperBridge.validateModel(modelPath);
+      if (!ok) {
+        showNotification('Model not found. Please install model to /sdcard/MiraWhisper/models', 'error');
+        return;
+      }
+    }
+    
+    // Start processing UI
+    processingState.isProcessing = true;
+    showStep(2);
+    
+    // Try to get the selected files from the global state
+    if (window.selectedFiles && window.selectedFiles.length > 0) {
+      processSelectedFiles(window.selectedFiles, config);
+    } else {
+      // Fallback: try to extract file info from the UI
+      const fileElements = selectedFilesContainer.querySelectorAll('.flex.items-center.justify-between');
+      if (fileElements.length > 0) {
+        simulateProcessing();
+      } else {
+        showNotification('No files found to process', 'error');
+        processingState.isProcessing = false;
+        showStep(1);
+      }
+    }
+  } catch (e) {
+    console.error('Start processing error:', e);
+    showNotification('Failed to start processing', 'error');
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+function processSelectedFiles(files, config) {
+  console.log('Processing selected files:', files);
+  console.log('Processing config:', config);
   
-  // Start processing
-  processingState.isProcessing = true;
-  showStep(2);
+  if (!window.WhisperBridge) {
+    console.error('WhisperBridge not available for processing');
+    showNotification('WhisperBridge not available for processing', 'error');
+    processingState.isProcessing = false;
+    showStep(1);
+    return;
+  }
   
-  // Simulate processing (replace with actual WhisperBridge calls)
-  simulateProcessing();
+  try {
+    // Extract URIs from the selected files
+    const uris = files.map(file => file.uri).filter(uri => uri);
+    if (uris.length === 0) {
+      showNotification('No valid file URIs found', 'error');
+      processingState.isProcessing = false;
+      showStep(1);
+      return;
+    }
+    
+    // Create batch processing request using selected URIs (no hard-coded video)
+    const batchRequest = {
+      uris: uris,
+      preset: config.preset,
+      modelPath: '/sdcard/MiraWhisper/models/whisper-base.q5_1.bin',
+      languageMode: config.language,
+      threads: config.threads,
+      beam: config.beam,
+      translate: config.translate,
+      wordTimestamps: config.wordTimestamps
+    };
+    
+    const batchId = window.WhisperBridge.runBatch(JSON.stringify(batchRequest));
+    if (batchId && typeof batchId === 'string' && !batchId.startsWith('error:')) {
+      console.log('Batch started:', batchId);
+      showNotification(`Processing started: ${batchId}`, 'success');
+      // Progress will stream via handleProgressUpdate from Android
+    } else {
+      const msg = batchId ? batchId.replace('error:', '').trim() : 'Unknown error';
+      showNotification(`Batch processing failed: ${msg}`, 'error');
+      processingState.isProcessing = false;
+      showStep(1);
+    }
+  } catch (error) {
+    console.error('Error processing files:', error);
+    showNotification(`Processing error: ${error.message}`, 'error');
+    processingState.isProcessing = false;
+    showStep(1);
+  }
+}
+
+// Handle progress updates from Android bridge broadcasts
+function handleProgressUpdate(payload) {
+  try {
+    const p = typeof payload === 'string' ? JSON.parse(payload) : payload;
+    if (typeof p.progress === 'number') {
+      updateProcessingProgress(p.progress);
+    }
+    if (typeof p.currentFileProgress === 'number') {
+      const perFile = Math.max(0, Math.min(100, p.currentFileProgress));
+      document.getElementById('chunk-progress-bar').style.width = perFile + '%';
+    }
+    const total = Array.isArray(p.files) ? p.files.length : (p.fileCount || 0);
+    if (total > 0) {
+      const idx = (p.currentFile || 0) + 1;
+      document.getElementById('chunk-progress-text').textContent = `${idx}/${total}`;
+    }
+    if (p.hasErrors) {
+      showNotification(p.errorMessages || 'Processing encountered errors', 'warning');
+    }
+  } catch (e) {
+    console.error('handleProgressUpdate error:', e, payload);
+  }
+}
+
+// Handle completion broadcast from Android bridge
+function handleProcessingComplete(batchId) {
+  try {
+    console.log('Processing complete for batch:', batchId);
+    processingState.isProcessing = false;
+    showStep(3);
+    loadResults();
+    showNotification('Processing completed!', 'success');
+  } catch (e) {
+    console.error('handleProcessingComplete error:', e);
+  }
 }
 
 function simulateProcessing() {
@@ -612,7 +803,7 @@ function updateProcessingProgress(progress) {
   document.getElementById('overall-progress-bar').style.width = progress + '%';
   document.getElementById('overall-progress-text').textContent = Math.round(progress) + '%';
   
-  // Update status text
+  // Update status text with more detailed feedback
   const statusTexts = [
     'Initializing...',
     'Loading audio...',
@@ -624,7 +815,26 @@ function updateProcessingProgress(progress) {
   
   const statusIndex = Math.floor((progress / 100) * (statusTexts.length - 1));
   document.getElementById('processing-status').textContent = statusTexts[statusIndex];
+  
+  // Update processing details with more helpful information
+  const detailsText = document.getElementById('processing-details');
+  if (detailsText) {
+    if (progress < 10) {
+      detailsText.textContent = 'Preparing audio for transcription...';
+    } else if (progress < 30) {
+      detailsText.textContent = 'Loading audio data...';
+    } else if (progress < 60) {
+      detailsText.textContent = 'Processing audio chunks...';
+    } else if (progress < 90) {
+      detailsText.textContent = 'Generating transcript...';
+    } else if (progress < 100) {
+      detailsText.textContent = 'Finalizing results...';
+    } else {
+      detailsText.textContent = 'Processing complete!';
+    }
+  }
 }
+
 
 function updateResourceMonitoring() {
   // Simulate resource data
@@ -873,13 +1083,6 @@ function startNewProcessing() {
   showNotification('Ready for new processing', 'info');
 }
 
-function viewBatchResults() {
-  if (window.WhisperBridge && window.WhisperBridge.openWhisperBatchResults) {
-    window.WhisperBridge.openWhisperBatchResults();
-  } else {
-    showNotification('Batch results not available', 'error');
-  }
-}
 
 // Utility functions
 function showNotification(message, type = 'info') {
@@ -888,6 +1091,7 @@ function showNotification(message, type = 'info') {
   notification.className = `fixed top-20 right-4 p-4 rounded-lg text-white z-50 slide-in ${
     type === 'error' ? 'bg-red-500' : 
     type === 'success' ? 'bg-green-500' : 
+    type === 'warning' ? 'bg-yellow-500' :
     'bg-blue-500'
   }`;
   notification.textContent = message;

@@ -20,6 +20,7 @@ import org.json.JSONObject
 import java.io.File
 import java.util.UUID
 import com.mira.resource.DeviceResourceService
+import com.mira.com.feature.whisper.service.MediaConversionManager
 
 /**
  * JavaScript interface for Whisper operations in WebView.
@@ -34,6 +35,7 @@ class AndroidWhisperBridge(private val context: Context) {
     
     private var activity: Activity? = null
     private var webView: android.webkit.WebView? = null
+    private val mediaConversionManager = MediaConversionManager.getInstance(context)
     
     /**
      * Set the activity reference for file picker functionality
@@ -141,7 +143,7 @@ class AndroidWhisperBridge(private val context: Context) {
             
         } catch (e: Exception) {
             Log.e(TAG, "Error in run(): ${e.message}", e)
-            "error_${System.currentTimeMillis()}"
+            "error: ${e.message ?: "run_failed"}"
         }
     }
     
@@ -189,36 +191,31 @@ class AndroidWhisperBridge(private val context: Context) {
                         val fileSize = fileDescriptor.statSize
                         fileDescriptor.close()
                         
-                        // Check file size limits - now with streaming support
-                        when {
-                            fileSize < 1024 -> { // < 1KB
-                                validationErrors.add("File ${index + 1}: File too small (<1KB)")
+                        // File size validation removed - chunking supports any size
+                        // Only check minimum size to avoid empty files
+                        if (fileSize < 1024) { // < 1KB
+                            validationErrors.add("File ${index + 1}: File too small (<1KB)")
+                        } else {
+                            // All files > 1KB are supported with chunking
+                            val fileSizeMB = fileSize / (1024 * 1024)
+                            if (fileSizeMB > 100) {
+                                Log.d(TAG, "TECHNICAL: File ${index + 1} is large (${fileSizeMB}MB) - will use chunking")
                             }
-                            fileSize > 2L * 1024 * 1024 * 1024 -> { // > 2GB - still too large even for streaming
-                                validationErrors.add("File ${index + 1}: Too large for processing (>2GB) - ${fileSize / (1024 * 1024 * 1024)}GB")
-                            }
-                            else -> {
-                                // All files > 1KB and < 2GB are now supported with streaming
-                                val fileSizeMB = fileSize / (1024 * 1024)
-                                if (fileSizeMB > 100) {
-                                    Log.d(TAG, "TECHNICAL: File ${index + 1} is large (${fileSizeMB}MB) - will use streaming processing")
+                            // Check if file has audio track
+                            try {
+                                val mediaMetadataRetriever = android.media.MediaMetadataRetriever()
+                                mediaMetadataRetriever.setDataSource(context, uri)
+                                val hasAudio = mediaMetadataRetriever.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO)
+                                mediaMetadataRetriever.release()
+                                
+                                if (hasAudio == null || hasAudio != "yes") {
+                                    validationErrors.add("File ${index + 1}: No audio track detected")
+                                } else {
+                                    validatedUris.add(uriString)
+                                    Log.d(TAG, "TECHNICAL: File ${index + 1} validated - Size: ${fileSize / (1024 * 1024)}MB, Has audio: yes")
                                 }
-                                // Check if file has audio track
-                                try {
-                                    val mediaMetadataRetriever = android.media.MediaMetadataRetriever()
-                                    mediaMetadataRetriever.setDataSource(context, uri)
-                                    val hasAudio = mediaMetadataRetriever.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO)
-                                    mediaMetadataRetriever.release()
-                                    
-                                    if (hasAudio == null || hasAudio != "yes") {
-                                        validationErrors.add("File ${index + 1}: No audio track detected")
-                                    } else {
-                                        validatedUris.add(uriString)
-                                        Log.d(TAG, "TECHNICAL: File ${index + 1} validated - Size: ${fileSize / (1024 * 1024)}MB, Has audio: yes")
-                                    }
-                                } catch (e: Exception) {
-                                    validationErrors.add("File ${index + 1}: Cannot read audio track - ${e.message}")
-                                }
+                            } catch (e: Exception) {
+                                validationErrors.add("File ${index + 1}: Cannot read audio track - ${e.message}")
                             }
                         }
                     } else {
@@ -268,8 +265,8 @@ class AndroidWhisperBridge(private val context: Context) {
             
             // Verify model file exists
             val modelFile = File(modelPath)
-            if (!modelFile.exists() || !modelFile.isFile()) {
-                Log.e(TAG, "Model file not found: $modelPath")
+            if (!modelFile.exists() || !modelFile.isFile() || modelFile.length() <= 0) {
+                Log.e(TAG, "Model file not found or empty: $modelPath")
                 return "error:model_not_found"
             }
             
@@ -313,13 +310,13 @@ class AndroidWhisperBridge(private val context: Context) {
                 Log.d(TAG, "TECHNICAL: Successfully enqueued batch processing: $batchId with ${finalUris.size} files")
             } catch (e: Exception) {
                 Log.e(TAG, "TECHNICAL: Error enqueuing batch processing: ${e.message}", e)
-                throw e
+                return "error:enqueue_failed"
             }
             batchId
             
         } catch (e: Exception) {
             Log.e(TAG, "Error in runBatch(): ${e.message}", e)
-            "error_${System.currentTimeMillis()}"
+            "error: ${e.message ?: "run_batch_failed"}"
         }
     }
 
@@ -697,9 +694,7 @@ class AndroidWhisperBridge(private val context: Context) {
      */
     @JavascriptInterface
     fun getBatchInfo(batchId: String): String {
-        Log.e(TAG, "=== getBatchInfo called ===")
-        Log.e(TAG, "Batch ID: $batchId")
-        Log.e(TAG, "Stack trace:", Exception("getBatchInfo called"))
+        Log.d(TAG, "Getting batch info for: $batchId")
         
         return try {
             Log.d(TAG, "Getting batch info for: $batchId")
@@ -1108,6 +1103,60 @@ class AndroidWhisperBridge(private val context: Context) {
     }
     
     /**
+     * Convert TennisInterview.mkv to H.264 in the background (for testing)
+     */
+    @JavascriptInterface
+    fun convertTennisInterview(): String {
+        return try {
+            Log.d(TAG, "TECHNICAL: Starting background conversion of TennisInterview.mkv")
+            mediaConversionManager.convertTennisInterview { convertedUri ->
+                if (convertedUri != null) {
+                    Log.d(TAG, "TECHNICAL: TennisInterview.mkv conversion completed: $convertedUri")
+                } else {
+                    Log.e(TAG, "TECHNICAL: TennisInterview.mkv conversion failed")
+                }
+            }
+            
+            val response = JSONObject().apply {
+                put("success", true)
+                put("message", "TennisInterview.mkv conversion started in background")
+            }
+            response.toString()
+        } catch (e: Exception) {
+            Log.e(TAG, "TECHNICAL: Error starting TennisInterview.mkv conversion: ${e.message}", e)
+            val response = JSONObject().apply {
+                put("success", false)
+                put("error", e.message ?: "Unknown error")
+            }
+            response.toString()
+        }
+    }
+
+    /**
+     * Start automatic media scanning and conversion
+     */
+    @JavascriptInterface
+    fun startAutomaticConversion(): String {
+        return try {
+            Log.d(TAG, "TECHNICAL: Starting automatic media conversion")
+            mediaConversionManager.cleanupOldFiles()
+            
+            val response = JSONObject().apply {
+                put("success", true)
+                put("message", "Automatic media conversion started")
+            }
+            response.toString()
+        } catch (e: Exception) {
+            Log.e(TAG, "TECHNICAL: Error starting automatic conversion: ${e.message}", e)
+            val response = JSONObject().apply {
+                put("success", false)
+                put("error", e.message ?: "Unknown error")
+            }
+            response.toString()
+        }
+    }
+
+    /**
      * Handle file selection results from the file picker
      */
     fun handleFileSelection(uris: List<Uri>) {
@@ -1130,6 +1179,16 @@ class AndroidWhisperBridge(private val context: Context) {
             // Persist permissions immediately after file selection
             persistReadPermissions(uris)
             
+            // Check if any files need H.264 conversion and schedule background conversion
+            val filesNeedingConversion = uris.filter { mediaConversionManager.needsConversion(it) }
+            if (filesNeedingConversion.isNotEmpty()) {
+                Log.d(TAG, "TECHNICAL: ${filesNeedingConversion.size} files need H.264 conversion, scheduling background conversion")
+                mediaConversionManager.convertFiles(filesNeedingConversion) { convertedUris ->
+                    val successCount = convertedUris.count { it != null }
+                    Log.d(TAG, "TECHNICAL: Background conversion completed: $successCount/${convertedUris.size} files converted successfully")
+                }
+            }
+            
             val fileInfoList = mutableListOf<Map<String, Any>>()
             val errors = mutableListOf<String>()
             
@@ -1146,11 +1205,7 @@ class AndroidWhisperBridge(private val context: Context) {
                         continue
                     }
                     
-                    // Validate file size (max 2GB)
-                    if (fileSize > 2L * 1024 * 1024 * 1024) {
-                        errors.add("File too large: ${fileName} (${fileSize / (1024 * 1024)}MB)")
-                        continue
-                    }
+                    // Note: File size validation removed - chunking supports any size
                     
                     // Validate file accessibility
                     if (!isFileAccessible(uri)) {
@@ -2199,6 +2254,7 @@ class AndroidWhisperBridge(private val context: Context) {
         val filter = IntentFilter().apply {
             addAction(ACTION_PROCESSING_COMPLETE)
             addAction(ACTION_PAGE_NAVIGATION)
+            addAction(WhisperConnectorService.ACTION_UPDATE_PROGRESS)
         }
         
         val receiver = object : android.content.BroadcastReceiver() {
@@ -2216,6 +2272,41 @@ class AndroidWhisperBridge(private val context: Context) {
                         Log.d(TAG, "Received page navigation broadcast: $targetPage")
                         webView?.post {
                             webView?.evaluateJavascript("handlePageNavigation('$targetPage')", null)
+                        }
+                    }
+                    WhisperConnectorService.ACTION_UPDATE_PROGRESS -> {
+                        try {
+                            val batchId = intent.getStringExtra(WhisperConnectorService.EXTRA_BATCH_ID)
+                            val progress = intent.getIntExtra(WhisperConnectorService.EXTRA_PROGRESS, 0)
+                            val fileCount = intent.getIntExtra(WhisperConnectorService.EXTRA_FILE_COUNT, 0)
+                            val currentFile = intent.getIntExtra(WhisperConnectorService.EXTRA_CURRENT_FILE, 0)
+                            val currentFileProgress = intent.getIntExtra("current_file_progress", 0)
+                            val completedFiles = intent.getIntExtra("completed_files", 0)
+                            val hasErrors = intent.getBooleanExtra("has_errors", false)
+                            val errorMessages = intent.getStringExtra("error_messages")
+                            val fileStatesJson = intent.getStringExtra("file_states")
+
+                            val payload = org.json.JSONObject().apply {
+                                put("batchId", batchId)
+                                put("progress", progress)
+                                put("fileCount", fileCount)
+                                put("currentFile", currentFile)
+                                put("currentFileProgress", currentFileProgress)
+                                put("completedFiles", completedFiles)
+                                put("hasErrors", hasErrors)
+                                if (!errorMessages.isNullOrEmpty()) put("errorMessages", errorMessages)
+                                if (!fileStatesJson.isNullOrEmpty()) {
+                                    try {
+                                        put("files", org.json.JSONArray(fileStatesJson))
+                                    } catch (_: Exception) { }
+                                }
+                            }
+
+                            val js = "handleProgressUpdate(${payload.toString()})"
+                            Log.d(TAG, "Dispatching progress update to WebView: $payload")
+                            webView?.post { webView?.evaluateJavascript(js, null) }
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Error handling progress update broadcast: ${e.message}", e)
                         }
                     }
                 }

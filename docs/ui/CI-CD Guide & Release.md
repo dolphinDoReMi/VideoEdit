@@ -1,4 +1,4 @@
-# Whisper CI/CD Guide & Release
+# UI CI/CD Guide & Release
 
 ## Android Release Pipeline
 

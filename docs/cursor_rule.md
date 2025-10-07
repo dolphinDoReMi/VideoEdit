@@ -1,203 +1,288 @@
-# Cursor Rules for VideoEdit
+# Cursor Rules for VideoEdit Project
 
 ## Project Overview
 
-VideoEdit is a comprehensive video processing platform with AI-powered speech recognition (Whisper) and visual understanding (CLIP) capabilities, designed for cross-platform deployment on Android, iOS, and macOS web.
+**VideoEdit** is a comprehensive video processing platform with AI-powered speech recognition (Whisper) and visual understanding (CLIP) capabilities, designed for cross-platform deployment on Android, iOS, and macOS web.
 
 ## Code Organization
 
 ### Directory Structure
 ```
 VideoEdit/
-├── app/                    # Main Android application
-├── feature/whisper/        # Whisper ASR implementation
-├── feature/clip/           # CLIP visual understanding  
-├── core/                   # Shared core functionality
-├── Doc/                    # Comprehensive documentation
-│   ├── clip/              # CLIP feature documentation
-│   ├── whisper/           # Whisper feature documentation
-│   ├── ui/                # UI feature documentation
-│   └── deployment/        # Deployment guides
-└── scripts/               # Build and utility scripts
+├── app/                          # Main Android application
+│   ├── src/main/java/com/mira/
+│   │   ├── whisper/              # Whisper ASR implementation
+│   │   ├── clip/                 # CLIP visual understanding
+│   │   ├── ui/                   # UI components and WebView
+│   │   └── resource/             # Resource monitoring
+│   └── src/main/assets/web/      # WebView HTML/CSS/JS assets
+├── feature/                      # Feature modules
+│   ├── whisper/                  # Whisper feature module
+│   └── clip/                     # CLIP feature module
+├── core/                         # Shared core functionality
+├── docs/                         # Comprehensive documentation
+│   ├── clip/                     # CLIP documentation
+│   ├── whisper/                  # Whisper documentation
+│   ├── ui/                       # UI documentation
+│   └── deployment/                # Deployment guides
+└── scripts/                      # Build and test scripts
 ```
-
-### Module Responsibilities
-- **`app/`**: Android application shell, WebView integration, native bridges
-- **`feature/whisper/`**: Speech recognition, audio processing, transcription
-- **`feature/clip/`**: Visual understanding, image processing, similarity search
-- **`core/`**: Shared utilities, database, media processing, ML infrastructure
 
 ## Coding Standards
 
-### Language Preferences
-- **Android**: Kotlin (primary), Java (legacy only)
-- **iOS**: Swift (primary), Objective-C (legacy only)
-- **Web**: TypeScript (primary), JavaScript (legacy only)
-- **Scripts**: Bash (primary), Python (ML utilities)
+### Kotlin Development
+- **Language**: Kotlin for Android development
+- **Style**: Follow Kotlin coding conventions
+- **Documentation**: Use KDoc for all public APIs
+- **Null Safety**: Use nullable types appropriately
+- **Coroutines**: Use suspend functions for async operations
 
-### Code Style
-- **Kotlin**: Follow Android Kotlin Style Guide
-- **Swift**: Follow Swift API Design Guidelines
-- **TypeScript**: Follow Airbnb TypeScript Style Guide
-- **Indentation**: 4 spaces (Kotlin/Swift), 2 spaces (TypeScript/JavaScript)
+### Architecture Patterns
+- **MVVM**: Model-View-ViewModel for UI components
+- **Repository Pattern**: Data access abstraction
+- **Dependency Injection**: Manual DI with constructor injection
+- **Observer Pattern**: LiveData/StateFlow for reactive updates
 
-### Naming Conventions
-- **Classes**: PascalCase (`WhisperConnectorService`)
-- **Functions**: camelCase (`processAudioFile`)
-- **Constants**: UPPER_SNAKE_CASE (`TARGET_SAMPLE_RATE`)
-- **Files**: snake_case (`whisper_connector_service.kt`)
-
-## Architecture Principles
-
-### Control Knots
-All features must expose key control parameters:
-- **Deterministic processing**: Fixed seeds, no random augmentation
-- **Reproducible results**: SHA-256 hash verification
-- **Configurable quality**: Speed vs accuracy trade-offs
-- **Resource management**: Memory, CPU, battery optimization
-
-### Cross-Platform Design
-- **Unified API**: Consistent interfaces across platforms
-- **Platform-specific optimization**: Native performance where possible
-- **Shared business logic**: Common algorithms and data structures
-- **Platform abstraction**: Clean separation of concerns
-
-### Performance Requirements
-- **Whisper ASR**: RTF < 0.1 (10x faster than real-time)
-- **CLIP Vision**: < 100ms latency per frame
-- **UI Responsiveness**: 60fps target with graceful degradation
-- **Memory Usage**: < 200MB peak per feature
+### Code Quality
+- **Linting**: Detekt configuration in `detekt.yml`
+- **Testing**: Unit tests for business logic, integration tests for features
+- **Documentation**: Comprehensive README files for each feature
+- **Error Handling**: Proper exception handling with logging
 
 ## Development Workflow
 
-### Git Workflow
-- **Branch naming**: `feature/description`, `fix/description`, `docs/description`
-- **Commit messages**: Conventional Commits format
-- **Pull requests**: Required for all changes
-- **Code review**: Minimum 1 approval required
+### Branch Strategy
+- **main**: Production-ready code
+- **feature/whisper**: Whisper feature development
+- **feature/clip**: CLIP feature development
+- **feature/ui**: UI feature development
+- **hotfix/**: Critical bug fixes
+
+### Commit Standards
+- **Format**: Conventional Commits (`feat:`, `fix:`, `docs:`, etc.)
+- **Scope**: Feature area (whisper, clip, ui, core)
+- **Description**: Clear, concise description
+- **Body**: Detailed explanation for complex changes
 
 ### Testing Requirements
-- **Unit tests**: Required for all new features
-- **Integration tests**: Required for cross-module functionality
-- **E2E tests**: Required for user-facing features
-- **Performance tests**: Required for ML features
+- **Unit Tests**: All public APIs must have unit tests
+- **Integration Tests**: Feature pipelines require integration tests
+- **Device Tests**: Platform-specific validation tests
+- **Performance Tests**: Benchmark tests for critical paths
 
-### CI/CD Pipeline
-- **Build validation**: All platforms must build successfully
-- **Test execution**: All tests must pass
-- **Code quality**: Lint checks must pass
-- **Security scan**: Dependency vulnerabilities must be resolved
+## Architecture Decisions
 
-## Feature-Specific Guidelines
+### Control Knots
+Each feature exposes key control knots for configuration:
+
+#### Whisper Control Knots
+- **Sample Rate**: 16 kHz (ASR-ready)
+- **Channels**: Mono (downmix from stereo)
+- **Model**: tiny.en/base.en/small.en variants
+- **Language**: Auto-detection with manual override
+- **Performance**: Configurable thread count and memory mode
+
+#### CLIP Control Knots
+- **Frame Rate**: Uniform sampling (default 1.0 fps)
+- **Resolution**: 224x224 (CLIP standard)
+- **Model**: ViT-B/32 (base), ViT-L/14 (large)
+- **Batch Size**: Configurable for memory optimization
+- **Quantization**: FP16 (default), INT8 (optimized)
+
+#### UI Control Knots
+- **WebView Version**: Chrome WebView 120+ compatibility
+- **JavaScript Bridge**: @JavascriptInterface for native calls
+- **State Management**: Centralized with broadcast updates
+- **Accessibility**: Full WCAG compliance
+- **Performance**: 60fps target with fallback
+
+### Trade-offs and Rationale
+
+#### Whisper vs Custom ASR
+- **Choice**: Whisper for zero-shot multilingual capabilities
+- **Trade-off**: Larger model size vs better accuracy
+- **Rationale**: Whisper provides state-of-the-art accuracy with minimal fine-tuning
+
+#### WebView vs Native UI
+- **Choice**: WebView for cross-platform consistency
+- **Trade-off**: Performance vs development speed
+- **Rationale**: Rapid development and consistent UX across platforms
+
+#### CLIP vs Custom Vision Models
+- **Choice**: CLIP for zero-shot visual understanding
+- **Trade-off**: General-purpose vs task-specific accuracy
+- **Rationale**: CLIP provides strong baseline with minimal domain adaptation
+
+## Testing Strategy
+
+### Unit Testing
+```bash
+# Run unit tests
+./gradlew testDebugUnitTest
+
+# Run specific feature tests
+./gradlew :feature:whisper:testDebugUnitTest
+./gradlew :feature:clip:testDebugUnitTest
+```
+
+### Integration Testing
+```bash
+# Run integration tests
+./gradlew connectedDebugAndroidTest
+
+# Run specific integration tests
+./gradlew connectedDebugAndroidTest --tests '*PipelineTest*'
+```
+
+### Device Testing
+```bash
+# Xiaomi Pad testing
+adb install app/build/outputs/apk/debug/app-debug.apk
+adb shell am start -n com.mira.com/com.mira.whisper.WhisperMainActivity
+
+# iPad testing (requires macOS)
+pnpm exec cap run ios
+```
+
+## Performance Requirements
 
 ### Whisper ASR
-- **Audio processing**: Always normalize to 16kHz mono PCM16
-- **Model management**: Use GGUF quantization for mobile deployment
-- **Language detection**: Implement automatic LID with manual override
-- **Batch processing**: Use WorkManager for background processing
-- **Resource monitoring**: Track CPU, memory, and battery usage
+- **RTF**: < 1.0 (real-time factor)
+- **Memory**: < 500MB peak for base model
+- **Accuracy**: > 95% on standard benchmarks
+- **Language Detection**: > 85% accuracy for Chinese
 
 ### CLIP Vision
-- **Frame sampling**: Use uniform sampling for deterministic results
-- **Preprocessing**: Always resize to 224x224 with center crop
-- **Embedding storage**: Use efficient binary format with JSON metadata
-- **Similarity search**: Implement cosine similarity with ANN optimization
-- **GPU acceleration**: Use platform-specific acceleration (OpenCL/Metal)
+- **Speed**: < 0.1s per frame on GPU
+- **Memory**: < 2GB peak for batch processing
+- **Accuracy**: > 95% on standard benchmarks
+- **Embedding Consistency**: 99.9% hash match
 
 ### UI Components
-- **Accessibility**: Full WCAG compliance required
-- **Responsive design**: Support multiple screen sizes and orientations
-- **Performance**: 60fps target with efficient resource management
-- **Security**: Implement Content Security Policy and secure bridges
-- **Cross-platform**: Consistent behavior across Android/iOS/web
+- **Load Time**: < 1.5s First Contentful Paint
+- **Bundle Size**: < 200KB gzipped
+- **Animation**: 60fps smooth
+- **Accessibility**: WCAG AA compliance
+
+## Platform Support
+
+### Android (Primary)
+- **Target**: Xiaomi Pad Ultra (ARM64, 11.8GB RAM)
+- **Minimum**: Android 5.0+ (API 21)
+- **Architecture**: ARM64 with NEON support
+- **WebView**: Chrome WebView 120+
+
+### iOS (Secondary)
+- **Target**: iPad Pro (M1/M2)
+- **Minimum**: iOS 16+
+- **Architecture**: ARM64 with Metal support
+- **WebView**: WKWebView with Core ML integration
+
+### Web (Tertiary)
+- **Target**: macOS Chrome, Safari, Firefox
+- **Minimum**: Browser 120+
+- **Features**: Progressive Web App capabilities
+- **Performance**: WebAssembly for ML models
+
+## Security Considerations
+
+### Data Protection
+- **Audio Files**: Local processing only, no cloud upload
+- **Model Weights**: SHA-256 hash verification
+- **User Data**: No personal data collection
+- **Storage**: Encrypted local storage for sensitive data
+
+### WebView Security
+- **CSP**: Content Security Policy enabled
+- **JavaScript**: Restricted to necessary functions only
+- **Network**: No external network access for UI
+- **Permissions**: Minimal required permissions
 
 ## Documentation Standards
 
-### Documentation Structure
-Each feature must have:
-- **Architecture Design and Control Knot**: Core architecture and parameters
-- **Full scale implementation Details**: Complete implementation guide
-- **Device Deployment**: Platform-specific deployment instructions
-- **README.md**: Multi-lens expert communication
-- **Release Guide**: Automated testing and release procedures
-- **scripts/**: Feature-specific scripts and tools
-
 ### Code Documentation
-- **Public APIs**: Comprehensive JSDoc/KDoc documentation
-- **Complex algorithms**: Inline comments explaining logic
-- **Configuration options**: Document all control parameters
-- **Performance characteristics**: Document resource usage and timing
+- **KDoc**: All public APIs documented
+- **Examples**: Code examples for complex functions
+- **Architecture**: Architecture decision records (ADRs)
+- **README**: Feature-specific README files
 
-## Quality Assurance
-
-### Code Quality
-- **Linting**: All code must pass linting checks
-- **Type safety**: Use strict typing (no `any` in TypeScript)
-- **Error handling**: Comprehensive error handling and logging
-- **Resource cleanup**: Proper resource management and cleanup
-
-### Security
-- **Input validation**: Validate all user inputs
-- **Secure storage**: Use Android Keystore/iOS Keychain for secrets
-- **Network security**: Use HTTPS and certificate pinning
-- **Content Security**: Implement CSP and secure JavaScript bridges
-
-### Performance
-- **Memory management**: Avoid memory leaks and OOM conditions
-- **CPU optimization**: Use efficient algorithms and data structures
-- **Battery optimization**: Minimize background processing
-- **Storage efficiency**: Use compressed formats and efficient storage
+### User Documentation
+- **Multi-lens**: Expert perspectives (content, video, recsys, DL, audio/LLM)
+- **Quick Start**: Step-by-step setup guides
+- **Troubleshooting**: Common issues and solutions
+- **API Reference**: Complete API documentation
 
 ## Deployment Guidelines
 
-### Android
-- **Target SDK**: Latest stable version
-- **Min SDK**: API 21 (Android 5.0)
-- **Architecture**: ARM64-v8a, ARMv7, x86, x86_64
-- **Signing**: Use release keystore for production builds
+### Android Deployment
+- **Build Variants**: Debug and release variants
+- **Signing**: Debug keystore for development
+- **Permissions**: Minimal required permissions
+- **Testing**: Device-specific validation
 
-### iOS
-- **Target**: iOS 13.0+
-- **Architecture**: ARM64 (device), x86_64 (simulator)
-- **Code signing**: Use Apple Developer certificates
-- **App Store**: Follow Apple App Store guidelines
+### iOS Deployment
+- **Capacitor**: Cross-platform development
+- **Xcode**: iOS-specific configuration
+- **TestFlight**: Beta testing distribution
+- **App Store**: Production release
 
-### Web
-- **Browsers**: Chrome 90+, Safari 14+, Firefox 88+
-- **PWA**: Implement service worker and manifest
-- **Performance**: Lighthouse score > 90
-- **Accessibility**: WCAG AA compliance
+### Web Deployment
+- **PWA**: Progressive Web App features
+- **Hosting**: Static hosting with CDN
+- **Performance**: WebAssembly optimization
+- **Compatibility**: Cross-browser testing
 
-## Troubleshooting
+## Monitoring and Observability
 
-### Common Issues
-- **Build failures**: Check dependencies and environment setup
-- **Performance issues**: Profile memory and CPU usage
-- **Cross-platform bugs**: Test on multiple devices and platforms
-- **Integration issues**: Verify API contracts and data formats
+### Performance Monitoring
+- **RTF Tracking**: Real-time factor monitoring
+- **Memory Usage**: Peak memory tracking
+- **Battery Impact**: Power consumption monitoring
+- **Thermal Throttling**: Device temperature monitoring
 
-### Debug Tools
-- **Android**: Android Studio Profiler, ADB logging
-- **iOS**: Xcode Instruments, Console logging
-- **Web**: Chrome DevTools, Lighthouse audits
-- **General**: Logcat, crash reporting, performance monitoring
+### Error Tracking
+- **Crash Reporting**: Automatic crash reporting
+- **Error Logging**: Comprehensive error logging
+- **Performance Metrics**: Real-time performance metrics
+- **User Analytics**: Anonymous usage analytics
 
-## Resources
+## Future Roadmap
 
-### Documentation
-- [Android Developer Guide](https://developer.android.com/)
-- [iOS Developer Guide](https://developer.apple.com/ios/)
-- [Web Platform Guide](https://web.dev/)
-- [Whisper Documentation](./Doc/whisper/)
-- [CLIP Documentation](./Doc/clip/)
-- [UI Documentation](./Doc/ui/)
+### Planned Features
+- **Speaker Diarization**: Multi-speaker identification
+- **Real-time Processing**: Live audio/video streaming
+- **Custom Models**: Fine-tuned domain-specific models
+- **Advanced UI**: Gesture recognition and voice control
 
-### Tools
-- **Android**: Android Studio, Gradle, ADB
-- **iOS**: Xcode, CocoaPods, Capacitor
-- **Web**: Node.js, npm/pnpm, Capacitor CLI
-- **ML**: Python, PyTorch, ONNX, Core ML
+### Performance Improvements
+- **GPU Acceleration**: OpenCL/Metal support
+- **Model Optimization**: Further quantization options
+- **Pipeline Optimization**: Parallel processing
+- **Memory Optimization**: Advanced caching strategies
+
+## Contributing Guidelines
+
+### Getting Started
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Follow coding standards and testing requirements
+4. Update documentation for new features
+5. Submit a pull request with clear description
+
+### Code Review Process
+- **Automated Checks**: Linting, testing, and security scanning
+- **Manual Review**: Architecture and design review
+- **Performance Review**: Performance impact assessment
+- **Documentation Review**: Documentation completeness check
+
+### Release Process
+- **Version Bumping**: Semantic versioning (MAJOR.MINOR.PATCH)
+- **Changelog**: Detailed changelog for each release
+- **Testing**: Comprehensive testing before release
+- **Deployment**: Automated deployment pipeline
 
 ---
 
-**Remember**: This is a production-ready platform serving real users. Always prioritize stability, performance, and user experience over new features.
+**Last Updated**: October 6, 2025  
+**Version**: 1.0  
+**Status**: Production Ready

@@ -35,6 +35,24 @@
       "alwaysApply": true,
       "globs": ["app/src/main/java/com/mira/videoeditor/video/**"],
       "commands": ["./gradlew :app:connectedDebugAndroidTest --tests '*SamplerInstrumentedTest*'"]
+    },
+    {
+      "description": "Never run streaming or interactive commands automatically. Always print them for manual run instead. Examples: adb logcat (without -d/-t/-T), tail -f, watch, journalctl -f, or any pipeline starting with them (e.g., adb logcat | grep ... | head -N). If adb logcat is needed, propose a bounded form: adb logcat -d | grep -E \"(WhisperBridge|File picker|Opening file picker)\" | head -5, or timeout 5s adb logcat | grep -E \"(...)\" | head -5, or adb logcat -T '5s' / adb logcat -t 200. If a streaming command accidentally started, propose cleanup: pkill -f \"adb.*logcat\".",
+      "alwaysApply": true,
+      "globs": [],
+      "editsAllowed": false
+    },
+    {
+      "description": "When proposing adb logcat commands, NEVER use unbounded streaming. Always use bounded forms: adb logcat -d (dump and exit), adb logcat -t 200 (last 200 lines), adb logcat -T '5s' (last 5 seconds), or timeout 5s adb logcat. Print unbounded commands for manual execution only.",
+      "alwaysApply": true,
+      "globs": [],
+      "editsAllowed": false
+    },
+    {
+      "description": "NEVER run streaming or interactive commands automatically. Always print them for manual run instead. Examples: adb logcat (without -d/-t/-T), tail -f, watch, journalctl -f, or any pipeline starting with them (e.g., adb logcat | grep ... | head -N). If adb logcat is needed, propose a bounded form: adb logcat -d | grep -E \"(WhisperBridge|File picker|Opening file picker)\" | head -5, or timeout 5s adb logcat | grep -E \"(...)\" | head -5, or adb logcat -T '5s' / adb logcat -t 200. If a streaming command accidentally started, propose cleanup: pkill -f \"adb.*logcat\".",
+      "alwaysApply": true,
+      "globs": [],
+      "editsAllowed": false
     }
   ]
 }

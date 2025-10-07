@@ -32,13 +32,14 @@ pnpm build
 
 ## 📚 Documentation
 
-### [Complete Documentation](./Doc/README.md)
+### [Complete Documentation](./docs/README.md)
 
 **Feature-specific guides:**
-- **[Whisper ASR](./Doc/whisper/)** - Speech recognition and transcription
-- **[CLIP Vision](./Doc/clip/)** - Visual understanding and similarity search  
-- **[UI Components](./Doc/ui/)** - Cross-platform user interface
-- **[Deployment](./Doc/deployment/)** - Platform-specific deployment guides
+- **[Whisper ASR](./docs/whisper/)** - Speech recognition and transcription
+- **[CLIP Vision](./docs/clip/)** - Visual understanding and similarity search  
+- **[UI Components](./docs/ui/)** - Cross-platform user interface
+- **[Deployment](./docs/deployment/)** - Platform-specific deployment guides
+- **[Cursor Rules](./docs/cursor_rule.md)** - Development guidelines and standards
 
 ## 🎯 Key Features
 
@@ -87,15 +88,15 @@ pnpm build
 ### Integration Tests
 ```bash
 # Whisper pipeline
-cd Doc/whisper/scripts
+cd docs/whisper/scripts
 ./test_comprehensive_pipeline.sh
 
 # CLIP pipeline  
-cd Doc/clip/scripts
+cd docs/clip/scripts
 ./test_clip_pipeline.sh
 
 # UI components
-cd Doc/ui/scripts
+cd docs/ui/scripts
 ./test_ui_components.sh
 ```
 
@@ -121,7 +122,7 @@ adb shell am start -n com.mira.com/com.mira.whisper.WhisperMainActivity
 - **`feature/whisper/`** - Whisper ASR implementation
 - **`feature/clip/`** - CLIP visual understanding
 - **`core/`** - Shared core functionality
-- **`Doc/`** - Comprehensive documentation
+- **`docs/`** - Comprehensive documentation
 
 ### Coding Standards
 - **Kotlin** for Android development
