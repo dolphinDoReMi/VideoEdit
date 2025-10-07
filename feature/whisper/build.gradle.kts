@@ -24,7 +24,7 @@ android {
     }
     
     ndk {
-      abiFilters += listOf("arm64-v8a")  # Focus on ARM64 for Xiaomi Pad
+      abiFilters += listOf("arm64-v8a")  // Focus on ARM64 for Xiaomi Pad
     }
   }
   

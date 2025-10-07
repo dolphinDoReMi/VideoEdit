@@ -60,7 +60,7 @@ class DeviceResourceService : Service() {
             isRunning.set(true)
             startForeground(NOTIFICATION_ID, createNotification())
             stableResourceMonitor.startMonitoring { resourceData ->
-                broadcastResourceUpdate(resourceData)
+                callResourceUpdate(resourceData)
             }
             Log.d(TAG, "Stable resource monitoring started")
         }
@@ -110,57 +110,73 @@ class DeviceResourceService : Service() {
             .build()
     }
     
-    private fun broadcastResourceUpdate(resourceData: JSONObject) {
+    // Direct callback support instead of broadcasts
+    private var resourceCallback: ((JSONObject) -> Unit)? = null
+    private var cpuCallback: ((Double) -> Unit)? = null
+    private var memoryCallback: ((Double) -> Unit)? = null
+    private var batteryCallback: ((Int) -> Unit)? = null
+    private var temperatureCallback: ((Double) -> Unit)? = null
+    
+    /**
+     * Register callbacks for direct communication
+     */
+    fun setResourceCallback(callback: (JSONObject) -> Unit) {
+        resourceCallback = callback
+    }
+    
+    fun setCpuCallback(callback: (Double) -> Unit) {
+        cpuCallback = callback
+    }
+    
+    fun setMemoryCallback(callback: (Double) -> Unit) {
+        memoryCallback = callback
+    }
+    
+    fun setBatteryCallback(callback: (Int) -> Unit) {
+        batteryCallback = callback
+    }
+    
+    fun setTemperatureCallback(callback: (Double) -> Unit) {
+        temperatureCallback = callback
+    }
+    
+    /**
+     * Clear all callbacks
+     */
+    fun clearCallbacks() {
+        resourceCallback = null
+        cpuCallback = null
+        memoryCallback = null
+        batteryCallback = null
+        temperatureCallback = null
+    }
+    
+    private fun callResourceUpdate(resourceData: JSONObject) {
         try {
-            // Broadcast complete resource data
-            val intent = Intent(ACTION_RESOURCE_UPDATE).apply {
-                putExtra(EXTRA_RESOURCE_DATA, resourceData.toString())
-                putExtra(EXTRA_TIMESTAMP, System.currentTimeMillis())
-            }
-            intent.setPackage(packageName)
-            sendBroadcast(intent)
+            // Call complete resource data callback
+            resourceCallback?.invoke(resourceData)
             
-            // Broadcast individual metrics for specific listeners
+            // Call individual metric callbacks
             if (resourceData.has("cpu")) {
-                val cpuIntent = Intent(ACTION_CPU_UPDATE).apply {
-                    putExtra(EXTRA_CPU_USAGE, resourceData.getDouble("cpu"))
-                    putExtra(EXTRA_TIMESTAMP, System.currentTimeMillis())
-                }
-                cpuIntent.setPackage(packageName)
-                sendBroadcast(cpuIntent)
+                cpuCallback?.invoke(resourceData.getDouble("cpu"))
             }
             
             if (resourceData.has("memory")) {
-                val memoryIntent = Intent(ACTION_MEMORY_UPDATE).apply {
-                    putExtra(EXTRA_MEMORY_USAGE, resourceData.getDouble("memory"))
-                    putExtra(EXTRA_TIMESTAMP, System.currentTimeMillis())
-                }
-                memoryIntent.setPackage(packageName)
-                sendBroadcast(memoryIntent)
+                memoryCallback?.invoke(resourceData.getDouble("memory"))
             }
             
             if (resourceData.has("battery")) {
-                val batteryIntent = Intent(ACTION_BATTERY_UPDATE).apply {
-                    putExtra(EXTRA_BATTERY_LEVEL, resourceData.getDouble("battery").toInt())
-                    putExtra(EXTRA_TIMESTAMP, System.currentTimeMillis())
-                }
-                batteryIntent.setPackage(packageName)
-                sendBroadcast(batteryIntent)
+                batteryCallback?.invoke(resourceData.getDouble("battery").toInt())
             }
             
             if (resourceData.has("temperature")) {
-                val tempIntent = Intent(ACTION_TEMPERATURE_UPDATE).apply {
-                    putExtra(EXTRA_TEMPERATURE, resourceData.getDouble("temperature"))
-                    putExtra(EXTRA_TIMESTAMP, System.currentTimeMillis())
-                }
-                tempIntent.setPackage(packageName)
-                sendBroadcast(tempIntent)
+                temperatureCallback?.invoke(resourceData.getDouble("temperature"))
             }
             
-            Log.d(TAG, "Resource data broadcasted successfully")
+            Log.d(TAG, "Resource data callbacks called successfully")
             
         } catch (e: Exception) {
-            Log.e(TAG, "Broadcast error: ${e.message}")
+            Log.e(TAG, "Error calling resource update callbacks: ${e.message}")
         }
     }
     
