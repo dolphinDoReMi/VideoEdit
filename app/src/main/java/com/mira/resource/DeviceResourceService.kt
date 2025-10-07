@@ -13,7 +13,6 @@ import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import com.mira.whisper.WhisperMainActivity
 import org.json.JSONObject
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -95,7 +94,7 @@ class DeviceResourceService : Service() {
     }
     
     private fun createNotification(): Notification {
-        val intent = Intent(this, WhisperMainActivity::class.java)
+        val intent = Intent(this, com.mira.whisper.WhisperMainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
             this, 0, intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE

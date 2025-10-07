@@ -124,7 +124,7 @@ class WhisperProcessingActivity : AppCompatActivity() {
         wv.addJavascriptInterface(bridge, "WhisperBridge")
 
         // Load the processing page (Step 2 of 3-page flow)
-        wv.loadUrl("file:///android_asset/web/whisper_processing.html")
+        wv.loadUrl("file:///android_asset/web/whisper_unified.html")
 
         setContentView(wv)
         

@@ -95,7 +95,7 @@ class WhisperFileSelectionActivity : AppCompatActivity() {
         }
         
         // Load the whisper file selection HTML file
-        webView.loadUrl("file:///android_asset/web/whisper_file_selection.html")
+        webView.loadUrl("file:///android_asset/web/whisper_unified.html")
         
         Log.i(TAG, "Whisper File Selection interface initialized")
 

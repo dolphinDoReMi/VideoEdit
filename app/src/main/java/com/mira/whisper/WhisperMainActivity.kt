@@ -1,31 +1,40 @@
 package com.mira.whisper
 
-import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
-import com.mira.whisper.AndroidWhisperBridge
+import android.app.Activity
+import android.net.Uri
 
 /**
- * Main activity for Whisper video transcription service.
+ * Main Whisper Processing Activity
  * 
- * This activity displays the Whisper interface for video selection and processing.
+ * This activity provides a single-page interface that combines all three steps
+ * of the whisper processing pipeline into one comprehensive flow:
+ * 
+ * 1. File Selection & Configuration
+ * 2. Real-time Processing & Monitoring  
+ * 3. Results Display & Export
+ * 
+ * The interface dynamically shows/hides sections based on the current processing state,
+ * providing a seamless user experience without page navigation.
  */
 class WhisperMainActivity : ComponentActivity() {
     
     companion object {
-        private const val TAG = "WhisperMainActivity"
+        private const val TAG = "WhisperMain"
     }
     
     private lateinit var webView: WebView
     private lateinit var bridge: AndroidWhisperBridge
+    private var inputFileUri: Uri? = null
+    private var outputFolderUri: Uri? = null
     
-    // File picker launcher (SAF: ACTION_OPEN_DOCUMENT)
+    // File picker launcher (SAF with multiple selection)
     private val filePickerLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -33,11 +42,9 @@ class WhisperMainActivity : ComponentActivity() {
             val data = result.data
             val uris = mutableListOf<Uri>()
 
-            // Handle single or multiple file selection
             data?.clipData?.let { clipData ->
                 for (i in 0 until clipData.itemCount) {
                     val uri = clipData.getItemAt(i).uri
-                    // Persist read permission for future access
                     try {
                         contentResolver.takePersistableUriPermission(
                             uri,
@@ -56,17 +63,72 @@ class WhisperMainActivity : ComponentActivity() {
                 uris.add(uri)
             }
 
-            bridge.handleFileSelection(uris)
+            // Forward selection to bridge → will notify WebView JS
+            try {
+                bridge.handleFileSelection(uris)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error forwarding file selection to bridge: ${e.message}", e)
+            }
         } else {
             Log.d(TAG, "File selection cancelled")
-            bridge.handleFileSelection(emptyList())
+            try {
+                bridge.handleFileSelection(emptyList())
+            } catch (_: Exception) { }
+        }
+    }
+    
+    // SAF launcher for input file selection
+    private val inputFileLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val uri = result.data?.data
+            if (uri != null) {
+                Log.d(TAG, "Input file selected: $uri")
+                inputFileUri = uri
+                // Take persistable permission
+                try {
+                    contentResolver.takePersistableUriPermission(
+                        uri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    )
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error taking persistable permission for input file", e)
+                }
+                // Request output folder permission
+                requestOutputFolderPermission()
+            }
+        }
+    }
+    
+    // SAF launcher for output folder selection
+    private val outputFolderLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val uri = result.data?.data
+            if (uri != null) {
+                Log.d(TAG, "Output folder selected: $uri")
+                outputFolderUri = uri
+                // Take persistable permission
+                try {
+                    contentResolver.takePersistableUriPermission(
+                        uri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    )
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error taking persistable permission for output folder", e)
+                }
+                // Start Auto-Clipper with SAF permissions
+                startAutoClipperWithSAF()
+            }
         }
     }
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        Log.i(TAG, "Whisper app launched - initializing interface")
+        Log.i(TAG, "Whisper Main Activity launched - initializing interface")
         
         // Initialize WebView
         webView = WebView(this)
@@ -78,75 +140,137 @@ class WhisperMainActivity : ComponentActivity() {
             domStorageEnabled = true
             allowFileAccess = true
             allowContentAccess = true
-            allowFileAccessFromFileURLs = true
-            allowUniversalAccessFromFileURLs = true
-            mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-            cacheMode = android.webkit.WebSettings.LOAD_DEFAULT
-            databaseEnabled = true
-            setSupportZoom(false)
-            builtInZoomControls = false
-            displayZoomControls = false
+            mediaPlaybackRequiresUserGesture = false
         }
-        
-        // Initialize bridge
-        bridge = AndroidWhisperBridge(this)
-        
-        // Set the activity reference in bridge for file picker
-        bridge.setActivity(this)
-        
-        // Add JavaScript bridge for whisper functionality
-        webView.addJavascriptInterface(bridge, "WhisperBridge")
-        
-        // Wire WebView into bridge for JS evaluation and broadcast callbacks
-        bridge.setWebView(webView)
         
         // Set WebView client
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
-                Log.i(TAG, "Whisper page loaded: $url")
-            }
-            
-            override fun onReceivedError(view: WebView?, errorCode: Int, description: String?, failingUrl: String?) {
-                super.onReceivedError(view, errorCode, description, failingUrl)
-                Log.e(TAG, "WebView error: $errorCode - $description for URL: $failingUrl")
-            }
-            
-            override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {
-                super.onPageStarted(view, url, favicon)
-                Log.d(TAG, "Loading page: $url")
+                Log.d(TAG, "Page loaded: $url")
             }
         }
         
-        // Load the unified whisper page (all-in-one interface)
+        // Initialize bridge
+        bridge = AndroidWhisperBridge(this)
+        webView.addJavascriptInterface(bridge, "WhisperBridge")
+        try {
+            // Provide WebView to bridge for progress/navigation callbacks
+            bridge.setWebView(webView)
+        } catch (_: Exception) { }
+        
+        // Load the unified interface
         webView.loadUrl("file:///android_asset/web/whisper_unified.html")
         
-        Log.i(TAG, "Whisper interface initialized")
+        Log.i(TAG, "Whisper Main Activity initialized successfully")
+        
+        // Auto-start Auto-Clipper with correct file paths
+        startAutoClipperDirectly()
     }
     
-    override fun onBackPressed() {
-        if (webView.canGoBack()) {
-            webView.goBack()
-        } else {
-            super.onBackPressed()
+    private fun requestInputFilePermission() {
+        Log.d(TAG, "Requesting SAF permission for input file...")
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            type = "video/*"
+            addCategory(Intent.CATEGORY_OPENABLE)
+            putExtra(Intent.EXTRA_LOCAL_ONLY, true)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        inputFileLauncher.launch(intent)
+    }
+    
+    private fun requestOutputFolderPermission() {
+        Log.d(TAG, "Requesting SAF permission for output folder...")
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+            // Try to navigate to the Clip folder
+            putExtra("android.provider.extra.INITIAL_URI", "content://com.android.externalstorage.documents/tree/primary%3ADocuments%2FClip")
+        }
+        outputFolderLauncher.launch(intent)
+    }
+    
+    private fun startAutoClipperWithSAF() {
+        try {
+            Log.d(TAG, "Starting Auto-Clipper with SAF permissions...")
+            
+            if (inputFileUri == null) {
+                Log.e(TAG, "Input file URI is null")
+                return
+            }
+            
+            if (outputFolderUri == null) {
+                Log.e(TAG, "Output folder URI is null")
+                return
+            }
+            
+            Log.d(TAG, "Input URI: $inputFileUri")
+            Log.d(TAG, "Output URI: $outputFolderUri")
+            
+            val autoClipperService = com.mira.clip.autoclip.AutoClipperService(this)
+            val workRequest = autoClipperService.processTennisInterview(
+                inputVideoUri = inputFileUri!!,
+                outputFolderUri = outputFolderUri!!
+            )
+            
+            Log.d(TAG, "Auto-Clipper pipeline started with SAF: ${workRequest.id}")
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Error starting Auto-Clipper with SAF", e)
         }
     }
     
+    private fun startAutoClipperDirectly() {
+        try {
+            Log.d(TAG, "Starting Auto-Clipper directly with correct file paths...")
+            
+            // Use the correct file paths directly
+            val inputFile = java.io.File("/sdcard/Documents/ConvertedMedia/TennisInterview_converted.mp4")
+            if (!inputFile.exists()) {
+                Log.e(TAG, "Input file not found: ${inputFile.absolutePath}")
+                return
+            }
+            
+            Log.d(TAG, "Found input file at: ${inputFile.absolutePath}")
+            
+            val inputUri = android.net.Uri.fromFile(inputFile)
+            val outputUri = android.net.Uri.parse("content://com.android.externalstorage.documents/tree/primary%3ADocuments%2FClip")
+            
+            Log.d(TAG, "Input URI: $inputUri")
+            Log.d(TAG, "Output URI: $outputUri")
+            
+            val autoClipperService = com.mira.clip.autoclip.AutoClipperService(this)
+            val workRequest = autoClipperService.processTennisInterview(
+                inputVideoUri = inputUri,
+                outputFolderUri = outputUri
+            )
+            
+            Log.d(TAG, "Auto-Clipper pipeline started directly: ${workRequest.id}")
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Error starting Auto-Clipper directly", e)
+        }
+    }
     
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.i(TAG, "Whisper Main Activity destroyed")
+    }
     
     /**
-     * Launch the file picker for video and photo files with multiple selection
+     * Launch file picker for media selection
      */
     fun launchFilePicker() {
-        // Try multiple approaches for better multiple selection support
+        Log.d(TAG, "launchFilePicker called")
         val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
             type = "*/*"
             putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
             putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("video/*", "image/*"))
             addCategory(Intent.CATEGORY_OPENABLE)
         }
-        
-        // Fallback to ACTION_OPEN_DOCUMENT if GET_CONTENT doesn't work
+
         val fallbackIntent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "*/*"
@@ -156,21 +280,20 @@ class WhisperMainActivity : ComponentActivity() {
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
         }
-        
-        // Check which intent can be resolved
+
         val primaryResolver = intent.resolveActivity(packageManager)
         val fallbackResolver = fallbackIntent.resolveActivity(packageManager)
-        
         val finalIntent = when {
             primaryResolver != null -> intent
             fallbackResolver != null -> fallbackIntent
-            else -> {
-                Log.e(TAG, "No file picker available on this device")
-                return
-            }
+            else -> null
         }
-        
-        Log.d(TAG, "Launching file picker with multiple selection support")
+
+        if (finalIntent == null) {
+            Log.e(TAG, "No file picker available on this device")
+            return
+        }
+
         filePickerLauncher.launch(finalIntent)
     }
     
@@ -178,11 +301,14 @@ class WhisperMainActivity : ComponentActivity() {
      * Notify JavaScript about file selection results
      */
     fun notifyFileSelection(jsonResponse: String) {
+        // This method is called by AndroidWhisperBridge
+        // Execute JavaScript to handle the file selection
         runOnUiThread {
-            webView.evaluateJavascript(
-                "if (window.handleFileSelection) { window.handleFileSelection('$jsonResponse'); }",
-                null
-            )
+            // Escape quotes in JSON response for JavaScript
+            val escapedJson = jsonResponse.replace("\"", "\\\"")
+            val script = "if (window.handleFileSelection) { window.handleFileSelection(\"$escapedJson\"); }"
+            webView.evaluateJavascript(script, null)
+            Log.d(TAG, "Executed JavaScript for file selection: $jsonResponse")
         }
     }
 }

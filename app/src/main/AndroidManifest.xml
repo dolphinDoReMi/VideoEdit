@@ -2,7 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Note: Storage/media permissions removed. File access is handled via SAF (no runtime permission). -->
+    <!-- Storage permissions for Auto-Clipper -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" 
+        tools:ignore="ScopedStorage" />
     
     <!-- Camera permission for future video recording features -->
     <uses-permission android:name="android.permission.CAMERA" />
@@ -49,6 +53,7 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         
+
         <!-- Main Activity - Whisper Main Interface -->
         <activity 
             android:name="com.mira.whisper.WhisperMainActivity"
@@ -60,20 +65,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             
-            <!-- File association for video files -->
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="video/*" android:scheme="file" />
-            </intent-filter>
-        </activity>
-
-        <!-- Unified Whisper Activity - Single Page Interface -->
-        <activity 
-            android:name="com.mira.whisper.WhisperUnifiedActivity"
-            android:exported="true"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.Mira">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -95,13 +86,6 @@
             </intent-filter>
         </activity>
 
-        <!-- Debug Embedding Activity (foreground generator) -->
-        <activity
-            android:name="com.mira.clip.debug.DebugEmbeddingActivity"
-            android:exported="true"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.Mira" />
-        
         <!-- Whisper Processing Activity -->
         <activity
             android:name="com.mira.whisper.WhisperProcessingActivity"
@@ -110,19 +94,6 @@
             android:theme="@style/Theme.Mira" />
 
 
-        <!-- Whisper Results Activity -->
-        <activity
-            android:name="com.mira.whisper.WhisperResultsActivity"
-            android:exported="true"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.Mira" />
-
-        <!-- Whisper Batch Results Activity -->
-        <activity
-            android:name="com.mira.whisper.WhisperBatchResultsActivity"
-            android:exported="true"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.Mira" />
         
         
         <!-- Video Whisper Service - Background whisper.cpp processing -->
@@ -188,6 +159,31 @@
                 <action android:name="com.mira.whisper.EXPORT" />
                 <action android:name="com.mira.whisper.VERIFY" />
                 <action android:name="com.mira.whisper.RUN_BATCH" />
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </receiver>
+        
+        <!-- Test Receiver -->
+        <receiver
+            android:name="com.mira.clip.autoclip.TestReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.mira.clip.TEST" />
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </receiver>
+        
+        <!-- Auto-Clipper Broadcast Receiver -->
+        <receiver
+            android:name="com.mira.clip.autoclip.AutoClipperReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.mira.clip.AUTO_CLIP" />
+                <action android:name="com.mira.clip.PROCESS_TENNIS_INTERVIEW" />
+                <action android:name="com.mira.clip.CANCEL_AUTO_CLIP" />
+                <action android:name="com.mira.clip.GET_STATUS" />
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </receiver>

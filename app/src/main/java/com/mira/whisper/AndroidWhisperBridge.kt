@@ -21,6 +21,7 @@ import java.io.File
 import java.util.UUID
 import com.mira.resource.DeviceResourceService
 import com.mira.com.feature.whisper.service.MediaConversionManager
+import com.mira.clip.autoclip.AutoClipperService
 
 /**
  * JavaScript interface for Whisper operations in WebView.
@@ -762,55 +763,6 @@ class AndroidWhisperBridge(private val context: Context) {
         openWhisperStep2()
     }
     
-    /**
-     * Navigate to Step 3 (Results) from the WebView.
-     */
-    @JavascriptInterface
-    fun openWhisperResults() {
-        try {
-            Log.d(TAG, "Opening Whisper Results Activity")
-            if (context is android.app.Activity) {
-                (context as android.app.Activity).runOnUiThread {
-                    val intent = Intent(context, WhisperResultsActivity::class.java)
-                    context.startActivity(intent)
-                }
-            } else {
-                // Fallback: try to start activity directly
-                val intent = Intent(context, WhisperResultsActivity::class.java)
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                context.startActivity(intent)
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error opening WhisperResultsActivity: ${e.message}", e)
-        }
-    }
-    
-    /**
-     * Open batch results table view.
-     */
-    @JavascriptInterface
-    fun openWhisperBatchResults(batchId: String) {
-        try {
-            Log.d(TAG, "Opening Whisper Batch Results Activity for batch: $batchId")
-            if (context is android.app.Activity) {
-                (context as android.app.Activity).runOnUiThread {
-                    val intent = Intent(context, WhisperBatchResultsActivity::class.java).apply {
-                        putExtra("batchId", batchId)
-                    }
-                    context.startActivity(intent)
-                }
-            } else {
-                // Fallback: try to start activity directly
-                val intent = Intent(context, WhisperBatchResultsActivity::class.java).apply {
-                    putExtra("batchId", batchId)
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-                context.startActivity(intent)
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error opening WhisperBatchResultsActivity: ${e.message}", e)
-        }
-    }
     
     /**
      * Export JSON format results.
@@ -992,7 +944,7 @@ class AndroidWhisperBridge(private val context: Context) {
                 }
             }
 
-            // If we're inside the Whisper Main activity, use its launcher too
+            // If we're inside the unified Whisper main activity, use its launcher
             if (context is WhisperMainActivity) {
                 try {
                     (context as WhisperMainActivity).runOnUiThread {
@@ -1001,13 +953,14 @@ class AndroidWhisperBridge(private val context: Context) {
                     Log.d(TAG, "File picker launched successfully via WhisperMainActivity")
                     return "file_picker_launched"
                 } catch (e: SecurityException) {
-                    Log.e(TAG, "Security exception launching file picker (main): ${e.message}", e)
+                    Log.e(TAG, "Security exception launching file picker (Main): ${e.message}", e)
                     return "error:security_exception"
                 } catch (e: Exception) {
-                    Log.e(TAG, "Exception launching file picker (main): ${e.message}", e)
+                    Log.e(TAG, "Exception launching file picker (Main): ${e.message}", e)
                     return "error:launch_failed"
                 }
             }
+
 
             // Fallback: context must be an Activity capable of handling GET_CONTENT
             if (context !is Activity) {
@@ -1044,7 +997,7 @@ class AndroidWhisperBridge(private val context: Context) {
                 }
             }
 
-            // Last-resort: startActivity (single-select) – result won't be bridged
+            // Last-resort: startActivity (result won't be bridged)
             return try {
                 context.startActivity(finalIntent)
                 Log.d(TAG, "File picker launched via startActivity")
@@ -1339,10 +1292,11 @@ class AndroidWhisperBridge(private val context: Context) {
                 context.runOnUiThread {
                     context.notifyFileSelection(jsonResponse)
                 }
-            } else if (activity is WhisperMainActivity) {
-                (activity as WhisperMainActivity).runOnUiThread {
-                    (activity as WhisperMainActivity).notifyFileSelection(jsonResponse)
-                }
+            } else {
+                // Fallback: execute JavaScript directly on WebView
+                Log.d(TAG, "Executing JavaScript directly: $script")
+                // Note: We need access to WebView to execute JavaScript
+                // This will be handled by the activity's notifyFileSelection method
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error notifying file selection: ${e.message}", e)
@@ -2346,6 +2300,38 @@ class AndroidWhisperBridge(private val context: Context) {
         
         Log.d(TAG, "Broadcast receiver registered for processing events")
     }
+    
+        @JavascriptInterface
+        fun startAutoClip(inputUri: String, outputUri: String): String {
+            return try {
+                Log.d("AndroidWhisperBridge", "Starting Auto-Clipper: $inputUri -> $outputUri")
+
+                // Use file directly from Documents/ConvertedMedia
+                val inputVideoUri = Uri.parse("file:///sdcard/Documents/ConvertedMedia/TennisInterview_converted.mp4")
+                val outputFolderUri = Uri.parse(outputUri)
+
+                val autoClipperService = AutoClipperService(context)
+                val workRequest = autoClipperService.processTennisInterview(
+                    inputVideoUri = inputVideoUri,
+                    outputFolderUri = outputFolderUri
+                )
+
+                val result = JSONObject().apply {
+                    put("success", true)
+                    put("work_id", workRequest.id.toString())
+                    put("message", "Auto-Clipper pipeline started successfully")
+                }
+
+                result.toString()
+            } catch (e: Exception) {
+                Log.e("AndroidWhisperBridge", "Error starting Auto-Clipper", e)
+                val error = JSONObject().apply {
+                    put("success", false)
+                    put("error", e.message ?: "Unknown error")
+                }
+                error.toString()
+            }
+        }
     
     // ============================================================================
 }

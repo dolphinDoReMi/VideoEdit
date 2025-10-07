@@ -922,7 +922,12 @@ class AndroidWhisperBridge(private val context: Context) {
             if (context is com.mira.whisper.WhisperMainActivity) {
                 context.runOnUiThread {
                     // Note: webView access needs to be handled by the activity
-                    context.notifyFileSelection(jsonResponse)
+                    try {
+                        val uri = Uri.parse(jsonResponse)
+                        context.notifyFileSelection(jsonResponse)
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error parsing URI: $jsonResponse", e)
+                    }
                 }
             }
         } catch (e: Exception) {

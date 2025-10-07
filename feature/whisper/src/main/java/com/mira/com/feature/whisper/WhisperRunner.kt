@@ -2,7 +2,7 @@ package com.mira.com.feature.whisper
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import com.mira.com.core.infra.Config
+// import com.mira.com.core.infra.Config
 import com.mira.com.core.media.AudioResampler
 import com.mira.com.core.ml.WhisperBridge
 import org.json.JSONObject
@@ -22,7 +22,7 @@ object WhisperRunner {
 
         val mono = AudioResampler.downmixToMono(pcm, 1)
         val sr16 = AudioResampler.resampleLinear(mono, 16_000, 16_000)
-        val json = WhisperBridge.decode(sr16, 16_000, Config.WHISPER_THREADS)
+        val json = WhisperBridge.decode(sr16, 16_000, 4) // Use hardcoded thread count
         val f = File(outDir, "transcript.json")
         f.writeText(JSONObject(json).toString())
         Log.i("WhisperRunner", "Wrote ${f.absolutePath}")

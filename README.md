@@ -39,6 +39,7 @@ pnpm build
 - **[CLIP Vision](./docs/clip/)** - Visual understanding and similarity search  
 - **[UI Components](./docs/ui/)** - Cross-platform user interface
 - **[Deployment](./docs/deployment/)** - Platform-specific deployment guides
+- **[CI/CD Workflows](./docs/ci-cd/CI-CD-Workflows.md)** - Continuous integration and deployment
 - **[Cursor Rules](./docs/cursor_rule.md)** - Development guidelines and standards
 
 ## 🎯 Key Features

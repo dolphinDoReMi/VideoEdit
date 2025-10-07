@@ -28,8 +28,6 @@ object ResourceMonitoringDebugger {
             
             // Log that old monitoring systems are disabled
             Log.d(TAG, "WhisperConnectorService resource monitoring: DISABLED")
-            Log.d(TAG, "WhisperResultsActivity resource monitoring: DISABLED")
-            Log.d(TAG, "WhisperBatchResultsActivity resource monitoring: DISABLED")
             Log.d(TAG, "MainActivity resource monitoring: DISABLED")
             Log.d(TAG, "VideoEditor MainActivity resource monitoring: DISABLED")
             

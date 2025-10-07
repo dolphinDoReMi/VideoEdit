@@ -460,12 +460,5 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        @JavascriptInterface
-        fun openWhisperResults() {
-            runOnUiThread {
-                val intent = Intent(this@MainActivity, com.mira.whisper.WhisperResultsActivity::class.java)
-                startActivity(intent)
-            }
-        }
     }
 }

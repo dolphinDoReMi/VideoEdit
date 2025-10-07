@@ -15,6 +15,8 @@ import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 import java.nio.ByteBuffer
+import java.io.File
+import java.io.FileOutputStream
 import java.security.MessageDigest
 import kotlin.math.min
 
@@ -29,13 +31,64 @@ class AutoClipperWorker(appCtx: Context, params: WorkerParameters) : CoroutineWo
 
         Log.d("AutoClipperWorker", "Starting auto-clipping: $inputUri -> $outTreeUri (${segSec}s segments)")
 
-        val tree = DocumentFile.fromTreeUri(applicationContext, outTreeUri)
-            ?: return@withContext Result.failure(msg("invalid OUT_TREE_URI"))
+        // Determine output target: support both SAF tree (content://) and direct file directory (file://)
+        val isFileOutput = outTreeUri.scheme == "file"
+        val fileOutDir: File? = if (isFileOutput) {
+            val dirPath = outTreeUri.path ?: return@withContext Result.failure(msg("invalid OUT_TREE_URI path"))
+            val dir = File(dirPath)
+            if (!dir.exists() && !dir.mkdirs()) {
+                Log.e("AutoClipperWorker", "Failed to create output dir: $dirPath")
+                return@withContext Result.failure(msg("cannot create output dir: $dirPath"))
+            }
+            if (!dir.isDirectory) {
+                Log.e("AutoClipperWorker", "Output path is not a directory: $dirPath")
+                return@withContext Result.failure(msg("output path not a directory: $dirPath"))
+            }
+            dir
+        } else null
+
+        val tree: DocumentFile? = if (!isFileOutput) {
+            DocumentFile.fromTreeUri(applicationContext, outTreeUri)
+                ?: return@withContext Result.failure(msg("invalid OUT_TREE_URI"))
+        } else null
 
         val extractor = MediaExtractor()
-        cr.openFileDescriptor(inputUri, "r").use { pfd ->
-            if (pfd == null) return@withContext Result.failure(msg("cannot open input PFD"))
-            extractor.setDataSource(pfd.fileDescriptor)
+        
+        // Handle file:// URIs directly
+        if (inputUri.scheme == "file") {
+            val filePath = inputUri.path ?: return@withContext Result.failure(msg("invalid file path"))
+            Log.d("AutoClipperWorker", "Setting data source to file: $filePath")
+            try {
+                // Try multiple approaches for file access
+                val file = java.io.File(filePath)
+                if (!file.exists()) {
+                    return@withContext Result.failure(msg("File does not exist: $filePath"))
+                }
+                if (!file.canRead()) {
+                    return@withContext Result.failure(msg("Cannot read file: $filePath"))
+                }
+                
+                // Use FileDescriptor approach for better compatibility
+                val fileDescriptor = java.io.FileInputStream(file).fd
+                extractor.setDataSource(fileDescriptor)
+                Log.d("AutoClipperWorker", "Successfully set data source via FileDescriptor")
+            } catch (e: Exception) {
+                Log.e("AutoClipperWorker", "Failed to set data source: ${e.message}", e)
+                return@withContext Result.failure(msg("Failed to set data source: ${e.message}"))
+            }
+        } else {
+            // Handle content:// URIs through ContentResolver (SAF)
+            Log.d("AutoClipperWorker", "Setting data source to SAF URI: $inputUri")
+            try {
+                cr.openFileDescriptor(inputUri, "r").use { pfd ->
+                    if (pfd == null) return@withContext Result.failure(msg("cannot open input PFD"))
+                    extractor.setDataSource(pfd.fileDescriptor)
+                    Log.d("AutoClipperWorker", "Successfully set data source via SAF")
+                }
+            } catch (e: Exception) {
+                Log.e("AutoClipperWorker", "Failed to set data source via SAF: ${e.message}", e)
+                return@withContext Result.failure(msg("Failed to set data source via SAF: ${e.message}"))
+            }
         }
 
         val trackCount = extractor.trackCount
@@ -82,16 +135,32 @@ class AutoClipperWorker(appCtx: Context, params: WorkerParameters) : CoroutineWo
             
             Log.d("AutoClipperWorker", "Creating segment $segIdx: $clipName (${segStartUs / 1_000_000}s - ${segEndUs / 1_000_000}s)")
             
-            val outDoc = tree.createFile("video/mp4", clipName) 
-                ?: return@withContext Result.failure(msg("cannot create $clipName"))
-            val outPfd = cr.openFileDescriptor(outDoc.uri, "rw") 
-                ?: return@withContext Result.failure(msg("cannot open $clipName"))
+            // Prepare muxer based on output mode
+            val muxer: MediaMuxer
+            val outUriForManifest: Uri
+            val outPfd = if (isFileOutput) null else cr.openFileDescriptor(tree!!.createFile("video/mp4", clipName)?.uri
+                ?: return@withContext Result.failure(msg("cannot create $clipName")), "rw")
+                ?: if (isFileOutput) null else return@withContext Result.failure(msg("cannot open $clipName"))
 
-            val muxer = MediaMuxer(outPfd.fileDescriptor, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
+            Log.d("AutoClipperWorker", "Creating MediaMuxer for: $clipName")
+            if (isFileOutput) {
+                val outFile = File(fileOutDir, clipName)
+                muxer = MediaMuxer(outFile.absolutePath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
+                outUriForManifest = Uri.fromFile(outFile)
+            } else {
+                muxer = MediaMuxer(outPfd!!.fileDescriptor, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
+                // We created the file via DocumentFile above; recover its Uri for manifest
+                val created = tree!!.findFile(clipName)
+                    ?: return@withContext Result.failure(msg("missing created file: $clipName"))
+                outUriForManifest = created.uri
+            }
             val indexMap = HashMap<Int, Int>(tracks.size)
             for (src in tracks) {
-                indexMap[src] = muxer.addTrack(extractor.getTrackFormat(src))
+                val trackFormat = extractor.getTrackFormat(src)
+                Log.d("AutoClipperWorker", "Adding track $src: ${trackFormat.getString(MediaFormat.KEY_MIME)}")
+                indexMap[src] = muxer.addTrack(trackFormat)
             }
+            Log.d("AutoClipperWorker", "Starting MediaMuxer for: $clipName")
             muxer.start()
 
             // Seek each selected track to previous keyframe at segStartUs
@@ -120,24 +189,30 @@ class AutoClipperWorker(appCtx: Context, params: WorkerParameters) : CoroutineWo
                     info.size = sampleSize
                     info.flags = extractor.sampleFlags
                     info.presentationTimeUs = ts
-                    muxer.writeSampleData(indexMap[src]!!, buf, info)
-                    extractor.advance()
-                    wroteAny = true
-                    advancedAny = true
+                    
+                    try {
+                        muxer.writeSampleData(indexMap[src]!!, buf, info)
+                        extractor.advance()
+                        wroteAny = true
+                        advancedAny = true
+                    } catch (e: Exception) {
+                        Log.e("AutoClipperWorker", "Error writing sample data for track $src: ${e.message}", e)
+                        throw e
+                    }
                 }
                 if (!advancedAny) break@loop
             }
 
             muxer.stop()
             muxer.release()
-            outPfd.close()
+            if (!isFileOutput) outPfd?.close()
 
             // Optional: compute sha256 for manifest integrity (small overhead)
-            val sha = sha256Stream(cr, outDoc.uri)
+            val sha = sha256Stream(cr, outUriForManifest)
 
             manifest.put(JSONObject().apply {
                 put("name", clipName)
-                put("uri", outDoc.uri.toString())
+                put("uri", outUriForManifest.toString())
                 put("segmentIndex", segIdx)
                 put("startUs", segStartUs)
                 put("endUs", segEndUs)
@@ -157,23 +232,38 @@ class AutoClipperWorker(appCtx: Context, params: WorkerParameters) : CoroutineWo
         extractor.release()
 
         // Write manifest.json
-        val manifestDoc = tree.findFile("manifest.json")
-            ?: tree.createFile("application/json", "manifest.json")!!
-        cr.openOutputStream(manifestDoc.uri, "w")!!.use { os ->
-            val root = JSONObject().apply {
-                put("source", inputUri.toString())
-                put("segmentSeconds", segSec)
-                put("createdEpochMs", System.currentTimeMillis())
-                put("clips", manifest)
+        val manifestUri: Uri = if (isFileOutput) {
+            val mf = File(fileOutDir, "manifest.json")
+            FileOutputStream(mf).use { os ->
+                val root = JSONObject().apply {
+                    put("source", inputUri.toString())
+                    put("segmentSeconds", segSec)
+                    put("createdEpochMs", System.currentTimeMillis())
+                    put("clips", manifest)
+                }
+                os.write(root.toString(2).encodeToByteArray())
             }
-            os.write(root.toString(2).encodeToByteArray())
+            Uri.fromFile(mf)
+        } else {
+            val manifestDoc = tree!!.findFile("manifest.json")
+                ?: tree.createFile("application/json", "manifest.json")!!
+            cr.openOutputStream(manifestDoc.uri, "w")!!.use { os ->
+                val root = JSONObject().apply {
+                    put("source", inputUri.toString())
+                    put("segmentSeconds", segSec)
+                    put("createdEpochMs", System.currentTimeMillis())
+                    put("clips", manifest)
+                }
+                os.write(root.toString(2).encodeToByteArray())
+            }
+            manifestDoc.uri
         }
 
         Log.d("AutoClipperWorker", "Auto-clipping completed: $segIdx segments created")
 
         Result.success(workDataOf(
             "clips" to manifest.length(),
-            "manifestUri" to manifestDoc.uri.toString()
+            "manifestUri" to manifestUri.toString()
         ))
     }
 
