@@ -29,6 +29,7 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
         val beam = inputData.getInt("beam", 0)
         val lang = inputData.getString("lang") ?: "auto"
         val translate = inputData.getBoolean("translate", false)
+        val maxSecondsLimit = inputData.getInt("max_seconds", 0).coerceAtLeast(0)
         val batchIndex = inputData.getInt("batch_index", -1)
         val batchTotal = inputData.getInt("batch_total", -1)
         val batchIdInput = inputData.getString("batch_id")
@@ -111,7 +112,7 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
                             // Use streaming processing for large files
                             if (fileSize > 100 * 1024 * 1024) { // > 100MB
                                 Log.d("TranscribeWorker", "TECHNICAL: Large file detected - using streaming processing")
-                                return processAudioStreaming(ctx, uri, model, threads, beam, lang, translate, jobId, fileId, dao, batchIndex, batchTotal)
+                                return processAudioStreaming(ctx, uri, model, threads, beam, lang, translate, jobId, fileId, dao, batchIndex, batchTotal, maxSecondsLimit)
                             }
                         }
                     }
@@ -129,7 +130,7 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
                     // If duration > 5 minutes, assume it's large and use streaming
                     if (durationMs > 5 * 60 * 1000L) { // > 5 minutes
                         Log.d("TranscribeWorker", "TECHNICAL: Long duration detected (${durationMs / 1000}s) - using streaming processing")
-                        return processAudioStreaming(ctx, uri, model, threads, beam, lang, translate, jobId, fileId, dao, batchIndex, batchTotal)
+                        return processAudioStreaming(ctx, uri, model, threads, beam, lang, translate, jobId, fileId, dao, batchIndex, batchTotal, maxSecondsLimit)
                     }
                 } catch (e2: Exception) {
                     Log.w("TranscribeWorker", "TECHNICAL: Could not determine duration either: ${e2.message}")
@@ -176,13 +177,37 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
             }
             
             val mono = AudioResampler.downmixToMono(pcm.pcm16, pcm.ch)
-            val pcm16k = AudioResampler.resampleLinear(mono, pcm.sr, 16_000)
+            var pcm16k = AudioResampler.resampleLinear(mono, pcm.sr, 16_000)
+
+            // Apply maxSeconds limit for direct path by trimming samples
+            val usedDurationMs = if (maxSecondsLimit > 0) {
+                val maxSamples = maxSecondsLimit * 16_000
+                if (pcm16k.size > maxSamples) {
+                    pcm16k = pcm16k.copyOf(maxSamples)
+                }
+                (maxSecondsLimit * 1000L)
+            } else pcm.durationMs
 
             Log.d("TranscribeWorker", "TECHNICAL: Audio loaded successfully")
             Log.d("TranscribeWorker", "TECHNICAL: - Samples: ${pcm16k.size}")
             Log.d("TranscribeWorker", "TECHNICAL: - Duration: ${pcm.durationMs}ms")
             Log.d("TranscribeWorker", "TECHNICAL: - Sample rate: ${pcm.sr}Hz")
             Log.d("TranscribeWorker", "TECHNICAL: - Channels: ${pcm.ch}")
+
+            // Broadcast early progress for direct path (small files)
+            try {
+                val intentEarly = android.content.Intent("com.mira.whisper.UPDATE_PROGRESS").apply {
+                    putExtra("batch_id", jobId)
+                    putExtra("progress", 20)
+                    putExtra("file_count", 1)
+                    putExtra("current_file", 0)
+                    putExtra("current_file_progress", 20)
+                    putExtra("current_file_progress_float", 20.0)
+                    putExtra("completed_files", 0)
+                    putExtra("has_errors", false)
+                }
+                applicationContext.sendBroadcast(intentEarly)
+            } catch (_: Exception) { }
 
             // 2) Robust LID Pipeline
             val lidResult = if (lang == "auto") {
@@ -201,6 +226,21 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
 
             Log.d("TranscribeWorker", "LID Result: ${lidResult.chosen} (${lidResult.confidence}) via ${lidResult.method}")
 
+            // Broadcast mid progress after LID
+            try {
+                val intentMid = android.content.Intent("com.mira.whisper.UPDATE_PROGRESS").apply {
+                    putExtra("batch_id", jobId)
+                    putExtra("progress", 60)
+                    putExtra("file_count", 1)
+                    putExtra("current_file", 0)
+                    putExtra("current_file_progress", 60)
+                    putExtra("current_file_progress_float", 60.0)
+                    putExtra("completed_files", 0)
+                    putExtra("has_errors", false)
+                }
+                applicationContext.sendBroadcast(intentMid)
+            } catch (_: Exception) { }
+
             // 3) Decode with detected/forced language
             val t0 = SystemClock.elapsedRealtime()
             val json = WhisperBridge.decodeJson(
@@ -218,7 +258,7 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
             )
             val t1 = SystemClock.elapsedRealtime()
             val inferMs = t1 - t0
-            val rtf = inferMs.toDouble() / pcm.durationMs.coerceAtLeast(1)
+            val rtf = inferMs.toDouble() / usedDurationMs.coerceAtLeast(1)
 
             Log.d("TranscribeWorker", "TECHNICAL: Transcription completed successfully")
             Log.d("TranscribeWorker", "TECHNICAL: - Inference time: ${inferMs}ms")
@@ -226,11 +266,26 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
             Log.d("TranscribeWorker", "TECHNICAL: - Language detected: ${lidResult.chosen}")
             Log.d("TranscribeWorker", "TECHNICAL: - Confidence: ${lidResult.confidence}")
 
+            // Broadcast near-complete progress before finalization
+            try {
+                val intentLate = android.content.Intent("com.mira.whisper.UPDATE_PROGRESS").apply {
+                    putExtra("batch_id", jobId)
+                    putExtra("progress", 90)
+                    putExtra("file_count", 1)
+                    putExtra("current_file", 0)
+                    putExtra("current_file_progress", 90)
+                    putExtra("current_file_progress_float", 90.0)
+                    putExtra("completed_files", 0)
+                    putExtra("has_errors", false)
+                }
+                applicationContext.sendBroadcast(intentLate)
+            } catch (_: Exception) { }
+
             // 4) Enhanced sidecar with LID data
             val sidecar =
                 Sidecars.build(
                     uri = uri,
-                    durationMs = pcm.durationMs,
+                    durationMs = usedDurationMs,
                     params = WhisperParams(model, threads, beam, lidResult.chosen, translate),
                     inferMs = inferMs,
                     rtf = rtf,
@@ -266,7 +321,7 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
             Log.d("TranscribeWorker", "Generated sidecar: $sidecarPath")
 
             // 4) Persist file state & segments
-            dao.updateFile(AsrFile(fileId, uri, null, pcm.durationMs, 16_000, 1, "DONE", System.currentTimeMillis()))
+            dao.updateFile(AsrFile(fileId, uri, null, usedDurationMs, 16_000, 1, "DONE", System.currentTimeMillis()))
             val segs = Sidecars.segmentsFrom(sidecar, jobId)
             dao.insertSegments(segs)
             dao.finishJob(jobId, inferMs, rtf, "DONE", sidecarPath, null)
@@ -304,7 +359,8 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
         fileId: String,
         dao: AsrDao,
         batchIndex: Int,
-        batchTotal: Int
+        batchTotal: Int,
+        maxSecondsLimit: Int
     ): Result {
         Log.d("TranscribeWorker", "TECHNICAL: Starting streaming processing for large file")
         
@@ -316,13 +372,16 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
             val mediaMetadataRetriever = android.media.MediaMetadataRetriever()
             mediaMetadataRetriever.setDataSource(ctx, Uri.parse(uri))
             val durationStr = mediaMetadataRetriever.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION)
-            val durationMs = durationStr?.toLongOrNull() ?: 0L
+            val originalDurationMs = durationStr?.toLongOrNull() ?: 0L
             mediaMetadataRetriever.release()
             
-            Log.d("TranscribeWorker", "TECHNICAL: Audio duration: ${durationMs}ms (${durationMs / 1000}s)")
+            val durationLimitMs = if (maxSecondsLimit > 0) maxSecondsLimit * 1000L else Long.MAX_VALUE
+            val durationMs = minOf(originalDurationMs, durationLimitMs)
+
+            Log.d("TranscribeWorker", "TECHNICAL: Audio duration: ${originalDurationMs}ms, using=${durationMs}ms (${durationMs / 1000}s)")
             
-            // Process in chunks of 30 seconds to balance memory usage and efficiency
-            val chunkDurationMs = 30 * 1000L // 30 seconds per chunk
+            // Process in chunks of 10 seconds to reduce per-chunk latency and memory pressure
+            val chunkDurationMs = 10 * 1000L
             val totalChunks = ((durationMs + chunkDurationMs - 1) / chunkDurationMs).toInt()
             
             Log.d("TranscribeWorker", "TECHNICAL: Processing ${totalChunks} chunks of ${chunkDurationMs}ms each")
@@ -368,7 +427,7 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
                     
                     // Convert to mono 16kHz for Whisper
                     val convertStartTime = System.currentTimeMillis()
-                    val mono = AudioResampler.downmixToMono(chunkPcm, 1) // Assume mono for simplicity
+                    val mono = AudioResampler.downmixToMono(chunkPcm, 1)
                     val pcm16k = AudioResampler.resampleLinear(mono, 16000, 16000)
                     val convertTime = System.currentTimeMillis() - convertStartTime
                     
@@ -428,6 +487,34 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
                     val progress = ((chunkIndex + 1) * 100) / totalChunks
                     Log.d("TranscribeWorker", "TECHNICAL: Overall progress: $progress% (${chunkIndex + 1}/$totalChunks chunks)")
                     Log.d("TranscribeWorker", "=== STREAMING CHUNK ${chunkIndex + 1}/$totalChunks COMPLETE ===")
+                    // Broadcast per-chunk progress for UI updates in WebView
+                    try {
+                        val perFileProgressFloat = ((chunkIndex + 1).toDouble() * 100.0 / totalChunks.toDouble())
+                        val perFileProgressDisplay = if (perFileProgressFloat > 0.0) kotlin.math.max(1, kotlin.math.ceil(perFileProgressFloat).toInt()) else 0
+                        val progressIntent = android.content.Intent("com.mira.whisper.UPDATE_PROGRESS").apply {
+                            putExtra("batch_id", jobId)
+                            putExtra("progress", progress)
+                            putExtra("file_count", 1)
+                            putExtra("current_file", 0)
+                            putExtra("current_file_progress", perFileProgressDisplay)
+                            putExtra("current_file_progress_float", perFileProgressFloat)
+                            putExtra("current_chunk", chunkIndex + 1)
+                            putExtra("total_chunks", totalChunks)
+                            putExtra("completed_files", 0)
+                            putExtra("has_errors", false)
+                            // Provide minimal file state so WebView can infer per-file progress
+                            val fileState = org.json.JSONObject().apply {
+                                put("fileName", java.io.File(Uri.parse(uri).lastPathSegment ?: "file").name)
+                                put("fileUri", uri)
+                                put("status", "PROCESSING")
+                                put("progress", perFileProgressDisplay)
+                                put("rtf", 0)
+                                put("error", org.json.JSONObject.NULL)
+                            }
+                            putExtra("file_states", org.json.JSONArray().put(fileState).toString())
+                        }
+                        applicationContext.sendBroadcast(progressIntent)
+                    } catch (_: Exception) { }
                     
                     // Add timeout protection - if chunk takes too long, warn and continue
                     if (totalChunkTime > 60000) { // 60 seconds per chunk
@@ -457,9 +544,44 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
             Log.d("TranscribeWorker", "TECHNICAL: - RTF (Real Time Factor): $rtf")
             Log.d("TranscribeWorker", "TECHNICAL: - Final text length: ${finalText.length} characters")
             
-            // Save results - use the same pattern as the main doWork function
-            dao.finishJob(jobId, totalInferenceTime, rtf, "DONE", null, null)
-            dao.updateFile(AsrFile(fileId, uri, null, null, null, null, "DONE", System.currentTimeMillis()))
+            // Persist transcript and sidecar for e2e retrieval
+            val outRoot = File("/sdcard/MiraWhisper/out").apply { mkdirs() }
+            val jobOutDir = File(outRoot, jobId).apply { mkdirs() }
+            var sidecarPath: String? = null
+            try {
+                // Write transcript
+                val transcriptFile = File(jobOutDir, "$jobId.txt")
+                transcriptFile.writeText(finalText)
+                Log.d("TranscribeWorker", "TECHNICAL: Wrote transcript: ${transcriptFile.absolutePath} (${transcriptFile.length()} bytes)")
+            } catch (e: Exception) {
+                Log.w("TranscribeWorker", "TECHNICAL: Failed to write transcript: ${e.message}")
+            }
+            try {
+                // Minimal sidecar compatible with readers
+                val sidecar = Sidecars.build(
+                    uri = uri,
+                    durationMs = durationMs,
+                    params = WhisperParams(model, threads, beam, lang, translate),
+                    inferMs = totalInferenceTime,
+                    rtf = rtf,
+                    segmentsJson = null
+                )
+                sidecar.put("job_id", jobId)
+                sidecar.put("uri", uri)
+                sidecar.put("rtf", rtf)
+                sidecar.put("created_at", System.currentTimeMillis())
+                val sidecarDir = File("/sdcard/MiraWhisper/sidecars").apply { mkdirs() }
+                val sidecarFile = File(sidecarDir, "${fileId}_$jobId.json")
+                sidecarFile.writeText(sidecar.toString())
+                sidecarPath = sidecarFile.absolutePath
+                Log.d("TranscribeWorker", "TECHNICAL: Wrote sidecar: $sidecarPath")
+            } catch (e: Exception) {
+                Log.w("TranscribeWorker", "TECHNICAL: Failed to write sidecar: ${e.message}")
+            }
+            
+            // Save results in DB
+            dao.finishJob(jobId, totalInferenceTime, rtf, "DONE", sidecarPath, null)
+            dao.updateFile(AsrFile(fileId, uri, null, durationMs, null, null, "DONE", System.currentTimeMillis()))
             
             // Emit success events - use the same pattern as the main doWork function
             // Note: WhisperBus might not be available, so we'll skip these for now

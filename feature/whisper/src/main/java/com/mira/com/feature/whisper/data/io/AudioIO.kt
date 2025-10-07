@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Build
 import android.util.Log
 import java.nio.ByteBuffer
+import com.mira.com.core.media.AudioResampler
 import kotlin.math.max
 
 data class PCM(val sr: Int, val ch: Int, val pcm16: ShortArray, val durationMs: Long)
@@ -148,10 +149,16 @@ object AudioIO {
         endTimeMs: Long
     ): ShortArray {
         val path = uri.toString().lowercase()
+        // Prefer conversion for reliability on non-wav inputs
         return if (path.endsWith(".wav")) {
-            loadWavChunk(ctx, uri, startTimeMs, endTimeMs)
+            // Return mono 16k chunk for WAV, consistent with streaming path
+            val chunk = loadWavChunk(ctx, uri, startTimeMs, endTimeMs)
+            val mono = AudioResampler.downmixToMono(chunk, 1)
+            AudioResampler.resampleLinear(mono, 16000, 16000)
         } else {
-            decodeAacMp4Chunk(ctx, uri, startTimeMs, endTimeMs)
+            // Convert to H.264 if needed before chunk extraction
+            val effective = try { convertToH264IfNeeded(ctx, uri) ?: uri } catch (_: Exception) { uri }
+            decodeAacMp4Chunk(ctx, effective, startTimeMs, endTimeMs)
         }
     }
     
@@ -266,7 +273,10 @@ object AudioIO {
         codec.release()
         extractor.release()
         
-        return outPcm.toShortArray()
+        val pcm = outPcm.toShortArray()
+        // Normalize to mono 16k for Whisper
+        val mono = AudioResampler.downmixToMono(pcm, ch)
+        return AudioResampler.resampleLinear(mono, sr, 16000)
     }
     
     /**

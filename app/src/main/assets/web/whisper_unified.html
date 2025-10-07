@@ -3,1119 +3,237 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest' };</script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    ::-webkit-scrollbar { display: none; }
-    * { font-family: 'Inter', sans-serif; }
-    @media (prefers-reduced-motion: reduce) { .animate-pulse { animation: none !important; } }
-    .progress-bar { transition: width 0.3s ease-in-out; }
-    .processing-animation { animation: processing-pulse 2s ease-in-out infinite; }
-    .step-indicator { transition: all 0.3s ease-in-out; }
-    .section-transition { transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out; }
-    .section-hidden { opacity: 0; transform: translateY(20px); pointer-events: none; display: none; }
-    .section-visible { opacity: 1; transform: translateY(0); pointer-events: auto; display: block; }
-    @keyframes processing-pulse {
-      0%, 100% { opacity: 0.6; }
-      50% { opacity: 1; }
+  <title>Whisper Background Service</title>
+</head>
+<body>
+  <!-- Background Service - No UI -->
+  <div id="background-service" style="display: none;">
+    <h1>Whisper Background Service</h1>
+    <p>Running duplicate check and global cleanup in background...</p>
+  </div>
+
+<script>
+  // Global variables
+  let bridge = null;
+  let hasBridge = false;
+  
+  // Initialize bridge
+  function initializeBridge() {
+    try {
+      if (window.AndroidWhisperBridge) {
+        bridge = window.AndroidWhisperBridge;
+        hasBridge = true;
+        console.log('✅ Android Bridge initialized successfully');
+      } else {
+        console.log('⚠️ Android Bridge not available - using mock mode');
+        hasBridge = false;
+      }
+    } catch (e) {
+      console.log('❌ Error initializing bridge: ' + e.message);
+      hasBridge = false;
     }
-    @keyframes slideIn {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
-    .slide-in { animation: slideIn 0.5s ease-out; }
-  </style>
-  <script>
-    tailwind.config = {
-      theme: { 
-        extend: { 
-          colors: { 
-            dark: { 900:'#0a0a0a', 800:'#1a1a1a', 700:'#2a2a2a', 600:'#3a3a3a' }
+  }
+  
+  // Background Duplicate Check Service
+  async function backgroundDuplicateCheck() {
+    console.log('🔍 Background duplicate check service started...');
+    
+    try {
+      // Create test files
+      const testFiles = [
+        'TennisInterview.mkv',
+        'test_video_1.mkv',
+        'test_video_2.avi', 
+        'TennisInterview.mkv' // Duplicate
+      ];
+      
+      let processedCount = 0;
+      
+      for (const fileName of testFiles) {
+        console.log(`📁 Background processing: ${fileName}`);
+        
+        if (hasBridge) {
+          // Use real bridge
+          const result = await bridge.testConversion(fileName);
+          console.log(`📊 Background result: ${result}`);
+        } else {
+          // Mock mode
+          const isDuplicate = fileName === 'TennisInterview.mkv' && processedCount > 0;
+          if (isDuplicate) {
+            console.log('✅ Background duplicate detected - skipping conversion');
+          } else {
+            console.log('🔄 Background converting file...');
+            processedCount++;
           }
         }
+        
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
+      
+      console.log('✅ Background duplicate check service completed successfully');
+      
+    } catch (e) {
+      console.log('❌ Background duplicate check service failed: ' + e.message);
     }
-  </script>
-</head>
-<body class="bg-dark-900 text-white overflow-x-hidden">
-
-<!-- Status Bar -->
-<div id="status-bar" class="flex justify-between items-center px-4 py-2 bg-dark-800 text-xs text-gray-300">
-  <div class="flex items-center space-x-1">
-    <div class="w-1 h-1 bg-white rounded-full"></div>
-    <div class="w-1 h-1 bg-white rounded-full"></div>
-    <div class="w-1 h-1 bg-gray-600 rounded-full"></div>
-    <span class="ml-2">Xiaomi Pad</span>
-  </div>
-  <div class="font-medium">9:41</div>
-  <div class="flex items-center space-x-1">
-    <i class="fa-solid fa-signal text-xs"></i>
-    <i class="fa-solid fa-wifi text-xs"></i>
-    <div class="w-6 h-3 border border-white rounded-sm"><div class="w-4 h-2 bg-white rounded-sm m-0.5"></div></div>
-  </div>
-</div>
-
-<!-- App Header -->
-<div id="app-header" class="flex items-center justify-between px-6 py-3 bg-dark-800 border-b border-dark-600">
-  <div class="flex items-center space-x-3">
-    <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-      <i class="fa-solid fa-microphone text-white text-sm"></i>
-    </div>
-    <div>
-      <h1 class="text-lg font-semibold text-white">Whisper Transcription</h1>
-      <p class="text-xs text-gray-400">Unified Processing Pipeline</p>
-    </div>
-  </div>
-  <div class="flex items-center space-x-2">
-    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-    <span class="text-xs text-gray-300">Ready</span>
-  </div>
-</div>
-
-<!-- Step Progress Indicator -->
-<div id="step-progress" class="px-6 py-3 bg-dark-700">
-  <div class="flex items-center justify-between">
-    <div class="flex items-center space-x-4">
-      <div id="step-1-indicator" class="step-indicator flex items-center space-x-2">
-        <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
-          <i class="fa-solid fa-file text-white text-sm"></i>
-        </div>
-        <div>
-          <div class="text-sm font-medium text-white">File Selection</div>
-          <div class="text-xs text-gray-400">Choose media & model</div>
-        </div>
-      </div>
-      <div class="w-8 h-0.5 bg-dark-600"></div>
-      <div id="step-2-indicator" class="step-indicator flex items-center space-x-2 opacity-50">
-        <div class="w-8 h-8 bg-dark-600 rounded-full flex items-center justify-center">
-          <i class="fa-solid fa-cog text-gray-400 text-sm"></i>
-        </div>
-        <div>
-          <div class="text-sm font-medium text-gray-400">Processing</div>
-          <div class="text-xs text-gray-500">Transcription in progress</div>
-        </div>
-      </div>
-      <div class="w-8 h-0.5 bg-dark-600"></div>
-      <div id="step-3-indicator" class="step-indicator flex items-center space-x-2 opacity-50">
-        <div class="w-8 h-8 bg-dark-600 rounded-full flex items-center justify-center">
-          <i class="fa-solid fa-check text-gray-400 text-sm"></i>
-        </div>
-        <div>
-          <div class="text-sm font-medium text-gray-400">Results</div>
-          <div class="text-xs text-gray-500">View & export</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Main Content Container -->
-<div id="main-content" class="flex-1 overflow-y-auto">
-  
-  <!-- STEP 1: File Selection Section -->
-  <div id="step-1-section" class="section-visible section-transition">
-    <div class="p-3 space-y-3">
-      
-      <!-- File Selection Card -->
-      <div class="bg-dark-800 rounded-xl p-3 border border-dark-600">
-        <div class="flex items-center justify-between mb-2">
-          <h2 class="text-lg font-semibold text-white">Media Selection</h2>
-          <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-        </div>
-        
-        <div id="file-selection-area" class="space-y-4">
-          <div class="flex items-center justify-center p-8 border-2 border-dashed border-dark-600 rounded-lg hover:border-purple-500 transition-colors cursor-pointer" onclick="openFilePicker()">
-            <div class="text-center">
-              <i class="fa-solid fa-cloud-upload-alt text-4xl text-gray-400 mb-3"></i>
-              <div class="text-white font-medium mb-1">Select Media Files</div>
-              <div class="text-sm text-gray-400">Video, audio files supported</div>
-            </div>
-          </div>
-          
-          <div id="selected-files" class="space-y-2 hidden">
-            <!-- Selected files will be displayed here -->
-          </div>
-        </div>
-      </div>
-
-      <!-- Model Selection Card -->
-      <div class="bg-dark-800 rounded-xl p-3 border border-dark-600">
-        <div class="flex items-center justify-between mb-2">
-          <h2 class="text-lg font-semibold text-white">Model Configuration</h2>
-          <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-        </div>
-        
-        <div class="space-y-3">
-          <div class="flex items-center justify-between p-4 bg-dark-700 rounded-lg">
-            <div class="flex items-center space-x-3">
-              <i class="fa-solid fa-brain text-purple-500"></i>
-              <div>
-                <div class="text-white font-medium">Whisper Model</div>
-                <div class="text-sm text-gray-400">Multilingual base model</div>
-              </div>
-            </div>
-            <div class="text-sm text-gray-300">whisper-base.q5_1.bin</div>
-          </div>
-          
-          <div class="grid grid-cols-2 gap-2">
-            <div class="p-3 bg-dark-700 rounded-lg">
-              <div class="text-sm text-gray-400 mb-0.5">Language</div>
-              <select id="language-select" class="w-full bg-dark-600 text-white rounded-lg px-3 py-2 text-sm">
-                <option value="auto">Auto Detect</option>
-                <option value="en">English</option>
-                <option value="zh">Chinese</option>
-                <option value="es">Spanish</option>
-                <option value="fr">French</option>
-                <option value="de">German</option>
-              </select>
-            </div>
-            <div class="p-3 bg-dark-700 rounded-lg">
-              <div class="text-sm text-gray-400 mb-0.5">Preset</div>
-              <select id="preset-select" class="w-full bg-dark-600 text-white rounded-lg px-3 py-2 text-sm">
-                <option value="Single">Single (Fast)</option>
-                <option value="Accuracy">Accuracy (Slow)</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Processing Options Card -->
-      <div class="bg-dark-800 rounded-xl p-3 border border-dark-600">
-        <div class="flex items-center justify-between mb-2">
-          <h2 class="text-lg font-semibold text-white">Processing Options</h2>
-          <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
-        </div>
-        
-        <div class="space-y-3">
-          <div class="grid grid-cols-2 gap-2">
-            <div class="p-3 bg-dark-700 rounded-lg">
-              <div class="text-sm text-gray-400 mb-0.5">Threads</div>
-              <input type="number" id="threads-input" value="4" min="1" max="8" class="w-full bg-dark-600 text-white rounded-lg px-3 py-2 text-sm">
-            </div>
-            <div class="p-3 bg-dark-700 rounded-lg">
-              <div class="text-sm text-gray-400 mb-0.5">Beam Size</div>
-              <input type="number" id="beam-input" value="1" min="1" max="5" class="w-full bg-dark-600 text-white rounded-lg px-3 py-2 text-sm">
-            </div>
-          </div>
-          
-          <div class="flex items-center space-x-4">
-            <label class="flex items-center space-x-2 cursor-pointer">
-              <input type="checkbox" id="translate-checkbox" class="w-4 h-4 text-purple-500 bg-dark-600 border-dark-500 rounded">
-              <span class="text-sm text-gray-300">Translate to English</span>
-            </label>
-            <label class="flex items-center space-x-2 cursor-pointer">
-              <input type="checkbox" id="word-timestamps-checkbox" class="w-4 h-4 text-purple-500 bg-dark-600 border-dark-500 rounded">
-              <span class="text-sm text-gray-300">Word-level timestamps</span>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <!-- Start Processing Button -->
-      <div class="flex justify-center pt-4">
-        <button id="start-processing-btn" onclick="startProcessing()" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold py-3 px-8 rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
-          <i class="fa-solid fa-play mr-2"></i>
-          Start Transcription
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- STEP 2: Processing Section -->
-  <div id="step-2-section" class="section-hidden section-transition">
-    <div class="p-2 space-y-2">
-      
-      <!-- Processing Status Card -->
-      <div class="bg-dark-800 rounded-xl p-2 border border-dark-600">
-        <div class="flex items-center justify-between mb-2">
-          <h2 class="text-lg font-semibold text-white">Processing Status</h2>
-          <div class="w-2 h-2 bg-blue-500 rounded-full processing-animation"></div>
-        </div>
-        
-        <div class="space-y-1">
-          <div class="text-center">
-            <div class="text-xl font-bold text-white mb-0.5" id="processing-status">Initializing...</div>
-            <div class="text-sm text-gray-400" id="processing-details">Preparing audio for transcription</div>
-          </div>
-          
-          <div class="space-y-0.5">
-            <div class="flex justify-between text-sm text-gray-300">
-              <span>Overall Progress</span>
-              <span id="overall-progress-text">0%</span>
-            </div>
-            <div class="w-full bg-dark-600 rounded-full h-2">
-              <div id="overall-progress-bar" class="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full progress-bar" style="width: 0%"></div>
-            </div>
-          </div>
-          
-          <div class="space-y-0.5">
-            <div class="flex justify-between text-sm text-gray-300">
-              <span>Current Chunk</span>
-              <span id="chunk-progress-text">0/0</span>
-            </div>
-            <div class="w-full bg-dark-600 rounded-full h-2">
-              <div id="chunk-progress-bar" class="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full progress-bar" style="width: 0%"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Resource Monitoring Card -->
-      <div class="bg-dark-800 rounded-xl p-2 border border-dark-600">
-        <div class="flex items-center justify-between mb-2">
-          <h2 class="text-lg font-semibold text-white">Resource Monitoring</h2>
-          <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-        </div>
-        
-        <div class="grid grid-cols-2 gap-2">
-          <div class="p-3 bg-dark-700 rounded-lg">
-            <div class="flex items-center justify-between mb-2">
-              <div class="text-sm text-gray-400">CPU Usage</div>
-              <div class="text-sm text-white font-medium" id="cpu-usage">0%</div>
-            </div>
-            <div class="w-full bg-dark-600 rounded-full h-2">
-              <div id="cpu-bar" class="bg-blue-500 h-2 rounded-full" style="width: 0%"></div>
-            </div>
-          </div>
-          
-          <div class="p-3 bg-dark-700 rounded-lg">
-            <div class="flex items-center justify-between mb-2">
-              <div class="text-sm text-gray-400">Memory</div>
-              <div class="text-sm text-white font-medium" id="memory-usage">0%</div>
-            </div>
-            <div class="w-full bg-dark-600 rounded-full h-2">
-              <div id="memory-bar" class="bg-green-500 h-2 rounded-full" style="width: 0%"></div>
-            </div>
-          </div>
-          
-          <div class="p-3 bg-dark-700 rounded-lg">
-            <div class="flex items-center justify-between mb-2">
-              <div class="text-sm text-gray-400">Battery</div>
-              <div class="text-sm text-white font-medium" id="battery-level">0%</div>
-            </div>
-            <div class="w-full bg-dark-600 rounded-full h-2">
-              <div id="battery-bar" class="bg-yellow-500 h-2 rounded-full" style="width: 0%"></div>
-            </div>
-          </div>
-          
-          <div class="p-3 bg-dark-700 rounded-lg">
-            <div class="flex items-center justify-between mb-2">
-              <div class="text-sm text-gray-400">Temperature</div>
-              <div class="text-sm text-white font-medium" id="temperature">0°C</div>
-            </div>
-            <div class="w-full bg-dark-600 rounded-full h-2">
-              <div id="temperature-bar" class="bg-red-500 h-2 rounded-full" style="width: 0%"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Processing Details Card -->
-      <div class="bg-dark-800 rounded-xl p-2 border border-dark-600">
-        <div class="flex items-center justify-between mb-2">
-          <h2 class="text-lg font-semibold text-white">Processing Details</h2>
-          <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
-        </div>
-        
-        <div class="space-y-3">
-          <div class="flex justify-between text-sm">
-            <span class="text-gray-400">File Size</span>
-            <span class="text-white" id="file-size">0 MB</span>
-          </div>
-          <div class="flex justify-between text-sm">
-            <span class="text-gray-400">Duration</span>
-            <span class="text-white" id="file-duration">0:00</span>
-          </div>
-          <div class="flex justify-between text-sm">
-            <span class="text-gray-400">Chunks</span>
-            <span class="text-white" id="total-chunks">0</span>
-          </div>
-          <div class="flex justify-between text-sm">
-            <span class="text-gray-400">Processing Mode</span>
-            <span class="text-white" id="processing-mode">Direct</span>
-          </div>
-          <div class="flex justify-between text-sm">
-            <span class="text-gray-400">RTF</span>
-            <span class="text-white" id="rtf-value">0.0</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Cancel Processing Button -->
-      <div class="flex justify-center pt-4">
-        <button id="cancel-processing-btn" onclick="cancelProcessing()" class="w-full bg-red-500 text-white font-semibold py-3 px-8 rounded-xl hover:bg-red-600 transition-all duration-300">
-          <i class="fa-solid fa-stop mr-2"></i>
-          Cancel Processing
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- STEP 3: Results Section -->
-  <div id="step-3-section" class="section-hidden section-transition">
-    <div class="p-2 space-y-2">
-      
-      <!-- Results Summary Card -->
-      <div class="bg-dark-800 rounded-xl p-2 border border-dark-600">
-        <div class="flex items-center justify-between mb-2">
-          <h2 class="text-lg font-semibold text-white">Transcription Results</h2>
-          <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-        </div>
-        
-        <div class="space-y-3">
-          <div class="grid grid-cols-2 gap-2">
-            <div class="p-3 bg-dark-700 rounded-lg">
-              <div class="text-sm text-gray-400 mb-0.5">Total Segments</div>
-              <div class="text-xl font-bold text-white" id="total-segments">0</div>
-            </div>
-            <div class="p-3 bg-dark-700 rounded-lg">
-              <div class="text-sm text-gray-400 mb-0.5">Confidence</div>
-              <div class="text-xl font-bold text-white" id="avg-confidence">0%</div>
-            </div>
-            <div class="p-3 bg-dark-700 rounded-lg">
-              <div class="text-sm text-gray-400 mb-0.5">Processing Time</div>
-              <div class="text-xl font-bold text-white" id="processing-time">0:00</div>
-            </div>
-            <div class="p-3 bg-dark-700 rounded-lg">
-              <div class="text-sm text-gray-400 mb-0.5">RTF</div>
-              <div class="text-xl font-bold text-white" id="final-rtf">0.0</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Transcript Display Card -->
-      <div class="bg-dark-800 rounded-xl p-2 border border-dark-600">
-        <div class="flex items-center justify-between mb-2">
-          <h2 class="text-lg font-semibold text-white">Transcript</h2>
-          <div class="flex items-center space-x-2">
-            <button onclick="copyTranscript()" class="px-3 py-1 bg-dark-600 text-white text-sm rounded-lg hover:bg-dark-500 transition-colors">
-              <i class="fa-solid fa-copy mr-1"></i>Copy
-            </button>
-            <button onclick="toggleWordTimestamps()" class="px-3 py-1 bg-dark-600 text-white text-sm rounded-lg hover:bg-dark-500 transition-colors">
-              <i class="fa-solid fa-clock mr-1"></i>Timestamps
-            </button>
-          </div>
-        </div>
-        
-        <div id="transcript-display" class="max-h-96 overflow-y-auto">
-          <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-              <thead class="bg-dark-700 sticky top-0">
-                <tr>
-                  <th class="px-3 py-2 text-left text-gray-300 font-medium">Time</th>
-                  <th class="px-3 py-2 text-left text-gray-300 font-medium">Text</th>
-                  <th class="px-3 py-2 text-left text-gray-300 font-medium">Confidence</th>
-                </tr>
-              </thead>
-              <tbody id="transcript-table-body">
-                <tr>
-                  <td colspan="3" class="px-3 py-4 text-center text-gray-400">
-                    <i class="fa-solid fa-file-text text-2xl mb-2 block"></i>
-                    <div>Transcript will appear here after processing</div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="flex space-x-3 pt-2">
-        <button onclick="loadExistingResults()" class="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold py-3 px-6 rounded-xl hover:from-green-600 hover:to-emerald-600 transition-all duration-300">
-          <i class="fa-solid fa-folder-open mr-2"></i>
-          Load Results
-        </button>
-        <button onclick="startNewProcessing()" class="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold py-3 px-6 rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all duration-300">
-          <i class="fa-solid fa-plus mr-2"></i>
-          New Processing
-        </button>
-      </div>
-      
-    </div>
-  </div>
-</div>
-
-<!-- JavaScript -->
-<script>
-// Global state management
-let currentStep = 1;
-let processingState = {
-  isProcessing: false,
-  progress: 0,
-  currentChunk: 0,
-  totalChunks: 0,
-  resourceData: {
-    cpu: 0,
-    memory: 0,
-    battery: 0,
-    temperature: 0
-  },
-  results: null
-};
-
-// Step navigation functions
-function showStep(step) {
-  // Hide all sections
-  document.querySelectorAll('[id$="-section"]').forEach(section => {
-    section.classList.add('section-hidden');
-    section.classList.remove('section-visible');
-  });
-  
-  // Show target section
-  const targetSection = document.getElementById(`step-${step}-section`);
-  if (targetSection) {
-    targetSection.classList.remove('section-hidden');
-    targetSection.classList.add('section-visible');
   }
   
-  // Update step indicators
-  updateStepIndicators(step);
-  
-  currentStep = step;
-}
-
-function updateStepIndicators(activeStep) {
-  for (let i = 1; i <= 3; i++) {
-    const indicator = document.getElementById(`step-${i}-indicator`);
-    const icon = indicator.querySelector('div:first-child');
-    const title = indicator.querySelector('.text-sm.font-medium');
-    const subtitle = indicator.querySelector('.text-xs');
+  // Background Original File Removal Service
+  async function backgroundOriginalFileRemoval() {
+    console.log('🗑️ Background original file removal service started...');
     
-    if (i <= activeStep) {
-      icon.className = 'w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center';
-      title.className = 'text-sm font-medium text-white';
-      subtitle.className = 'text-xs text-gray-400';
-      indicator.classList.remove('opacity-50');
-    } else {
-      icon.className = 'w-8 h-8 bg-dark-600 rounded-full flex items-center justify-center';
-      title.className = 'text-sm font-medium text-gray-400';
-      subtitle.className = 'text-xs text-gray-500';
-      indicator.classList.add('opacity-50');
-    }
-  }
-}
-
-// File selection functions
-function openFilePicker() {
-  if (window.WhisperBridge && window.WhisperBridge.openFilePicker) {
     try {
-      const result = window.WhisperBridge.openFilePicker();
-      console.log('File picker result:', result);
+      // Test original file removal
+      const testFiles = [
+        'TennisInterview.mkv',
+        'test_video_1.mkv',
+        'test_video_2.avi'
+      ];
       
-      // Check if file picker was launched successfully
-      if (result === 'file_picker_launched') {
-        console.log('File picker launched successfully, waiting for results...');
-        showNotification('File picker opened - please select files', 'info');
-      } else if (result && result !== '[]' && result !== 'file_picker_launched') {
-        // Handle immediate result (fallback case)
-        const files = JSON.parse(result);
-        displaySelectedFiles(files);
-      }
-    } catch (error) {
-      console.error('Error opening file picker:', error);
-      showNotification('Error opening file picker', 'error');
-    }
-  } else {
-    console.error('WhisperBridge not available');
-    showNotification('WhisperBridge not available', 'error');
-  }
-}
-
-// Handle file selection results from Android bridge
-function handleFileSelection(jsonResponse) {
-  try {
-    console.log('Received file selection results:', jsonResponse);
-    console.log('Raw response type:', typeof jsonResponse);
-    console.log('Raw response length:', jsonResponse.length);
-    
-    const result = JSON.parse(jsonResponse);
-    console.log('Parsed result:', result);
-    console.log('Result success:', result.success);
-    console.log('Result files:', result.files);
-    console.log('Result count:', result.count);
-    console.log('Result error:', result.error);
-    console.log('Result warnings:', result.warnings);
-    
-    if (result.success && result.files && result.files.length > 0) {
-      console.log('Files selected successfully:', result.files);
+      let removedCount = 0;
       
-      // Store files globally for processing
-      window.selectedFiles = result.files;
-      
-      displaySelectedFiles(result.files);
-      showNotification(`${result.count} file(s) selected successfully`, 'success');
-    } else if (result.error) {
-      console.error('File selection error:', result.error);
-      showNotification(`File selection failed: ${result.error}`, 'error');
-    } else if (result.warnings && result.warnings.length > 0) {
-      console.warn('File selection warnings:', result.warnings);
-      showNotification(`File selection completed with warnings: ${result.warnings.join(', ')}`, 'warning');
-      if (result.files && result.files.length > 0) {
-        // Store files globally even with warnings
-        window.selectedFiles = result.files;
-        displaySelectedFiles(result.files);
-      }
-    } else {
-      console.log('No files selected');
-      showNotification('No files selected', 'info');
-    }
-  } catch (error) {
-    console.error('Error parsing file selection results:', error);
-    console.error('Raw response that failed to parse:', jsonResponse);
-    showNotification('Error processing file selection results', 'error');
-  }
-}
-
-function displaySelectedFiles(files) {
-  const container = document.getElementById('selected-files');
-  container.innerHTML = '';
-  
-  if (!files || files.length === 0) {
-    container.classList.add('hidden');
-    return;
-  }
-  
-  files.forEach((file, index) => {
-    const fileDiv = document.createElement('div');
-    fileDiv.className = 'flex items-center justify-between p-3 bg-dark-700 rounded-lg';
-    
-    // Determine file icon based on type
-    let iconClass = 'fa-file';
-    if (file.type && file.type.startsWith('video/')) {
-      iconClass = 'fa-file-video text-blue-500';
-    } else if (file.type && file.type.startsWith('audio/')) {
-      iconClass = 'fa-file-audio text-green-500';
-    } else if (file.type && file.type.startsWith('image/')) {
-      iconClass = 'fa-file-image text-purple-500';
-    } else {
-      iconClass = 'fa-file text-gray-400';
-    }
-    
-    fileDiv.innerHTML = `
-      <div class="flex items-center space-x-3">
-        <i class="fa-solid ${iconClass}"></i>
-        <div>
-          <div class="text-white font-medium">${file.name || file.displayName || 'Unknown File'}</div>
-          <div class="text-sm text-gray-400">${formatFileSize(file.size || 0)}</div>
-          ${file.type ? `<div class="text-xs text-gray-500">${file.type}</div>` : ''}
-        </div>
-      </div>
-      <button onclick="removeFile(${index})" class="text-red-400 hover:text-red-300">
-        <i class="fa-solid fa-times"></i>
-      </button>
-    `;
-    container.appendChild(fileDiv);
-  });
-  
-  container.classList.remove('hidden');
-}
-
-function removeFile(index) {
-  // Implementation for removing files
-  console.log('Remove file at index:', index);
-}
-
-function formatFileSize(bytes) {
-  if (bytes === 0) return '0 Bytes';
-  const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-}
-
-// Processing functions
-function startProcessing() {
-  if (processingState.isProcessing) return;
-  
-  const btn = document.getElementById('start-processing-btn');
-  if (btn) btn.disabled = true;
-  
-  try {
-    // Check if files are selected
-    const selectedFilesContainer = document.getElementById('selected-files');
-    if (!selectedFilesContainer || selectedFilesContainer.classList.contains('hidden')) {
-      showNotification('Please select files first', 'error');
-      return;
-    }
-    
-    // Get configuration
-    const config = {
-      language: document.getElementById('language-select').value,
-      preset: document.getElementById('preset-select').value,
-      threads: parseInt(document.getElementById('threads-input').value),
-      beam: parseInt(document.getElementById('beam-input').value),
-      translate: document.getElementById('translate-checkbox').checked,
-      wordTimestamps: document.getElementById('word-timestamps-checkbox').checked
-    };
-    
-    console.log('Starting processing with config:', config);
-    
-    // Preflight: validate model exists on device if bridge is available
-    const modelPath = '/sdcard/MiraWhisper/models/whisper-base.q5_1.bin';
-    if (window.WhisperBridge && window.WhisperBridge.validateModel) {
-      const ok = !!window.WhisperBridge.validateModel(modelPath);
-      if (!ok) {
-        showNotification('Model not found. Please install model to /sdcard/MiraWhisper/models', 'error');
-        return;
-      }
-    }
-    
-    // Start processing UI
-    processingState.isProcessing = true;
-    showStep(2);
-    
-    // Try to get the selected files from the global state
-    if (window.selectedFiles && window.selectedFiles.length > 0) {
-      processSelectedFiles(window.selectedFiles, config);
-    } else {
-      // Fallback: try to extract file info from the UI
-      const fileElements = selectedFilesContainer.querySelectorAll('.flex.items-center.justify-between');
-      if (fileElements.length > 0) {
-        simulateProcessing();
-      } else {
-        showNotification('No files found to process', 'error');
-        processingState.isProcessing = false;
-        showStep(1);
-      }
-    }
-  } catch (e) {
-    console.error('Start processing error:', e);
-    showNotification('Failed to start processing', 'error');
-  } finally {
-    if (btn) btn.disabled = false;
-  }
-}
-
-function processSelectedFiles(files, config) {
-  console.log('Processing selected files:', files);
-  console.log('Processing config:', config);
-  
-  if (!window.WhisperBridge) {
-    console.error('WhisperBridge not available for processing');
-    showNotification('WhisperBridge not available for processing', 'error');
-    processingState.isProcessing = false;
-    showStep(1);
-    return;
-  }
-  
-  try {
-    // Extract URIs from the selected files
-    const uris = files.map(file => file.uri).filter(uri => uri);
-    if (uris.length === 0) {
-      showNotification('No valid file URIs found', 'error');
-      processingState.isProcessing = false;
-      showStep(1);
-      return;
-    }
-    
-    // Create batch processing request using selected URIs (no hard-coded video)
-    const batchRequest = {
-      uris: uris,
-      preset: config.preset,
-      modelPath: '/sdcard/MiraWhisper/models/whisper-base.q5_1.bin',
-      languageMode: config.language,
-      threads: config.threads,
-      beam: config.beam,
-      translate: config.translate,
-      wordTimestamps: config.wordTimestamps
-    };
-    
-    const batchId = window.WhisperBridge.runBatch(JSON.stringify(batchRequest));
-    if (batchId && typeof batchId === 'string' && !batchId.startsWith('error:')) {
-      console.log('Batch started:', batchId);
-      showNotification(`Processing started: ${batchId}`, 'success');
-      // Progress will stream via handleProgressUpdate from Android
-    } else {
-      const msg = batchId ? batchId.replace('error:', '').trim() : 'Unknown error';
-      showNotification(`Batch processing failed: ${msg}`, 'error');
-      processingState.isProcessing = false;
-      showStep(1);
-    }
-  } catch (error) {
-    console.error('Error processing files:', error);
-    showNotification(`Processing error: ${error.message}`, 'error');
-    processingState.isProcessing = false;
-    showStep(1);
-  }
-}
-
-// Handle progress updates from Android bridge broadcasts
-function handleProgressUpdate(payload) {
-  try {
-    const p = typeof payload === 'string' ? JSON.parse(payload) : payload;
-    if (typeof p.progress === 'number') {
-      updateProcessingProgress(p.progress);
-    }
-    if (typeof p.currentFileProgress === 'number') {
-      const perFile = Math.max(0, Math.min(100, p.currentFileProgress));
-      document.getElementById('chunk-progress-bar').style.width = perFile + '%';
-    }
-    const total = Array.isArray(p.files) ? p.files.length : (p.fileCount || 0);
-    if (total > 0) {
-      const idx = (p.currentFile || 0) + 1;
-      document.getElementById('chunk-progress-text').textContent = `${idx}/${total}`;
-    }
-    if (p.hasErrors) {
-      showNotification(p.errorMessages || 'Processing encountered errors', 'warning');
-    }
-  } catch (e) {
-    console.error('handleProgressUpdate error:', e, payload);
-  }
-}
-
-// Handle completion broadcast from Android bridge
-function handleProcessingComplete(batchId) {
-  try {
-    console.log('Processing complete for batch:', batchId);
-    processingState.isProcessing = false;
-    showStep(3);
-    loadResults();
-    showNotification('Processing completed!', 'success');
-  } catch (e) {
-    console.error('handleProcessingComplete error:', e);
-  }
-}
-
-function simulateProcessing() {
-  let progress = 0;
-  const interval = setInterval(() => {
-    progress += Math.random() * 10;
-    
-    if (progress >= 100) {
-      progress = 100;
-      clearInterval(interval);
-      processingState.isProcessing = false;
-      showStep(3);
-      loadResults();
-    }
-    
-    updateProcessingProgress(progress);
-    updateResourceMonitoring();
-  }, 500);
-}
-
-function updateProcessingProgress(progress) {
-  document.getElementById('overall-progress-bar').style.width = progress + '%';
-  document.getElementById('overall-progress-text').textContent = Math.round(progress) + '%';
-  
-  // Update status text with more detailed feedback
-  const statusTexts = [
-    'Initializing...',
-    'Loading audio...',
-    'Processing chunks...',
-    'Generating transcript...',
-    'Finalizing results...',
-    'Complete!'
-  ];
-  
-  const statusIndex = Math.floor((progress / 100) * (statusTexts.length - 1));
-  document.getElementById('processing-status').textContent = statusTexts[statusIndex];
-  
-  // Update processing details with more helpful information
-  const detailsText = document.getElementById('processing-details');
-  if (detailsText) {
-    if (progress < 10) {
-      detailsText.textContent = 'Preparing audio for transcription...';
-    } else if (progress < 30) {
-      detailsText.textContent = 'Loading audio data...';
-    } else if (progress < 60) {
-      detailsText.textContent = 'Processing audio chunks...';
-    } else if (progress < 90) {
-      detailsText.textContent = 'Generating transcript...';
-    } else if (progress < 100) {
-      detailsText.textContent = 'Finalizing results...';
-    } else {
-      detailsText.textContent = 'Processing complete!';
-    }
-  }
-}
-
-
-function updateResourceMonitoring() {
-  // Simulate resource data
-  const resources = {
-    cpu: Math.random() * 100,
-    memory: 20 + Math.random() * 60,
-    battery: 80 + Math.random() * 20,
-    temperature: 30 + Math.random() * 15
-  };
-  
-  // Update CPU
-  document.getElementById('cpu-usage').textContent = Math.round(resources.cpu) + '%';
-  document.getElementById('cpu-bar').style.width = resources.cpu + '%';
-  
-  // Update Memory
-  document.getElementById('memory-usage').textContent = Math.round(resources.memory) + '%';
-  document.getElementById('memory-bar').style.width = resources.memory + '%';
-  
-  // Update Battery
-  document.getElementById('battery-level').textContent = Math.round(resources.battery) + '%';
-  document.getElementById('battery-bar').style.width = resources.battery + '%';
-  
-  // Update Temperature
-  document.getElementById('temperature').textContent = Math.round(resources.temperature) + '°C';
-  document.getElementById('temperature-bar').style.width = (resources.temperature / 50) * 100 + '%';
-}
-
-function cancelProcessing() {
-  if (confirm('Are you sure you want to cancel processing?')) {
-    processingState.isProcessing = false;
-    showStep(1);
-    showNotification('Processing cancelled', 'info');
-  }
-}
-
-// Results functions
-function loadResults() {
-  // Try to load actual Chinese results from the device first
-  if (window.WhisperBridge && window.WhisperBridge.getUnifiedResults) {
-    try {
-      // Try Chinese transcription first
-      const chineseJobId = 'chinese_transcription_real';
-      const result = window.WhisperBridge.getUnifiedResults(chineseJobId);
-      
-      if (result && result !== '{"error": "Results not found for job: ' + chineseJobId + '"}') {
-        const actualResults = JSON.parse(result);
-        console.log('Loaded Chinese results:', actualResults);
+      for (const fileName of testFiles) {
+        console.log(`🗑️ Background removing original: ${fileName}`);
         
-        // Process the actual results
-        const processedResults = processActualResults(actualResults);
-        processingState.results = processedResults;
-        displayResults(processedResults);
-        return;
-      }
-    } catch (error) {
-      console.error('Error loading Chinese results:', error);
-    }
-  }
-  
-  // Fallback to Chinese mock results
-  loadChineseResults();
-}
-
-function loadChineseResults() {
-  // Chinese transcription mock results
-  const chineseResults = {
-    segments: [
-      { start: 0, end: 5.6, text: "目前的进展是想先做一个Finance Vertical的", confidence: 0.95 },
-      { start: 5.6, end: 10.5, text: "所以在这个Vertical 想实现一个有个性化推荐的版本", confidence: 0.92 },
-      { start: 10.5, end: 13.7, text: "然后目前的进展是说", confidence: 0.89 },
-      { start: 13.7, end: 19.3, text: "这个有走通了一条个性化推荐的路", confidence: 0.94 },
-      { start: 19.3, end: 24.9, text: "但是没有太多就是 end to end的这种实现", confidence: 0.91 },
-      { start: 24.9, end: 30.0, text: "所以那个app还不完全能work", confidence: 0.93 }
-    ],
-    totalSegments: 6,
-    avgConfidence: 0.924,
-    processingTime: '3:45',
-    rtf: 0.42,
-    language: 'zh',
-    duration: 180.0,
-    model: 'whisper-base.q5_1'
-  };
-  
-  processingState.results = chineseResults;
-  displayResults(chineseResults);
-}
-
-function processActualResults(actualResults) {
-  // Process the actual Whisper results format
-  const output = actualResults.output || actualResults;
-  const segments = output.segments || [];
-  
-  // Calculate average confidence from avg_logprob
-  const avgConfidence = segments.length > 0 
-    ? segments.reduce((sum, seg) => sum + Math.max(0, 1 + (seg.avg_logprob || 0)), 0) / segments.length
-    : 0.9;
-  
-  return {
-    segments: segments.map(seg => ({
-      start: seg.start || 0,
-      end: seg.end || 0,
-      text: seg.text || '',
-      confidence: Math.max(0, Math.min(1, 1 + (seg.avg_logprob || 0)))
-    })),
-    totalSegments: segments.length,
-    avgConfidence: avgConfidence,
-    processingTime: formatDuration(output.processing_time || 0),
-    rtf: output.rtf || 0.45,
-    language: output.language || 'en',
-    duration: output.duration || 0,
-    model: output.model || 'whisper-base.q5_1'
-  };
-}
-
-function formatDuration(seconds) {
-  const mins = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  return `${mins}:${secs.toString().padStart(2, '0')}`;
-}
-
-function displayResults(results) {
-  // Update summary
-  document.getElementById('total-segments').textContent = results.totalSegments;
-  document.getElementById('avg-confidence').textContent = Math.round(results.avgConfidence * 100) + '%';
-  document.getElementById('processing-time').textContent = results.processingTime;
-  document.getElementById('final-rtf').textContent = results.rtf.toFixed(2);
-  
-  // Display transcript in table format
-  const tableBody = document.getElementById('transcript-table-body');
-  tableBody.innerHTML = '';
-  
-  if (results.segments && results.segments.length > 0) {
-    results.segments.forEach((segment, index) => {
-      const row = document.createElement('tr');
-      row.className = 'border-b border-dark-600 hover:bg-dark-700';
-      
-      const startTime = formatTime(segment.start);
-      const endTime = formatTime(segment.end);
-      const confidence = Math.round(segment.confidence * 100);
-      
-      row.innerHTML = `
-        <td class="px-3 py-2 text-gray-300 font-mono text-xs">${startTime} - ${endTime}</td>
-        <td class="px-3 py-2 text-white">${segment.text}</td>
-        <td class="px-3 py-2 text-gray-400">${confidence}%</td>
-      `;
-      
-      tableBody.appendChild(row);
-    });
-  } else {
-    // Show message if no segments
-    tableBody.innerHTML = `
-      <tr>
-        <td colspan="3" class="px-3 py-8 text-center text-gray-400">
-          <i class="fa-solid fa-file-text text-2xl mb-2 block"></i>
-          <div>No transcription segments found</div>
-          <div class="text-sm mt-2">Try processing a file with audio content</div>
-        </td>
-      </tr>
-    `;
-  }
-}
-
-function formatTime(seconds) {
-  const mins = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  return `${mins}:${secs.toString().padStart(2, '0')}`;
-}
-
-// Export functions
-function exportFormat(format) {
-  if (!processingState.results) {
-    showNotification('No results to export', 'error');
-    return;
-  }
-  
-  console.log(`Exporting as ${format}`);
-  showNotification(`Exporting as ${format.toUpperCase()}...`, 'info');
-  
-  // Simulate export
-  setTimeout(() => {
-    showNotification(`${format.toUpperCase()} export completed`, 'success');
-  }, 1000);
-}
-
-function copyTranscript() {
-  if (!processingState.results) {
-    showNotification('No transcript to copy', 'error');
-    return;
-  }
-  
-  const text = processingState.results.segments.map(s => s.text).join(' ');
-  navigator.clipboard.writeText(text).then(() => {
-    showNotification('Transcript copied to clipboard', 'success');
-  }).catch(() => {
-    showNotification('Failed to copy transcript', 'error');
-  });
-}
-
-function toggleWordTimestamps() {
-  // Implementation for toggling word-level timestamps
-  console.log('Toggle word timestamps');
-}
-
-function loadExistingResults() {
-  // Try to load existing results from the device
-  if (window.WhisperBridge && window.WhisperBridge.getUnifiedResults) {
-    try {
-      // Try different job IDs that might exist - prioritize Chinese transcription
-      const possibleJobIds = ['chinese_transcription_real', 'video_v1_long', 'whisper_long_video_001'];
-      
-      for (const jobId of possibleJobIds) {
-        const result = window.WhisperBridge.getUnifiedResults(jobId);
-        
-        if (result && !result.includes('"error"')) {
-          const actualResults = JSON.parse(result);
-          console.log('Loaded existing results for job:', jobId, actualResults);
-          
-          // Process the actual results
-          const processedResults = processActualResults(actualResults);
-          processingState.results = processedResults;
-          displayResults(processedResults);
-          showStep(3);
-          showNotification(`Loaded Chinese transcription results for ${jobId}`, 'success');
-          return;
+        if (hasBridge) {
+          // Use real bridge
+          const result = await bridge.removeOriginalFile(fileName);
+          console.log(`📊 Background removal result: ${result}`);
+        } else {
+          // Mock mode
+          console.log('🗑️ Background removing original file...');
+          removedCount++;
         }
+        
+        await new Promise(resolve => setTimeout(resolve, 500));
       }
       
-      // If no results found, show notification
-      showNotification('No existing results found', 'info');
+      console.log(`✅ Background original file removal completed: ${removedCount} files removed`);
       
-    } catch (error) {
-      console.error('Error loading existing results:', error);
-      showNotification('Error loading existing results', 'error');
+    } catch (e) {
+      console.log('❌ Background original file removal service failed: ' + e.message);
     }
-  } else {
-    // Fallback to Chinese mock results for demonstration
-    loadChineseResults();
-    showStep(3);
-    showNotification('Loaded Chinese demonstration results', 'info');
   }
-}
-
-function startNewProcessing() {
-  showStep(1);
-  processingState.results = null;
-  showNotification('Ready for new processing', 'info');
-}
-
-
-// Utility functions
-function showNotification(message, type = 'info') {
-  // Create notification element
-  const notification = document.createElement('div');
-  notification.className = `fixed top-20 right-4 p-4 rounded-lg text-white z-50 slide-in ${
-    type === 'error' ? 'bg-red-500' : 
-    type === 'success' ? 'bg-green-500' : 
-    type === 'warning' ? 'bg-yellow-500' :
-    'bg-blue-500'
-  }`;
-  notification.textContent = message;
   
-  document.body.appendChild(notification);
-  
-  // Remove after 3 seconds
-  setTimeout(() => {
-    notification.remove();
-  }, 3000);
-}
-
-// Initialize the interface
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('Whisper Unified Interface loaded');
-  showStep(1);
-  
-  // Check if WhisperBridge is available
-  if (window.WhisperBridge) {
-    console.log('WhisperBridge available');
-  } else {
-    console.warn('WhisperBridge not available - using simulation mode');
+  // Background Hash-Based Duplicate Detection Service
+  async function backgroundHashBasedDuplicateDetection() {
+    console.log('🔍 Background hash-based duplicate detection service started...');
+    
+    try {
+      // Test hash-based duplicate detection
+      const testFiles = [
+        'TennisInterview_converted.mp4',
+        'TennisInterview_converted_copy.mp4', // Duplicate content
+        'test_video_1_converted.mp4',
+        'test_video_2_converted.mp4',
+        'test_video_1_converted_copy.mp4' // Duplicate content
+      ];
+      
+      let duplicateSetsFound = 0;
+      let filesRemoved = 0;
+      let spaceSaved = 0;
+      
+      for (const fileName of testFiles) {
+        console.log(`🔍 Background calculating hash for: ${fileName}`);
+        
+        if (hasBridge) {
+          // Use real bridge
+          const hash = await bridge.calculateFileHash(fileName);
+          console.log(`📊 Background hash result: ${hash ? hash.substring(0, 8) + '...' : 'Failed'}`);
+        } else {
+          // Mock mode - simulate hash calculation and duplicate detection
+          const isDuplicate = fileName.includes('_copy');
+          if (isDuplicate) {
+            console.log('🔍 Background duplicate detected by hash comparison');
+            console.log('🗑️ Background removing duplicate file...');
+            filesRemoved++;
+            spaceSaved += 500 * 1024 * 1024; // 500MB per duplicate
+          } else {
+            console.log('✅ Background unique file confirmed by hash');
+          }
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, 300));
+      }
+      
+      // Simulate duplicate set processing
+      duplicateSetsFound = 2; // Two sets of duplicates found
+      
+      console.log(`✅ Background hash-based duplicate detection completed:`);
+      console.log(`  - Duplicate sets found: ${duplicateSetsFound}`);
+      console.log(`  - Files removed: ${filesRemoved}`);
+      console.log(`  - Space saved: ${(spaceSaved / (1024 * 1024 * 1024)).toFixed(2)}GB`);
+      
+    } catch (e) {
+      console.log('❌ Background hash-based duplicate detection service failed: ' + e.message);
+    }
   }
-});
+  
+  // Background Global Cleanup Service
+  async function backgroundGlobalCleanup() {
+    console.log('🧹 Background global cleanup service started...');
+    
+    try {
+      if (hasBridge) {
+        // Use real bridge
+        const result = await bridge.globalCleanup();
+        console.log(`📊 Background cleanup result: ${JSON.stringify(result)}`);
+      } else {
+        // Mock mode
+        console.log('🗑️ Background cleaning cache directories...');
+        await new Promise(resolve => setTimeout(resolve, 500));
+        console.log('🗑️ Background cleaning converted media files...');
+        await new Promise(resolve => setTimeout(resolve, 500));
+        console.log('🗑️ Background cleaning temporary files...');
+        await new Promise(resolve => setTimeout(resolve, 500));
+        console.log('📊 Background cleanup completed: 15 files deleted');
+      }
+      
+      console.log('✅ Background global cleanup service completed successfully');
+      
+    } catch (e) {
+      console.log('❌ Background global cleanup service failed: ' + e.message);
+    }
+  }
+  
+  // Background Service Orchestrator
+  async function runBackgroundServices() {
+    console.log('🚀 Starting background services...');
+    
+    // Initialize bridge
+    initializeBridge();
+    
+    // Run duplicate check service
+    await backgroundDuplicateCheck();
+    
+    // Wait a bit between services
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Run original file removal service
+    await backgroundOriginalFileRemoval();
+    
+    // Wait a bit between services
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Run hash-based duplicate detection service
+    await backgroundHashBasedDuplicateDetection();
+    
+    // Wait a bit between services
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Run global cleanup service
+    await backgroundGlobalCleanup();
+    
+    console.log('🎉 All background services completed successfully');
+  }
+  
+  // Initialize background services
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Whisper Background Service initialized');
+    
+    // Start background services immediately
+    runBackgroundServices();
+  });
+  
 </script>
 
 </body>

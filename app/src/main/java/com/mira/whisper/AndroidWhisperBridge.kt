@@ -169,6 +169,7 @@ class AndroidWhisperBridge(private val context: Context) {
             val preset = jsonObj.optString("preset", "Single")
             val modelPath = jsonObj.getString("modelPath")
             val threads = jsonObj.optInt("threads", 4)
+            val maxSeconds = jsonObj.optInt("maxSeconds", 0).coerceAtLeast(0)
             
             val uris = mutableListOf<String>()
             for (i in 0 until urisArray.length()) {
@@ -305,7 +306,8 @@ class AndroidWhisperBridge(private val context: Context) {
                     beam = 0,
                     lang = "auto",
                     translate = false,
-                    batchId = batchId
+                    batchId = batchId,
+                    maxSeconds = if (maxSeconds > 0) maxSeconds else null
                 )
                 Log.d(TAG, "TECHNICAL: Successfully enqueued batch processing: $batchId with ${finalUris.size} files")
             } catch (e: Exception) {
@@ -929,17 +931,6 @@ class AndroidWhisperBridge(private val context: Context) {
         return try {
             Log.d(TAG, "Picking video URI")
             
-            // For now, return a default video file for testing
-            // TODO: Implement proper file picker with Activity Result API
-            val defaultVideo = "file:///sdcard/video_v1_long.mp4"
-            
-            // Check if the default video exists
-            val file = File("/sdcard/video_v1_long.mp4")
-            if (file.exists()) {
-                Log.d(TAG, "Using default video: ${file.absolutePath}")
-                return defaultVideo
-            }
-            
             // Try to find any video file in common locations
             val commonPaths = listOf(
                 "/sdcard/DCIM/Camera/",
@@ -965,11 +956,11 @@ class AndroidWhisperBridge(private val context: Context) {
                 }
             }
             
-            Log.w(TAG, "No video files found, using default")
-            defaultVideo
+            Log.w(TAG, "No video files found for pickUri")
+            "error:no_video_found"
         } catch (e: Exception) {
             Log.e(TAG, "Error in pickUri(): ${e.message}", e)
-            "file:///sdcard/video_v1_long.mp4" // Fallback
+            "error:pick_uri_failed"
         }
     }
     
@@ -2255,6 +2246,7 @@ class AndroidWhisperBridge(private val context: Context) {
             addAction(ACTION_PROCESSING_COMPLETE)
             addAction(ACTION_PAGE_NAVIGATION)
             addAction(WhisperConnectorService.ACTION_UPDATE_PROGRESS)
+            addAction("com.mira.whisper.UPDATE_PROGRESS")
         }
         
         val receiver = object : android.content.BroadcastReceiver() {
@@ -2307,6 +2299,39 @@ class AndroidWhisperBridge(private val context: Context) {
                             webView?.post { webView?.evaluateJavascript(js, null) }
                         } catch (e: Exception) {
                             Log.e(TAG, "Error handling progress update broadcast: ${e.message}", e)
+                        }
+                    }
+                    "com.mira.whisper.UPDATE_PROGRESS" -> {
+                        try {
+                            val batchId = intent.getStringExtra("batch_id")
+                            val progress = intent.getIntExtra("progress", 0)
+                            val fileCount = intent.getIntExtra("file_count", 0)
+                            val currentFile = intent.getIntExtra("current_file", 0)
+                            val currentFileProgress = intent.getIntExtra("current_file_progress", 0)
+                            val completedFiles = intent.getIntExtra("completed_files", 0)
+                            val hasErrors = intent.getBooleanExtra("has_errors", false)
+                            val errorMessages = intent.getStringExtra("error_messages")
+                            val fileStatesJson = intent.getStringExtra("file_states")
+
+                            val payload = org.json.JSONObject().apply {
+                                put("batchId", batchId)
+                                put("progress", progress)
+                                put("fileCount", fileCount)
+                                put("currentFile", currentFile)
+                                put("currentFileProgress", currentFileProgress)
+                                put("completedFiles", completedFiles)
+                                put("hasErrors", hasErrors)
+                                if (!errorMessages.isNullOrEmpty()) put("errorMessages", errorMessages)
+                                if (!fileStatesJson.isNullOrEmpty()) {
+                                    try { put("files", org.json.JSONArray(fileStatesJson)) } catch (_: Exception) { }
+                                }
+                            }
+
+                            val js = "handleProgressUpdate(${payload.toString()})"
+                            Log.d(TAG, "Dispatching legacy progress update to WebView: $payload")
+                            webView?.post { webView?.evaluateJavascript(js, null) }
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Error handling legacy progress update broadcast: ${e.message}", e)
                         }
                     }
                 }

@@ -73,20 +73,44 @@ class WhisperReceiver : BroadcastReceiver() {
                         val preset = intent.getStringExtra("preset") ?: "Single"
                         val modelPath = intent.getStringExtra("modelPath") ?: intent.getStringExtra("model_path")
                         val threads = intent.getIntExtra("threads", 4)
+                        val maxSeconds = intent.getIntExtra("maxSeconds", 0).coerceAtLeast(0)
                         if (!urisCsv.isNullOrBlank() && !modelPath.isNullOrBlank()) {
                             val uris = urisCsv.split(',').map { it.trim() }.filter { it.isNotBlank() }
-                            Log.d(TAG, "Starting batch: ${uris.size} files")
+                            Log.d(TAG, "Starting batch (receiver): ${uris.size} files, preset=$preset, threads=$threads, maxSeconds=${if (maxSeconds>0) maxSeconds else "-"}")
                             try {
+                                // Create a batchId and persist a plan so UI (if opened) can discover it
+                                val batchId = "batch_" + java.util.UUID.randomUUID().toString().substring(0, 8)
+                                val plan = BatchPlan(
+                                    batchId = batchId,
+                                    uris = uris,
+                                    modelPath = modelPath!!,
+                                    preset = preset,
+                                    createdAtMs = System.currentTimeMillis()
+                                )
+                                PlanStore.put(context, plan)
+
+                                // Start connector service for progress broadcasting
+                                val connectorIntent = android.content.Intent(context, WhisperConnectorService::class.java).apply {
+                                    action = WhisperConnectorService.ACTION_START_PROCESSING
+                                    putExtra(WhisperConnectorService.EXTRA_BATCH_ID, batchId)
+                                    putExtra(WhisperConnectorService.EXTRA_FILE_COUNT, uris.size)
+                                    putStringArrayListExtra(WhisperConnectorService.EXTRA_URIS, java.util.ArrayList(uris))
+                                }
+                                context.startService(connectorIntent)
+
+                                // Enqueue the actual batch work with optional limit
                                 com.mira.com.feature.whisper.api.WhisperApi.enqueueBatchTranscribe(
                                     ctx = context,
                                     uris = uris,
-                                    model = modelPath!!,
+                                    model = modelPath,
                                     threads = threads,
                                     beam = 0,
                                     lang = "auto",
-                                    translate = false
+                                    translate = false,
+                                    batchId = batchId,
+                                    maxSeconds = if (maxSeconds > 0) maxSeconds else null
                                 )
-                                Log.d(TAG, "Batch enqueued: ${uris.size} files")
+                                Log.d(TAG, "Batch enqueued (receiver): $batchId with ${uris.size} files")
                             } catch (e: Exception) {
                                 Log.e(TAG, "Batch enqueue error: ${e.message}", e)
                             }

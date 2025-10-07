@@ -4,6 +4,44 @@
 
 **VideoEdit** is a comprehensive video processing platform with AI-powered speech recognition (Whisper) and visual understanding (CLIP) capabilities, designed for cross-platform deployment on Android, iOS, and macOS web.
 
+## Consolidated Documentation Structure
+
+### Documentation Organization
+```
+docs/
+├── clip/                                    # CLIP Visual Understanding
+│   ├── Architecture Design and Control Knot.md
+│   ├── Full scale implementation Details.md
+│   ├── Device Deployment.md
+│   ├── README.md
+│   ├── Release (iOS, Android and MacOS Web Version).md
+│   └── scripts/                            # CLIP-specific scripts
+├── whisper/                                 # Whisper Speech Recognition
+│   ├── Architecture Design and Control Knot.md
+│   ├── Full scale implementation Details.md
+│   ├── Device Deployment.md
+│   ├── README.md
+│   ├── Release (iOS, Android and MacOS Web Version).md
+│   └── scripts/                            # Whisper-specific scripts
+├── ui/                                      # UI System
+│   ├── Architecture Design and Control Knot.md
+│   ├── Full scale implementation Details.md
+│   ├── Device Deployment.md
+│   ├── README.md
+│   ├── Release (iOS, Android and MacOS Web Version).md
+│   └── scripts/                            # UI-specific scripts
+├── Release (iOS, Android and macOS Web Version).md
+└── cursor_rule.md                          # This file
+```
+
+### Multi-Lens Expert Communication
+Each feature README.md provides expert-level explanations for:
+1. **Plain-text**: Step-by-step how it works
+2. **Recommendation System Expert**: Indexing, ANN, similarity search
+3. **Deep Learning Expert**: Model architecture, numerical hygiene
+4. **Content Understanding Expert**: Primitive outputs, diagnostics
+5. **Audio/Video Expert**: Domain-specific implementation details
+
 ## Code Organization
 
 ### Directory Structure
@@ -20,13 +58,58 @@ VideoEdit/
 │   ├── whisper/                  # Whisper feature module
 │   └── clip/                     # CLIP feature module
 ├── core/                         # Shared core functionality
-├── docs/                         # Comprehensive documentation
-│   ├── clip/                     # CLIP documentation
-│   ├── whisper/                  # Whisper documentation
-│   ├── ui/                       # UI documentation
-│   └── deployment/                # Deployment guides
+├── docs/                         # Consolidated documentation
 └── scripts/                      # Build and test scripts
 ```
+
+## Architecture Design and Control Knots
+
+### CLIP Control Knots
+**Status: READY FOR VERIFICATION**
+
+**Control knots:**
+- Deterministic frame sampling: uniform timestamps at 1.0 fps
+- Fixed preprocessing: 224x224 center crop, ImageNet normalization
+- Consistent model assets: CLIP ViT-B/32 with L2 normalization
+
+**Implementation:**
+- Deterministic sampling: uniform frame extraction with configurable intervals
+- Fixed preprocessing: center-crop, no augmentation, ImageNet mean/std
+- Re-ingest verification: SHA-256 hash comparison for embedding consistency
+
+**Verification:** Hash comparison script in `docs/clip/scripts/verify_clip_embeddings.sh`
+
+### Whisper Control Knots
+**Status: READY FOR VERIFICATION**
+
+**Control knots:**
+- Audio front-end: deterministic resampling to 16kHz mono
+- Model quantization: GGUF Q5_1 for optimal speed/accuracy
+- Streaming chunking: 30-second chunks for large files
+
+**Implementation:**
+- Deterministic preprocessing: downmix to mono, resample to 16kHz
+- Streaming processing: automatic chunking for files >100MB
+- Memory management: prevents OOM on devices with limited RAM
+
+**Verification:** Processing validation script in `docs/whisper/scripts/validate_audio_processing.sh`
+
+### UI Control Knots
+**Status: READY FOR VERIFICATION**
+
+**Control knots:**
+- WebView framework: Chrome WebView 120+ compatibility
+- JavaScript bridge: @JavascriptInterface for native calls
+- State management: Centralized with broadcast updates
+- Accessibility: Full WCAG compliance with screen reader support
+
+**Implementation:**
+- WebView integration: Embedded HTML/CSS/JS assets
+- JavaScript bridge: Direct native method calls with error handling
+- State synchronization: Broadcast system for real-time updates
+- Accessibility: ARIA labels, semantic HTML, keyboard navigation
+
+**Verification:** UI automation tests in `docs/ui/scripts/test_ui_automation.sh`
 
 ## Coding Standards
 
@@ -70,100 +153,6 @@ VideoEdit/
 - **Device Tests**: Platform-specific validation tests
 - **Performance Tests**: Benchmark tests for critical paths
 
-## Architecture Decisions
-
-### Control Knots
-Each feature exposes key control knots for configuration:
-
-#### Whisper Control Knots
-- **Sample Rate**: 16 kHz (ASR-ready)
-- **Channels**: Mono (downmix from stereo)
-- **Model**: tiny.en/base.en/small.en variants
-- **Language**: Auto-detection with manual override
-- **Performance**: Configurable thread count and memory mode
-
-#### CLIP Control Knots
-- **Frame Rate**: Uniform sampling (default 1.0 fps)
-- **Resolution**: 224x224 (CLIP standard)
-- **Model**: ViT-B/32 (base), ViT-L/14 (large)
-- **Batch Size**: Configurable for memory optimization
-- **Quantization**: FP16 (default), INT8 (optimized)
-
-#### UI Control Knots
-- **WebView Version**: Chrome WebView 120+ compatibility
-- **JavaScript Bridge**: @JavascriptInterface for native calls
-- **State Management**: Centralized with broadcast updates
-- **Accessibility**: Full WCAG compliance
-- **Performance**: 60fps target with fallback
-
-### Trade-offs and Rationale
-
-#### Whisper vs Custom ASR
-- **Choice**: Whisper for zero-shot multilingual capabilities
-- **Trade-off**: Larger model size vs better accuracy
-- **Rationale**: Whisper provides state-of-the-art accuracy with minimal fine-tuning
-
-#### WebView vs Native UI
-- **Choice**: WebView for cross-platform consistency
-- **Trade-off**: Performance vs development speed
-- **Rationale**: Rapid development and consistent UX across platforms
-
-#### CLIP vs Custom Vision Models
-- **Choice**: CLIP for zero-shot visual understanding
-- **Trade-off**: General-purpose vs task-specific accuracy
-- **Rationale**: CLIP provides strong baseline with minimal domain adaptation
-
-## Testing Strategy
-
-### Unit Testing
-```bash
-# Run unit tests
-./gradlew testDebugUnitTest
-
-# Run specific feature tests
-./gradlew :feature:whisper:testDebugUnitTest
-./gradlew :feature:clip:testDebugUnitTest
-```
-
-### Integration Testing
-```bash
-# Run integration tests
-./gradlew connectedDebugAndroidTest
-
-# Run specific integration tests
-./gradlew connectedDebugAndroidTest --tests '*PipelineTest*'
-```
-
-### Device Testing
-```bash
-# Xiaomi Pad testing
-adb install app/build/outputs/apk/debug/app-debug.apk
-adb shell am start -n com.mira.com/com.mira.whisper.WhisperMainActivity
-
-# iPad testing (requires macOS)
-pnpm exec cap run ios
-```
-
-## Performance Requirements
-
-### Whisper ASR
-- **RTF**: < 1.0 (real-time factor)
-- **Memory**: < 500MB peak for base model
-- **Accuracy**: > 95% on standard benchmarks
-- **Language Detection**: > 85% accuracy for Chinese
-
-### CLIP Vision
-- **Speed**: < 0.1s per frame on GPU
-- **Memory**: < 2GB peak for batch processing
-- **Accuracy**: > 95% on standard benchmarks
-- **Embedding Consistency**: 99.9% hash match
-
-### UI Components
-- **Load Time**: < 1.5s First Contentful Paint
-- **Bundle Size**: < 200KB gzipped
-- **Animation**: 60fps smooth
-- **Accessibility**: WCAG AA compliance
-
 ## Platform Support
 
 ### Android (Primary)
@@ -183,6 +172,27 @@ pnpm exec cap run ios
 - **Minimum**: Browser 120+
 - **Features**: Progressive Web App capabilities
 - **Performance**: WebAssembly for ML models
+
+## Performance Requirements
+
+### Whisper ASR
+- **RTF**: < 1.0 (real-time factor)
+- **Memory**: < 500MB peak for base model
+- **Accuracy**: > 95% on standard benchmarks
+- **Language Detection**: > 85% accuracy for Chinese
+- **Chunking Overhead**: <5% processing time increase
+
+### CLIP Vision
+- **Speed**: < 0.1s per frame on GPU
+- **Memory**: < 2GB peak for batch processing
+- **Accuracy**: > 95% on standard benchmarks
+- **Embedding Consistency**: 99.9% hash match
+
+### UI Components
+- **Load Time**: < 1.5s First Contentful Paint
+- **Bundle Size**: < 200KB gzipped
+- **Animation**: 60fps smooth
+- **Accessibility**: WCAG AA compliance
 
 ## Security Considerations
 
@@ -212,25 +222,18 @@ pnpm exec cap run ios
 - **Troubleshooting**: Common issues and solutions
 - **API Reference**: Complete API documentation
 
-## Deployment Guidelines
+## Release Process
 
-### Android Deployment
-- **Build Variants**: Debug and release variants
-- **Signing**: Debug keystore for development
-- **Permissions**: Minimal required permissions
-- **Testing**: Device-specific validation
+### Version Management
+- **Semantic Versioning**: MAJOR.MINOR.PATCH
+- **Release Notes**: Detailed changelog for each release
+- **Testing**: Comprehensive testing before release
+- **Deployment**: Automated deployment pipeline
 
-### iOS Deployment
-- **Capacitor**: Cross-platform development
-- **Xcode**: iOS-specific configuration
-- **TestFlight**: Beta testing distribution
-- **App Store**: Production release
-
-### Web Deployment
-- **PWA**: Progressive Web App features
-- **Hosting**: Static hosting with CDN
-- **Performance**: WebAssembly optimization
-- **Compatibility**: Cross-browser testing
+### Platform Releases
+- **Android**: Play Store with internal testing
+- **iOS**: App Store Connect with TestFlight
+- **Web**: Static hosting with CDN distribution
 
 ## Monitoring and Observability
 
@@ -245,20 +248,6 @@ pnpm exec cap run ios
 - **Error Logging**: Comprehensive error logging
 - **Performance Metrics**: Real-time performance metrics
 - **User Analytics**: Anonymous usage analytics
-
-## Future Roadmap
-
-### Planned Features
-- **Speaker Diarization**: Multi-speaker identification
-- **Real-time Processing**: Live audio/video streaming
-- **Custom Models**: Fine-tuned domain-specific models
-- **Advanced UI**: Gesture recognition and voice control
-
-### Performance Improvements
-- **GPU Acceleration**: OpenCL/Metal support
-- **Model Optimization**: Further quantization options
-- **Pipeline Optimization**: Parallel processing
-- **Memory Optimization**: Advanced caching strategies
 
 ## Contributing Guidelines
 
@@ -281,8 +270,48 @@ pnpm exec cap run ios
 - **Testing**: Comprehensive testing before release
 - **Deployment**: Automated deployment pipeline
 
+## Quick Start Commands
+
+### CLIP (Visual Understanding)
+```bash
+cd docs/clip/scripts
+./deploy_clip_model.sh
+./test_frame_sampling.sh
+./work_through_clip_xiaomi.sh
+```
+
+### Whisper (Speech Recognition)
+```bash
+cd docs/whisper/scripts
+./deploy_multilingual_models.sh
+./test_lid_pipeline.sh
+./work_through_video_v1.sh
+```
+
+### UI (User Interface)
+```bash
+cd docs/ui/scripts
+./test_ui_automation.sh
+./test_responsive_design.sh
+./test_accessibility.sh
+```
+
+## Future Roadmap
+
+### Planned Features
+- **Speaker Diarization**: Multi-speaker identification
+- **Real-time Processing**: Live audio/video streaming
+- **Custom Models**: Fine-tuned domain-specific models
+- **Advanced UI**: Gesture recognition and voice control
+
+### Performance Improvements
+- **GPU Acceleration**: OpenCL/Metal support
+- **Model Optimization**: Further quantization options
+- **Pipeline Optimization**: Parallel processing
+- **Memory Optimization**: Advanced caching strategies
+
 ---
 
-**Last Updated**: October 6, 2025  
+**Last Updated**: October 7, 2025  
 **Version**: 1.0  
 **Status**: Production Ready

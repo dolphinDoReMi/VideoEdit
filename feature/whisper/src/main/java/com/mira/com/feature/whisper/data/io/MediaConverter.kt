@@ -7,6 +7,7 @@ import android.util.Log
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
+import com.mira.com.core.infra.GlobalFileManagementService
 
 /**
  * Media converter that converts all media files to H.264 format before processing.
@@ -23,7 +24,8 @@ object MediaConverter {
     fun convertToH264(
         context: Context,
         inputUri: Uri,
-        outputFileName: String? = null
+        outputFileName: String? = null,
+        removeOriginal: Boolean = false
     ): Uri? {
         return try {
             Log.d(TAG, "TECHNICAL: Starting H.264 conversion for $inputUri")
@@ -34,13 +36,22 @@ object MediaConverter {
                 documentsDir.mkdirs()
             }
 
+            // First check if a converted version already exists
+            val existingConvertedFile = GlobalFileManagementService.findExistingConvertedFile(context, inputUri, outputFileName)
+            if (existingConvertedFile != null) {
+                Log.d(TAG, "TECHNICAL: Found existing converted file, skipping conversion")
+                
+                // If removeOriginal is true and we found an existing converted file, 
+                // we can still remove the original file
+                if (removeOriginal) {
+                    GlobalFileManagementService.removeOriginalFile(context, inputUri)
+                }
+                
+                return existingConvertedFile
+            }
+
             val fileName = outputFileName ?: "converted_${System.currentTimeMillis()}.mp4"
             val outputFile = File(documentsDir, fileName)
-
-            // Delete existing file if it exists
-            if (outputFile.exists()) {
-                outputFile.delete()
-            }
 
             Log.d(TAG, "TECHNICAL: Output file: ${outputFile.absolutePath}")
 
@@ -55,6 +66,12 @@ object MediaConverter {
 
                 Log.d(TAG, "TECHNICAL: File copied to H.264 container: ${outputFile.absolutePath}")
                 Log.d(TAG, "TECHNICAL: Converted file saved to Documents/ConvertedMedia/ for easy access")
+                
+                // Remove original file if requested
+                if (removeOriginal) {
+                    GlobalFileManagementService.removeOriginalFile(context, inputUri)
+                }
+                
                 Uri.fromFile(outputFile)
             } else {
                 Log.e(TAG, "TECHNICAL: Could not open input stream for $inputUri")
@@ -77,41 +94,113 @@ object MediaConverter {
     }
     
     /**
-     * Clean up converted files older than 24 hours.
+     * Check if a converted version of the file already exists in the converted folder.
+     * This prevents unnecessary re-conversion of the same file.
      */
-    fun cleanupOldFiles(context: Context) {
-        try {
-            // Clean up cache directory
-            val cacheDir = File(context.cacheDir, "converted_media")
-            if (cacheDir.exists()) {
-                val files = cacheDir.listFiles()
-                val currentTime = System.currentTimeMillis()
-                val maxAge = 24 * 60 * 60 * 1000L // 24 hours
-
-                files?.forEach { file ->
-                    if (currentTime - file.lastModified() > maxAge) {
-                        Log.d(TAG, "TECHNICAL: Cleaning up old converted file: ${file.name}")
-                        file.delete()
-                    }
-                }
-            }
-            
-            // Clean up Documents/ConvertedMedia directory
-            val documentsDir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "ConvertedMedia")
-            if (documentsDir.exists()) {
-                val files = documentsDir.listFiles()
-                val currentTime = System.currentTimeMillis()
-                val maxAge = 24 * 60 * 60 * 1000L // 24 hours
-
-                files?.forEach { file ->
-                    if (currentTime - file.lastModified() > maxAge) {
-                        Log.d(TAG, "TECHNICAL: Cleaning up old converted file in Documents: ${file.name}")
-                        file.delete()
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "TECHNICAL: Error cleaning up old files: ${e.message}", e)
-        }
+    fun findExistingConvertedFile(context: Context, inputUri: Uri, outputFileName: String? = null): Uri? {
+        return GlobalFileManagementService.findExistingConvertedFile(context, inputUri, outputFileName)
+    }
+    
+    /**
+     * Remove the original file after successful conversion.
+     * This helps save storage space by removing the original file once conversion is complete.
+     */
+    fun removeOriginalFile(context: Context, inputUri: Uri): Boolean {
+        return GlobalFileManagementService.removeOriginalFile(context, inputUri)
+    }
+    
+    /**
+     * Remove original files from a batch of conversions.
+     * This is useful for batch processing where multiple files are converted.
+     */
+    fun removeOriginalFilesBatch(context: Context, inputUris: List<Uri>): GlobalFileManagementService.BatchRemovalResult {
+        return GlobalFileManagementService.removeOriginalFilesBatch(context, inputUris)
+    }
+    
+    /**
+     * Clean up converted files older than specified hours.
+     */
+    fun cleanupOldFiles(context: Context, maxAgeHours: Long = 24) {
+        GlobalFileManagementService.cleanupOldFiles(context, maxAgeHours)
+    }
+    
+    /**
+     * Calculate SHA-256 hash of a file for duplicate detection.
+     */
+    fun calculateFileHash(file: File): String? {
+        return GlobalFileManagementService.calculateFileHash(file)
+    }
+    
+    /**
+     * Find duplicate files based on SHA-256 hash comparison.
+     */
+    fun findDuplicateFilesByHash(directory: File): Map<String, List<File>> {
+        return GlobalFileManagementService.findDuplicateFilesByHash(directory)
+    }
+    
+    /**
+     * Remove duplicate files based on hash comparison, keeping the most recent file.
+     */
+    fun removeDuplicateFilesByHash(directory: File): GlobalFileManagementService.DuplicateRemovalResult {
+        return GlobalFileManagementService.removeDuplicateFilesByHash(directory)
+    }
+    
+    /**
+     * Comprehensive global cleanup that removes all converted files and temporary data.
+     * This is more aggressive than cleanupOldFiles and removes everything regardless of age.
+     * Now includes hash-based duplicate detection and removal.
+     */
+    fun globalCleanup(context: Context): GlobalFileManagementService.GlobalCleanupResult {
+        return GlobalFileManagementService.globalCleanup(context)
+    }
+    
+    /**
+     * Result object for cleanup operations.
+     */
+    data class CleanupResult(
+        var success: Boolean = false,
+        var cacheFilesDeleted: Int = 0,
+        var documentsFilesDeleted: Int = 0,
+        var tempFilesDeleted: Int = 0,
+        var whisperFilesDeleted: Int = 0,
+        var originalFilesDeleted: Int = 0,
+        var duplicateFilesRemoved: Int = 0,
+        var duplicateSpaceSaved: Long = 0,
+        var errors: MutableList<String> = mutableListOf()
+    ) {
+        val totalFilesDeleted: Int
+            get() = cacheFilesDeleted + documentsFilesDeleted + tempFilesDeleted + whisperFilesDeleted + originalFilesDeleted + duplicateFilesRemoved
+        
+        val totalSpaceSaved: Long
+            get() = duplicateSpaceSaved
+    }
+    
+    /**
+     * Result object for hash-based duplicate removal operations.
+     */
+    data class DuplicateRemovalResult(
+        var success: Boolean = false,
+        var filesRemoved: Int = 0,
+        var spaceSaved: Long = 0,
+        var duplicateSetsProcessed: Int = 0,
+        var errors: MutableList<String> = mutableListOf()
+    ) {
+        val averageSpacePerFile: Long
+            get() = if (filesRemoved > 0) spaceSaved / filesRemoved else 0
+    }
+    
+    /**
+     * Result object for batch original file removal operations.
+     */
+    data class BatchRemovalResult(
+        var successfulRemovals: Int = 0,
+        var failedRemovals: Int = 0,
+        var failedUris: MutableList<Uri> = mutableListOf()
+    ) {
+        val totalProcessed: Int
+            get() = successfulRemovals + failedRemovals
+        
+        val successRate: Double
+            get() = if (totalProcessed > 0) successfulRemovals.toDouble() / totalProcessed else 0.0
     }
 }

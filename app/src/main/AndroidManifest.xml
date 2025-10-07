@@ -181,11 +181,12 @@
         <receiver
             android:name="com.mira.whisper.WhisperReceiver"
             android:enabled="true"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="com.mira.whisper.RUN" />
                 <action android:name="com.mira.whisper.EXPORT" />
                 <action android:name="com.mira.whisper.VERIFY" />
+                <action android:name="com.mira.whisper.RUN_BATCH" />
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </receiver>

@@ -297,12 +297,17 @@ class WhisperConnectorService : Service() {
                 
                 // Add timeout protection - if no jobs appear in 10 seconds, mark as error
                 Handler(Looper.getMainLooper()).postDelayed({
-                    val dao = AsrDb.get(this).dao()
-                    val jobs = dao.getAllJobs()
-                    val batchJobs = jobs.filter { it.jobId.contains(batchId) }
-                    if (batchJobs.isEmpty()) {
-                        Log.e(TAG, "TECHNICAL: TIMEOUT - No jobs found for batch $batchId after 10 seconds")
-                        broadcastProgressUpdate(batchId, batchState, true, listOf("Timeout: No jobs were created"))
+                    try {
+                        val dao = AsrDb.get(this).dao()
+                        val jobs = dao.getAllJobs()
+                        val batchJobs = jobs.filter { it.jobId.contains(batchId) }
+                        if (batchJobs.isEmpty()) {
+                            Log.e(TAG, "TECHNICAL: TIMEOUT - No jobs found for batch $batchId after 10 seconds")
+                            broadcastProgressUpdate(batchId, batchState, true, listOf("Timeout: No jobs were created"))
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "TECHNICAL: DB check failed after start for $batchId: ${e.message}", e)
+                        broadcastProgressUpdate(batchId, batchState, true, listOf("Init failure: ${e.message}"))
                     }
                 }, 10000) // 10 second timeout
             }
@@ -422,7 +427,17 @@ class WhisperConnectorService : Service() {
                 Log.e(TAG, "TECHNICAL: Error messages: ${errorMessages.joinToString("; ")}")
             }
 
-            // Broadcast progress update with error information
+            // Broadcast progress update with error information and include per-file progress when single-file
+            if (batchState.totalFiles == 1) {
+                batchState.currentFileProgress = when (batchState.files.firstOrNull()?.status) {
+                    ProcessingStatus.COMPLETED -> 100
+                    ProcessingStatus.PROCESSING -> 50
+                    ProcessingStatus.PENDING -> 0
+                    ProcessingStatus.ERROR -> 100
+                    ProcessingStatus.CANCELLED -> 0
+                    else -> 0
+                }
+            }
             broadcastProgressUpdate(batchId, batchState, hasErrors, errorMessages)
 
             // Check if all jobs are complete
