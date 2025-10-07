@@ -5,33 +5,88 @@
 
 set -e
 
-CLIP_FILE="/sdcard/MiraWhisper/clips/tennis_interview_clip_001.mp4"
-OUTPUT_DIR="/sdcard/MiraWhisper/transcriptions"
+# Optional device targeting: set DEVICE (e.g., 192.168.1.100:5555)
+DEVICE="${DEVICE:-}"
+ADB_CMD="adb"
+if [[ -n "$DEVICE" ]]; then
+    ADB_CMD="adb -s $DEVICE"
+fi
+
+# Allow overriding clip via env; auto-detect clips dir (Mirawhisper vs MiraWhisper)
+CLIP_FILE_DEFAULT="/sdcard/Mirawhisper/clips/tennis_interview_clip_001.mp4"
+ALT_CLIP_FILE_DEFAULT="/sdcard/MiraWhisper/clips/tennis_interview_clip_001.mp4"
+OUTPUT_DIR="/sdcard/Mirawhisper/transcriptions"
+
+# Determine actual clips directory if not using explicit CLIP_FILE
+if [[ -z "${CLIP_FILE:-}" ]]; then
+    if $ADB_CMD shell "test -d '/sdcard/Mirawhisper/clips'"; then
+        CLIPS_DIR="/sdcard/Mirawhisper/clips"
+        CLIP_FILE="$CLIP_FILE_DEFAULT"
+    elif $ADB_CMD shell "test -d '/sdcard/MiraWhisper/clips'"; then
+        CLIPS_DIR="/sdcard/MiraWhisper/clips"
+        CLIP_FILE="$ALT_CLIP_FILE_DEFAULT"
+        # Keep OUTPUT_DIR consistent with detected casing if Mirawhisper not present
+        OUTPUT_DIR="/sdcard/MiraWhisper/transcriptions"
+    else
+        echo "❌ Neither '/sdcard/Mirawhisper/clips' nor '/sdcard/MiraWhisper/clips' exists"
+        exit 1
+    fi
+else
+    # Derive clips dir from provided CLIP_FILE
+    CLIPS_DIR=$(dirname "$CLIP_FILE")
+fi
 
 echo "🎾 Processing Tennis Interview Clip 001"
 echo "====================================="
 echo ""
 
-# Create output directory
-echo "Creating output directory: $OUTPUT_DIR"
-adb shell "mkdir -p $OUTPUT_DIR"
-
-# Check if clip exists
-echo "Checking clip file..."
-if ! adb shell "test -f '$CLIP_FILE'"; then
-    echo "❌ Clip file not found: $CLIP_FILE"
+# Check device connection
+echo "Checking device connection..."
+if ! $ADB_CMD get-state >/dev/null 2>&1; then
+    echo "❌ No Android device connected (or DEVICE='$DEVICE' not reachable)"
     exit 1
 fi
 
-CLIP_SIZE=$(adb shell "stat -c%s '$CLIP_FILE'" | tr -d '\r')
-CLIP_SIZE_MB=$((CLIP_SIZE / 1024 / 1024))
+# Clear logs to avoid false positives
+$ADB_CMD logcat -c || true
+
+# Create output directory
+echo "Creating output directory: $OUTPUT_DIR"
+$ADB_CMD shell "mkdir -p $OUTPUT_DIR"
+
+# Check if clip exists
+echo "Checking clip file..."
+if ! $ADB_CMD shell "test -f '$CLIP_FILE'"; then
+    echo "⚠️  Clip not found at default path: $CLIP_FILE"
+    echo "🔎 Searching first media file in: $CLIPS_DIR"
+    FIRST_MEDIA=$($ADB_CMD shell "ls -1 $CLIPS_DIR | grep -Ei '\\.(mp4|mkv|wav|mp3|m4a)$' | head -1" | tr -d '\r')
+    if [[ -n "$FIRST_MEDIA" ]]; then
+        CLIP_FILE="$CLIPS_DIR/$FIRST_MEDIA"
+        echo "➡️  Using first media file: $CLIP_FILE"
+    else
+        echo "❌ No media files found in $CLIPS_DIR"
+        exit 1
+    fi
+fi
+
+CLIP_SIZE=$($ADB_CMD shell "stat -c%s '$CLIP_FILE'" 2>/dev/null | tr -d '\r') || true
+if [[ -z "$CLIP_SIZE" ]]; then
+    # Fallback for devices without GNU stat - try toybox busybox style
+    CLIP_SIZE=$($ADB_CMD shell "toybox stat -c%s '$CLIP_FILE'" 2>/dev/null | tr -d '\r') || true
+fi
+if [[ -z "$CLIP_SIZE" ]]; then
+    echo "ℹ️  Unable to compute file size; proceeding"
+    CLIP_SIZE_MB=unknown
+else
+    CLIP_SIZE_MB=$((CLIP_SIZE / 1024 / 1024))
+fi
 echo "✅ Clip file found: ${CLIP_SIZE_MB}MB"
 
 echo ""
 echo "🚀 Starting transcription processing..."
 
 # Send broadcast to trigger processing
-adb shell "am broadcast -a com.mira.whisper.PROCESS_FILE \
+$ADB_CMD shell "am broadcast -a com.mira.whisper.PROCESS_FILE \
     --es 'file_uri' '$CLIP_FILE' \
     --es 'model' 'whisper-base.q5_1.bin' \
     --ei 'threads' 4 \
@@ -48,16 +103,16 @@ PROCESSING_START=$(date +%s)
 TIMEOUT=600  # 10 minutes timeout
 
 while true; do
-    # Check for completion
-    COMPLETION_LOG=$(adb logcat -d | grep -E "(Completed.*job|TECHNICAL.*Transcription completed)" | tail -1)
+    # Check for completion (filter to our app tags/markers)
+    COMPLETION_LOG=$($ADB_CMD logcat -d | grep -E "((WhisperConnectorService|TranscribeWorker|AndroidWhisperBridge|WhisperConnectorReceiver).*(Completed.*job|Transcription completed))|(TECHNICAL:.*Transcription completed)" | tail -1)
     
     if [[ -n "$COMPLETION_LOG" ]]; then
         echo "✅ Processing completed successfully!"
         break
     fi
     
-    # Check for errors
-    ERROR_LOG=$(adb logcat -d | grep -E "(ERROR|Exception|Failed)" | tail -1)
+    # Check for errors (limit to our tags to avoid MIUI/OneTrack noise)
+    ERROR_LOG=$($ADB_CMD logcat -d | grep -E "(E\/(AndroidWhisperBridge|WhisperConnectorService|TranscribeWorker)|TECHNICAL:.*(Error|Exception|Failed))" | tail -1)
     if [[ -n "$ERROR_LOG" ]]; then
         echo "❌ Processing failed: $ERROR_LOG"
         exit 1
@@ -87,11 +142,11 @@ sleep 10
 # Check output files
 echo ""
 echo "📁 Checking output files..."
-if adb shell "test -d '$OUTPUT_DIR'"; then
-    OUTPUT_FILES=$(adb shell "ls $OUTPUT_DIR/" | tr -d '\r')
+if $ADB_CMD shell "test -d '$OUTPUT_DIR'"; then
+    OUTPUT_FILES=$($ADB_CMD shell "ls $OUTPUT_DIR/" | tr -d '\r')
     if [[ -n "$OUTPUT_FILES" ]]; then
         echo "✅ Output files created:"
-        adb shell "ls -la $OUTPUT_DIR/"
+        $ADB_CMD shell "ls -la $OUTPUT_DIR/"
     else
         echo "⚠️  No output files found in $OUTPUT_DIR"
     fi
@@ -104,7 +159,7 @@ echo ""
 echo "🔍 Looking for transcription files..."
 
 # Check for JSON transcription
-JSON_FILES=$(adb shell "ls $OUTPUT_DIR/*.json 2>/dev/null" | tr -d '\r')
+JSON_FILES=$($ADB_CMD shell "ls $OUTPUT_DIR/*.json 2>/dev/null" | tr -d '\r')
 if [[ -n "$JSON_FILES" ]]; then
     echo "✅ JSON transcription files found:"
     echo "$JSON_FILES"
@@ -113,7 +168,7 @@ else
 fi
 
 # Check for SRT files
-SRT_FILES=$(adb shell "ls $OUTPUT_DIR/*.srt 2>/dev/null" | tr -d '\r')
+SRT_FILES=$($ADB_CMD shell "ls $OUTPUT_DIR/*.srt 2>/dev/null" | tr -d '\r')
 if [[ -n "$SRT_FILES" ]]; then
     echo "✅ SRT caption files found:"
     echo "$SRT_FILES"
@@ -122,7 +177,7 @@ else
 fi
 
 # Check for TXT files
-TXT_FILES=$(adb shell "ls $OUTPUT_DIR/*.txt 2>/dev/null" | tr -d '\r')
+TXT_FILES=$($ADB_CMD shell "ls $OUTPUT_DIR/*.txt 2>/dev/null" | tr -d '\r')
 if [[ -n "$TXT_FILES" ]]; then
     echo "✅ TXT transcription files found:"
     echo "$TXT_FILES"
@@ -145,5 +200,5 @@ if [[ -n "$JSON_FILES" ]]; then
     echo "📄 First transcription file content:"
     echo "File: $FIRST_JSON"
     echo "Content:"
-    adb shell "cat '$FIRST_JSON'"
+    $ADB_CMD shell "cat '$FIRST_JSON'"
 fi

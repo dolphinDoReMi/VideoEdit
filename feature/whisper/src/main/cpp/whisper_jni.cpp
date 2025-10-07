@@ -49,33 +49,53 @@ Java_com_mira_com_feature_whisper_engine_WhisperBridge_decodeJson(
         // Simulate processing time
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-        // Generate mock transcription result based on audio length
-        std::string json = "{\"segments\":[";
-        
-        // Create segments based on audio length (roughly 1 segment per 2 seconds)
+        // Generate mock transcription result using schema compatible with TranscribeWorker
+        // Build segments with expected keys: start/end/text and provide a non-empty top-level text
         int segment_count = std::max(1, (int)(audio_len / (sampleRate * 2)));
-        segment_count = std::min(segment_count, 5); // Max 5 segments
-        
+        segment_count = std::min(segment_count, 5); // Max 5 segments to keep lightweight
+
+        std::string all_text;
+        std::string segments_json = "";
         for (int i = 0; i < segment_count; i++) {
-            if (i > 0) json += ",";
-            
+            if (!segments_json.empty()) segments_json += ",";
+
             float t0 = i * 2.0f;
             float t1 = (i + 1) * 2.0f;
-            
-            // Generate different mock text based on segment
+
             std::string mock_text;
             switch (i % 4) {
-                case 0: mock_text = "Hello world"; break;
-                case 1: mock_text = "This is a test"; break;
-                case 2: mock_text = "Audio transcription"; break;
-                case 3: mock_text = "Mock whisper result"; break;
+                case 0: mock_text = "Hello world."; break;
+                case 1: mock_text = "This is a test."; break;
+                case 2: mock_text = "Audio transcription in progress."; break;
+                default: mock_text = "Mock whisper result."; break;
             }
-            
-            json += "{\"t0\":" + std::to_string(t0) + 
-                   ",\"t1\":" + std::to_string(t1) + 
-                   ",\"text\":\"" + mock_text + "\"}";
+            all_text += (mock_text + " ");
+
+            segments_json += "{"
+                "\"id\":" + std::to_string(i) + ","
+                "\"seek\":0,"
+                "\"start\":" + std::to_string(t0) + ","
+                "\"end\":" + std::to_string(t1) + ","
+                "\"text\":\"" + mock_text + "\","
+                "\"temperature\":0.0,"
+                "\"avg_logprob\":-0.0,"
+                "\"compression_ratio\":0.0,"
+                "\"no_speech_prob\":0.0"
+            "}";
         }
-        json += "]}";
+
+        // Duration approximation in seconds
+        int duration_sec = (int) std::max(0, (int)(audio_len / (sampleRate > 0 ? sampleRate : 1)));
+
+        std::string json = "{";
+        json += "\"text\":\"" + all_text + "\",";
+        json += "\"segments\":[" + segments_json + "],";
+        json += "\"language\":\"en\",";
+        json += "\"duration\":" + std::to_string(duration_sec) + ",";
+        json += "\"rtf\":0.1,";
+        json += "\"model\":\"" + model_path_str + "\",";
+        json += "\"processing_time\":0.1";
+        json += "}";
 
         LOGI("Whisper mock inference completed successfully");
         return env->NewStringUTF(json.c_str());
