@@ -69,6 +69,75 @@ Broadcast (ACTION_DECODE_URI) → WorkManager DecodeWorker → DecodePipeline.de
 - **AacDecoder.kt:** `app/src/main/java/com/mira/whisper/io/AacDecoder.kt`
 - **PcmWriter.kt:** `app/src/main/java/com/mira/whisper/io/PcmWriter.kt`
 
+## Async Solution Implementation
+
+### ✅ **Unified Interface Architecture**
+
+The async solution provides a **single-page interface** that combines all three steps of the whisper processing pipeline:
+
+#### **Step 1: File Selection & Configuration**
+- **File Picker**: Integrated with Android Storage Access Framework
+- **Model Selection**: Automatic model detection and configuration
+- **Processing Options**: Complete configuration panel with all options
+- **Validation**: File size, format, and permission validation
+
+#### **Step 2: Real-time Processing & Monitoring**
+- **Progress Tracking**: Real-time progress bars for overall and chunk progress
+- **Resource Monitoring**: Live CPU, memory, battery, and temperature monitoring
+- **Chunking System**: Automatic streaming for large files (>100MB)
+- **Status Updates**: Dynamic status messages and processing details
+
+#### **Step 3: Results Display & Export**
+- **Transcript Display**: Formatted transcript with timestamps and confidence
+- **Export Options**: Multiple format support (JSON, SRT, TXT, All)
+- **Batch Navigation**: Seamless navigation to batch results
+- **Action Buttons**: New processing and batch results access
+
+### 🔧 **Technical Implementation**
+
+#### **Broadcast Receiver Integration**
+**File**: `app/src/main/java/com/mira/whisper/AndroidWhisperBridge.kt`
+
+**Key Components**:
+```kotlin
+const val ACTION_PROCESSING_COMPLETE = "com.mira.whisper.PROCESSING_COMPLETE"
+const val ACTION_PAGE_NAVIGATION = "com.mira.whisper.PAGE_NAVIGATION"
+const val EXTRA_BATCH_ID = "batch_id"
+const val EXTRA_NAVIGATION_TARGET = "navigation_target"
+```
+
+**Broadcast Receiver**:
+```kotlin
+private fun registerBroadcastReceiver() {
+    val filter = IntentFilter().apply {
+        addAction(ACTION_PROCESSING_COMPLETE)
+        addAction(ACTION_PAGE_NAVIGATION)
+    }
+    
+    val receiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            when (intent?.action) {
+                ACTION_PROCESSING_COMPLETE -> {
+                    val batchId = intent.getStringExtra(EXTRA_BATCH_ID)
+                    webView?.post {
+                        webView?.evaluateJavascript("handleProcessingComplete('$batchId')", null)
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+#### **Unified Interface Features**
+- **Single Page**: All functionality accessible without navigation
+- **Dynamic Sections**: Sections show/hide based on processing state
+- **Step Indicators**: Visual progress indicators for current step
+- **Smooth Transitions**: CSS transitions between sections
+- **Real-time Updates**: Live progress and resource monitoring
+- **Error Handling**: Comprehensive error handling and recovery
+- **Responsive Design**: Optimized for mobile devices
+
 ### E2E Test (no UI)
 
 **Install both variants side-by-side:**
