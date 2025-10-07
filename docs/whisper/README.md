@@ -185,6 +185,13 @@
 - **Unified Processing**: Combined audio-video processing pipeline
 - **Testing Infrastructure**: Comprehensive testing with AutoClipperTest
 
+### Device-Level Job Scheduling System
+- **WorkManager Integration**: Android's job scheduling system for background tasks
+- **Input/Output Directories**: Structured `/sdcard/Mira/` directory system
+- **Job Queue Management**: Priority-based task queuing and execution
+- **Resource-Aware Processing**: Intelligent scheduling based on device resources
+- **Background Service Coordination**: AutoClipperService and WhisperWorker coordination
+
 ## Quick Start
 
 ### Installation
@@ -232,6 +239,80 @@ intent.putExtra("video_path", "/path/to/video.mp4")
 context.sendBroadcast(intent)
 ```
 
+### Job Scheduling System
+
+**Device-Level Job Management:**
+The Whisper system operates as part of a comprehensive job scheduling system on Android devices, particularly optimized for Xiaomi Pad deployment.
+
+**Input/Output Directory Structure:**
+```
+/sdcard/Mira/
+├── inbox/                    # Input directory
+│   ├── audio/               # Audio files (.wav, .mp4)
+│   ├── video/               # Video files (.mp4, .mov)
+│   └── batch/               # Batch processing files
+├── processing/              # Active processing directory
+│   ├── temp/               # Temporary files during processing
+│   ├── chunks/             # Audio/video chunks
+│   └── intermediate/       # Intermediate processing files
+├── output/                  # Output directory
+│   ├── transcripts/        # Whisper transcription results
+│   ├── clips/              # AutoClipper video clips
+│   ├── metadata/           # Processing metadata
+│   └── exports/            # Exported files (JSON, SRT, TXT)
+├── models/                  # ML models storage
+│   ├── whisper/            # Whisper model files
+│   └── clip/               # CLIP model files
+└── logs/                    # System logs
+    ├── whisper/            # Whisper processing logs
+    ├── autoclip/           # AutoClipper service logs
+    └── system/             # System resource logs
+```
+
+**Job Scheduling Workflow:**
+1. **File Detection**: Monitor `/sdcard/Mira/inbox/audio/` for new audio files
+2. **Job Creation**: Create WorkManager WhisperWorker jobs for detected files
+3. **Resource Check**: Verify device resources (CPU, memory, battery) before processing
+4. **Processing**: Execute Whisper transcription with chunking for large files
+5. **Output Generation**: Save transcripts to `/sdcard/Mira/output/transcripts/`
+6. **Cleanup**: Remove temporary files from `/sdcard/Mira/processing/`
+7. **Notification**: Send completion notifications via broadcast
+
+**WorkManager Job Configuration:**
+```kotlin
+val whisperJob = OneTimeWorkRequestBuilder<WhisperWorker>()
+    .setInputData(workDataOf(
+        "input_file" to "/sdcard/Mira/inbox/audio/sample.wav",
+        "output_dir" to "/sdcard/Mira/output/transcripts/",
+        "model_path" to "/sdcard/Mira/models/whisper/base.en.bin"
+    ))
+    .setConstraints(Constraints.Builder()
+        .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
+        .setRequiresBatteryNotLow(true)
+        .setRequiresStorageNotLow(true)
+        .build())
+    .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
+    .build()
+```
+
+**Job Management Commands:**
+```bash
+# Setup directory structure
+adb shell mkdir -p /sdcard/Mira/inbox/audio
+adb shell mkdir -p /sdcard/Mira/output/transcripts
+
+# Trigger Whisper processing
+adb shell am broadcast -a com.mira.com.action.WHISPER_RUN \
+  --es input_file "/sdcard/Mira/inbox/audio/sample.wav" \
+  --es output_dir "/sdcard/Mira/output/transcripts/"
+
+# Monitor job status
+adb shell dumpsys jobscheduler | grep com.mira.com
+
+# Check processing results
+adb shell ls -la /sdcard/Mira/output/transcripts/
+```
+
 ### Configuration
 ```kotlin
 val config = WhisperConfig(
@@ -259,6 +340,8 @@ val config = WhisperConfig(
 - **AutoClipperService**: Background video processing service
 - **AutoClipperReceiver**: Service communication handling
 - **TestReceiver**: Testing and debugging utilities
+- **JobScheduler**: WorkManager job scheduling and management
+- **DirectoryManager**: Input/output directory structure management
 
 ### Data Flow
 ```
@@ -267,6 +350,8 @@ Audio Input → Size Check → Chunking Decision → Processing → Segment Stit
   Format Check → 100MB Check → 30s Chunks → Whisper Model → Overlap Handling → Export
      ↓
 Video Clipping → AutoClipper Service → Background Processing → Service Communication
+     ↓
+Job Scheduling → WorkManager → Directory Management → Resource Monitoring
 ```
 
 ### Control Knots
@@ -281,6 +366,9 @@ Video Clipping → AutoClipper Service → Background Processing → Service Com
 - **Video Clipping**: AutoClipper service integration
 - **Service Communication**: Broadcast-based service communication
 - **Resource Sharing**: Shared resource monitoring between services
+- **Job Scheduling**: WorkManager job constraints and backoff policies
+- **Directory Structure**: Configurable input/output directory paths
+- **Resource Thresholds**: Battery, storage, and memory constraints
 
 ## Performance
 
@@ -313,6 +401,9 @@ Video Clipping → AutoClipper Service → Background Processing → Service Com
 - **Service Testing**: `test_autoclip_direct.sh`
 - **Status Monitoring**: `check_autoclip_status.sh`
 - **Service Triggering**: `trigger_autoclip.sh`
+- **Job Scheduling**: `setup_xiaomi_pad_directories.sh`
+- **Directory Management**: `test_directory_structure.sh`
+- **WorkManager Testing**: `test_workmanager_jobs.sh`
 
 ### Validation
 - **Audio Format**: 16kHz, mono, PCM16 validation
@@ -367,6 +458,9 @@ Video Clipping → AutoClipper Service → Background Processing → Service Com
 - **Real-time Video Processing**: Live video clipping during recording
 - **Multi-modal Integration**: Audio-video synchronization
 - **Cloud Processing**: Cloud-based video clipping options
+- **Advanced Job Scheduling**: Priority-based job queuing with ML optimization
+- **Distributed Processing**: Multi-device job distribution
+- **Intelligent Resource Management**: Predictive resource allocation
 
 ### Performance Improvements
 - **GPU Acceleration**: OpenCL/Metal support
@@ -378,6 +472,9 @@ Video Clipping → AutoClipper Service → Background Processing → Service Com
 - **Service Optimization**: Optimized AutoClipper service performance
 - **Resource Coordination**: Improved resource sharing between services
 - **Background Processing**: Enhanced background processing efficiency
+- **Job Scheduling Optimization**: Intelligent job prioritization and resource allocation
+- **Directory I/O Optimization**: Optimized file system operations
+- **WorkManager Efficiency**: Enhanced job scheduling and execution
 
 ---
 
