@@ -178,6 +178,13 @@
 - **Batch Scaling**: Parallel processing with coordinated chunk management
 - **Performance**: RTF 0.3-0.8 with chunking overhead <5%
 
+### Video Clipping Integration
+- **AutoClipper Service**: Background video processing service
+- **Service Communication**: Broadcast-based service communication
+- **Resource Coordination**: Shared resource monitoring with Whisper
+- **Unified Processing**: Combined audio-video processing pipeline
+- **Testing Infrastructure**: Comprehensive testing with AutoClipperTest
+
 ## Quick Start
 
 ### Installation
@@ -188,6 +195,9 @@ cd docs/whisper/scripts
 
 # Test LID pipeline
 ./test_lid_pipeline.sh
+
+# Test video clipping integration
+./test_autoclip_tennis.sh
 
 # Run comprehensive test
 ./work_through_video_v1.sh
@@ -211,6 +221,15 @@ val segments = result.segments
 segments.forEach { segment ->
     println("${segment.startMs}-${segment.endMs}: ${segment.text}")
 }
+
+// Video clipping integration
+val autoClipperService = AutoClipperService()
+autoClipperService.startService(context)
+
+// Trigger video clipping
+val intent = Intent("${BuildConfig.APPLICATION_ID}.action.AUTOCLIP_RUN")
+intent.putExtra("video_path", "/path/to/video.mp4")
+context.sendBroadcast(intent)
 ```
 
 ### Configuration
@@ -237,12 +256,17 @@ val config = WhisperConfig(
 - **ResourceMonitor**: Real-time resource tracking
 - **ChunkingEngine**: Streaming processing for large files
 - **BatchCoordinator**: WorkManager-based parallel processing
+- **AutoClipperService**: Background video processing service
+- **AutoClipperReceiver**: Service communication handling
+- **TestReceiver**: Testing and debugging utilities
 
 ### Data Flow
 ```
 Audio Input → Size Check → Chunking Decision → Processing → Segment Stitching → Output
      ↓              ↓              ↓              ↓              ↓           ↓
   Format Check → 100MB Check → 30s Chunks → Whisper Model → Overlap Handling → Export
+     ↓
+Video Clipping → AutoClipper Service → Background Processing → Service Communication
 ```
 
 ### Control Knots
@@ -254,6 +278,9 @@ Audio Input → Size Check → Chunking Decision → Processing → Segment Stit
 - **Chunking**: 30-second chunks, 100MB threshold for streaming
 - **Memory**: Streaming mode prevents OOM on large files
 - **Batch Processing**: Parallel chunk coordination via WorkManager
+- **Video Clipping**: AutoClipper service integration
+- **Service Communication**: Broadcast-based service communication
+- **Resource Sharing**: Shared resource monitoring between services
 
 ## Performance
 
@@ -282,6 +309,10 @@ Audio Input → Size Check → Chunking Decision → Processing → Segment Stit
 - **Resource Monitoring**: `docs/whisper/scripts/test_whisper_resource_monitoring.sh`
 - **Language Detection**: `docs/whisper/scripts/test_lid_pipeline.sh`
 - **End-to-End**: `docs/whisper/scripts/work_through_video_v1.sh`
+- **Video Clipping**: `test_autoclip_tennis.sh`
+- **Service Testing**: `test_autoclip_direct.sh`
+- **Status Monitoring**: `check_autoclip_status.sh`
+- **Service Triggering**: `trigger_autoclip.sh`
 
 ### Validation
 - **Audio Format**: 16kHz, mono, PCM16 validation
@@ -332,6 +363,10 @@ Audio Input → Size Check → Chunking Decision → Processing → Segment Stit
 - **Adaptive Chunking**: Dynamic chunk size based on content complexity
 - **Parallel Chunking**: Process multiple chunks simultaneously
 - **Smart Overlap**: Content-aware overlap handling
+- **Advanced Video Clipping**: AI-powered clip selection
+- **Real-time Video Processing**: Live video clipping during recording
+- **Multi-modal Integration**: Audio-video synchronization
+- **Cloud Processing**: Cloud-based video clipping options
 
 ### Performance Improvements
 - **GPU Acceleration**: OpenCL/Metal support
@@ -340,9 +375,12 @@ Audio Input → Size Check → Chunking Decision → Processing → Segment Stit
 - **Memory Optimization**: Advanced caching strategies
 - **Predictive Memory**: Anticipate memory needs based on file characteristics
 - **Distributed Processing**: Multi-device chunk processing
+- **Service Optimization**: Optimized AutoClipper service performance
+- **Resource Coordination**: Improved resource sharing between services
+- **Background Processing**: Enhanced background processing efficiency
 
 ---
 
 **Last Updated**: October 7, 2025  
-**Version**: 1.1  
-**Status**: Production Ready
+**Version**: 1.2  
+**Status**: Production Ready with Video Clipping Integration
