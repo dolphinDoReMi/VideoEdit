@@ -14,12 +14,17 @@ android {
     externalNativeBuild {
       cmake {
         cppFlags("-std=c++17")
-        arguments("-DANDROID_STL=c++_shared")
+        arguments(
+          "-DANDROID_STL=c++_shared",
+          "-DGGML_VULKAN=1",
+          "-DGGML_VULKAN_DEBUG=1",
+          "-DGGML_VULKAN_CHECK_RESULTS=1"
+        )
       }
     }
     
     ndk {
-      abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
+      abiFilters += listOf("arm64-v8a")  # Focus on ARM64 for Xiaomi Pad
     }
   }
   

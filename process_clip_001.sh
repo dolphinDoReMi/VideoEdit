@@ -85,14 +85,13 @@ echo "✅ Clip file found: ${CLIP_SIZE_MB}MB"
 echo ""
 echo "🚀 Starting transcription processing..."
 
-# Send broadcast to trigger processing
-$ADB_CMD shell "am broadcast -a com.mira.whisper.PROCESS_FILE \
-    --es 'file_uri' '$CLIP_FILE' \
-    --es 'model' 'whisper-base.q5_1.bin' \
+# Send broadcast to trigger processing using RUN_BATCH with streaming
+$ADB_CMD shell "am broadcast -a com.mira.whisper.RUN_BATCH \
+    --es 'uris' 'file://$CLIP_FILE' \
+    --es 'modelPath' '/sdcard/MiraWhisper/models/whisper-base.q5_1.bin' \
+    --es 'preset' 'Single' \
     --ei 'threads' 4 \
-    --es 'language' 'auto' \
-    --ez 'translate' false \
-    --es 'output_dir' '$OUTPUT_DIR'"
+    --ei 'maxSeconds' 0"
 
 echo "✅ Processing broadcast sent!"
 echo ""
@@ -101,10 +100,11 @@ echo ""
 echo "📊 Monitoring processing progress..."
 PROCESSING_START=$(date +%s)
 TIMEOUT=600  # 10 minutes timeout
+LAST_PROGRESS=0
 
 while true; do
     # Check for completion (filter to our app tags/markers)
-    COMPLETION_LOG=$($ADB_CMD logcat -d | grep -E "((WhisperConnectorService|TranscribeWorker|AndroidWhisperBridge|WhisperConnectorReceiver).*(Completed.*job|Transcription completed))|(TECHNICAL:.*Transcription completed)" | tail -1)
+    COMPLETION_LOG=$($ADB_CMD logcat -d | grep -E "((WhisperConnectorService|TranscribeWorker|AndroidWhisperBridge|WhisperConnectorReceiver).*(Completed.*job|Transcription completed|STREAMING.*COMPLETE))|(TECHNICAL:.*Transcription completed)" | tail -1)
     
     if [[ -n "$COMPLETION_LOG" ]]; then
         echo "✅ Processing completed successfully!"
@@ -116,6 +116,16 @@ while true; do
     if [[ -n "$ERROR_LOG" ]]; then
         echo "❌ Processing failed: $ERROR_LOG"
         exit 1
+    fi
+    
+    # Check for streaming progress updates
+    PROGRESS_LOG=$($ADB_CMD logcat -d | grep -E "(STREAMING.*progress|Overall progress|STREAMING CHUNK.*COMPLETE)" | tail -1)
+    if [[ -n "$PROGRESS_LOG" ]]; then
+        CURRENT_PROGRESS=$(echo "$PROGRESS_LOG" | grep -o '[0-9]*%' | head -1)
+        if [[ "$CURRENT_PROGRESS" != "$LAST_PROGRESS" ]]; then
+            echo "📈 Progress: $CURRENT_PROGRESS"
+            LAST_PROGRESS="$CURRENT_PROGRESS"
+        fi
     fi
     
     # Check timeout

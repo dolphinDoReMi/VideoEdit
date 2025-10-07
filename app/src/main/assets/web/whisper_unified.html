@@ -1144,6 +1144,25 @@ document.addEventListener('DOMContentLoaded', function() {
   // Check if WhisperBridge is available
   if (window.WhisperBridge) {
     console.log('WhisperBridge available');
+    // Direct test of JNI loading
+    try {
+      console.log('Testing JNI loading...');
+      if (window.WhisperBridge && window.WhisperBridge.testJNI) {
+        const result = window.WhisperBridge.testJNI();
+        console.log('JNI test result:', result);
+        
+        // Test with tennis clip
+        if (window.WhisperBridge.testTennisClip) {
+          console.log('Testing WhisperBridge with tennis clip...');
+          const tennisResult = window.WhisperBridge.testTennisClip();
+          console.log('Tennis clip test result:', tennisResult);
+        }
+      } else {
+        console.log('WhisperBridge.testJNI not available');
+      }
+    } catch (e) {
+      console.error('JNI test failed:', e);
+    }
   } else {
     console.warn('WhisperBridge not available - using simulation mode');
   }

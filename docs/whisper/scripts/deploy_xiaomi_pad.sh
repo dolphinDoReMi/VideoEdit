@@ -15,6 +15,11 @@ MAIN_ACTIVITY="com.mira.whisper.WhisperMainActivity"
 DEVICE_NAME="Xiaomi Pad Ultra"
 BUILD_TYPE="debug"
 
+# VULKAN GPU acceleration configuration
+ENABLE_VULKAN=true
+ENABLE_OPENCL=true
+GPU_BACKEND_PRIORITY="VULKAN,OPENCL,CPU"
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -37,6 +42,31 @@ log_warning() {
 
 log_error() {
     echo -e "${RED}❌ $1${NC}"
+}
+
+# Check GPU capabilities and VULKAN support
+check_gpu_capabilities() {
+    log_info "Checking GPU capabilities and VULKAN support..."
+    
+    # Check GPU information
+    log_info "GPU Information:"
+    adb shell "cat /sys/class/kgsl/kgsl-3d0/gpu_model" 2>/dev/null || log_warning "GPU model not available"
+    adb shell "cat /sys/class/kgsl/kgsl-3d0/gpu_busy" 2>/dev/null || log_warning "GPU busy status not available"
+    
+    # Check VULKAN support
+    log_info "Checking VULKAN support..."
+    adb shell "getprop ro.hardware.vulkan" 2>/dev/null || log_warning "VULKAN hardware info not available"
+    adb shell "getprop ro.hardware.vulkan.version" 2>/dev/null || log_warning "VULKAN version not available"
+    
+    # Check OpenCL support
+    log_info "Checking OpenCL support..."
+    adb shell "getprop ro.hardware.opencl" 2>/dev/null || log_warning "OpenCL hardware info not available"
+    
+    # Check GPU memory
+    log_info "GPU Memory Information:"
+    adb shell "cat /sys/class/kgsl/kgsl-3d0/gpu_mem" 2>/dev/null || log_warning "GPU memory info not available"
+    
+    log_success "GPU capabilities check completed"
 }
 
 # Check prerequisites
@@ -214,6 +244,14 @@ monitor_performance() {
     log_info "Battery level:"
     adb shell cat /sys/class/power_supply/battery/capacity || true
     
+    # Monitor GPU usage with VULKAN support
+    log_info "GPU usage (VULKAN/OpenCL):"
+    adb shell "cat /sys/class/kgsl/kgsl-3d0/gpubusy" 2>/dev/null || log_warning "GPU busy status not available"
+    
+    # Check VULKAN performance
+    log_info "VULKAN performance metrics:"
+    adb shell "dumpsys gpu" 2>/dev/null | grep -i vulkan || log_warning "VULKAN metrics not available"
+    
     log_success "Performance monitoring completed"
 }
 
@@ -236,6 +274,10 @@ main() {
     
     # Step 1: Check prerequisites
     check_prerequisites
+    echo ""
+    
+    # Step 1.5: Check GPU capabilities and VULKAN support
+    check_gpu_capabilities
     echo ""
     
     # Step 2: Build project

@@ -110,7 +110,7 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
                             Log.d("TranscribeWorker", "TECHNICAL: File size: ${fileSize / (1024 * 1024)}MB")
                             
                             // Use streaming processing for large files
-                            if (fileSize > 100 * 1024 * 1024) { // > 100MB
+                            if (fileSize > 50 * 1024 * 1024) { // > 50MB (lowered from 100MB)
                                 Log.d("TranscribeWorker", "TECHNICAL: Large file detected - using streaming processing")
                                 return processAudioStreaming(ctx, uri, model, threads, beam, lang, translate, jobId, fileId, dao, batchIndex, batchTotal, maxSecondsLimit)
                             }
@@ -127,8 +127,8 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
                     val durationMs = durationStr?.toLongOrNull() ?: 0L
                     mediaMetadataRetriever.release()
                     
-                    // If duration > 5 minutes, assume it's large and use streaming
-                    if (durationMs > 5 * 60 * 1000L) { // > 5 minutes
+                    // If duration > 3 minutes, assume it's large and use streaming
+                    if (durationMs > 3 * 60 * 1000L) { // > 3 minutes (lowered from 5 minutes)
                         Log.d("TranscribeWorker", "TECHNICAL: Long duration detected (${durationMs / 1000}s) - using streaming processing")
                         return processAudioStreaming(ctx, uri, model, threads, beam, lang, translate, jobId, fileId, dao, batchIndex, batchTotal, maxSecondsLimit)
                     }

@@ -16,7 +16,7 @@
 
 ## Verification
 
-Hash comparison script in `ops/verify_all.sh`
+Hash comparison script in `docs/clip/scripts/verify_clip_embeddings.sh`
 
 ## Video Clipping Integration
 

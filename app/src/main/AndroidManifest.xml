@@ -27,6 +27,15 @@
     <!-- WebView permissions -->
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     
+    <!-- Vulkan feature declarations -->
+    <uses-sdk android:minSdkVersion="24" />
+    <uses-feature android:name="android.hardware.vulkan.version"
+                  android:version="0x00400003"   <!-- Vulkan 1.3 -->
+                  android:required="false"/>
+    <uses-feature android:name="android.hardware.vulkan.level"
+                  android:version="0"
+                  android:required="false"/>
+    
     <!-- Hardware features -->
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
@@ -127,66 +136,7 @@
         <!-- Production CLIP receiver removed - class not available in app module -->
         <!-- The ClipReceiver is in the feature/clip module -->
         
-        <!-- Debug Broadcast Receiver (debug builds only) -->
-        <receiver
-            android:name="com.mira.clip.ops.TestReceiver"
-            android:enabled="true"
-            android:exported="true"
-            tools:ignore="ExportedReceiver">
-            <intent-filter>
-                <action android:name="com.mira.clip.INGEST_MANIFEST" />
-                <action android:name="com.mira.clip.SEARCH_MANIFEST" />
-                <action android:name="com.mira.clip.DEBUG_LOG" />
-                <action android:name="com.mira.clip.CLEAR_CACHE" />
-                <action android:name="com.mira.clip.SELFTEST_TEXT" />
-                <action android:name="com.mira.clip.SELFTEST_VIDEO" />
-                <!-- New verification actions -->
-                <action android:name="com.mira.videoeditor.debug.CLIP.RUN" />
-                <action android:name="com.mira.videoeditor.debug.VERIFY_REPRESENTATION" />
-                <action android:name="com.mira.videoeditor.debug.VERIFY_RETRIEVAL" />
-                <action android:name="com.mira.videoeditor.debug.VERIFY_REPRODUCIBILITY" />
-            </intent-filter>
-        </receiver>
-        
-        <!-- Whisper Broadcast Receiver -->
-        <receiver
-            android:name="com.mira.whisper.WhisperReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="com.mira.whisper.RUN" />
-                <action android:name="com.mira.whisper.RUN_BATCH" />
-                <action android:name="com.mira.whisper.EXPORT" />
-                <action android:name="com.mira.whisper.VERIFY" />
-                <action android:name="com.mira.whisper.RUN_BATCH" />
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </receiver>
-        
-        <!-- Test Receiver -->
-        <receiver
-            android:name="com.mira.clip.autoclip.TestReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="com.mira.clip.TEST" />
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </receiver>
-        
-        <!-- Auto-Clipper Broadcast Receiver -->
-        <receiver
-            android:name="com.mira.clip.autoclip.AutoClipperReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="com.mira.clip.AUTO_CLIP" />
-                <action android:name="com.mira.clip.PROCESS_TENNIS_INTERVIEW" />
-                <action android:name="com.mira.clip.CANCEL_AUTO_CLIP" />
-                <action android:name="com.mira.clip.GET_STATUS" />
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </receiver>
+        <!-- All broadcast receivers removed - replaced with modern Android patterns -->
         
         <!-- File Provider for sharing exported videos -->
         <provider

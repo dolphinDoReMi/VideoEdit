@@ -2,13 +2,11 @@ package com.mira.whisper
 
 import android.app.Service
 import android.content.Intent
-import android.content.IntentFilter
 import android.os.Binder
 import android.os.IBinder
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.os.BatteryManager
 import android.os.Debug
@@ -78,17 +76,23 @@ class WhisperConnectorService : Service() {
     private var resourceTimer: Timer? = null
     private var progressTimer: Timer? = null
     
-    // Broadcast receiver for whisper service events
-    private val whisperReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            when (intent?.action) {
-                AndroidWhisperBridge.ACTION_RUN -> handleWhisperRun(intent)
-                AndroidWhisperBridge.ACTION_RUN_BATCH -> handleWhisperBatchRun(intent)
-                AndroidWhisperBridge.ACTION_EXPORT -> handleWhisperExport(intent)
-                AndroidWhisperBridge.ACTION_VERIFY -> handleWhisperVerify(intent)
-            }
-        }
-    }
+    // Direct instantiation for UI callbacks instead of broadcasts
+    private var processingCallback: ((String, Int, String?) -> Unit)? = null
+    private var progressCallback: ((String, Int, Int, Int, Boolean, String?, String?) -> Unit)? = null
+    private var completionCallback: ((String) -> Unit)? = null
+    private var resourceCallback: ((ResourceStats) -> Unit)? = null
+    private var navigationCallback: ((String) -> Unit)? = null
+    
+    // Data class for resource stats
+    data class ResourceStats(
+        val cpuUsage: Double,
+        val memoryUsage: Double,
+        val batteryLevel: Int,
+        val temperature: Double,
+        val gpuInfo: String,
+        val threadInfo: String,
+        val timestamp: Long
+    )
     
     // Data classes for state management
     data class BatchProcessingState(
@@ -168,19 +172,6 @@ class WhisperConnectorService : Service() {
         super.onCreate()
         Log.d(TAG, "WhisperConnectorService created")
         
-        // Register broadcast receiver for whisper service events
-        val filter = IntentFilter().apply {
-            addAction(AndroidWhisperBridge.ACTION_RUN)
-            addAction(AndroidWhisperBridge.ACTION_RUN_BATCH)
-            addAction(AndroidWhisperBridge.ACTION_EXPORT)
-            addAction(AndroidWhisperBridge.ACTION_VERIFY)
-        }
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(whisperReceiver, filter, android.content.Context.RECEIVER_NOT_EXPORTED)
-        } else {
-            registerReceiver(whisperReceiver, filter)
-        }
-        
         // Start resource monitoring
         startResourceMonitoring()
     }
@@ -216,6 +207,40 @@ class WhisperConnectorService : Service() {
         return binder
     }
     
+    /**
+     * Register callbacks for direct communication
+     */
+    fun setProcessingCallback(callback: (String, Int, String?) -> Unit) {
+        processingCallback = callback
+    }
+    
+    fun setProgressCallback(callback: (String, Int, Int, Int, Boolean, String?, String?) -> Unit) {
+        progressCallback = callback
+    }
+    
+    fun setCompletionCallback(callback: (String) -> Unit) {
+        completionCallback = callback
+    }
+    
+    fun setResourceCallback(callback: (ResourceStats) -> Unit) {
+        resourceCallback = callback
+    }
+    
+    fun setNavigationCallback(callback: (String) -> Unit) {
+        navigationCallback = callback
+    }
+    
+    /**
+     * Clear all callbacks
+     */
+    fun clearCallbacks() {
+        processingCallback = null
+        progressCallback = null
+        completionCallback = null
+        resourceCallback = null
+        navigationCallback = null
+    }
+    
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "WhisperConnectorService destroyed")
@@ -224,12 +249,7 @@ class WhisperConnectorService : Service() {
         stopResourceMonitoring()
         stopProgressMonitoring()
         
-        // Unregister receiver
-        try {
-            unregisterReceiver(whisperReceiver)
-        } catch (e: Exception) {
-            Log.w(TAG, "Error unregistering receiver: ${e.message}")
-        }
+        // Clean up resources
     }
     
     /**
@@ -247,8 +267,8 @@ class WhisperConnectorService : Service() {
         
         activeBatches[batchId] = batchState
         
-        // Broadcast start event
-        broadcastProcessingStart(batchId, fileCount)
+        // Call start event
+        callProcessingStart(batchId, fileCount)
         // DISABLED: Auto-navigation to processing page - already on processing page
         // broadcastPageNavigation("processing")
         
@@ -303,11 +323,11 @@ class WhisperConnectorService : Service() {
                         val batchJobs = jobs.filter { it.jobId.contains(batchId) }
                         if (batchJobs.isEmpty()) {
                             Log.e(TAG, "TECHNICAL: TIMEOUT - No jobs found for batch $batchId after 10 seconds")
-                            broadcastProgressUpdate(batchId, batchState, true, listOf("Timeout: No jobs were created"))
+                            callProgressUpdate(batchId, batchState, true, listOf("Timeout: No jobs were created"))
                         }
                     } catch (e: Exception) {
                         Log.e(TAG, "TECHNICAL: DB check failed after start for $batchId: ${e.message}", e)
-                        broadcastProgressUpdate(batchId, batchState, true, listOf("Init failure: ${e.message}"))
+                        callProgressUpdate(batchId, batchState, true, listOf("Init failure: ${e.message}"))
                     }
                 }, 10000) // 10 second timeout
             }
@@ -438,7 +458,7 @@ class WhisperConnectorService : Service() {
                     else -> 0
                 }
             }
-            broadcastProgressUpdate(batchId, batchState, hasErrors, errorMessages)
+            callProgressUpdate(batchId, batchState, hasErrors, errorMessages)
 
             // Check if all jobs are complete
             if (completedJobs >= batchState.totalFiles) {
@@ -447,7 +467,7 @@ class WhisperConnectorService : Service() {
                 if (hasErrors) {
                     Log.w(TAG, "TECHNICAL: Batch $batchId completed with errors: ${errorMessages.joinToString("; ")}")
                 }
-                broadcastProcessingComplete(batchId)
+                callProcessingComplete(batchId)
             } else {
                 Log.d(TAG, "TECHNICAL: Batch $batchId not yet complete: $completedJobs/${batchState.totalFiles}")
                 Log.d(TAG, "TECHNICAL: Next check in 2 seconds...")
@@ -469,7 +489,7 @@ class WhisperConnectorService : Service() {
         batchState.overallProgress = 100
 
         // Broadcast completion
-        broadcastProcessingComplete(batchId)
+        callProcessingComplete(batchId)
 
         // DISABLED: Auto-navigation to results page - let user manually navigate
         // broadcastPageNavigation("results")
@@ -547,18 +567,14 @@ class WhisperConnectorService : Service() {
     }
 
     /**
-     * Broadcast processing start
+     * Call processing start callback directly
      */
-    private fun broadcastProcessingStart(batchId: String, fileCount: Int) {
+    private fun callProcessingStart(batchId: String, fileCount: Int) {
         val batchState = activeBatches[batchId]
-        val intent = Intent(ACTION_START_PROCESSING).apply {
-            putExtra(EXTRA_BATCH_ID, batchId)
-            putExtra(EXTRA_FILE_COUNT, fileCount)
-            
-            // Add file information if available
-            if (batchState != null && batchState.files.isNotEmpty()) {
+        val fileInfo = batchState?.let { state ->
+            if (state.files.isNotEmpty()) {
                 val filesJson = JSONArray()
-                batchState.files.forEach { fileState ->
+                state.files.forEach { fileState ->
                     filesJson.put(JSONObject().apply {
                         put("name", fileState.fileName)
                         put("uri", fileState.fileUri)
@@ -566,76 +582,78 @@ class WhisperConnectorService : Service() {
                         put("progress", fileState.progress)
                     })
                 }
-                putExtra("file_info", filesJson.toString())
-                Log.d(TAG, "Broadcasting processing start with ${batchState.files.size} files")
-            }
+                filesJson.toString()
+            } else null
         }
-        sendBroadcast(intent)
+        
+        processingCallback?.invoke(batchId, fileCount, fileInfo)
+        Log.d(TAG, "Processing start callback called for batch: $batchId with $fileCount files")
     }
 
     /**
-     * Broadcast progress update
+     * Call progress update callback directly
      */
-    private fun broadcastProgressUpdate(batchId: String, batchState: BatchProcessingState, hasErrors: Boolean = false, errorMessages: List<String> = emptyList()) {
-        val intent = Intent(ACTION_UPDATE_PROGRESS).apply {
-            putExtra(EXTRA_BATCH_ID, batchId)
-            putExtra(EXTRA_PROGRESS, batchState.overallProgress)
-            putExtra(EXTRA_FILE_COUNT, batchState.totalFiles)
-            putExtra(EXTRA_CURRENT_FILE, batchState.currentFileIndex)
-            putExtra("completed_files", batchState.completedFiles)
-            putExtra("current_file_progress", batchState.currentFileProgress)
-            putExtra("has_errors", hasErrors)
-            if (errorMessages.isNotEmpty()) {
-                putExtra("error_messages", errorMessages.joinToString("; "))
-            }
-            // Add file details as JSON array
-            val filesJson = JSONArray()
-            batchState.files.forEach { fileState ->
-                filesJson.put(JSONObject().apply {
-                    put("fileName", fileState.fileName)
-                    put("fileUri", fileState.fileUri)
-                    put("status", fileState.status.name)
-                    put("progress", fileState.progress)
-                    put("rtf", fileState.rtf)
-                    put("error", fileState.error)
-                })
-            }
-            putExtra("file_states", filesJson.toString())
+    private fun callProgressUpdate(batchId: String, batchState: BatchProcessingState, hasErrors: Boolean = false, errorMessages: List<String> = emptyList()) {
+        val filesJson = JSONArray()
+        batchState.files.forEach { fileState ->
+            filesJson.put(JSONObject().apply {
+                put("fileName", fileState.fileName)
+                put("fileUri", fileState.fileUri)
+                put("status", fileState.status.name)
+                put("progress", fileState.progress)
+                put("rtf", fileState.rtf)
+                put("error", fileState.error)
+            })
         }
-        Log.d(TAG, "Progress update [$batchId]: overall=${batchState.overallProgress}% current=${batchState.currentFileIndex}/${batchState.totalFiles} errors=$hasErrors")
-        sendBroadcast(intent)
+        
+        val errorMessagesStr = if (errorMessages.isNotEmpty()) {
+            errorMessages.joinToString("; ")
+        } else null
+        
+        progressCallback?.invoke(
+            batchId,
+            batchState.overallProgress,
+            batchState.totalFiles,
+            batchState.currentFileIndex,
+            hasErrors,
+            errorMessagesStr,
+            filesJson.toString()
+        )
+        Log.d(TAG, "Progress update callback called [$batchId]: overall=${batchState.overallProgress}% current=${batchState.currentFileIndex}/${batchState.totalFiles} errors=$hasErrors")
     }
 
     /**
-     * Broadcast processing complete
+     * Call processing complete callback directly
      */
-    private fun broadcastProcessingComplete(batchId: String) {
-        Log.d(TAG, "Broadcasting processing complete for batch: $batchId")
-        val intent = Intent(ACTION_PROCESSING_COMPLETE).apply {
-            putExtra(EXTRA_BATCH_ID, batchId)
-        }
-        sendBroadcast(intent)
-        Log.d(TAG, "Broadcast sent for batch: $batchId")
+    private fun callProcessingComplete(batchId: String) {
+        completionCallback?.invoke(batchId)
+        Log.d(TAG, "Processing complete callback called for batch: $batchId")
     }
 
     /**
-     * Broadcast page navigation request to all connected pages
+     * Call page navigation callback directly
      */
-    private fun broadcastPageNavigation(targetPage: String) {
-        val intent = Intent(ACTION_PAGE_NAVIGATION).apply {
-            putExtra(EXTRA_NAVIGATION_TARGET, targetPage)
-        }
-        sendBroadcast(intent)
+    private fun callPageNavigation(targetPage: String) {
+        navigationCallback?.invoke(targetPage)
+        Log.d(TAG, "Page navigation callback called to: $targetPage")
     }
 
     /**
-     * Broadcast resource update
+     * Call resource update callback directly
      */
-    private fun broadcastResourceUpdate(resourceStats: AtomicResourceStats) {
-        val intent = Intent(ACTION_RESOURCE_UPDATE).apply {
-            putExtra(EXTRA_RESOURCE_STATS, resourceStats.toJson())
-        }
-        sendBroadcast(intent)
+    private fun callResourceUpdate(resourceStats: AtomicResourceStats) {
+        val stats = ResourceStats(
+            cpuUsage = resourceStats.cpuUsage.get(),
+            memoryUsage = resourceStats.memoryUsage.get(),
+            batteryLevel = resourceStats.batteryLevel.get(),
+            temperature = resourceStats.temperature.get(),
+            gpuInfo = resourceStats.gpuInfo.get(),
+            threadInfo = resourceStats.threadInfo.get(),
+            timestamp = System.currentTimeMillis()
+        )
+        
+        resourceCallback?.invoke(stats)
+        Log.d(TAG, "Resource update callback called")
     }
 
     /**
@@ -687,6 +705,6 @@ class WhisperConnectorService : Service() {
     private fun updateBatchProgress(batchId: String, progress: Int) {
         val batchState = activeBatches[batchId] ?: return
         batchState.overallProgress = progress
-        broadcastProgressUpdate(batchId, batchState)
+        callProgressUpdate(batchId, batchState)
     }
 }

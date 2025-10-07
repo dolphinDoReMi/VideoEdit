@@ -1,6 +1,6 @@
 # CLIP Visual Understanding System
 
-## Multi-Lens Explanation
+## Multi-Lens Expert Communication
 
 ### 1. Plain-text: How it works (step-by-step)
 
@@ -182,7 +182,7 @@
 ### Installation
 ```bash
 # Deploy CLIP model
-cd Doc/clip/scripts
+cd docs/clip/scripts
 ./deploy_clip_model.sh
 
 # Test frame sampling
@@ -327,6 +327,6 @@ Video Input → Frame Extraction → Preprocessing → CLIP Model → Post-proce
 
 ---
 
-**Last Updated**: October 5, 2025  
+**Last Updated**: October 7, 2025  
 **Version**: 1.0  
 **Status**: Production Ready

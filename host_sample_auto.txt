@@ -1,0 +1,10 @@
+ 目前的进展是想先做一个 Finance Vertical的
+ 所以在这个 Vertical 想实现一个有个性化推荐的版本
+ 然后目前的进展是说 这个有走通了一条个性化推荐的路
+ 但是没有太多就是 end-to-end的这种实现
+ 所以那个app还不完全能work 但是我先给你看一下这个个性化的路 然后再给你看一下这个app现在的状态
+ 我的理解是到app work 状态 只差最后一步
+ 一个是我们的video 要user的话我现在暂时只录入了我们三个人作为一个internal tester的东西
+ 这一些interaction 然后目前的话是记录了有一定的event tracking的这种功能
+ 所以它simulate了一些 behavior 以及在的一些 entry point
+ (speaking in foreign language)

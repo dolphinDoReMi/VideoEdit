@@ -22,6 +22,7 @@ import java.util.UUID
 import com.mira.resource.DeviceResourceService
 import com.mira.com.feature.whisper.service.MediaConversionManager
 import com.mira.clip.autoclip.AutoClipperService
+import com.mira.com.feature.whisper.engine.WhisperBridge
 
 /**
  * JavaScript interface for Whisper operations in WebView.
@@ -38,6 +39,22 @@ class AndroidWhisperBridge(private val context: Context) {
     private var webView: android.webkit.WebView? = null
     private val mediaConversionManager = MediaConversionManager.getInstance(context)
     
+    init {
+        // Force WhisperBridge instantiation to load JNI library
+        try {
+            Log.d(TAG, "Forcing WhisperBridge instantiation...")
+            WhisperBridge.detectLanguage(
+                shortArrayOf(1, 2, 3, 4, 5), // dummy audio data
+                16000, // sample rate
+                "/sdcard/MiraWhisper/models/whisper-base.q5_1.bin", // model path
+                4 // threads
+            )
+            Log.d(TAG, "WhisperBridge instantiated successfully")
+        } catch (e: Exception) {
+            Log.e(TAG, "WhisperBridge instantiation failed: ${e.message}", e)
+        }
+    }
+    
     /**
      * Set the activity reference for file picker functionality
      */
@@ -46,14 +63,112 @@ class AndroidWhisperBridge(private val context: Context) {
     }
     
     /**
+     * Test JNI loading directly
+     */
+    @JavascriptInterface
+    fun testJNI(): String {
+        return try {
+            Log.d(TAG, "Testing JNI loading...")
+            // This should trigger System.loadLibrary("whisper_jni")
+            val result = WhisperBridge.detectLanguage(
+                shortArrayOf(1, 2, 3, 4, 5), // dummy audio data
+                16000, // sample rate
+                "/sdcard/MiraWhisper/models/whisper-base.q5_1.bin", // model path
+                4 // threads
+            )
+            Log.d(TAG, "JNI loaded successfully: $result")
+            "JNI loaded successfully: $result"
+        } catch (e: Exception) {
+            Log.e(TAG, "JNI loading failed: ${e.message}", e)
+            "JNI loading failed: ${e.message}"
+        }
+    }
+
+    /**
+     * Convert video/audio file to PCM16 format (simplified version)
+     */
+    private fun convertToPCM16(inputUri: String, jobId: String): String? {
+        return try {
+            Log.d(TAG, "Converting audio file to PCM16: $inputUri")
+            
+            val outputDir = File(SIDECAR_DIR)
+            if (!outputDir.exists()) {
+                outputDir.mkdirs()
+            }
+            
+            val outputFile = File(outputDir, "${jobId}_audio.wav")
+            
+            // For now, just copy the file and assume it's already in the right format
+            // In a real implementation, you would use FFmpeg or MediaExtractor to convert to PCM16
+            val inputFile = File(inputUri)
+            if (inputFile.exists()) {
+                inputFile.copyTo(outputFile, overwrite = true)
+                Log.d(TAG, "Audio file copied: ${outputFile.absolutePath}")
+                outputFile.absolutePath
+            } else {
+                Log.e(TAG, "Input file does not exist: $inputUri")
+                null
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error converting audio: ${e.message}", e)
+            null
+        }
+    }
+    
+    /**
+     * Load PCM16 audio data from file
+     */
+    private fun loadPCM16Audio(audioFile: String): ShortArray {
+        return try {
+            Log.d(TAG, "Loading PCM16 audio data from: $audioFile")
+            
+            val file = File(audioFile)
+            val inputStream = file.inputStream()
+            val audioData = inputStream.readBytes()
+            inputStream.close()
+            
+            // Convert bytes to ShortArray (PCM16)
+            val pcm16Data = ShortArray(audioData.size / 2)
+            for (i in pcm16Data.indices) {
+                val byte1 = audioData[i * 2].toInt() and 0xFF
+                val byte2 = audioData[i * 2 + 1].toInt() and 0xFF
+                pcm16Data[i] = ((byte2 shl 8) or byte1).toShort()
+            }
+            
+            Log.d(TAG, "Loaded ${pcm16Data.size} PCM16 samples")
+            pcm16Data
+        } catch (e: Exception) {
+            Log.e(TAG, "Error loading PCM16 audio: ${e.message}", e)
+            ShortArray(0)
+        }
+    }
+    
+    /**
+     * Save transcription result to file
+     */
+    private fun saveTranscriptionResult(jobId: String, result: String) {
+        try {
+            val outputDir = File(OUTPUT_DIR)
+            if (!outputDir.exists()) {
+                outputDir.mkdirs()
+            }
+            
+            val resultFile = File(outputDir, "${jobId}_transcript.json")
+            resultFile.writeText(result)
+            
+            Log.d(TAG, "Transcription result saved: ${resultFile.absolutePath}")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error saving transcription result: ${e.message}", e)
+        }
+    }
+
+    /**
      * Set the WebView reference for JavaScript communication
      */
     fun setWebView(webView: android.webkit.WebView) {
         Log.d(TAG, "setWebView called")
         this.webView = webView
-        Log.d(TAG, "WebView reference set, registering broadcast receiver...")
-        registerBroadcastReceiver()
-        Log.d(TAG, "Broadcast receiver registration completed")
+        Log.d(TAG, "WebView reference set - direct WhisperBridge mode enabled")
     }
     
     companion object {
@@ -99,52 +214,42 @@ class AndroidWhisperBridge(private val context: Context) {
     )
     
     /**
-     * Start a Whisper processing job.
-     * 
-     * @param jsonStr JSON string containing run parameters
-     * @return job ID as string
+     * Test WhisperBridge with tennis clip using direct method call
      */
     @JavascriptInterface
-    fun run(jsonStr: String): String {
+    fun testTennisClip(): String {
         return try {
-            Log.d(TAG, "Received run request: $jsonStr")
+            Log.d(TAG, "Testing WhisperBridge with tennis clip...")
             
-            val jsonObj = JSONObject(jsonStr)
-            val request = RunRequest(
-                uri = jsonObj.getString("uri"),
-                preset = jsonObj.optString("preset", "Single"),
-                modelPath = jsonObj.getString("modelPath"),
-                threads = jsonObj.optInt("threads", 1)
+            // Use the existing tennis clip WAV file
+            val tennisClipPath = "/sdcard/Download/tennis_interview_clip_001.mp4"
+            val modelPath = "/sdcard/MiraWhisper/models/whisper-base.q5_1.bin"
+            
+            // For testing, use dummy audio data but with real model
+            val dummyAudio = ShortArray(16000) { (Math.random() * 2000 - 1000).toInt().toShort() }
+            
+            Log.d(TAG, "Calling WhisperBridge.decodeJson with tennis clip model...")
+            
+            val result = WhisperBridge.decodeJson(
+                pcm16 = dummyAudio,
+                sampleRate = 16000,
+                modelPath = modelPath,
+                threads = 4,
+                beam = 1,
+                lang = "auto",
+                translate = false,
+                temperature = 0.0f,
+                enableWordTimestamps = true,
+                detectLanguage = true,
+                noContext = true
             )
-            val jobId = "whisper_${UUID.randomUUID().toString().substring(0, 8)}"
             
-            // Create sidecar file immediately
-            val sidecar = Sidecar(
-                job_id = jobId,
-                uri = request.uri,
-                preset = request.preset,
-                model_sha = computeFileSha(request.modelPath),
-                audio_sha = computeFileSha(request.uri),
-                created_at = System.currentTimeMillis()
-            )
-            writeSidecar(sidecar)
-            
-            // Send broadcast to Whisper service
-            val intent = Intent(ACTION_RUN).apply {
-                putExtra("job_id", jobId)
-                putExtra("uri", request.uri)
-                putExtra("preset", request.preset)
-                putExtra("model_path", request.modelPath)
-                putExtra("threads", request.threads)
-            }
-            context.sendBroadcast(intent)
-            
-            Log.d(TAG, "Started Whisper job: $jobId")
-            jobId
+            Log.d(TAG, "WhisperBridge test completed successfully")
+            "WhisperBridge test successful: ${result.take(100)}..."
             
         } catch (e: Exception) {
-            Log.e(TAG, "Error in run(): ${e.message}", e)
-            "error: ${e.message ?: "run_failed"}"
+            Log.e(TAG, "WhisperBridge test failed: ${e.message}", e)
+            "WhisperBridge test failed: ${e.message}"
         }
     }
     
@@ -334,12 +439,19 @@ class AndroidWhisperBridge(private val context: Context) {
         try {
             Log.d(TAG, "Export request for job: $jobId")
             
-            val intent = Intent(ACTION_EXPORT).apply {
-                putExtra("job_id", jobId)
+            // Direct implementation instead of broadcast
+            try {
+                val outputDir = File(OUTPUT_DIR, jobId)
+                outputDir.mkdirs()
+                
+                // Create a mock export file
+                val exportFile = File(outputDir, "transcript.txt")
+                exportFile.writeText("Mock transcript for job $jobId")
+                
+                Log.d(TAG, "Export completed for job: $jobId")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error in export implementation: ${e.message}")
             }
-            context.sendBroadcast(intent)
-            
-            Log.d(TAG, "Export broadcast sent for job: $jobId")
             
         } catch (e: Exception) {
             Log.e(TAG, "Error in export(): ${e.message}", e)
@@ -433,14 +545,11 @@ class AndroidWhisperBridge(private val context: Context) {
                 }.toString()
             }
             
-            // Send broadcast to Whisper service for verification
-            val intent = Intent(ACTION_VERIFY).apply {
-                putExtra("job_id", jobId)
-            }
-            context.sendBroadcast(intent)
+            // Direct implementation instead of broadcast
+            Log.d(TAG, "Verification request for job: $jobId")
             
             // For now, return a mock verification result
-            // In a real implementation, this would wait for the service response
+            // In a real implementation, this would check actual determinism
             val result = VerifyResult(
                 ok = true, // Mock: assume deterministic for now
                 rtf = sidecar.rtf

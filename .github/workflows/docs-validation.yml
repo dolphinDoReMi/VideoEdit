@@ -1,0 +1,150 @@
+# .github/workflows/docs-validation.yml
+name: Documentation Validation
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'docs/**'
+      - 'README.md'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'docs/**'
+      - 'README.md'
+
+jobs:
+  docs-structure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Documentation Structure
+        run: |
+          chmod +x "docs/CICD & Release Guide/Scripts/validate_docs_structure.sh"
+          "./docs/CICD & Release Guide/Scripts/validate_docs_structure.sh"
+
+  control-knots:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Control Knots Format
+        run: |
+          chmod +x "docs/CICD & Release Guide/Scripts/validate_control_knots.sh"
+          "./docs/CICD & Release Guide/Scripts/validate_control_knots.sh"
+
+  multi-lens:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Multi-Lens Communication
+        run: |
+          chmod +x "docs/CICD & Release Guide/Scripts/validate_multi_lens.sh"
+          "./docs/CICD & Release Guide/Scripts/validate_multi_lens.sh"
+
+  markdown-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Markdown Lint
+        uses: DavidAnson/markdownlint-cli-action@v1
+        with:
+          files: 'docs/**/*.md'
+          config: '.markdownlint.yml'
+
+  spell-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Spell Check
+        uses: streetsidesoftware/cspell-action@v4
+        with:
+          files: 'docs/**/*.md'
+          config: 'cspell.json'
+
+  link-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Internal Links
+        run: |
+          # Check for broken internal links
+          find docs -name "*.md" -exec grep -l "\[.*\](.*\.md)" {} \; | while read file; do
+            echo "Checking links in $file"
+            grep -o "\[.*\](.*\.md)" "$file" | while read link; do
+              target=$(echo "$link" | sed 's/.*(\(.*\))/\1/')
+              if [ ! -f "docs/$target" ] && [ ! -f "$target" ]; then
+                echo "❌ Broken link in $file: $link"
+                exit 1
+              fi
+            done
+          done
+          echo "✅ All internal links valid"
+
+  content-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Content Quality
+        run: |
+          # Check for required content in each feature
+          features=("clip" "whisper" "infra")
+          for feature in "${features[@]}"; do
+            echo "🔍 Validating content for $feature"
+            
+            # Check Architecture Design file has required sections
+            arch_file="docs/$feature/Architecture Design and Control Knot.md"
+            if ! grep -q "Performance Metrics" "$arch_file"; then
+              echo "❌ Missing Performance Metrics in $arch_file"
+              exit 1
+            fi
+            
+            if ! grep -q "Integration Points" "$arch_file"; then
+              echo "❌ Missing Integration Points in $arch_file"
+              exit 1
+            fi
+            
+            if ! grep -q "Testing Strategy" "$arch_file"; then
+              echo "❌ Missing Testing Strategy in $arch_file"
+              exit 1
+            fi
+            
+            # Check Full Scale Implementation file has required sections
+            impl_file="docs/$feature/Full scale implementation Details.md"
+            if ! grep -q "Problem Disaggregation" "$impl_file"; then
+              echo "❌ Missing Problem Disaggregation in $impl_file"
+              exit 1
+            fi
+            
+            if ! grep -q "Analysis with Trade-offs" "$impl_file"; then
+              echo "❌ Missing Analysis with Trade-offs in $impl_file"
+              exit 1
+            fi
+            
+            if ! grep -q "Scale-out Plan" "$impl_file"; then
+              echo "❌ Missing Scale-out Plan in $impl_file"
+              exit 1
+            fi
+            
+            # Check device optimization files have required sections
+            for device in "XiaoMi Pad Inference Optimization.md" "iPad Inference Optimization.md"; do
+              device_file="docs/$feature/$device"
+              if ! grep -q "Device Specifications" "$device_file"; then
+                echo "❌ Missing Device Specifications in $device_file"
+                exit 1
+              fi
+              
+              if ! grep -q "Performance Optimization" "$device_file"; then
+                echo "❌ Missing Performance Optimization in $device_file"
+                exit 1
+              fi
+              
+              if ! grep -q "Deployment Scripts" "$device_file"; then
+                echo "❌ Missing Deployment Scripts in $device_file"
+                exit 1
+              fi
+            done
+            
+            echo "✅ Content validation passed for $feature"
+          done
+          
+          echo "✅ All content validation passed"

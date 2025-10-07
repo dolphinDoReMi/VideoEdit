@@ -71,7 +71,15 @@ android {
     buildConfigField("String", "ACTION_INGEST",         "\"com.mira.clip.INGEST\"")
     buildConfigField("String", "ACTION_SEARCH",         "\"com.mira.clip.SEARCH\"")
     
-    // NDK configuration removed - no longer using native code
+    // NDK configuration for VULKAN support
+    ndk {
+      abiFilters += listOf("arm64-v8a")
+    }
+    
+    // VULKAN GPU acceleration configuration
+    buildConfigField("boolean", "ENABLE_VULKAN", "true")
+    buildConfigField("boolean", "ENABLE_OPENCL", "true")
+    buildConfigField("String", "GPU_BACKEND_PRIORITY", "\"VULKAN,OPENCL,CPU\"")
   }
 
   signingConfigs {
@@ -267,8 +275,11 @@ dependencies {
   implementation("androidx.documentfile:documentfile:1.0.1")
   
   // PyTorch Mobile for CLIP models (always included)
-  implementation("org.pytorch:pytorch_android:1.13.1")
-  implementation("org.pytorch:pytorch_android_torchvision:1.13.1")
+  implementation("org.pytorch:pytorch_android:1.12.2")
+  implementation("org.pytorch:pytorch_android_torchvision:1.12.2")
+  
+  // Note: Vulkan support removed due to dependency resolution issues
+  // implementation("org.pytorch:pytorch_android_vulkan:1.13.1")
 
   // Conditional dependencies based on build variant
   if (gradle.startParameter.taskRequests.toString().contains("minimal")) {
@@ -388,8 +399,8 @@ dependencies {
   implementation("androidx.documentfile:documentfile:1.0.1")
   
   // PyTorch Mobile for CLIP models
-  implementation("org.pytorch:pytorch_android:1.13.1")
-  implementation("org.pytorch:pytorch_android_torchvision:1.13.1")
+  implementation("org.pytorch:pytorch_android:1.12.2")
+  implementation("org.pytorch:pytorch_android_torchvision:1.12.2")
 
   // Media3 - versions compatible with API 34
   implementation("androidx.media3:media3-transformer:1.2.1")

@@ -1,20 +1,57 @@
 cmake_minimum_required(VERSION 3.22.1)
 project(whisper_jni)
 
-# Simple implementation without external dependencies
-add_library(whisper_jni SHARED whisper_jni.cpp)
+set(CMAKE_CXX_STANDARD 17)
+
+# Set whisper.cpp directory
+set(WHISPER_LIB_DIR /Users/dennis/Movies/VideoEdit/whisper_real)
+
+# Source files
+set(SOURCE_FILES
+    ${WHISPER_LIB_DIR}/src/whisper.cpp
+    ${CMAKE_SOURCE_DIR}/whisper_jni.cpp
+    ${CMAKE_SOURCE_DIR}/vulkan_helper.cpp  # New Vulkan helper
+)
 
 # Find libraries
 find_library(log-lib log)
 
-# Link libraries
-target_link_libraries(whisper_jni ${log-lib})
+# Include FetchContent for ggml
+include(FetchContent)
 
-# Compile definitions
-target_compile_definitions(whisper_jni PRIVATE WHISPER_VERSION="1.6.0")
+# Build the library
+add_library(whisper_jni SHARED ${SOURCE_FILES})
+
+# Fetch and configure ggml
+FetchContent_Declare(ggml SOURCE_DIR ${WHISPER_LIB_DIR}/ggml)
+FetchContent_MakeAvailable(ggml)
+
+# Link libraries
+target_link_libraries(whisper_jni ${log-lib} android ggml)
+
+# Include directories
+target_include_directories(whisper_jni PRIVATE 
+    ${WHISPER_LIB_DIR}
+    ${WHISPER_LIB_DIR}/include
+    ${WHISPER_LIB_DIR}/src
+    ${WHISPER_LIB_DIR}/ggml/include
+    ${WHISPER_LIB_DIR}/ggml/src
+    ${WHISPER_LIB_DIR}/ggml/src/ggml-cpu
+    ${WHISPER_LIB_DIR}/ggml/src/ggml-vulkan  # Vulkan backend
+)
+
+# Compile definitions with Vulkan support
+target_compile_definitions(whisper_jni PRIVATE 
+    GGML_USE_CPU
+    GGML_USE_VULKAN
+    GGML_VULKAN_DEBUG=1
+    GGML_VULKAN_CHECK_RESULTS=1
+    WHISPER_VERSION="1.6.0"
+)
 
 # Compile options
 if (NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     target_compile_options(whisper_jni PRIVATE -O3)
     target_compile_options(whisper_jni PRIVATE -fvisibility=hidden -fvisibility-inlines-hidden)
+    target_compile_options(whisper_jni PRIVATE -ffunction-sections -fdata-sections)
 endif()

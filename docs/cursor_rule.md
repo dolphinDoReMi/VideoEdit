@@ -14,23 +14,21 @@ docs/
 │   ├── Full scale implementation Details.md
 │   ├── Device Deployment.md
 │   ├── README.md
-│   ├── Release (iOS, Android and MacOS Web Version).md
 │   └── scripts/                            # CLIP-specific scripts
 ├── whisper/                                 # Whisper Speech Recognition
 │   ├── Architecture Design and Control Knot.md
 │   ├── Full scale implementation Details.md
 │   ├── Device Deployment.md
 │   ├── README.md
-│   ├── Release (iOS, Android and MacOS Web Version).md
 │   └── scripts/                            # Whisper-specific scripts
-├── ui/                                      # UI System
+├── infra/                                   # Infrastructure Services
 │   ├── Architecture Design and Control Knot.md
 │   ├── Full scale implementation Details.md
 │   ├── Device Deployment.md
 │   ├── README.md
-│   ├── Release (iOS, Android and MacOS Web Version).md
-│   └── scripts/                            # UI-specific scripts
+│   └── scripts/                            # Infrastructure scripts
 ├── Release (iOS, Android and macOS Web Version).md
+├── CI-CD Guide.md
 └── cursor_rule.md                          # This file
 ```
 
@@ -94,22 +92,22 @@ VideoEdit/
 
 **Verification:** Processing validation script in `docs/whisper/scripts/validate_audio_processing.sh`
 
-### UI Control Knots
+### Infrastructure Control Knots
 **Status: READY FOR VERIFICATION**
 
 **Control knots:**
-- WebView framework: Chrome WebView 120+ compatibility
-- JavaScript bridge: @JavascriptInterface for native calls
-- State management: Centralized with broadcast updates
-- Accessibility: Full WCAG compliance with screen reader support
+- Hash-based detection: SHA-256 content comparison
+- Duplicate strategy: Keep most recent file
+- Global cleanup: Comprehensive cleanup operations
+- Error handling: Graceful degradation
 
 **Implementation:**
-- WebView integration: Embedded HTML/CSS/JS assets
-- JavaScript bridge: Direct native method calls with error handling
-- State synchronization: Broadcast system for real-time updates
-- Accessibility: ARIA labels, semantic HTML, keyboard navigation
+- Deterministic hashing: SHA-256 with 8KB chunks
+- Content-based detection: 100% accuracy duplicate detection
+- Background processing: Asynchronous operations with callbacks
+- Storage optimization: Up to 40% space reduction
 
-**Verification:** UI automation tests in `docs/ui/scripts/test_ui_automation.sh`
+**Verification:** Infrastructure validation script in `docs/infra/scripts/verify_infrastructure_consistency.sh`
 
 ## Coding Standards
 
@@ -138,12 +136,12 @@ VideoEdit/
 - **main**: Production-ready code
 - **feature/whisper**: Whisper feature development
 - **feature/clip**: CLIP feature development
-- **feature/ui**: UI feature development
+- **feature/infra**: Infrastructure feature development
 - **hotfix/**: Critical bug fixes
 
 ### Commit Standards
 - **Format**: Conventional Commits (`feat:`, `fix:`, `docs:`, etc.)
-- **Scope**: Feature area (whisper, clip, ui, core)
+- **Scope**: Feature area (whisper, clip, infra, core)
 - **Description**: Clear, concise description
 - **Body**: Detailed explanation for complex changes
 
@@ -188,11 +186,11 @@ VideoEdit/
 - **Accuracy**: > 95% on standard benchmarks
 - **Embedding Consistency**: 99.9% hash match
 
-### UI Components
-- **Load Time**: < 1.5s First Contentful Paint
-- **Bundle Size**: < 200KB gzipped
-- **Animation**: 60fps smooth
-- **Accessibility**: WCAG AA compliance
+### Infrastructure
+- **Space Optimization**: Up to 40% reduction through duplicate removal
+- **Processing Efficiency**: 8KB chunk-based hashing for large files
+- **Error Resilience**: Graceful handling of edge cases
+- **Background Processing**: Non-blocking operations with callbacks
 
 ## Security Considerations
 
@@ -288,12 +286,12 @@ cd docs/whisper/scripts
 ./work_through_video_v1.sh
 ```
 
-### UI (User Interface)
+### Infrastructure (File Management)
 ```bash
-cd docs/ui/scripts
-./test_ui_automation.sh
-./test_responsive_design.sh
-./test_accessibility.sh
+cd docs/infra/scripts
+./setup_infrastructure.sh
+./test_duplicate_detection.sh
+./verify_infrastructure_consistency.sh
 ```
 
 ## Future Roadmap

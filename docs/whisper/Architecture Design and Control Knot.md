@@ -16,7 +16,7 @@
 
 ## Verification
 
-Hash comparison script in `ops/verify_all.sh`
+Hash comparison script in `docs/whisper/scripts/validate_audio_processing.sh`
 
 ## Video Clipping Integration
 
