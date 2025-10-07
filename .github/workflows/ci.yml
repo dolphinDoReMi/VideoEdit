@@ -54,7 +54,7 @@ jobs:
           echo "Validating comprehensive feature-based documentation structure..."
           
           # Check that CLIP documents exist
-          required_docs=("docs/CLIP_ARCHITECTURE.md" "docs/CLIP_IMPLEMENTATION.md")
+          required_docs=("docs/clip/Architecture Design and Control Knot.md" "docs/clip/Full scale implementation Details.md")
           for doc in "${required_docs[@]}"; do
             if [ ! -f "$doc" ]; then
               echo "❌ Missing required CLIP document: $doc"
@@ -93,13 +93,13 @@ jobs:
           fi
           
           # Check for code pointers in CLIP documents
-          if ! grep -q "Code Pointer\|File Pointer\|Script Pointer" docs/CLIP_ARCHITECTURE.md; then
-            echo "❌ CLIP_ARCHITECTURE.md missing code pointers"
+          if ! grep -q "Code Pointer\|File Pointer\|Script Pointer" "docs/clip/Architecture Design and Control Knot.md"; then
+            echo "❌ Architecture Design and Control Knot.md missing code pointers"
             exit 1
           fi
           
-          if ! grep -q "Code Pointer\|File Pointer\|Script Pointer" docs/CLIP_IMPLEMENTATION.md; then
-            echo "❌ CLIP_IMPLEMENTATION.md missing code pointers"
+          if ! grep -q "Code Pointer\|File Pointer\|Script Pointer" "docs/clip/Full scale implementation Details.md"; then
+            echo "❌ Full scale implementation Details.md missing code pointers"
             exit 1
           fi
           
