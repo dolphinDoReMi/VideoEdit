@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [ main, develop ]
   push:
-    branches: [ main, develop, feature/ui-v3 ]
+    branches: [ main, develop, feature/ui-v3, feature/** ]
   workflow_dispatch:
 
 concurrency:

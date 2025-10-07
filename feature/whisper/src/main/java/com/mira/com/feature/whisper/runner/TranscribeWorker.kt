@@ -12,7 +12,7 @@ import com.mira.com.feature.whisper.data.db.AsrDb
 import com.mira.com.feature.whisper.data.db.AsrFile
 import com.mira.com.feature.whisper.data.db.AsrJob
 import com.mira.com.feature.whisper.data.io.AudioIO
-import com.mira.com.feature.whisper.engine.WhisperBridge
+import com.mira.com.core.ml.WhisperBridge
 import com.mira.com.feature.whisper.engine.WhisperParams
 import com.mira.com.feature.whisper.engine.LanguageDetectionService
 import com.mira.com.feature.whisper.util.Hash
@@ -243,18 +243,10 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
 
             // 3) Decode with detected/forced language
             val t0 = SystemClock.elapsedRealtime()
-            val json = WhisperBridge.decodeJson(
+            val json = WhisperBridge.decode(
                 pcm16 = pcm16k,
                 sampleRate = 16_000,
-                modelPath = model,
-                threads = threads,
-                beam = beam,
-                lang = lidResult.chosen,
-                translate = translate,
-                temperature = 0.0f,
-                enableWordTimestamps = false,
-                detectLanguage = false, // Already done above
-                noContext = true
+                threads = threads
             )
             val t1 = SystemClock.elapsedRealtime()
             val inferMs = t1 - t0
@@ -289,7 +281,7 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
                     params = WhisperParams(model, threads, beam, lidResult.chosen, translate),
                     inferMs = inferMs,
                     rtf = rtf,
-                    segmentsJson = JSONObject(json).optJSONArray("segments"),
+                    segmentsJson = null, // decode() returns plain text, not JSON
                 )
 
             // Back-compat fields expected by aggregator
@@ -440,14 +432,10 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
                     val chunkTimeoutMs = 2 * 60 * 1000L
                     
                     val chunkJson = try {
-                        WhisperBridge.decodeJson(
+                        WhisperBridge.decode(
                             pcm16 = pcm16k,
                             sampleRate = 16000,
-                            modelPath = model,
-                            threads = threads,
-                            beam = beam,
-                            lang = lang,
-                            translate = translate
+                            threads = threads
                         )
                     } catch (e: Exception) {
                         val whisperTime = System.currentTimeMillis() - whisperStartTime
@@ -462,10 +450,9 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
                     val whisperTime = System.currentTimeMillis() - whisperStartTime
                     totalInferenceTime += whisperTime
                     
-                    // Parse JSON result to extract text
+                    // Parse result to extract text
                     val parseStartTime = System.currentTimeMillis()
-                    val jsonResult = JSONObject(chunkJson)
-                    val chunkText = jsonResult.optString("text", "").trim()
+                    val chunkText = chunkJson.trim()
                     val parseTime = System.currentTimeMillis() - parseStartTime
                     
                     val totalChunkTime = System.currentTimeMillis() - chunkStartTime

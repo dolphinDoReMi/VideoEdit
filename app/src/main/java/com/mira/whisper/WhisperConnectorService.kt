@@ -11,6 +11,7 @@ import android.content.Context
 import android.os.BatteryManager
 import android.os.Debug
 import android.content.Context.BATTERY_SERVICE
+import android.content.IntentFilter
 import org.json.JSONObject
 import org.json.JSONArray
 import java.io.File
@@ -85,13 +86,14 @@ class WhisperConnectorService : Service() {
     
     // Data class for resource stats
     data class ResourceStats(
-        val cpuUsage: Double,
-        val memoryUsage: Double,
-        val batteryLevel: Int,
+        val memory: Long,
+        val cpu: Double,
+        val battery: Int,
         val temperature: Double,
+        val batteryDetails: String,
         val gpuInfo: String,
         val threadInfo: String,
-        val timestamp: Long
+        val timestamp: Long = System.currentTimeMillis()
     )
     
     // Data classes for state management
@@ -121,17 +123,6 @@ class WhisperConnectorService : Service() {
     enum class ProcessingStatus {
         PENDING, PROCESSING, COMPLETED, ERROR, CANCELLED
     }
-    
-    data class ResourceStats(
-        val memory: Long,
-        val cpu: Double,
-        val battery: Int,
-        val temperature: Double,
-        val batteryDetails: String,
-        val gpuInfo: String,
-        val threadInfo: String,
-        val timestamp: Long = System.currentTimeMillis()
-    )
     
     private class AtomicResourceStats {
         @Volatile var memory: Long = 0
@@ -643,13 +634,14 @@ class WhisperConnectorService : Service() {
      */
     private fun callResourceUpdate(resourceStats: AtomicResourceStats) {
         val stats = ResourceStats(
-            cpuUsage = resourceStats.cpuUsage.get(),
-            memoryUsage = resourceStats.memoryUsage.get(),
-            batteryLevel = resourceStats.batteryLevel.get(),
-            temperature = resourceStats.temperature.get(),
-            gpuInfo = resourceStats.gpuInfo.get(),
-            threadInfo = resourceStats.threadInfo.get(),
-            timestamp = System.currentTimeMillis()
+            memory = resourceStats.memory,
+            cpu = resourceStats.cpu,
+            battery = resourceStats.battery,
+            temperature = resourceStats.temperature,
+            batteryDetails = resourceStats.batteryDetails,
+            gpuInfo = resourceStats.gpuInfo,
+            threadInfo = resourceStats.threadInfo,
+            timestamp = resourceStats.timestamp
         )
         
         resourceCallback?.invoke(stats)

@@ -10,7 +10,7 @@ set(WHISPER_LIB_DIR /Users/dennis/Movies/VideoEdit/whisper_real)
 set(SOURCE_FILES
     ${WHISPER_LIB_DIR}/src/whisper.cpp
     ${CMAKE_SOURCE_DIR}/whisper_jni.cpp
-    ${CMAKE_SOURCE_DIR}/vulkan_helper.cpp  # New Vulkan helper
+    # ${CMAKE_SOURCE_DIR}/vulkan_helper.cpp  # Vulkan helper disabled for CPU-only test
 )
 
 # Find libraries
@@ -37,15 +37,24 @@ target_include_directories(whisper_jni PRIVATE
     ${WHISPER_LIB_DIR}/ggml/include
     ${WHISPER_LIB_DIR}/ggml/src
     ${WHISPER_LIB_DIR}/ggml/src/ggml-cpu
-    ${WHISPER_LIB_DIR}/ggml/src/ggml-vulkan  # Vulkan backend
+    # ${WHISPER_LIB_DIR}/ggml/src/ggml-vulkan  # Vulkan backend disabled for CPU-only test
 )
 
-# Compile definitions with Vulkan support
+# Compile definitions with CPU-only support (Vulkan disabled for CPU-only test)
 target_compile_definitions(whisper_jni PRIVATE 
     GGML_USE_CPU
-    GGML_USE_VULKAN
-    GGML_VULKAN_DEBUG=1
-    GGML_VULKAN_CHECK_RESULTS=1
+    GGML_USE_OPENMP
+    GGML_USE_ACCELERATE
+    GGML_USE_METAL=0
+    GGML_USE_CUDA=0
+    GGML_USE_VULKAN=0
+    GGML_USE_SYCL=0
+    GGML_USE_KOMPUTE=0
+    GGML_USE_RPC=0
+    GGML_USE_FLASH_ATTN=0
+    GGML_USE_F16=0
+    GGML_F16_VEC=0
+    GGML_F16_SCALAR=0
     WHISPER_VERSION="1.6.0"
 )
 

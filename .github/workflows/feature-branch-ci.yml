@@ -1,0 +1,355 @@
+name: Feature Branch CI/CD
+
+on:
+  push:
+    branches: 
+      - 'feature/**'
+      - 'feat/**'
+      - 'wip/**'
+  pull_request:
+    branches: [ main, develop ]
+    types: [opened, synchronize, reopened, edited]
+  workflow_dispatch:
+    inputs:
+      branch_name:
+        description: 'Feature branch name'
+        required: true
+        type: string
+      mark_wip:
+        description: 'Mark as Work In Progress'
+        required: false
+        type: boolean
+        default: true
+
+concurrency:
+  group: feature-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FEATURE_BRANCH: ${{ github.head_ref || github.ref_name }}
+  IS_WIP: ${{ github.event.inputs.mark_wip || contains(github.ref, 'wip') || contains(github.ref, 'WIP') }}
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      suffix: ${{ steps.suffix.outputs.suffix }}
+      db: ${{ steps.changes.outputs.db }}
+      workers: ${{ steps.changes.outputs.workers }}
+      ml: ${{ steps.changes.outputs.ml }}
+      video: ${{ steps.changes.outputs.video }}
+      docs: ${{ steps.changes.outputs.docs }}
+      android: ${{ steps.changes.outputs.android }}
+      ios: ${{ steps.changes.outputs.ios }}
+      web: ${{ steps.changes.outputs.web }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Derive thread suffix
+        id: suffix
+        run: echo "suffix=$(./scripts/thread_suffix.sh)" >> $GITHUB_OUTPUT
+      - name: Detect changed paths
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          filters: |
+            db:
+              - 'app/src/main/java/com/mira/videoeditor/db/**'
+            workers:
+              - 'app/src/main/java/com/mira/videoeditor/workers/**'
+            ml:
+              - 'app/src/main/java/com/mira/videoeditor/ml/**'
+              - 'feature/whisper/**'
+            video:
+              - 'app/src/main/java/com/mira/videoeditor/video/**'
+            docs:
+              - 'docs/**'
+            android:
+              - 'app/**'
+              - 'core/**'
+            ios:
+              - 'ios/**'
+              - 'capacitor.config.ts'
+            web:
+              - 'components/**'
+              - 'app/**'
+              - 'package.json'
+              - 'package-lock.json'
+
+  mark-wip-status:
+    runs-on: ubuntu-latest
+    if: env.IS_WIP == 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Mark PR as WIP
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "🚧 Marking PR as Work In Progress"
+          gh pr edit ${{ github.event.pull_request.number }} --add-label "WIP" || true
+          gh pr edit ${{ github.event.pull_request.number }} --add-label "do-not-merge" || true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create WIP Issue
+        if: github.event_name == 'push'
+        run: |
+          echo "🚧 Creating WIP tracking issue for feature branch"
+          gh issue create \
+            --title "🚧 WIP: Feature Branch ${{ env.FEATURE_BRANCH }}" \
+            --body "This issue tracks the Work In Progress status of feature branch \`${{ env.FEATURE_BRANCH }}\`.
+
+          **Branch**: \`${{ env.FEATURE_BRANCH }}\`
+          **Status**: Work In Progress
+          **Last Updated**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          
+          This feature branch is currently under development and should not be merged until marked as ready." \
+            --label "WIP,feature-branch" || true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  android-build:
+    needs: [detect-changes, mark-wip-status]
+    if: needs.detect-changes.outputs.android == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Cache Gradle packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: Gradle Build (assembleDebug)
+        uses: gradle/gradle-build-action@v3
+        with:
+          arguments: >
+            :app:assembleDebug
+            -PappIdSuffix=${{ needs.detect-changes.outputs.suffix }}
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-${{ needs.detect-changes.outputs.suffix }}-${{ env.FEATURE_BRANCH }}.apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: warn
+      - name: Upload Build Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-build-reports-${{ needs.detect-changes.outputs.suffix }}-${{ env.FEATURE_BRANCH }}
+          path: |
+            app/build/reports/
+            app/build/outputs/
+          if-no-files-found: warn
+
+  android-tests:
+    needs: [detect-changes, mark-wip-status]
+    if: needs.detect-changes.outputs.db == 'true' || needs.detect-changes.outputs.ml == 'true' || needs.detect-changes.outputs.workers == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Run unit tests
+        uses: gradle/gradle-build-action@v3
+        with:
+          arguments: >
+            :app:testDebugUnitTest
+            -PappIdSuffix=${{ needs.detect-changes.outputs.suffix }}
+      - name: Upload unit test reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-reports-${{ needs.detect-changes.outputs.suffix }}-${{ env.FEATURE_BRANCH }}
+          path: app/build/reports/tests/testDebugUnitTest/**
+          if-no-files-found: warn
+
+  ios-build:
+    needs: [detect-changes, mark-wip-status]
+    if: needs.detect-changes.outputs.ios == 'true'
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Build web assets
+        run: npm run build
+      - name: Install Capacitor CLI
+        run: npm install -g @capacitor/cli
+      - name: Sync iOS
+        run: npx cap sync ios
+      - name: Install CocoaPods
+        run: |
+          cd ios/App
+          pod install --repo-update
+          cd -
+      - name: Build iOS (Debug)
+        run: |
+          cd ios/App
+          xcodebuild -workspace App.xcworkspace \
+            -scheme App \
+            -configuration Debug \
+            -destination 'generic/platform=iOS' \
+            -allowProvisioningUpdates \
+            build
+          cd -
+      - name: Upload iOS build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build-${{ env.FEATURE_BRANCH }}
+          path: |
+            ios/App/build/
+            ios/App/App.xcworkspace/
+          if-no-files-found: warn
+
+  web-build:
+    needs: [detect-changes, mark-wip-status]
+    if: needs.detect-changes.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Build web assets
+        run: npm run build
+      - name: Upload web build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build-${{ env.FEATURE_BRANCH }}
+          path: dist/
+          if-no-files-found: warn
+      - name: Deploy to Preview (if not WIP)
+        if: env.IS_WIP != 'true'
+        uses: nwtgck/actions-netlify@v2.0
+        with:
+          publish-dir: './dist'
+          production-deploy: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: "Feature branch: ${{ env.FEATURE_BRANCH }}"
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+
+  docs-validation:
+    needs: [detect-changes, mark-wip-status]
+    if: needs.detect-changes.outputs.docs == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Documentation Structure
+        run: |
+          echo "Validating comprehensive feature-based documentation structure..."
+          
+          # Check that CLIP documents exist
+          required_docs=("docs/clip/Architecture Design and Control Knot.md" "docs/clip/Full scale implementation Details.md")
+          for doc in "${required_docs[@]}"; do
+            if [ ! -f "$doc" ]; then
+              echo "❌ Missing required CLIP document: $doc"
+              exit 1
+            else
+              echo "✅ Found: $doc"
+            fi
+          done
+          
+          # Check for code pointers in CLIP documents
+          if ! grep -q "Code Pointer\|File Pointer\|Script Pointer" "docs/clip/Architecture Design and Control Knot.md"; then
+            echo "❌ Architecture Design and Control Knot.md missing code pointers"
+            exit 1
+          fi
+          
+          if ! grep -q "Code Pointer\|File Pointer\|Script Pointer" "docs/clip/Full scale implementation Details.md"; then
+            echo "❌ Full scale implementation Details.md missing code pointers"
+            exit 1
+          fi
+          
+          echo "✅ Comprehensive feature-based documentation structure validation passed"
+
+  whisper-validation:
+    needs: [detect-changes, mark-wip-status]
+    if: needs.detect-changes.outputs.ml == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Validate Whisper Implementation
+        run: |
+          echo "🔍 Validating Whisper Implementation..."
+          
+          # Check if LanguageDetectionService exists
+          if [ -f "feature/whisper/src/main/java/com/mira/com/feature/whisper/engine/LanguageDetectionService.kt" ]; then
+            echo "✅ LanguageDetectionService found"
+            
+            # Validate key methods
+            if grep -q "detectLanguage" feature/whisper/src/main/java/com/mira/com/feature/whisper/engine/LanguageDetectionService.kt; then
+              echo "✅ detectLanguage method found"
+            else
+              echo "❌ detectLanguage method missing"
+              exit 1
+            fi
+            
+            if grep -q "extractVoicedWindow" feature/whisper/src/main/java/com/mira/com/feature/whisper/engine/LanguageDetectionService.kt; then
+              echo "✅ extractVoicedWindow method found"
+            else
+              echo "❌ extractVoicedWindow method missing"
+              exit 1
+            fi
+          else
+            echo "❌ LanguageDetectionService not found"
+            exit 1
+          fi
+          
+          echo "✅ Whisper implementation validation passed"
+
+  summary:
+    needs: [detect-changes, mark-wip-status, android-build, android-tests, ios-build, web-build, docs-validation, whisper-validation]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate Summary
+        run: |
+          echo "## 🚀 Feature Branch CI/CD Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch**: \`${{ env.FEATURE_BRANCH }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Status**: ${{ env.IS_WIP == 'true' && '🚧 Work In Progress' || '✅ Ready for Review' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Changes Detected:" >> $GITHUB_STEP_SUMMARY
+          echo "- Database: ${{ needs.detect-changes.outputs.db }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Workers: ${{ needs.detect-changes.outputs.workers }}" >> $GITHUB_STEP_SUMMARY
+          echo "- ML/Whisper: ${{ needs.detect-changes.outputs.ml }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Video: ${{ needs.detect-changes.outputs.video }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Documentation: ${{ needs.detect-changes.outputs.docs }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Android: ${{ needs.detect-changes.outputs.android }}" >> $GITHUB_STEP_SUMMARY
+          echo "- iOS: ${{ needs.detect-changes.outputs.ios }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Web: ${{ needs.detect-changes.outputs.web }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Build Results:" >> $GITHUB_STEP_SUMMARY
+          echo "- Android Build: ${{ needs.android-build.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Android Tests: ${{ needs.android-tests.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- iOS Build: ${{ needs.ios-build.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Web Build: ${{ needs.web-build.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Docs Validation: ${{ needs.docs-validation.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Whisper Validation: ${{ needs.whisper-validation.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Artifacts:" >> $GITHUB_STEP_SUMMARY
+          echo "Check the Actions tab for downloadable artifacts including APKs, build reports, and test results." >> $GITHUB_STEP_SUMMARY

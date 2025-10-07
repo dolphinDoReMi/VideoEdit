@@ -90,6 +90,42 @@
 - Keep a float (or higher-precision) baseline for audits
 - Report ΔWER/ΔRTF
 
+**Advanced Optimization Control Knots:**
+
+**Compute & Runtime:**
+- **Backend Selection**: Vulkan GPU provides significant speedups if driver exposes FP16 and 16-bit storage; CPU is universal fallback
+- **Build Flag**: `GGML_VULKAN=1` enables Vulkan backend
+- **Thread Configuration**: More threads increase throughput until big cores saturated; beyond that, thermals dominate
+- **Rationale**: Throughput vs. stability trade-off; Vulkan fastest when supported
+
+**Model Choice & Weight Format:**
+- **Model Size**: tiny/small/base/medium/large - bigger = better WER but higher latency/memory
+- **Quantization Strategy**: Q5_1 (sweet spot), Q8_0 (quality), Q4_* (memory-constrained)
+- **Rationale**: Choose smallest model meeting accuracy requirements
+
+**Audio Windowing & Context:**
+- **Audio Context**: Default ~1500 frames (~30s); lowering to 768 speeds encoding but hurts edge accuracy
+- **Constraint**: Keep multiples of 64
+- **Chunking Strategy**: Smaller chunks = lower latency/higher boundary risk; larger = better context/higher memory
+- **Rationale**: Latency vs. context trade-off for real-time vs. batch processing
+
+**Decoding Strategy (Quality vs Speed):**
+- **Beam Search**: Improves quality/consistency, costs speed (set beam size)
+- **Greedy**: Fastest option, can miss alternatives
+- **Temperature Control**: Low temperature (near 0) = more deterministic; temperature fallback for failed heuristics
+- **Rationale**: Beam = accuracy, greedy = latency
+
+**Hallucination & Silence Controls:**
+- **no_speech_threshold**: Controls silence dropping aggressiveness; too high suppresses quiet speech, too low admits noise
+- **Quality Filters**: log_prob_threshold and compression-ratio checks filter low-confidence/hallucinated text
+- **External VAD**: Gate decoding to voiced regions with thresholds and min duration
+- **Rationale**: Guardrails for robustness on noisy inputs
+
+**Language & Conditioning:**
+- **Language Selection**: Fixed language improves speed/avoids mis-detection; auto-detect for unknown languages
+- **Context Carry-over**: Helps continuity across chunks; disable if bad text poisons later segments
+- **Rationale**: Stability vs. error propagation trade-off
+
 **Known Limitations:**
 - No diarization/speaker turns by default
 - Far-field/noisy audio benefits from better resampling and optional VAD
@@ -381,13 +417,168 @@ Job Scheduling → WorkManager → Directory Management → Resource Monitoring
 - **Memory Efficiency**: 50% reduction for large files
 
 ### Optimization
-- **Model Quantization**: GGUF Q5_1 for optimal speed/accuracy
-- **Memory Management**: Streaming processing for long audio
-- **Threading**: Configurable thread count based on device capabilities
-- **Caching**: Intelligent model and audio caching
+
+#### Model Quantization
+- **GGUF Q5_1**: Common "sweet spot" for speed/quality balance
+- **Q8_0**: Higher RAM cost but preserves quality
+- **Q4_***: For tight memory constraints
+- **Rationale**: Fit device memory while keeping accuracy acceptable
+
+#### Memory Management
+- **Streaming Processing**: For files >100MB to prevent OOM
 - **Chunking Strategy**: 30-second chunks with overlap handling
 - **Memory Pressure**: Dynamic threshold adjustment based on device RAM
-- **Batch Coordination**: WorkManager-based parallel processing
+- **Caching**: Intelligent model and audio caching
+
+#### Compute Optimization
+- **Threading**: Configurable thread count based on device capabilities
+- **Vulkan Backend**: GPU acceleration when FP16/16-bit storage supported
+- **CPU Fallback**: Universal compatibility when Vulkan unavailable
+- **Thermal Management**: Thread count optimization for device thermals
+
+#### Advanced Optimization Strategies
+
+**Realtime Captions (On-device UI):**
+- Backend: Vulkan if available
+- Model: small.en-Q5_1
+- Decoding: Greedy/temperature=0
+- Audio Context: Default or slightly reduced (e.g., 1024)
+- Silence: Moderate no_speech_threshold
+- **Rationale**: Lowest latency with acceptable English WER on tablet thermals
+
+**Batch Processing (Higher Accuracy):**
+- Backend: Vulkan or CPU
+- Model: medium-Q5_1 (or Q8_0 if RAM allows)
+- Decoding: Beam size ~5, temperature=0
+- Filters: Defaults for log-prob/compression
+- Audio Context: Full (1500)
+- **Rationale**: Prioritizes WER and stability; beam search is main quality lever
+
+**Noisy Meetings / Music Background:**
+- Language: Fixed language
+- VAD: Conservative threshold + min speech duration
+- Temperature: Low
+- Filters: log-prob + compression checks
+- **Rationale**: Reduce hallucinations and music-as-speech errors
+
+**Multilingual / Auto-detect:**
+- Language: Auto-detect enabled
+- Silence Filtering: Avoid aggressive filtering
+- Decoding: Consider beam search for stability
+- Audio Context: Normal (1500)
+- **Rationale**: Auto-detect needs context and less pruning to avoid language flips
+
+**Low-memory Profile:**
+- Model: tiny/small-Q4 or Q5_0
+- Decoding: Greedy
+- Audio Context: Possibly shorter
+- **Rationale**: Fits tight RAM while keeping usable speed
+
+#### Vulkan Backend Considerations
+
+**Driver Requirements:**
+- **FP16 Support**: Driver must expose FP16 capabilities
+- **16-bit Storage**: Driver must support 16-bit storage
+- **Verification**: Use `vulkaninfo` to check capabilities
+
+**Common Issues:**
+- **Error Message**: "device does not support 16-bit storage"
+- **Cause**: Driver capability limitation, not a Whisper setting
+- **Solution**: Fall back to CPU if Vulkan requirements not met
+
+**Build Configuration:**
+```bash
+# Enable Vulkan backend
+export GGML_VULKAN=1
+
+# Verify Vulkan support
+vulkaninfo | grep -E "(FP16|16-bit storage)"
+```
+
+#### Preset Configurations
+
+**Realtime Mode:**
+```kotlin
+val realtimeConfig = WhisperConfig(
+    backend = Backend.VULKAN_IF_AVAILABLE,
+    model = Model.SMALL_EN_Q5_1,
+    decoding = DecodingStrategy.GREEDY,
+    temperature = 0.0f,
+    audioContext = 1024,
+    noSpeechThreshold = 0.6f,
+    threads = 4
+)
+```
+
+**Batch Accurate Mode:**
+```kotlin
+val batchConfig = WhisperConfig(
+    backend = Backend.VULKAN_OR_CPU,
+    model = Model.MEDIUM_Q5_1,
+    decoding = DecodingStrategy.BEAM_SEARCH,
+    beamSize = 5,
+    temperature = 0.0f,
+    audioContext = 1500,
+    logProbThreshold = -1.0f,
+    compressionRatioThreshold = 2.4f
+)
+```
+
+**Noisy Audio Mode:**
+```kotlin
+val noisyConfig = WhisperConfig(
+    language = "en", // Fixed language
+    vadEnabled = true,
+    vadThreshold = 0.6f,
+    minSpeechDuration = 0.5f,
+    temperature = 0.0f,
+    logProbThreshold = -1.0f,
+    compressionRatioThreshold = 2.4f
+)
+```
+
+**Low Memory Mode:**
+```kotlin
+val lowMemoryConfig = WhisperConfig(
+    model = Model.TINY_Q4_0,
+    decoding = DecodingStrategy.GREEDY,
+    audioContext = 768,
+    threads = 2
+)
+```
+
+#### Performance Monitoring
+
+**Key Metrics:**
+- **Latency**: Time from audio input to text output
+- **Memory Usage**: Peak and average memory consumption
+- **CPU/GPU Utilization**: Resource usage efficiency
+- **Accuracy**: WER (Word Error Rate) for quality assessment
+- **Thermal**: Device temperature during processing
+
+**Monitoring Implementation:**
+```kotlin
+class WhisperPerformanceMonitor {
+    fun trackLatency(startTime: Long, endTime: Long)
+    fun trackMemoryUsage(peakMemory: Long, averageMemory: Long)
+    fun trackAccuracy(expectedText: String, actualText: String)
+    fun trackThermal(temperature: Float)
+}
+```
+
+#### Troubleshooting Performance Issues
+
+**Common Performance Issues:**
+1. **High Latency**: Reduce audio context, use greedy decoding, enable Vulkan
+2. **Memory Issues**: Use smaller model, reduce quantization, limit audio context
+3. **Poor Accuracy**: Increase model size, use beam search, adjust silence thresholds
+4. **Thermal Throttling**: Reduce threads, use CPU backend, implement thermal monitoring
+
+**Debug Tools:**
+- **Vulkan Info**: `vulkaninfo` for driver capability verification
+- **Memory Profiler**: Android Studio profiler for memory usage
+- **Performance Monitor**: Built-in performance tracking
+- **Log Analysis**: Whisper.cpp debug logs for detailed diagnostics
 
 ## Testing
 

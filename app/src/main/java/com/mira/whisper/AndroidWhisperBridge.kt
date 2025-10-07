@@ -17,12 +17,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import org.json.JSONArray
 import org.json.JSONObject
+import com.mira.com.core.ml.WhisperBridge
 import java.io.File
 import java.util.UUID
 import com.mira.resource.DeviceResourceService
 import com.mira.com.feature.whisper.service.MediaConversionManager
 import com.mira.clip.autoclip.AutoClipperService
-import com.mira.com.feature.whisper.engine.WhisperBridge
 
 /**
  * JavaScript interface for Whisper operations in WebView.
@@ -39,14 +39,17 @@ class AndroidWhisperBridge(private val context: Context) {
     private var webView: android.webkit.WebView? = null
     private val mediaConversionManager = MediaConversionManager.getInstance(context)
     
+    // Memory optimization configuration
+    private val isLowMemoryMode = isLowMemoryDevice()
+    private val maxMemoryMB = getMaxMemoryMB()
+    
     init {
         // Force WhisperBridge instantiation to load JNI library
         try {
             Log.d(TAG, "Forcing WhisperBridge instantiation...")
-            WhisperBridge.detectLanguage(
+            WhisperBridge.decode(
                 shortArrayOf(1, 2, 3, 4, 5), // dummy audio data
                 16000, // sample rate
-                "/sdcard/MiraWhisper/models/whisper-base.q5_1.bin", // model path
                 4 // threads
             )
             Log.d(TAG, "WhisperBridge instantiated successfully")
@@ -70,10 +73,9 @@ class AndroidWhisperBridge(private val context: Context) {
         return try {
             Log.d(TAG, "Testing JNI loading...")
             // This should trigger System.loadLibrary("whisper_jni")
-            val result = WhisperBridge.detectLanguage(
+            val result = WhisperBridge.decode(
                 shortArrayOf(1, 2, 3, 4, 5), // dummy audio data
                 16000, // sample rate
-                "/sdcard/MiraWhisper/models/whisper-base.q5_1.bin", // model path
                 4 // threads
             )
             Log.d(TAG, "JNI loaded successfully: $result")
@@ -173,18 +175,16 @@ class AndroidWhisperBridge(private val context: Context) {
     
     companion object {
         private const val TAG = "AndroidWhisperBridge"
+        
+        // Memory optimization constants - Optimized for 12GB Xiaomi Pad
+        private const val LOW_MEMORY_THRESHOLD_MB = 2048  // 2GB threshold
+        private const val CRITICAL_MEMORY_THRESHOLD_MB = 1024  // 1GB threshold
+        private const val MAX_AUDIO_CONTEXT_LOW_MEMORY = 3000  // Increased for high-memory device
+        private const val MAX_AUDIO_CONTEXT_NORMAL = 6000  // Maximum for 12GB device
+        private const val MAX_THREADS_LOW_MEMORY = 4  // Increased threads
+        private const val MAX_THREADS_NORMAL = 8  // Maximum threads for 12GB device
         const val SIDECAR_DIR = "/sdcard/MiraWhisper/sidecars"
         const val OUTPUT_DIR = "/sdcard/MiraWhisper/out"
-        
-        // Broadcast actions for Whisper service
-        const val ACTION_RUN = "com.mira.whisper.RUN"
-        const val ACTION_EXPORT = "com.mira.whisper.EXPORT"
-        const val ACTION_VERIFY = "com.mira.whisper.VERIFY"
-        const val ACTION_RUN_BATCH = "com.mira.whisper.RUN_BATCH"
-        const val ACTION_PROCESSING_COMPLETE = "com.mira.whisper.PROCESSING_COMPLETE"
-        const val ACTION_PAGE_NAVIGATION = "com.mira.whisper.PAGE_NAVIGATION"
-        const val EXTRA_BATCH_ID = "batch_id"
-        const val EXTRA_NAVIGATION_TARGET = "navigation_target"
     }
     
     data class RunRequest(
@@ -228,20 +228,12 @@ class AndroidWhisperBridge(private val context: Context) {
             // For testing, use dummy audio data but with real model
             val dummyAudio = ShortArray(16000) { (Math.random() * 2000 - 1000).toInt().toShort() }
             
-            Log.d(TAG, "Calling WhisperBridge.decodeJson with tennis clip model...")
+            Log.d(TAG, "Calling WhisperBridge.decode with tennis clip model...")
             
-            val result = WhisperBridge.decodeJson(
+            val result = WhisperBridge.decode(
                 pcm16 = dummyAudio,
                 sampleRate = 16000,
-                modelPath = modelPath,
-                threads = 4,
-                beam = 1,
-                lang = "auto",
-                translate = false,
-                temperature = 0.0f,
-                enableWordTimestamps = true,
-                detectLanguage = true,
-                noContext = true
+                threads = 4
             )
             
             Log.d(TAG, "WhisperBridge test completed successfully")
@@ -439,16 +431,38 @@ class AndroidWhisperBridge(private val context: Context) {
         try {
             Log.d(TAG, "Export request for job: $jobId")
             
-            // Direct implementation instead of broadcast
+            // Read the actual transcript file created by TranscribeWorker
             try {
                 val outputDir = File(OUTPUT_DIR, jobId)
-                outputDir.mkdirs()
-                
-                // Create a mock export file
-                val exportFile = File(outputDir, "transcript.txt")
-                exportFile.writeText("Mock transcript for job $jobId")
-                
-                Log.d(TAG, "Export completed for job: $jobId")
+                if (outputDir.exists()) {
+                    // Look for transcript files in the job directory
+                    val transcriptFile = outputDir.listFiles { f -> 
+                        f.isFile && (f.name.endsWith(".txt", ignoreCase = true) || f.name.endsWith(".srt", ignoreCase = true))
+                    }?.firstOrNull()
+                    
+                    if (transcriptFile != null) {
+                        val transcriptContent = transcriptFile.readText()
+                        Log.d(TAG, "Found real transcript file: ${transcriptFile.absolutePath}")
+                        Log.d(TAG, "Transcript content length: ${transcriptContent.length} characters")
+                        
+                        // Create export file with real content
+                        val exportFile = File(outputDir, "transcript.txt")
+                        exportFile.writeText(transcriptContent)
+                        
+                        Log.d(TAG, "Export completed with real transcript for job: $jobId")
+                    } else {
+                        Log.w(TAG, "No transcript file found in job directory: $jobId")
+                        // Fallback: create empty file
+                        val exportFile = File(outputDir, "transcript.txt")
+                        exportFile.writeText("No transcript available for job $jobId")
+                    }
+                } else {
+                    Log.w(TAG, "Job directory does not exist: $jobId")
+                    // Create directory and empty file
+                    outputDir.mkdirs()
+                    val exportFile = File(outputDir, "transcript.txt")
+                    exportFile.writeText("No transcript available for job $jobId")
+                }
             } catch (e: Exception) {
                 Log.e(TAG, "Error in export implementation: ${e.message}")
             }
@@ -2301,114 +2315,6 @@ class AndroidWhisperBridge(private val context: Context) {
         return String.format("%.${digits}f", this)
     }
     
-    /**
-     * Register broadcast receiver for processing completion events
-     */
-    private fun registerBroadcastReceiver() {
-        val filter = IntentFilter().apply {
-            addAction(ACTION_PROCESSING_COMPLETE)
-            addAction(ACTION_PAGE_NAVIGATION)
-            addAction(WhisperConnectorService.ACTION_UPDATE_PROGRESS)
-            addAction("com.mira.whisper.UPDATE_PROGRESS")
-        }
-        
-        val receiver = object : android.content.BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                when (intent?.action) {
-                    ACTION_PROCESSING_COMPLETE -> {
-                        val batchId = intent.getStringExtra(EXTRA_BATCH_ID)
-                        Log.d(TAG, "Received processing complete broadcast for batch: $batchId")
-                        webView?.post {
-                            webView?.evaluateJavascript("handleProcessingComplete('$batchId')", null)
-                        }
-                    }
-                    ACTION_PAGE_NAVIGATION -> {
-                        val targetPage = intent.getStringExtra(EXTRA_NAVIGATION_TARGET)
-                        Log.d(TAG, "Received page navigation broadcast: $targetPage")
-                        webView?.post {
-                            webView?.evaluateJavascript("handlePageNavigation('$targetPage')", null)
-                        }
-                    }
-                    WhisperConnectorService.ACTION_UPDATE_PROGRESS -> {
-                        try {
-                            val batchId = intent.getStringExtra(WhisperConnectorService.EXTRA_BATCH_ID)
-                            val progress = intent.getIntExtra(WhisperConnectorService.EXTRA_PROGRESS, 0)
-                            val fileCount = intent.getIntExtra(WhisperConnectorService.EXTRA_FILE_COUNT, 0)
-                            val currentFile = intent.getIntExtra(WhisperConnectorService.EXTRA_CURRENT_FILE, 0)
-                            val currentFileProgress = intent.getIntExtra("current_file_progress", 0)
-                            val completedFiles = intent.getIntExtra("completed_files", 0)
-                            val hasErrors = intent.getBooleanExtra("has_errors", false)
-                            val errorMessages = intent.getStringExtra("error_messages")
-                            val fileStatesJson = intent.getStringExtra("file_states")
-
-                            val payload = org.json.JSONObject().apply {
-                                put("batchId", batchId)
-                                put("progress", progress)
-                                put("fileCount", fileCount)
-                                put("currentFile", currentFile)
-                                put("currentFileProgress", currentFileProgress)
-                                put("completedFiles", completedFiles)
-                                put("hasErrors", hasErrors)
-                                if (!errorMessages.isNullOrEmpty()) put("errorMessages", errorMessages)
-                                if (!fileStatesJson.isNullOrEmpty()) {
-                                    try {
-                                        put("files", org.json.JSONArray(fileStatesJson))
-                                    } catch (_: Exception) { }
-                                }
-                            }
-
-                            val js = "handleProgressUpdate(${payload.toString()})"
-                            Log.d(TAG, "Dispatching progress update to WebView: $payload")
-                            webView?.post { webView?.evaluateJavascript(js, null) }
-                        } catch (e: Exception) {
-                            Log.e(TAG, "Error handling progress update broadcast: ${e.message}", e)
-                        }
-                    }
-                    "com.mira.whisper.UPDATE_PROGRESS" -> {
-                        try {
-                            val batchId = intent.getStringExtra("batch_id")
-                            val progress = intent.getIntExtra("progress", 0)
-                            val fileCount = intent.getIntExtra("file_count", 0)
-                            val currentFile = intent.getIntExtra("current_file", 0)
-                            val currentFileProgress = intent.getIntExtra("current_file_progress", 0)
-                            val completedFiles = intent.getIntExtra("completed_files", 0)
-                            val hasErrors = intent.getBooleanExtra("has_errors", false)
-                            val errorMessages = intent.getStringExtra("error_messages")
-                            val fileStatesJson = intent.getStringExtra("file_states")
-
-                            val payload = org.json.JSONObject().apply {
-                                put("batchId", batchId)
-                                put("progress", progress)
-                                put("fileCount", fileCount)
-                                put("currentFile", currentFile)
-                                put("currentFileProgress", currentFileProgress)
-                                put("completedFiles", completedFiles)
-                                put("hasErrors", hasErrors)
-                                if (!errorMessages.isNullOrEmpty()) put("errorMessages", errorMessages)
-                                if (!fileStatesJson.isNullOrEmpty()) {
-                                    try { put("files", org.json.JSONArray(fileStatesJson)) } catch (_: Exception) { }
-                                }
-                            }
-
-                            val js = "handleProgressUpdate(${payload.toString()})"
-                            Log.d(TAG, "Dispatching legacy progress update to WebView: $payload")
-                            webView?.post { webView?.evaluateJavascript(js, null) }
-                        } catch (e: Exception) {
-                            Log.e(TAG, "Error handling legacy progress update broadcast: ${e.message}", e)
-                        }
-                    }
-                }
-            }
-        }
-        
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            context.registerReceiver(receiver, filter, android.content.Context.RECEIVER_NOT_EXPORTED)
-        } else {
-            context.registerReceiver(receiver, filter)
-        }
-        
-        Log.d(TAG, "Broadcast receiver registered for processing events")
-    }
     
         @JavascriptInterface
         fun startAutoClip(inputUri: String, outputUri: String): String {
@@ -2441,6 +2347,75 @@ class AndroidWhisperBridge(private val context: Context) {
                 error.toString()
             }
         }
+    
+    // Memory optimization functions
+    private fun isLowMemoryDevice(): Boolean {
+        val runtime = Runtime.getRuntime()
+        val maxMemoryMB = runtime.maxMemory() / (1024 * 1024)
+        Log.d(TAG, "Device max memory: ${maxMemoryMB}MB")
+        return maxMemoryMB < LOW_MEMORY_THRESHOLD_MB
+    }
+    
+    private fun getMaxMemoryMB(): Long {
+        val runtime = Runtime.getRuntime()
+        return runtime.maxMemory() / (1024 * 1024)
+    }
+    
+    private fun getOptimizedConfig(): Map<String, Any> {
+        val config = mutableMapOf<String, Any>()
+        
+        // Check if we're on a high-memory device (12GB Xiaomi Pad)
+        val isHighMemoryDevice = maxMemoryMB > 4096  // 4GB+ indicates high-memory device
+        
+        if (isHighMemoryDevice) {
+            Log.d(TAG, "Using MAXIMUM MEMORY MODE for 12GB Xiaomi Pad")
+            config["audioContext"] = MAX_AUDIO_CONTEXT_NORMAL
+            config["threads"] = MAX_THREADS_NORMAL
+            config["model"] = "base-q5_1"  // Use larger model for high-memory device
+            config["decoding"] = "beam_search"  // Better quality decoding
+            config["enableVAD"] = false
+            config["maxMemoryMB"] = maxMemoryMB
+            config["memoryMode"] = "MAXIMUM"
+        } else if (isLowMemoryMode) {
+            Log.d(TAG, "Using LOW MEMORY MODE configuration")
+            config["audioContext"] = MAX_AUDIO_CONTEXT_LOW_MEMORY
+            config["threads"] = MAX_THREADS_LOW_MEMORY
+            config["model"] = "tiny.en-q5_1" // Smaller model for low memory
+            config["decoding"] = "greedy" // Faster decoding
+            config["enableVAD"] = true // Voice Activity Detection to reduce processing
+            config["memoryMode"] = "LOW"
+        } else {
+            Log.d(TAG, "Using NORMAL MEMORY MODE configuration")
+            config["audioContext"] = MAX_AUDIO_CONTEXT_NORMAL
+            config["threads"] = MAX_THREADS_NORMAL
+            config["model"] = "base-q5_1"
+            config["decoding"] = "greedy"
+            config["enableVAD"] = false
+            config["memoryMode"] = "NORMAL"
+        }
+        
+        // Add memory monitoring
+        config["memoryMonitoring"] = true
+        config["maxMemoryMB"] = maxMemoryMB
+        
+        return config
+    }
+    
+    private fun checkMemoryPressure(): Boolean {
+        val runtime = Runtime.getRuntime()
+        val usedMemoryMB = (runtime.totalMemory() - runtime.freeMemory()) / (1024 * 1024)
+        val availableMemoryMB = maxMemoryMB - usedMemoryMB
+        
+        Log.d(TAG, "Memory status: Used=${usedMemoryMB}MB, Available=${availableMemoryMB}MB, Max=${maxMemoryMB}MB")
+        
+        return availableMemoryMB < CRITICAL_MEMORY_THRESHOLD_MB
+    }
+    
+    private fun forceGarbageCollection() {
+        Log.d(TAG, "Forcing garbage collection due to memory pressure")
+        System.gc()
+        Thread.sleep(100) // Give GC time to work
+    }
     
     // ============================================================================
 }

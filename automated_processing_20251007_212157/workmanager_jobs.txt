@@ -1,0 +1,31 @@
+    <0>com.mira.com::timeout-reg:
+    <0>com.mira.com::timeout-total:
+    <0>com.mira.com::timeout-reg:
+    <0>com.mira.com::.schedulePersisted():
+    <0>com.mira.com::anr:
+    <0>com.mira.com::timeout-total:
+  JOB #u0a347/64: f9b6dc3 com.mira.com/androidx.work.impl.background.systemjob.SystemJobService
+    u0a347 tag=*job*/com.mira.com/androidx.work.impl.background.systemjob.SystemJobService
+    Source: uid=u0a347 user=0 pkg=com.mira.com
+      Service: com.mira.com/androidx.work.impl.background.systemjob.SystemJobService
+    10347/com.mira.com: {-5h8m58s597ms=83, -4h6m9s95ms=47, -2h40m55s530ms=14}
+    JobStatus{f9b6dc3 #u0a347/64 com.mira.com/androidx.work.impl.background.systemjob.SystemJobService u=0 s=10347 TIME=+23m47s239ms:none satisfied:0xb600000 unsatisfied:0x80000000}: 3158310210
+    10347:com.mira.com=false
+    ##u0a347/64 from u0a347 idle, exempted: com.mira.com [RUN_ANY_IN_BACKGROUND allowed] RUNNABLE
+    ##u0a347/64 from u0a347: com.mira.com RUNNABLE WHITELISTED
+    Timer<REG>{<0>com.mira.com} NOT active, 0 running bg jobs
+    TopAppTimer{<0>com.mira.com} NOT active
+      <0>com.mira.com
+      <0>com.mira.com: ShrinkableDebits { debit tally: 0, bucket: 0 }
+  0-ComponentInfo{com.mira.com/androidx.work.impl.background.systemjob.SystemJobService}: com.mira.com
+    0:com.mira.com:
+  10347: {com.mira.com}
+  u0a347 / com.mira.com:
+  u0a347 / com.mira.com:
+  u0a347 / com.mira.com:
+       -20m09s516ms   START: #u0a347/64 com.mira.com/androidx.work.impl.background.systemjob.SystemJobService
+       -11m23s693ms    STOP: #u0a347/64 com.mira.com/androidx.work.impl.background.systemjob.SystemJobService unexpectedly disconnected
+      87a6b19 #u0a347/64 com.mira.com/androidx.work.impl.background.systemjob.SystemJobService
+      u0a347 tag=*job*/com.mira.com/androidx.work.impl.background.systemjob.SystemJobService
+      Source: uid=u0a347 user=0 pkg=com.mira.com
+        Service: com.mira.com/androidx.work.impl.background.systemjob.SystemJobService

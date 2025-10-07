@@ -1,0 +1,84 @@
+10-07 23:06:39.924 20506 20506 I adbd    : in ShellService: am startservice -n com.mira.com/com.mira.com.feature.whisper.service.DirectWhisperService --es action 'com.mira.com.feature.whisper.PROCESS_DIRECT' --es uri 'file:///sdcard/MiraWhisper/in/tennis_interview_clip_002.mp4' --es model '/sdcard/MiraWhisper/models/whisper-base.q5_1.bin' --es threads 8 --es lang auto --ez translate false --ei max_seconds 5
+10-07 23:06:40.013  2448  2700 I ActivityManager: Start proc 833:com.mira.com/u0a347 for service {com.mira.com/com.mira.com.feature.whisper.service.DirectWhisperService} caller=com.android.shell
+10-07 23:06:40.350   833   833 D DirectWhisperService: DirectWhisperService started
+10-07 23:06:40.351   833   833 D DirectWhisperService: Intent: Intent { cmp=com.mira.com/.feature.whisper.service.DirectWhisperService (has extras) }
+10-07 23:06:40.351   833   833 D DirectWhisperService: Intent action: null
+10-07 23:06:40.351   833   833 D DirectWhisperService: Intent extras: Bundle[mParcelledData.dataSize=520]
+10-07 23:06:40.352   833   833 D DirectWhisperService: Resolved action: com.mira.com.feature.whisper.PROCESS_DIRECT
+10-07 23:06:40.354   833   833 W Bundle  : 	at com.mira.com.feature.whisper.service.DirectWhisperService.processDirectRequest(DirectWhisperService.kt:71)
+10-07 23:06:40.354   833   833 W Bundle  : 	at com.mira.com.feature.whisper.service.DirectWhisperService.onStartCommand(DirectWhisperService.kt:53)
+10-07 23:06:40.354   833   833 I DirectWhisperService: === DIRECT PROCESSING STARTED ===
+10-07 23:06:40.354   833   833 I DirectWhisperService: URI: file:///sdcard/MiraWhisper/in/tennis_interview_clip_002.mp4
+10-07 23:06:40.354   833   833 I DirectWhisperService: Model: /sdcard/MiraWhisper/models/whisper-base.q5_1.bin
+10-07 23:06:40.354   833   833 I DirectWhisperService: Threads: 4
+10-07 23:06:40.354   833   833 I DirectWhisperService: Beam: 1
+10-07 23:06:40.354   833   833 I DirectWhisperService: Language: auto
+10-07 23:06:40.354   833   833 I DirectWhisperService: Translate: false
+10-07 23:06:40.354   833   833 I DirectWhisperService: Max Seconds: 5
+10-07 23:06:40.377   833   833 I DirectWhisperService: ✅ Direct processing enqueued successfully
+10-07 23:06:40.378   833   833 I DirectWhisperService: WorkManager job created for: file:///sdcard/MiraWhisper/in/tennis_interview_clip_002.mp4
+10-07 23:06:40.465   833   868 D TranscribeWorker: === TECHNICAL LOG: Starting job wjob_1759849600463_605a76af ===
+10-07 23:06:40.465   833   868 D TranscribeWorker: TECHNICAL: URI: file:///sdcard/MiraWhisper/in/tennis_interview_clip_002.mp4
+10-07 23:06:40.465   833   868 D TranscribeWorker: TECHNICAL: Model: /sdcard/MiraWhisper/models/whisper-base.q5_1.bin
+10-07 23:06:40.465   833   868 D TranscribeWorker: TECHNICAL: Threads: 4
+10-07 23:06:40.465   833   868 D TranscribeWorker: TECHNICAL: Batch: -1/-1
+10-07 23:06:40.465   833   868 D TranscribeWorker: TECHNICAL: Language: auto
+10-07 23:06:40.465   833   868 D TranscribeWorker: TECHNICAL: Translate: false
+10-07 23:06:40.471   833   867 D TranscribeWorker: === TECHNICAL LOG: Starting job batch_0_1759849600471_8e3d0206 ===
+10-07 23:06:40.471   833   867 D TranscribeWorker: TECHNICAL: URI: content://media/picker_get_content/0/com.android.providers.media.photopicker/media/1000001186
+10-07 23:06:40.471   833   867 D TranscribeWorker: TECHNICAL: Model: /sdcard/MiraWhisper/models/whisper-base.q5_1.bin
+10-07 23:06:40.471   833   867 D TranscribeWorker: TECHNICAL: Threads: 4
+10-07 23:06:40.471   833   867 D TranscribeWorker: TECHNICAL: Batch: 0/1
+10-07 23:06:40.471   833   867 D TranscribeWorker: TECHNICAL: Language: auto
+10-07 23:06:40.471   833   867 D TranscribeWorker: TECHNICAL: Translate: false
+10-07 23:06:40.479   833   868 D TranscribeWorker: TECHNICAL: Attempting to load audio from URI: file:///sdcard/MiraWhisper/in/tennis_interview_clip_002.mp4
+10-07 23:06:40.479   833   868 D TranscribeWorker: TECHNICAL: Memory status - Used: 263MB, Free: 248MB, Usage: 51.5%
+10-07 23:06:40.479   833   868 D TranscribeWorker: TECHNICAL: File size unknown - attempting to load with timeout protection
+10-07 23:06:40.482   833   867 D TranscribeWorker: TECHNICAL: Attempting to load audio from URI: content://media/picker_get_content/0/com.android.providers.media.photopicker/media/1000001186
+10-07 23:06:40.483   833   871 D AudioIO : TECHNICAL: File already in H.264 format: file:///sdcard/MiraWhisper/in/tennis_interview_clip_002.mp4
+10-07 23:06:40.483   833   867 D TranscribeWorker: TECHNICAL: Memory status - Used: 263MB, Free: 248MB, Usage: 51.5%
+10-07 23:06:40.491   833   867 D TranscribeWorker: TECHNICAL: File size: 2798MB
+10-07 23:06:40.491   833   867 D TranscribeWorker: TECHNICAL: Large file detected - using streaming processing
+10-07 23:06:40.491   833   867 D TranscribeWorker: TECHNICAL: Starting streaming processing for large file
+10-07 23:06:40.539   833   867 D TranscribeWorker: TECHNICAL: Audio duration: 10681088ms, using=10681088ms (10681s)
+10-07 23:06:40.539   833   867 D TranscribeWorker: TECHNICAL: Processing 1069 chunks of 10000ms each
+10-07 23:06:40.539   833   867 D TranscribeWorker: TECHNICAL: Maximum processing time: 320820s
+10-07 23:06:40.539   833   867 D TranscribeWorker: TECHNICAL: Processing started at: 1759849600539
+10-07 23:06:40.539   833   867 D TranscribeWorker: === STREAMING CHUNK 1/1069 START ===
+10-07 23:06:40.539   833   867 D TranscribeWorker: TECHNICAL: Time range: 0ms - 10000ms
+10-07 23:06:40.539   833   867 D TranscribeWorker: TECHNICAL: Chunk duration: 10000ms
+10-07 23:06:40.540   833   867 D TranscribeWorker: TECHNICAL: Elapsed time: 0s / 320820s
+10-07 23:06:40.540   833   867 D AudioIO : TECHNICAL: Converting to H.264 for reliable processing: content://media/picker_get_content/0/com.android.providers.media.photopicker/media/1000001186
+10-07 23:06:40.540   833   867 D MediaConverter: TECHNICAL: Starting H.264 conversion for content://media/picker_get_content/0/com.android.providers.media.photopicker/media/1000001186
+10-07 23:06:40.569   833   867 D MediaConverter: TECHNICAL: Output file: /storage/emulated/0/Documents/ConvertedMedia/converted_1759849600569.mp4
+10-07 23:06:40.918   833   868 D TranscribeWorker: TECHNICAL: Audio loaded successfully
+10-07 23:06:40.919   833   868 D TranscribeWorker: TECHNICAL: - Samples: 48128
+10-07 23:06:40.919   833   868 D TranscribeWorker: TECHNICAL: - Duration: 3008ms
+10-07 23:06:40.919   833   868 D TranscribeWorker: TECHNICAL: - Sample rate: 48000Hz
+10-07 23:06:40.919   833   868 D TranscribeWorker: TECHNICAL: - Channels: 2
+10-07 23:06:40.920   833   868 D TranscribeWorker: Running robust LID pipeline...
+10-07 23:06:40.943   833   868 D nativeloader: Load /data/app/~~zyaqSIvtpJlBjgOeChUJKA==/com.mira.com-h26Id5c9N0rHc0_zPy41KQ==/base.apk!/lib/arm64-v8a/libwhisper_jni.so using ns clns-7 from class loader (caller=/data/app/~~zyaqSIvtpJlBjgOeChUJKA==/com.mira.com-h26Id5c9N0rHc0_zPy41KQ==/base.apk!classes2.dex): ok
+10-07 23:06:40.944   833   868 I WhisperJNI: Whisper detectLanguage called with 48128 samples, model: /sdcard/MiraWhisper/models/whisper-base.q5_1.bin
+10-07 23:06:40.944   833   868 I WhisperJNI: Initializing whisper context for language detection with model: /sdcard/MiraWhisper/models/whisper-base.q5_1.bin
+10-07 23:06:41.386   833   868 I WhisperJNI: Running whisper language detection...
+10-07 23:06:43.390  2448  3279 I SmartPower: com.mira.com/10347(833): background->idle(3294ms) R(service end com.mira.com/.feature.whisper.service.DirectWhisperService) adj=250.
+10-07 23:06:47.787   833   989 D TranscribeWorker: === TECHNICAL LOG: Starting job wjob_1759849607787_605a76af ===
+10-07 23:06:47.787   833   989 D TranscribeWorker: TECHNICAL: URI: file:///sdcard/MiraWhisper/in/tennis_interview_clip_002.mp4
+10-07 23:06:47.788   833   989 D TranscribeWorker: TECHNICAL: Model: /sdcard/MiraWhisper/models/whisper-base.q5_1.bin
+10-07 23:06:47.788   833   989 D TranscribeWorker: TECHNICAL: Threads: 8
+10-07 23:06:47.788   833   989 D TranscribeWorker: TECHNICAL: Batch: -1/-1
+10-07 23:06:47.788   833   989 D TranscribeWorker: TECHNICAL: Language: auto
+10-07 23:06:47.788   833   989 D TranscribeWorker: TECHNICAL: Translate: false
+10-07 23:06:47.794   833   989 D TranscribeWorker: TECHNICAL: Attempting to load audio from URI: file:///sdcard/MiraWhisper/in/tennis_interview_clip_002.mp4
+10-07 23:06:47.794   833   989 D TranscribeWorker: TECHNICAL: Memory status - Used: 469MB, Free: 42MB, Usage: 91.7%
+10-07 23:06:47.794   833   989 W TranscribeWorker: TECHNICAL: High memory usage (91.7%), attempting garbage collection
+10-07 23:06:48.796   833   989 D TranscribeWorker: TECHNICAL: File size unknown - attempting to load with timeout protection
+10-07 23:06:48.800   833   871 D AudioIO : TECHNICAL: File already in H.264 format: file:///sdcard/MiraWhisper/in/tennis_interview_clip_002.mp4
+10-07 23:06:49.723   833   989 D TranscribeWorker: TECHNICAL: Audio loaded successfully
+10-07 23:06:49.724   833   989 D TranscribeWorker: TECHNICAL: - Samples: 48128
+10-07 23:06:49.724   833   989 D TranscribeWorker: TECHNICAL: - Duration: 3008ms
+10-07 23:06:49.724   833   989 D TranscribeWorker: TECHNICAL: - Sample rate: 48000Hz
+10-07 23:06:49.724   833   989 D TranscribeWorker: TECHNICAL: - Channels: 2
+10-07 23:06:49.725   833   989 D TranscribeWorker: Running robust LID pipeline...
+10-07 23:06:49.757   833   989 I WhisperJNI: Whisper detectLanguage called with 48128 samples, model: /sdcard/MiraWhisper/models/whisper-base.q5_1.bin
+10-07 23:06:49.761   833   989 I WhisperJNI: Running whisper language detection...

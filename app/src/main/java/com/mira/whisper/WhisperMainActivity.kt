@@ -130,6 +130,9 @@ class WhisperMainActivity : ComponentActivity() {
         
         Log.i(TAG, "Whisper Main Activity launched - initializing interface")
         
+        // Handle direct processing intents
+        handleDirectProcessingIntent(intent)
+        
         // Initialize WebView
         webView = WebView(this)
         setContentView(webView)
@@ -166,6 +169,65 @@ class WhisperMainActivity : ComponentActivity() {
         
         // Auto-start Auto-Clipper with correct file paths
         startAutoClipperDirectly()
+    }
+    
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        Log.d(TAG, "New intent received")
+        handleDirectProcessingIntent(intent)
+    }
+    
+    /**
+     * Handle direct processing intents for automated testing
+     * Supports direct_action intents with processing parameters
+     */
+    private fun handleDirectProcessingIntent(intent: Intent?) {
+        if (intent == null) return
+        
+        // Check for direct_action or regular Intent extras
+        val directAction = intent.getStringExtra("direct_action")
+        val hasFileUri = intent.getStringExtra("file_uri") != null
+        
+        if (directAction == "transcribe" || hasFileUri) {
+            Log.i(TAG, "=== DIRECT PROCESSING INTENT RECEIVED ===")
+            
+            val fileUri = intent.getStringExtra("file_uri")
+            val modelPath = intent.getStringExtra("model_path")
+            val threadCount = intent.getIntExtra("thread_count", 4)
+            val language = intent.getStringExtra("language") ?: "auto"
+            val maxSeconds = intent.getIntExtra("max_seconds", 0)
+            
+            Log.i(TAG, "Direct processing parameters:")
+            Log.i(TAG, "  File URI: $fileUri")
+            Log.i(TAG, "  Model Path: $modelPath")
+            Log.i(TAG, "  Thread Count: $threadCount")
+            Log.i(TAG, "  Language: $language")
+            Log.i(TAG, "  Max Seconds: $maxSeconds")
+            
+            if (fileUri != null) {
+                // Start direct processing via service
+                val serviceIntent = Intent(this, com.mira.com.feature.whisper.service.DirectWhisperService::class.java).apply {
+                    action = com.mira.com.feature.whisper.service.DirectWhisperService.ACTION_PROCESS_DIRECT
+                    putExtra(com.mira.com.feature.whisper.service.DirectWhisperService.EXTRA_URI, fileUri)
+                    putExtra(com.mira.com.feature.whisper.service.DirectWhisperService.EXTRA_MODEL, modelPath ?: "/sdcard/MiraWhisper/models/whisper-base.q5_1.bin")
+                    putExtra(com.mira.com.feature.whisper.service.DirectWhisperService.EXTRA_THREADS, threadCount)
+                    putExtra(com.mira.com.feature.whisper.service.DirectWhisperService.EXTRA_LANG, language)
+                    putExtra(com.mira.com.feature.whisper.service.DirectWhisperService.EXTRA_TRANSLATE, false)
+                    if (maxSeconds > 0) {
+                        putExtra(com.mira.com.feature.whisper.service.DirectWhisperService.EXTRA_MAX_SECONDS, maxSeconds)
+                    }
+                }
+                
+                try {
+                    startService(serviceIntent)
+                    Log.i(TAG, "✅ Direct processing service started")
+                } catch (e: Exception) {
+                    Log.e(TAG, "❌ Error starting direct processing service: ${e.message}", e)
+                }
+            } else {
+                Log.e(TAG, "❌ No file_uri provided in direct processing intent")
+            }
+        }
     }
     
     private fun requestInputFilePermission() {

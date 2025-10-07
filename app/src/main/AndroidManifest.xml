@@ -59,6 +59,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Mira"
         android:hardwareAccelerated="true"
+        android:largeHeap="true"
+        android:requestLegacyExternalStorage="true"
+        android:extractNativeLibs="false"
+        android:vmSafeMode="false"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         
@@ -130,6 +134,12 @@
             android:name="com.mira.whisper.WhisperConnectorService"
             android:enabled="true"
             android:exported="false" />
+        
+        <!-- Direct Whisper Service - Direct processing without broadcast/receiver pattern -->
+        <service
+            android:name="com.mira.com.feature.whisper.service.DirectWhisperService"
+            android:enabled="true"
+            android:exported="true" />
         
         <!-- Removed OrchestrationReceiver; class not present in app module -->
         

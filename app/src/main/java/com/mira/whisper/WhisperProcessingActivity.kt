@@ -12,7 +12,6 @@ import android.os.Build
 import android.content.Context
 import androidx.lifecycle.lifecycleScope
 import com.mira.resource.DeviceResourceService
-import com.mira.resource.ResourceUpdateReceiver
 import com.mira.whisper.bus.WhisperBus
 import com.mira.whisper.bus.WhisperEvent
 import kotlinx.coroutines.launch
@@ -31,8 +30,6 @@ class WhisperProcessingActivity : AppCompatActivity() {
     }
     
     private lateinit var webView: WebView
-    private lateinit var connectorReceiver: WhisperConnectorReceiver
-    private var resourceReceiver: ResourceUpdateReceiver? = null
     private var lastResourceStatsJson: String? = null
     private var lastResourceUpdateMs: Long = 0L
     
@@ -128,8 +125,7 @@ class WhisperProcessingActivity : AppCompatActivity() {
 
         setContentView(wv)
         
-        // Initialize connector receiver
-        connectorReceiver = WhisperConnectorReceiver(webView, "processing")
+        // Bridge setup complete - using DirectWhisperService instead of broadcast receivers
 
         // Start Xiaomi background resource monitoring service
         startBackgroundResourceMonitoring()
@@ -147,21 +143,7 @@ class WhisperProcessingActivity : AppCompatActivity() {
             val connectorIntent = Intent(this, WhisperConnectorService::class.java)
             startService(connectorIntent)
             
-            // Register broadcast receiver for real-time updates
-            val filter = IntentFilter().apply {
-                addAction(WhisperConnectorService.ACTION_START_PROCESSING)
-                addAction(WhisperConnectorService.ACTION_UPDATE_PROGRESS)
-                addAction(WhisperConnectorService.ACTION_PROCESSING_COMPLETE)
-                addAction(WhisperConnectorService.ACTION_RESOURCE_UPDATE)
-                addAction(WhisperConnectorService.ACTION_PAGE_NAVIGATION)
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                registerReceiver(connectorReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
-            } else {
-                registerReceiver(connectorReceiver, filter)
-            }
-            
-            Log.d(TAG, "Connector service initialized")
+            Log.d(TAG, "Connector service initialized - using DirectWhisperService")
             
         } catch (e: Exception) {
             Log.e(TAG, "Error initializing connector service: ${e.message}", e)
@@ -192,34 +174,10 @@ class WhisperProcessingActivity : AppCompatActivity() {
     }
 
     /**
-     * Register a receiver to forward resource updates to the WebView
+     * Resource updates now handled by DirectWhisperService
      */
     private fun bindResourceUpdates() {
-        try {
-            resourceReceiver = ResourceUpdateReceiver(
-                onResourceUpdate = { resourceData ->
-                    try {
-                        val transformed = transformResourceDataForWeb(resourceData)
-                        lastResourceStatsJson = transformed
-                        lastResourceUpdateMs = System.currentTimeMillis()
-                        webView.evaluateJavascript(
-                            """
-                            if (window.updateResourceStats) {
-                                window.updateResourceStats('$transformed');
-                            }
-                            """.trimIndent(),
-                            null
-                        )
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Error forwarding resource update: ${e.message}")
-                    }
-                }
-            )
-            resourceReceiver?.register(this)
-            Log.d(TAG, "Resource update receiver bound")
-        } catch (e: Exception) {
-            Log.e(TAG, "Error binding resource updates: ${e.message}")
-        }
+        // Resource updates handled by DirectWhisperService - no broadcast receivers needed
     }
 
     /**
@@ -363,21 +321,6 @@ class WhisperProcessingActivity : AppCompatActivity() {
         Log.e(TAG, "=== PROCESSING ACTIVITY DESTROYED ===")
         Log.e(TAG, "Stack trace:", Exception("Processing activity destroyed"))
         
-        // Unregister receiver
-        try {
-            unregisterReceiver(connectorReceiver)
-        } catch (e: Exception) {
-            Log.w(TAG, "Error unregistering connector receiver: ${e.message}")
-        }
-
-        // Unregister resource receiver
-        resourceReceiver?.let {
-            try {
-                it.unregister(this)
-            } catch (e: Exception) {
-                Log.w(TAG, "Error unregistering resource receiver: ${e.message}")
-            }
-        }
         Log.d(TAG, "Destroying WhisperProcessingActivity")
     }
 }

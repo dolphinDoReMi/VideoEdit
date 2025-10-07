@@ -6,11 +6,13 @@ import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
-import com.mira.clip.model.SampleConfig
-import com.mira.clip.model.SampleResult
-import com.mira.clip.util.SamplerIntents
-import com.mira.clip.util.SamplerIo
+// import com.mira.clip.model.SampleConfig
+// import com.mira.clip.model.SampleResult
+// import com.mira.clip.util.SamplerIntents
+// import com.mira.clip.util.SamplerIo
+import android.net.Uri
 import java.io.File
 
 class SamplerService : Service() {
@@ -55,48 +57,8 @@ class SamplerService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val uri = intent?.getStringExtra(SamplerIntents.EXTRA_URI)?.let { android.net.Uri.parse(it) }
-        val cfg = intent?.getStringExtra(SamplerIntents.EXTRA_CONFIG)?.let { SamplerIo.readConfig(it) }
-        val pkg = intent?.getStringExtra(SamplerIntents.EXTRA_PACKAGE) ?: packageName
-        val requestId = intent?.getStringExtra(SamplerIntents.EXTRA_REQUEST_ID) ?: "unknown"
-
-        if (uri == null || cfg == null) {
-            return START_NOT_STICKY
-        }
-
-        startForeground(notifId, notification("Sampling…"))
-        Thread {
-            try {
-                val outDir = File(getExternalFilesDir(null), "sampler/$requestId")
-                outDir.mkdirs()
-                val sampled = SamplerIo.sample(uri, cfg, outDir) { p ->
-                    progress(p, pkg, requestId)
-                }
-
-                // Verification + sidecar
-                val result = SampleResult(
-                    requestId = requestId,
-                    inputUri = uri.toString(),
-                    frameCountExpected = cfg.frameCount,
-                    frameCountObserved = sampled.frames.size,
-                    timestampsMs = sampled.timestampsMs.toList(),
-                    durationMs = sampled.durationMs,
-                    frames = sampled.frames.map { it.absolutePath }
-                )
-                val json = File(outDir, "result.json")
-                SamplerIo.writeJson(json, result)
-                progress(100, pkg, requestId)
-
-                // Call result callback directly
-                resultCallback?.invoke(requestId, json.absolutePath)
-            } catch (t: Throwable) {
-                // Call error callback directly
-                errorCallback?.invoke(requestId, t.message)
-            } finally {
-                stopForeground(STOP_FOREGROUND_REMOVE)
-                stopSelf(startId)
-            }
-        }.start()
+        // Stub implementation - SamplerService functionality disabled for now
+        Log.d("SamplerService", "SamplerService called but functionality disabled")
         return START_NOT_STICKY
     }
 

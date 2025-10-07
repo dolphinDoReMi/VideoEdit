@@ -16,9 +16,23 @@ android {
         cppFlags("-std=c++17")
         arguments(
           "-DANDROID_STL=c++_shared",
-          "-DGGML_VULKAN=1",
-          "-DGGML_VULKAN_DEBUG=1",
-          "-DGGML_VULKAN_CHECK_RESULTS=1"
+          "-DGGML_USE_CPU=1",
+          "-DGGML_USE_OPENMP=1",
+          "-DGGML_USE_ACCELERATE=1",
+          "-DGGML_USE_METAL=0",
+          "-DGGML_USE_CUDA=0",
+          "-DGGML_USE_VULKAN=0",
+          "-DGGML_USE_SYCL=0",
+          "-DGGML_USE_KOMPUTE=0",
+          "-DGGML_USE_RPC=0",
+          "-DGGML_USE_FLASH_ATTN=0",
+          "-DGGML_USE_F16=0",
+          "-DGGML_F16_VEC=0",
+          "-DGGML_F16_SCALAR=0"
+          // Vulkan flags disabled for CPU-only test
+          // "-DGGML_VULKAN=1",
+          // "-DGGML_VULKAN_DEBUG=1",
+          // "-DGGML_VULKAN_CHECK_RESULTS=1"
         )
       }
     }

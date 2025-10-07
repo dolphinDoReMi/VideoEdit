@@ -59,9 +59,16 @@ android {
     buildConfigField("int",    "DEFAULT_FRAME_COUNT",   "32")
     buildConfigField("String", "DEFAULT_SCHEDULE",      "\"UNIFORM\"")
     buildConfigField("String", "DEFAULT_DECODE_BACKEND","\"MMR\"")
-    buildConfigField("int",    "DEFAULT_MEM_BUDGET_MB", "512")
+    buildConfigField("int",    "DEFAULT_MEM_BUDGET_MB", "2048")  // Increased for Xiaomi Pad
     buildConfigField("boolean","RETR_USE_L2_NORM",      "true")
     buildConfigField("String", "RETR_SIMILARITY",       "\"cosine\"")
+    
+    // Memory optimization for Xiaomi Pad - Maximum configuration
+    buildConfigField("boolean", "ENABLE_LARGE_HEAP", "true")
+    buildConfigField("int", "MAX_HEAP_SIZE_MB", "8192")  // 8GB for 12GB device
+    buildConfigField("boolean", "ENABLE_MEMORY_MONITORING", "true")
+    buildConfigField("boolean", "ENABLE_MAX_MEMORY_MODE", "true")
+    buildConfigField("int", "MEMORY_PRESSURE_THRESHOLD_MB", "1024")  // 1GB threshold
     buildConfigField("String", "RETR_STORAGE_FMT",      "\".f32\"")
     buildConfigField("boolean","RETR_ENABLE_ANN",       "false")
 
@@ -221,6 +228,13 @@ android {
     unitTests.isIncludeAndroidResources = true
     animationsDisabled = true
   }
+  
+  // Include native libraries from feature modules
+  packagingOptions {
+    jniLibs {
+      useLegacyPackaging = false
+    }
+  }
 }
 
 // --- Sync web assets from repo-root `assets/web` to packaged `app/src/main/assets/web` ---
@@ -264,6 +278,7 @@ tasks.matching { it.name.startsWith("pre") && it.name.endsWith("Build") }.config
 dependencies {
   // Feature modules
   implementation(project(":feature:whisper"))
+  implementation(project(":core:ml"))
   
   // Core orchestration dependencies (always included)
   implementation("androidx.work:work-runtime-ktx:2.9.0")

@@ -25,7 +25,6 @@ class WhisperFileSelectionActivity : AppCompatActivity() {
     
     private lateinit var webView: WebView
     private lateinit var bridge: AndroidWhisperBridge
-    private lateinit var connectorReceiver: WhisperConnectorReceiver
     
     // File picker launcher (SAF: ACTION_OPEN_DOCUMENT)
     private val filePickerLauncher = registerForActivityResult(
@@ -98,17 +97,8 @@ class WhisperFileSelectionActivity : AppCompatActivity() {
         webView.loadUrl("file:///android_asset/web/whisper_unified.html")
         
         Log.i(TAG, "Whisper File Selection interface initialized")
-
-        // Initialize connector receiver for async navigation and updates
-        connectorReceiver = WhisperConnectorReceiver(webView, "file_selection")
-        val filter = IntentFilter().apply {
-            addAction(WhisperConnectorService.ACTION_START_PROCESSING)
-            addAction(WhisperConnectorService.ACTION_UPDATE_PROGRESS)
-            addAction(WhisperConnectorService.ACTION_PROCESSING_COMPLETE)
-            addAction(WhisperConnectorService.ACTION_RESOURCE_UPDATE)
-            addAction(WhisperConnectorService.ACTION_PAGE_NAVIGATION)
-        }
-        registerReceiver(connectorReceiver, filter)
+        
+        // Bridge setup complete - using DirectWhisperService instead of broadcast receivers
     }
     
     /**
@@ -173,8 +163,6 @@ class WhisperFileSelectionActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        try {
-            unregisterReceiver(connectorReceiver)
-        } catch (_: Exception) { }
+        // No broadcast receivers to unregister - using DirectWhisperService
     }
 }

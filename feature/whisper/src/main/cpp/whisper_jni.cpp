@@ -19,6 +19,82 @@ static struct whisper_context *g_whisper_ctx = nullptr;
 extern "C" {
 
 JNIEXPORT jstring JNICALL
+Java_com_mira_com_core_ml_WhisperBridge_decode(
+    JNIEnv* env, jobject thiz,
+    jshortArray pcm16, jint sampleRate, jint threads) {
+
+    UNUSED(thiz);
+
+    try {
+        // Get audio data
+        jsize audio_len = env->GetArrayLength(pcm16);
+        jshort* audio_data = env->GetShortArrayElements(pcm16, nullptr);
+
+        LOGI("Whisper decode called with %d samples", audio_len);
+
+        // Initialize whisper context if not already done
+        if (g_whisper_ctx == nullptr) {
+            LOGI("Initializing whisper context");
+            // Use default model path - this is a simplified version
+            g_whisper_ctx = whisper_init_from_file_with_params("/sdcard/MiraWhisper/models/whisper-base.q5_1.bin", whisper_context_default_params());
+            if (g_whisper_ctx == nullptr) {
+                LOGE("Failed to initialize whisper context");
+                env->ReleaseShortArrayElements(pcm16, audio_data, JNI_ABORT);
+                return env->NewStringUTF("Error: Failed to initialize whisper context");
+            }
+        }
+
+        // Convert short array to float array for whisper
+        std::vector<float> audio_float(audio_len);
+        for (int i = 0; i < audio_len; i++) {
+            audio_float[i] = audio_data[i] / 32768.0f; // Convert from int16 to float
+        }
+        env->ReleaseShortArrayElements(pcm16, audio_data, JNI_ABORT);
+
+        // Set up whisper parameters
+        struct whisper_full_params params = whisper_full_default_params(WHISPER_SAMPLING_GREEDY);
+        params.print_realtime = false;
+        params.print_progress = false;
+        params.print_timestamps = true;
+        params.print_special = false;
+        params.translate = false;
+        params.language = nullptr; // Auto-detect language
+        params.n_threads = threads;
+        params.offset_ms = 0;
+        params.no_context = true;
+        params.single_segment = false;
+
+        // Run whisper inference
+        LOGI("Running whisper inference...");
+        whisper_reset_timings(g_whisper_ctx);
+        
+        int result = whisper_full(g_whisper_ctx, params, audio_float.data(), audio_float.size());
+        if (result != 0) {
+            LOGE("Whisper inference failed with code: %d", result);
+            return env->NewStringUTF("Error: Whisper inference failed");
+        }
+
+        // Extract results
+        int n_segments = whisper_full_n_segments(g_whisper_ctx);
+        LOGI("Whisper inference completed with %d segments", n_segments);
+
+        std::string all_text;
+        
+        for (int i = 0; i < n_segments; i++) {
+            const char* text = whisper_full_get_segment_text(g_whisper_ctx, i);
+            all_text += std::string(text) + " ";
+        }
+
+        LOGI("Whisper inference completed successfully");
+        return env->NewStringUTF(all_text.c_str());
+
+    } catch (const std::exception& e) {
+        LOGE("Exception in decode: %s", e.what());
+        return env->NewStringUTF("Error: Exception occurred");
+    }
+}
+
+JNIEXPORT jstring JNICALL
 Java_com_mira_com_feature_whisper_engine_WhisperBridge_decodeJson(
     JNIEnv* env, jobject thiz,
     jshortArray pcm16, jint sampleRate, jstring modelPath,
