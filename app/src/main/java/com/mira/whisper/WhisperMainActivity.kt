@@ -78,6 +78,14 @@ class WhisperMainActivity : ComponentActivity() {
             domStorageEnabled = true
             allowFileAccess = true
             allowContentAccess = true
+            allowFileAccessFromFileURLs = true
+            allowUniversalAccessFromFileURLs = true
+            mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+            cacheMode = android.webkit.WebSettings.LOAD_DEFAULT
+            databaseEnabled = true
+            setSupportZoom(false)
+            builtInZoomControls = false
+            displayZoomControls = false
         }
         
         // Initialize bridge
@@ -97,6 +105,16 @@ class WhisperMainActivity : ComponentActivity() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
                 Log.i(TAG, "Whisper page loaded: $url")
+            }
+            
+            override fun onReceivedError(view: WebView?, errorCode: Int, description: String?, failingUrl: String?) {
+                super.onReceivedError(view, errorCode, description, failingUrl)
+                Log.e(TAG, "WebView error: $errorCode - $description for URL: $failingUrl")
+            }
+            
+            override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {
+                super.onPageStarted(view, url, favicon)
+                Log.d(TAG, "Loading page: $url")
             }
         }
         

@@ -184,6 +184,7 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="com.mira.whisper.RUN" />
+                <action android:name="com.mira.whisper.RUN_BATCH" />
                 <action android:name="com.mira.whisper.EXPORT" />
                 <action android:name="com.mira.whisper.VERIFY" />
                 <action android:name="com.mira.whisper.RUN_BATCH" />
