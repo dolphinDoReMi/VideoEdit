@@ -1,12 +1,12 @@
 # Working Version: Production Ready
 
-This document marks the `whisper-clipping` branch as a verified working version, reflecting the successful implementation of Whisper ASR with Xiaomi Pad Ultra inference optimization.
+This document marks the `main` branch as a verified working version, reflecting the successful implementation of Whisper ASR with Xiaomi Pad Ultra inference optimization.
 
 ## Version Details
 
 - **Date**: January 7, 2025
-- **Commit Hash**: 5b1629b8
-- **Branch**: whisper-clipping
+- **Commit Hash**: e6404f6d
+- **Branch**: main
 - **Status**: Production Ready
 
 ## Verification Summary
