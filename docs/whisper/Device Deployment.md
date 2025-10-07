@@ -11,6 +11,150 @@
 - **Storage**: 128GB/256GB UFS 3.1
 - **GPU**: Adreno 650
 
+### Job Scheduling System Architecture
+
+**Device-Level Job Scheduling:**
+The Xiaomi Pad runs a comprehensive job scheduling system that manages audio/video processing tasks through WorkManager, with dedicated input/output directories and background service coordination.
+
+**Core Scheduling Components:**
+- **WorkManager**: Android's job scheduling system for background tasks
+- **AutoClipperService**: Background video processing service
+- **WhisperWorker**: Audio transcription processing worker
+- **ResourceMonitor**: Real-time device resource tracking
+- **JobQueue**: Priority-based task queuing system
+
+**Input/Output Directory Structure:**
+```
+/sdcard/Mira/
+├── inbox/                    # Input directory
+│   ├── audio/               # Audio files (.wav, .mp4)
+│   ├── video/               # Video files (.mp4, .mov)
+│   └── batch/               # Batch processing files
+├── processing/              # Active processing directory
+│   ├── temp/               # Temporary files during processing
+│   ├── chunks/             # Audio/video chunks
+│   └── intermediate/       # Intermediate processing files
+├── output/                  # Output directory
+│   ├── transcripts/        # Whisper transcription results
+│   ├── clips/              # AutoClipper video clips
+│   ├── metadata/           # Processing metadata
+│   └── exports/            # Exported files (JSON, SRT, TXT)
+├── models/                  # ML models storage
+│   ├── whisper/            # Whisper model files
+│   └── clip/               # CLIP model files
+└── logs/                    # System logs
+    ├── whisper/            # Whisper processing logs
+    ├── autoclip/           # AutoClipper service logs
+    └── system/             # System resource logs
+```
+
+**Job Scheduling Workflow:**
+1. **File Detection**: Monitor `/sdcard/Mira/inbox/` for new files
+2. **Job Creation**: Create WorkManager jobs for detected files
+3. **Resource Check**: Verify device resources before processing
+4. **Processing**: Execute Whisper/AutoClipper processing
+5. **Output Generation**: Save results to `/sdcard/Mira/output/`
+6. **Cleanup**: Remove temporary files from `/sdcard/Mira/processing/`
+7. **Notification**: Send completion notifications
+
+### Job Scheduling Configuration
+
+**WorkManager Job Configuration:**
+```kotlin
+// Whisper processing job
+val whisperJob = OneTimeWorkRequestBuilder<WhisperWorker>()
+    .setInputData(workDataOf(
+        "input_file" to "/sdcard/Mira/inbox/audio/sample.wav",
+        "output_dir" to "/sdcard/Mira/output/transcripts/",
+        "model_path" to "/sdcard/Mira/models/whisper/base.en.bin"
+    ))
+    .setConstraints(Constraints.Builder()
+        .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
+        .setRequiresBatteryNotLow(true)
+        .setRequiresStorageNotLow(true)
+        .build())
+    .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
+    .build()
+
+// AutoClipper video processing job
+val autoclipJob = OneTimeWorkRequestBuilder<AutoClipperWorker>()
+    .setInputData(workDataOf(
+        "input_file" to "/sdcard/Mira/inbox/video/sample.mp4",
+        "output_dir" to "/sdcard/Mira/output/clips/",
+        "model_path" to "/sdcard/Mira/models/clip/vit-b32.onnx"
+    ))
+    .setConstraints(Constraints.Builder()
+        .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
+        .setRequiresBatteryNotLow(true)
+        .setRequiresStorageNotLow(true)
+        .build())
+    .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
+    .build()
+```
+
+**Directory Management:**
+```bash
+# Create directory structure
+adb shell mkdir -p /sdcard/Mira/inbox/audio
+adb shell mkdir -p /sdcard/Mira/inbox/video
+adb shell mkdir -p /sdcard/Mira/inbox/batch
+adb shell mkdir -p /sdcard/Mira/processing/temp
+adb shell mkdir -p /sdcard/Mira/processing/chunks
+adb shell mkdir -p /sdcard/Mira/processing/intermediate
+adb shell mkdir -p /sdcard/Mira/output/transcripts
+adb shell mkdir -p /sdcard/Mira/output/clips
+adb shell mkdir -p /sdcard/Mira/output/metadata
+adb shell mkdir -p /sdcard/Mira/output/exports
+adb shell mkdir -p /sdcard/Mira/models/whisper
+adb shell mkdir -p /sdcard/Mira/models/clip
+adb shell mkdir -p /sdcard/Mira/logs/whisper
+adb shell mkdir -p /sdcard/Mira/logs/autoclip
+adb shell mkdir -p /sdcard/Mira/logs/system
+
+# Set permissions
+adb shell chmod 755 /sdcard/Mira
+adb shell chmod 755 /sdcard/Mira/inbox
+adb shell chmod 755 /sdcard/Mira/output
+adb shell chmod 755 /sdcard/Mira/processing
+```
+
+**Job Monitoring and Management:**
+```bash
+# Check WorkManager job status
+adb shell dumpsys jobscheduler | grep com.mira.com
+
+# Monitor AutoClipper service
+adb shell dumpsys activity services com.mira.com | grep AutoClipper
+
+# Check directory contents
+adb shell ls -la /sdcard/Mira/inbox/
+adb shell ls -la /sdcard/Mira/output/
+adb shell ls -la /sdcard/Mira/processing/
+
+# Monitor resource usage
+adb shell dumpsys meminfo com.mira.com
+adb shell top -p $(adb shell pidof com.mira.com)
+```
+
+**Job Scheduling Commands:**
+```bash
+# Trigger Whisper processing
+adb shell am broadcast -a com.mira.com.action.WHISPER_RUN \
+  --es input_file "/sdcard/Mira/inbox/audio/sample.wav" \
+  --es output_dir "/sdcard/Mira/output/transcripts/"
+
+# Trigger AutoClipper processing
+adb shell am broadcast -a com.mira.com.action.AUTOCLIP_RUN \
+  --es input_file "/sdcard/Mira/inbox/video/sample.mp4" \
+  --es output_dir "/sdcard/Mira/output/clips/"
+
+# Check job queue status
+adb shell am broadcast -a com.mira.com.action.JOB_STATUS
+
+# Cancel all pending jobs
+adb shell am broadcast -a com.mira.com.action.CANCEL_JOBS
+```
+
 ### Prerequisites
 
 **Development Environment:**
@@ -62,27 +206,60 @@ adb install app/build/outputs/apk/release/app-release.apk
 
 ### Testing
 
+**Job Scheduling System Testing:**
+```bash
+# Test directory structure creation
+./scripts/setup_xiaomi_pad_directories.sh
+
+# Test WorkManager job creation
+adb shell am broadcast -a com.mira.com.action.TEST_JOB_CREATION
+
+# Test file processing pipeline
+adb shell am broadcast -a com.mira.com.action.TEST_PROCESSING_PIPELINE
+
+# Test resource monitoring
+adb shell am broadcast -a com.mira.com.action.TEST_RESOURCE_MONITORING
+
+# Test job queue management
+adb shell am broadcast -a com.mira.com.action.TEST_JOB_QUEUE
+```
+
 **Basic Functionality:**
 ```bash
 # Launch app
-adb shell am start -n com.mira.videoeditor/.MainActivity
+adb shell am start -n com.mira.com/.MainActivity
 
 # Test Whisper functionality
-adb shell am broadcast -a com.mira.videoeditor.action.DECODE_URI \
-  --es uri "file:///sdcard/test_audio.wav"
+adb shell am broadcast -a com.mira.com.action.WHISPER_RUN \
+  --es input_file "/sdcard/Mira/inbox/audio/test.wav" \
+  --es output_dir "/sdcard/Mira/output/transcripts/"
+
+# Test AutoClipper functionality
+adb shell am broadcast -a com.mira.com.action.AUTOCLIP_RUN \
+  --es input_file "/sdcard/Mira/inbox/video/test.mp4" \
+  --es output_dir "/sdcard/Mira/output/clips/"
 
 # Check logs
-adb logcat | grep -E "(Whisper|VideoEdit)"
+adb logcat | grep -E "(Whisper|AutoClipper|Mira)"
 ```
 
 **Resource Monitoring:**
 ```bash
 # Start resource monitoring service
-adb shell am startservice -n com.mira.videoeditor/com.mira.resource.DeviceResourceService
+adb shell am startservice -n com.mira.com/com.mira.resource.DeviceResourceService
+
+# Start AutoClipper service
+adb shell am startservice -n com.mira.com/com.mira.clip.autoclip.AutoClipperService
 
 # Monitor resource usage
-adb shell dumpsys meminfo com.mira.videoeditor
-adb shell top -p $(adb shell pidof com.mira.videoeditor)
+adb shell dumpsys meminfo com.mira.com
+adb shell top -p $(adb shell pidof com.mira.com)
+
+# Monitor job queue
+adb shell dumpsys jobscheduler | grep com.mira.com
+
+# Check service status
+adb shell dumpsys activity services com.mira.com | grep -E "(AutoClipper|Resource)"
 ```
 
 **Performance Testing:**
