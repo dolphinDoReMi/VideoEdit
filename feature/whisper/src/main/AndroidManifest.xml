@@ -4,14 +4,6 @@
   <!-- Note: No storage/media permissions; access via SAF (ACTION_OPEN_DOCUMENT) -->
 
   <application>
-    <!-- Broadcast entry for orchestration -->
-    <receiver
-      android:name="com.mira.com.feature.whisper.runner.WhisperReceiver"
-      android:exported="false">
-      <intent-filter>
-        <action android:name="${applicationId}.whisper.SCAN" />
-        <action android:name="${applicationId}.whisper.RUN" />
-      </intent-filter>
-    </receiver>
+    <!-- Broadcast receivers removed - using direct instantiation instead -->
   </application>
 </manifest>

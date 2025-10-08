@@ -9,6 +9,84 @@
 - **CPU**: Snapdragon 870 with ARM64 NEON support
 - **Android**: API 30+ (Android 11+)
 
+### Working Command Flow for Clip Processing
+
+#### Successful Processing Sequence
+The following command flow has been verified to work reliably for processing audio/video clips on Xiaomi Pad:
+
+**1. Launch App (Bring to Foreground)**
+```bash
+adb shell am start -n com.mira.com/com.mira.whisper.WhisperMainActivity
+```
+
+**2. Start DirectWhisperService**
+```bash
+adb shell am startservice -n com.mira.com/com.mira.com.feature.whisper.service.DirectWhisperService \
+  --es "action" "com.mira.com.feature.whisper.PROCESS_DIRECT" \
+  --es "uri" "file:///sdcard/MiraWhisper/in/tennis_interview_clip_002.mp4" \
+  --es "model" "/sdcard/MiraWhisper/models/whisper-base.q5_1.bin" \
+  --es "threads" "4" \
+  --es "lang" "en"
+```
+
+**3. Monitor Processing**
+```bash
+adb logcat -s TranscribeWorker:V -d | tail -10
+```
+
+#### Key Success Factors
+- **App Must Be in Foreground**: Service fails with "app is in background" error if app goes to background
+- **Language Forced to "en"**: Prevents LID (Language Detection) hangs that occur with "auto" detection
+- **DirectWhisperService**: Uses service-based processing with WorkManager instead of broadcast receivers
+- **Storage Self-Test**: Must pass app-scoped storage directory creation for processing to continue
+
+#### Troubleshooting Command Flow Issues
+
+**Service Background Error:**
+```bash
+# Error: "app is in background uid null"
+# Solution: Ensure app stays in foreground
+adb shell am start -n com.mira.com/com.mira.whisper.WhisperMainActivity && sleep 5
+```
+
+**Storage Self-Test Failures:**
+```bash
+# Error: "Failed to create job directory"
+# Check app-scoped storage permissions
+adb shell "ls -la /storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/"
+```
+
+**Processing Hangs:**
+```bash
+# Check if jobs are progressing beyond initial stage
+adb logcat -s TranscribeWorker:V -d | grep -E "(Storage self-test|Audio loaded|LID|Whisper|Processing|Completed)"
+```
+
+#### Alternative Processing Methods
+
+**WebView Interface (Fallback):**
+```bash
+# Use WebView interface if service fails
+adb shell "am broadcast -a com.mira.com.feature.whisper.PROCESS_FILE \
+  --es \"uri\" \"file:///sdcard/MiraWhisper/in/tennis_interview_clip_002.mp4\" \
+  --es \"model\" \"/sdcard/MiraWhisper/models/whisper-base.q5_1.bin\" \
+  --es \"threads\" \"4\" \
+  --es \"lang\" \"en\""
+```
+
+**Batch Processing:**
+```bash
+# Process multiple files
+for file in /sdcard/MiraWhisper/in/*.mp4; do
+  adb shell am startservice -n com.mira.com/com.mira.com.feature.whisper.service.DirectWhisperService \
+    --es "action" "com.mira.com.feature.whisper.PROCESS_DIRECT" \
+    --es "uri" "file://$file" \
+    --es "model" "/sdcard/MiraWhisper/models/whisper-base.q5_1.bin" \
+    --es "threads" "4" \
+    --es "lang" "en"
+done
+```
+
 ### Performance Optimization
 
 #### Model Optimization

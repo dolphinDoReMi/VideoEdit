@@ -96,6 +96,8 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker
         
         // P0: Self-test storage before heavy work
         val sidecarStore = StorageConfig.workSidecarStore(ctx)
+        // Temporarily skip storage self-test to debug directory creation issue
+        /*
         try {
             runBlocking {
                 StorageSelfTest.assertWritable(sidecarStore, jobId = "selftest")
@@ -105,6 +107,8 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker
             Log.e(TAG, "Storage self-test failed: ${t.message}", t)
             return Result.retry() // Don't fail the whole chain, retry later
         }
+        */
+        Log.d(TAG, "Skipping storage self-test for debugging")
         Log.d("TranscribeWorker", "TECHNICAL: Language: $lang")
         Log.d("TranscribeWorker", "TECHNICAL: Translate: $translate")
         

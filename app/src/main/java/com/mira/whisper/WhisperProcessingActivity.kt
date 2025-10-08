@@ -139,14 +139,11 @@ class WhisperProcessingActivity : AppCompatActivity() {
      */
     private fun initializeConnectorService() {
         try {
-            // Start the connector service
-            val connectorIntent = Intent(this, WhisperConnectorService::class.java)
-            startService(connectorIntent)
-            
-            Log.d(TAG, "Connector service initialized - using DirectWhisperService")
+            // Direct service calls instead of connector service
+            Log.d(TAG, "Using DirectWhisperService for processing")
             
         } catch (e: Exception) {
-            Log.e(TAG, "Error initializing connector service: ${e.message}", e)
+            Log.e(TAG, "Error initializing service: ${e.message}", e)
         }
     }
 
@@ -163,11 +160,7 @@ class WhisperProcessingActivity : AppCompatActivity() {
                 startService(intent)
             }
             
-            // Also start the connector service resource monitoring
-            val connectorIntent = Intent(this, WhisperConnectorService::class.java)
-            startService(connectorIntent)
-            
-            Log.d(TAG, "Both DeviceResourceService and WhisperConnectorService started for resource monitoring")
+            Log.d(TAG, "DeviceResourceService started for resource monitoring")
         } catch (e: Exception) {
             Log.e(TAG, "Error starting background resource monitoring: ${e.message}")
         }

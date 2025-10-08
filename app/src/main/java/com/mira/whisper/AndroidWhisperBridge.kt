@@ -26,6 +26,7 @@ import java.io.File
 import java.util.UUID
 import com.mira.resource.DeviceResourceService
 import com.mira.com.feature.whisper.service.MediaConversionManager
+import com.mira.com.feature.whisper.service.DirectWhisperService
 import com.mira.clip.autoclip.AutoClipperService
 
 /**
@@ -50,15 +51,13 @@ class AndroidWhisperBridge(private val context: Context) {
     init {
         // Force WhisperBridge instantiation to load JNI library
         try {
-            Log.d(TAG, "Forcing WhisperBridge instantiation...")
             CoreWhisperBridge.decode(
                 shortArrayOf(1, 2, 3, 4, 5), // dummy audio data
                 16000, // sample rate
                 4 // threads
             )
-            Log.d(TAG, "WhisperBridge instantiated successfully")
         } catch (e: Exception) {
-            Log.e(TAG, "WhisperBridge instantiation failed: ${e.message}", e)
+            // WhisperBridge instantiation failed
         }
     }
     
@@ -75,17 +74,13 @@ class AndroidWhisperBridge(private val context: Context) {
     @JavascriptInterface
     fun testJNI(): String {
         return try {
-            Log.d(TAG, "Testing JNI loading...")
-            // This should trigger System.loadLibrary("whisper_jni")
             val result = CoreWhisperBridge.decode(
                 shortArrayOf(1, 2, 3, 4, 5), // dummy audio data
                 16000, // sample rate
                 4 // threads
             )
-            Log.d(TAG, "JNI loaded successfully: $result")
             "JNI loaded successfully: $result"
         } catch (e: Exception) {
-            Log.e(TAG, "JNI loading failed: ${e.message}", e)
             "JNI loading failed: ${e.message}"
         }
     }
@@ -95,8 +90,6 @@ class AndroidWhisperBridge(private val context: Context) {
      */
     private fun convertToPCM16(inputUri: String, jobId: String): String? {
         return try {
-            Log.d(TAG, "Converting audio file to PCM16: $inputUri")
-            
             val outputDir = File(SIDECAR_DIR)
             if (!outputDir.exists()) {
                 outputDir.mkdirs()
@@ -109,14 +102,11 @@ class AndroidWhisperBridge(private val context: Context) {
             val inputFile = File(inputUri)
             if (inputFile.exists()) {
                 inputFile.copyTo(outputFile, overwrite = true)
-                Log.d(TAG, "Audio file copied: ${outputFile.absolutePath}")
                 outputFile.absolutePath
             } else {
-                Log.e(TAG, "Input file does not exist: $inputUri")
                 null
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error converting audio: ${e.message}", e)
             null
         }
     }
@@ -126,8 +116,6 @@ class AndroidWhisperBridge(private val context: Context) {
      */
     private fun loadPCM16Audio(audioFile: String): ShortArray {
         return try {
-            Log.d(TAG, "Loading PCM16 audio data from: $audioFile")
-            
             val file = File(audioFile)
             val inputStream = file.inputStream()
             val audioData = inputStream.readBytes()
@@ -141,10 +129,8 @@ class AndroidWhisperBridge(private val context: Context) {
                 pcm16Data[i] = ((byte2 shl 8) or byte1).toShort()
             }
             
-            Log.d(TAG, "Loaded ${pcm16Data.size} PCM16 samples")
             pcm16Data
         } catch (e: Exception) {
-            Log.e(TAG, "Error loading PCM16 audio: ${e.message}", e)
             ShortArray(0)
         }
     }
@@ -161,10 +147,8 @@ class AndroidWhisperBridge(private val context: Context) {
             
             val resultFile = File(outputDir, "${jobId}_transcript.json")
             resultFile.writeText(result)
-            
-            Log.d(TAG, "Transcription result saved: ${resultFile.absolutePath}")
         } catch (e: Exception) {
-            Log.e(TAG, "Error saving transcription result: ${e.message}", e)
+            // Error saving transcription result
         }
     }
 
@@ -172,9 +156,7 @@ class AndroidWhisperBridge(private val context: Context) {
      * Set the WebView reference for JavaScript communication
      */
     fun setWebView(webView: android.webkit.WebView) {
-        Log.d(TAG, "setWebView called")
         this.webView = webView
-        Log.d(TAG, "WebView reference set - direct WhisperBridge mode enabled")
     }
     
     companion object {
@@ -187,33 +169,25 @@ class AndroidWhisperBridge(private val context: Context) {
         private const val MAX_AUDIO_CONTEXT_NORMAL = 6000  // Maximum for 12GB device
         private const val MAX_THREADS_LOW_MEMORY = 4  // Increased threads
         private const val MAX_THREADS_NORMAL = 8  // Maximum threads for 12GB device
+        
+        // Legacy paths for backward compatibility
         const val SIDECAR_DIR = "/sdcard/MiraWhisper/sidecars"
         const val OUTPUT_DIR = "/sdcard/MiraWhisper/out"
     }
 
     // ------------------------------------------------------------------------
-    // Background service contract (bridge-side). We keep these as local
-    // strings so the bridge compiles even if the service side hasn't been
-    // updated yet. Service should mirror these values.
+    // Direct service calls instead of broadcasts
     // ------------------------------------------------------------------------
-    private object Bg {
-        const val ACTION_CANCEL = "com.mira.whisper.action.CANCEL_PROCESSING"
-        const val ACTION_STOP_ALL = "com.mira.whisper.action.STOP_ALL"
-        const val ACTION_RESET_NATIVE = "com.mira.whisper.action.RESET_NATIVE"
-
-        const val EXTRA_BATCH_ID = "extra_batch_id"
-    }
 
     /**
-     * Cancel a running batch by ID. This only signals the background service; the
-     * service is responsible for cancelling WorkManager jobs and releasing codecs.
+     * Cancel a running batch by ID. This uses direct service calls instead of broadcasts.
      */
     @JavascriptInterface
     fun cancelBatch(batchId: String): String {
         return try {
-            val intent = Intent(context, WhisperConnectorService::class.java).apply {
-                action = Bg.ACTION_CANCEL
-                putExtra(Bg.EXTRA_BATCH_ID, batchId)
+            val intent = Intent(context, DirectWhisperService::class.java).apply {
+                putExtra("action", "cancel")
+                putExtra("batch_id", batchId)
             }
             context.startService(intent)
             JSONObject().apply {
@@ -222,7 +196,6 @@ class AndroidWhisperBridge(private val context: Context) {
                 put("batchId", batchId)
             }.toString()
         } catch (e: Exception) {
-            Log.e(TAG, "Error sending cancel for $batchId: ${e.message}", e)
             JSONObject().apply {
                 put("ok", false)
                 put("action", "cancel")
@@ -234,18 +207,16 @@ class AndroidWhisperBridge(private val context: Context) {
 
     /**
      * Stop all background Whisper work and services.
-     * Signals the connector service to halt, and stops the resource monitor.
+     * Uses direct service calls instead of broadcasts.
      */
     @JavascriptInterface
     fun stopAllBackground(): String {
         return try {
-            // Ask connector to stop everything
-            val stopIntent = Intent(context, WhisperConnectorService::class.java).apply {
-                action = Bg.ACTION_STOP_ALL
+            val stopIntent = Intent(context, DirectWhisperService::class.java).apply {
+                putExtra("action", "stop_all")
             }
             context.startService(stopIntent)
 
-            // Best-effort: stop the resource monitor service too
             try {
                 val resIntent = Intent(context, DeviceResourceService::class.java)
                 context.stopService(resIntent)
@@ -257,7 +228,6 @@ class AndroidWhisperBridge(private val context: Context) {
                 put("timestamp", System.currentTimeMillis())
             }.toString()
         } catch (e: Exception) {
-            Log.e(TAG, "Error stopping background work: ${e.message}", e)
             JSONObject().apply {
                 put("ok", false)
                 put("action", "stop_all")
@@ -274,12 +244,9 @@ class AndroidWhisperBridge(private val context: Context) {
     @JavascriptInterface
     fun resetWhisperNative(): Boolean {
         return try {
-            // If your project exposes this in a different package, adjust import/qualifier.
             FeatureWhisperBridge.resetContext()
-            Log.d(TAG, "Whisper native context reset requested via bridge")
             true
         } catch (t: Throwable) {
-            Log.e(TAG, "Failed to reset native context: ${t.message}", t)
             false
         }
     }
@@ -394,9 +361,6 @@ class AndroidWhisperBridge(private val context: Context) {
                         } else {
                             // All files > 1KB are supported with chunking
                             val fileSizeMB = fileSize / (1024 * 1024)
-                            if (fileSizeMB > 100) {
-                                Log.d(TAG, "TECHNICAL: File ${index + 1} is large (${fileSizeMB}MB) - will use chunking")
-                            }
                             // Check if file has audio track
                             try {
                                 val mediaMetadataRetriever = android.media.MediaMetadataRetriever()
@@ -408,7 +372,6 @@ class AndroidWhisperBridge(private val context: Context) {
                                     validationErrors.add("File ${index + 1}: No audio track detected")
                                 } else {
                                     validatedUris.add(uriString)
-                                    Log.d(TAG, "TECHNICAL: File ${index + 1} validated - Size: ${fileSize / (1024 * 1024)}MB, Has audio: yes")
                                 }
                             } catch (e: Exception) {
                                 validationErrors.add("File ${index + 1}: Cannot read audio track - ${e.message}")
@@ -478,21 +441,17 @@ class AndroidWhisperBridge(private val context: Context) {
             )
             PlanStore.put(context, plan)
             
-            Log.d(TAG, "TECHNICAL: Stored plan for batch: $batchId with ${plan.uris.size} validated files")
-            
-            // Start the connector service for real-time coordination
-            val connectorIntent = Intent(context, WhisperConnectorService::class.java).apply {
-                action = WhisperConnectorService.ACTION_START_PROCESSING
-                putExtra(WhisperConnectorService.EXTRA_BATCH_ID, batchId)
-                putExtra(WhisperConnectorService.EXTRA_FILE_COUNT, finalUris.size)
-                putStringArrayListExtra(WhisperConnectorService.EXTRA_URIS, java.util.ArrayList(finalUris))
+            // Use direct service call instead of connector service
+            val directIntent = Intent(context, DirectWhisperService::class.java).apply {
+                putExtra("action", "process_batch")
+                putExtra("batch_id", batchId)
+                putExtra("file_count", finalUris.size)
+                putStringArrayListExtra("uris", java.util.ArrayList(finalUris))
             }
-            Log.d(TAG, "TECHNICAL: Dispatching ACTION_START_PROCESSING for $batchId with ${finalUris.size} validated URIs to WhisperConnectorService")
-            context.startService(connectorIntent)
+            context.startService(directIntent)
             
             // Use the actual WhisperApi for batch processing with validated files
             try {
-                Log.d(TAG, "TECHNICAL: About to enqueue batch processing with WhisperApi using ${finalUris.size} validated files")
                 com.mira.com.feature.whisper.api.WhisperApi.enqueueBatchTranscribe(
                     ctx = context,
                     uris = finalUris,
@@ -504,15 +463,12 @@ class AndroidWhisperBridge(private val context: Context) {
                     batchId = batchId,
                     maxSeconds = if (maxSeconds > 0) maxSeconds else null
                 )
-                Log.d(TAG, "TECHNICAL: Successfully enqueued batch processing: $batchId with ${finalUris.size} files")
             } catch (e: Exception) {
-                Log.e(TAG, "TECHNICAL: Error enqueuing batch processing: ${e.message}", e)
                 return "error:enqueue_failed"
             }
             batchId
             
         } catch (e: Exception) {
-            Log.e(TAG, "Error in runBatch(): ${e.message}", e)
             "error: ${e.message ?: "run_batch_failed"}"
         }
     }
@@ -695,13 +651,16 @@ class AndroidWhisperBridge(private val context: Context) {
     @JavascriptInterface
     fun exportToSdCard(jobId: String, filename: String, base64: String): Boolean {
         return try {
-            Log.d(TAG, "Exporting to SD card: $jobId/$filename")
+            Log.d(TAG, "Exporting to app-scoped storage: $jobId/$filename")
+            
+            // Ensure directory structure exists
+            DirectoryManager.ensureDirectoryStructure(context)
             
             // Decode base64 content
             val bytes = Base64.decode(base64, Base64.DEFAULT)
             
-            // Create export directory
-            val exportDir = File(Environment.getExternalStorageDirectory(), "MiraWhisper/out/$jobId")
+            // Create export directory using app-scoped storage
+            val exportDir = DirectoryManager.getJobTranscriptsDir(context, jobId)
             if (!exportDir.exists()) {
                 exportDir.mkdirs()
             }
@@ -710,11 +669,11 @@ class AndroidWhisperBridge(private val context: Context) {
             val file = File(exportDir, filename)
             file.outputStream().use { it.write(bytes) }
             
-            Log.d(TAG, "Successfully exported: ${file.absolutePath}")
+            Log.d(TAG, "Successfully exported to app-scoped storage: ${file.absolutePath}")
             true
             
         } catch (e: Exception) {
-            Log.e(TAG, "Error exporting to SD card: ${e.message}", e)
+            Log.e(TAG, "Error exporting to app-scoped storage: ${e.message}", e)
             false
         }
     }
@@ -1297,13 +1256,8 @@ class AndroidWhisperBridge(private val context: Context) {
     @JavascriptInterface
     fun convertTennisInterview(): String {
         return try {
-            Log.d(TAG, "TECHNICAL: Starting background conversion of TennisInterview.mkv")
             mediaConversionManager.convertTennisInterview { convertedUri ->
-                if (convertedUri != null) {
-                    Log.d(TAG, "TECHNICAL: TennisInterview.mkv conversion completed: $convertedUri")
-                } else {
-                    Log.e(TAG, "TECHNICAL: TennisInterview.mkv conversion failed")
-                }
+                // Conversion completed
             }
             
             val response = JSONObject().apply {
@@ -1312,7 +1266,6 @@ class AndroidWhisperBridge(private val context: Context) {
             }
             response.toString()
         } catch (e: Exception) {
-            Log.e(TAG, "TECHNICAL: Error starting TennisInterview.mkv conversion: ${e.message}", e)
             val response = JSONObject().apply {
                 put("success", false)
                 put("error", e.message ?: "Unknown error")
@@ -1327,7 +1280,6 @@ class AndroidWhisperBridge(private val context: Context) {
     @JavascriptInterface
     fun startAutomaticConversion(): String {
         return try {
-            Log.d(TAG, "TECHNICAL: Starting automatic media conversion")
             mediaConversionManager.cleanupOldFiles()
             
             val response = JSONObject().apply {
@@ -1336,7 +1288,6 @@ class AndroidWhisperBridge(private val context: Context) {
             }
             response.toString()
         } catch (e: Exception) {
-            Log.e(TAG, "TECHNICAL: Error starting automatic conversion: ${e.message}", e)
             val response = JSONObject().apply {
                 put("success", false)
                 put("error", e.message ?: "Unknown error")
@@ -1350,10 +1301,7 @@ class AndroidWhisperBridge(private val context: Context) {
      */
     fun handleFileSelection(uris: List<Uri>) {
         try {
-            Log.d(TAG, "Handling file selection: ${uris.size} files")
-            
             if (uris.isEmpty()) {
-                Log.w(TAG, "No files selected by user")
                 val response = JSONObject().apply {
                     put("files", JSONArray())
                     put("count", 0)
@@ -1371,10 +1319,8 @@ class AndroidWhisperBridge(private val context: Context) {
             // Check if any files need H.264 conversion and schedule background conversion
             val filesNeedingConversion = uris.filter { mediaConversionManager.needsConversion(it) }
             if (filesNeedingConversion.isNotEmpty()) {
-                Log.d(TAG, "TECHNICAL: ${filesNeedingConversion.size} files need H.264 conversion, scheduling background conversion")
                 mediaConversionManager.convertFiles(filesNeedingConversion) { convertedUris ->
                     val successCount = convertedUris.count { it != null }
-                    Log.d(TAG, "TECHNICAL: Background conversion completed: $successCount/${convertedUris.size} files converted successfully")
                 }
             }
             
@@ -1757,19 +1703,43 @@ class AndroidWhisperBridge(private val context: Context) {
     @JavascriptInterface
     fun readTranscript(jobId: String): String {
         return try {
-            // First try: Look in job-specific subdirectory
-            val jobDir = File(OUTPUT_DIR, jobId)
+            // First try: Look in app-scoped job-specific subdirectory
+            val jobDir = DirectoryManager.getJobTranscriptsDir(context, jobId)
             if (jobDir.exists()) {
                 val txt = jobDir.listFiles { f -> f.isFile && f.name.endsWith(".txt", ignoreCase = true) }?.firstOrNull()
                 val srt = jobDir.listFiles { f -> f.isFile && f.name.endsWith(".srt", ignoreCase = true) }?.firstOrNull()
                 val target = txt ?: srt
                 if (target != null) {
-                    Log.d(TAG, "Found transcript in job directory: ${target.absolutePath}")
+                    Log.d(TAG, "Found transcript in app-scoped job directory: ${target.absolutePath}")
                     return target.readText()
                 }
             }
             
-            // Second try: Look in OUTPUT_DIR root for files matching job ID
+            // Second try: Look in app-scoped transcripts root for files matching job ID
+            val transcriptsDir = DirectoryManager.getTranscriptsOutputDir(context)
+            if (transcriptsDir.exists()) {
+                val candidates = transcriptsDir.listFiles { f -> 
+                    f.isFile && (
+                        f.name.startsWith(jobId) || 
+                        f.name.contains(jobId) ||
+                        f.name.contains("chinese") && jobId.contains("chinese")
+                    ) && (f.name.endsWith(".txt", ignoreCase = true) || f.name.endsWith(".srt", ignoreCase = true))
+                }
+                
+                if (candidates != null && candidates.isNotEmpty()) {
+                    // Prefer .srt files, then .txt files
+                    val srtFile = candidates.find { it.name.endsWith(".srt", ignoreCase = true) }
+                    val txtFile = candidates.find { it.name.endsWith(".txt", ignoreCase = true) }
+                    val target = srtFile ?: txtFile
+                    
+                    if (target != null) {
+                        Log.d(TAG, "Found transcript in app-scoped transcripts directory: ${target.absolutePath}")
+                        return target.readText()
+                    }
+                }
+            }
+            
+            // Third try: Look in legacy OUTPUT_DIR for backward compatibility
             val outDir = File(OUTPUT_DIR)
             if (outDir.exists()) {
                 val candidates = outDir.listFiles { f -> 
@@ -1787,7 +1757,7 @@ class AndroidWhisperBridge(private val context: Context) {
                     val target = srtFile ?: txtFile
                     
                     if (target != null) {
-                        Log.d(TAG, "Found transcript in root directory: ${target.absolutePath}")
+                        Log.d(TAG, "Found transcript in legacy directory: ${target.absolutePath}")
                         return target.readText()
                     }
                 }

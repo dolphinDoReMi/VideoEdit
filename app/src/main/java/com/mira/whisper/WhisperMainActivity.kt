@@ -9,6 +9,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import android.app.Activity
 import android.net.Uri
+import java.io.File
 
 /**
  * Main Whisper Processing Activity
@@ -130,6 +131,9 @@ class WhisperMainActivity : ComponentActivity() {
         
         Log.i(TAG, "Whisper Main Activity launched - initializing interface")
         
+        // Ensure app-scoped directory structure exists
+        DirectoryManager.ensureDirectoryStructure(this)
+        
         // Check and request storage permissions
         checkStoragePermissions()
         
@@ -169,9 +173,6 @@ class WhisperMainActivity : ComponentActivity() {
         webView.loadUrl("file:///android_asset/web/whisper_unified.html")
         
         Log.i(TAG, "Whisper Main Activity initialized successfully")
-        
-        // Auto-start Auto-Clipper with correct file paths
-        startAutoClipperDirectly()
     }
     
     override fun onNewIntent(intent: Intent?) {
@@ -212,7 +213,7 @@ class WhisperMainActivity : ComponentActivity() {
                 val serviceIntent = Intent(this, com.mira.com.feature.whisper.service.DirectWhisperService::class.java).apply {
                     action = com.mira.com.feature.whisper.service.DirectWhisperService.ACTION_PROCESS_DIRECT
                     putExtra(com.mira.com.feature.whisper.service.DirectWhisperService.EXTRA_URI, fileUri)
-                    putExtra(com.mira.com.feature.whisper.service.DirectWhisperService.EXTRA_MODEL, modelPath ?: "/sdcard/MiraWhisper/models/whisper-base.q5_1.bin")
+                    putExtra(com.mira.com.feature.whisper.service.DirectWhisperService.EXTRA_MODEL, modelPath ?: DirectoryManager.getDefaultWhisperModelPath(this@WhisperMainActivity))
                     putExtra(com.mira.com.feature.whisper.service.DirectWhisperService.EXTRA_THREADS, threadCount)
                     putExtra(com.mira.com.feature.whisper.service.DirectWhisperService.EXTRA_LANG, language)
                     putExtra(com.mira.com.feature.whisper.service.DirectWhisperService.EXTRA_TRANSLATE, false)
@@ -236,39 +237,33 @@ class WhisperMainActivity : ComponentActivity() {
     private fun checkStoragePermissions() {
         Log.d(TAG, "Checking storage permissions...")
         
-        // Check if we have MANAGE_EXTERNAL_STORAGE permission
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-            if (!android.provider.Settings.canDrawOverlays(this)) {
-                Log.d(TAG, "MANAGE_EXTERNAL_STORAGE permission not granted, requesting...")
-                requestManageExternalStoragePermission()
-            } else {
-                Log.d(TAG, "MANAGE_EXTERNAL_STORAGE permission already granted")
-            }
+        // Check if we have the necessary storage permissions
+        val hasPermissions = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            // Android 13+ - check for READ_MEDIA_VIDEO and READ_MEDIA_AUDIO
+            val hasVideoPermission = checkSelfPermission(android.Manifest.permission.READ_MEDIA_VIDEO) == 
+                android.content.pm.PackageManager.PERMISSION_GRANTED
+            val hasAudioPermission = checkSelfPermission(android.Manifest.permission.READ_MEDIA_AUDIO) == 
+                android.content.pm.PackageManager.PERMISSION_GRANTED
+            
+            Log.d(TAG, "Storage permissions (Android 13+) - Video: $hasVideoPermission, Audio: $hasAudioPermission")
+            hasVideoPermission && hasAudioPermission
         } else {
-            Log.d(TAG, "Android version < 11, using legacy storage permissions")
+            // Android 12 and below - check for READ_EXTERNAL_STORAGE
+            val hasReadPermission = checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) == 
+                android.content.pm.PackageManager.PERMISSION_GRANTED
+            
+            Log.d(TAG, "Storage permissions (Android 12-) - Read: $hasReadPermission")
+            hasReadPermission
+        }
+        
+        if (!hasPermissions) {
+            Log.d(TAG, "Storage permissions not granted, but not requesting automatically")
+            // Don't automatically request permissions on startup - let user initiate file selection
+        } else {
+            Log.d(TAG, "Storage permissions already granted")
         }
     }
     
-    private fun requestManageExternalStoragePermission() {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-            try {
-                val intent = Intent(android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
-                    data = Uri.parse("package:$packageName")
-                }
-                startActivity(intent)
-                Log.d(TAG, "Launched MANAGE_EXTERNAL_STORAGE permission request")
-            } catch (e: Exception) {
-                Log.e(TAG, "Error launching MANAGE_EXTERNAL_STORAGE permission request: ${e.message}", e)
-                // Fallback to general settings
-                try {
-                    val intent = Intent(android.provider.Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
-                    startActivity(intent)
-                } catch (e2: Exception) {
-                    Log.e(TAG, "Error launching fallback permission request: ${e2.message}", e2)
-                }
-            }
-        }
-    }
     
     private fun requestInputFilePermission() {
         Log.d(TAG, "Requesting SAF permission for input file...")
@@ -326,19 +321,32 @@ class WhisperMainActivity : ComponentActivity() {
     
     private fun startAutoClipperDirectly() {
         try {
-            Log.d(TAG, "Starting Auto-Clipper directly with correct file paths...")
+            Log.d(TAG, "Starting Auto-Clipper directly with app-scoped storage...")
             
-            // Use the correct file paths directly
-            val inputFile = java.io.File("/sdcard/Documents/ConvertedMedia/TennisInterview_converted.mp4")
-            if (!inputFile.exists()) {
-                Log.e(TAG, "Input file not found: ${inputFile.absolutePath}")
+            // Use app-scoped storage for input files
+            val audioInboxDir = DirectoryManager.getAudioInboxDir(this)
+            val videoInboxDir = DirectoryManager.getVideoInboxDir(this)
+            
+            // Look for input files in app-scoped directories
+            val inputFile = listOf(
+                File(audioInboxDir, "TennisInterview_converted.mp4"),
+                File(videoInboxDir, "TennisInterview_converted.mp4"),
+                File(DirectoryManager.getBatchInboxDir(this), "TennisInterview_converted.mp4")
+            ).firstOrNull { it.exists() }
+            
+            if (inputFile == null) {
+                Log.e(TAG, "Input file not found in app-scoped directories")
+                Log.d(TAG, "Checked directories:")
+                Log.d(TAG, "  Audio inbox: ${audioInboxDir.absolutePath}")
+                Log.d(TAG, "  Video inbox: ${videoInboxDir.absolutePath}")
+                Log.d(TAG, "  Batch inbox: ${DirectoryManager.getBatchInboxDir(this).absolutePath}")
                 return
             }
             
             Log.d(TAG, "Found input file at: ${inputFile.absolutePath}")
             
             val inputUri = android.net.Uri.fromFile(inputFile)
-            val outputUri = android.net.Uri.parse("content://com.android.externalstorage.documents/tree/primary%3ADocuments%2FClip")
+            val outputUri = android.net.Uri.fromFile(DirectoryManager.getClipsOutputDir(this))
             
             Log.d(TAG, "Input URI: $inputUri")
             Log.d(TAG, "Output URI: $outputUri")
@@ -349,10 +357,10 @@ class WhisperMainActivity : ComponentActivity() {
                 outputFolderUri = outputUri
             )
             
-            Log.d(TAG, "Auto-Clipper pipeline started directly: ${workRequest.id}")
+            Log.d(TAG, "Auto-Clipper pipeline started with app-scoped storage: ${workRequest.id}")
             
         } catch (e: Exception) {
-            Log.e(TAG, "Error starting Auto-Clipper directly", e)
+            Log.e(TAG, "Error starting Auto-Clipper with app-scoped storage", e)
         }
     }
     
