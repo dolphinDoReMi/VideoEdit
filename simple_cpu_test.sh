@@ -16,7 +16,7 @@ APP_PACKAGE="com.mira.com"
 MAIN_ACTIVITY="com.mira.whisper.WhisperMainActivity"
 CLIP_FILE="tennis_interview_clip_002.mp4"
 DEVICE_PATH="/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/in/$CLIP_FILE"
-MODEL="/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/models/whisper-base.q5_1.bin"
+MODEL="/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/models/small.en-q5_1.bin"
 
 # Results directory
 RESULTS_DIR="./cpu_test_$(date +%Y%m%d_%H%M%S)"
@@ -165,7 +165,7 @@ cat > "$REPORT_FILE" << EOF
 **Android Version:** $(adb shell "getprop ro.build.version.release" 2>/dev/null || echo "Unknown")  
 **CPU ABI:** $(adb shell "getprop ro.product.cpu.abi" 2>/dev/null || echo "Unknown")  
 **File:** $CLIP_FILE  
-**Model:** whisper-base.q5_1.bin  
+**Model:** small.en-q5_1.bin  
 **Method:** CPU-only processing (ARM64 optimized)  
 
 ## Test Results

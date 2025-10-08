@@ -25,6 +25,11 @@ for file in "${CRITICAL_CICD_FILES[@]}"; do
     fi
 done
 
+# Initialize arrays if empty
+if [ ${#CICD_MODIFICATIONS[@]} -eq 0 ]; then
+    CICD_MODIFICATIONS=()
+fi
+
 # If CI/CD files are being modified, check for approval
 if [ ${#CICD_MODIFICATIONS[@]} -gt 0 ]; then
     echo "⚠️  WARNING: Critical CI/CD files are being modified!"
@@ -123,42 +128,46 @@ if [ ${#CICD_MODIFICATIONS[@]} -gt 0 ]; then
 fi
 
 # Check for removal of critical CI/CD files
-for file in "${CRITICAL_CICD_FILES[@]}"; do
-    if git diff --cached --name-status | grep -q "^D.*$file$"; then
-        echo "❌ BLOCKING COMMIT: Attempting to delete critical CI/CD file: $file"
-        echo ""
-        echo "Critical CI/CD files cannot be deleted without:"
-        echo "  1. Feature branch with proper justification"
-        echo "  2. Pull request with detailed explanation"
-        echo "  3. Approval from CI/CD maintainers"
-        echo "  4. Migration plan for any dependencies"
-        echo ""
-        exit 1
-    fi
-done
+if [ ${#CICD_MODIFICATIONS[@]} -gt 0 ]; then
+    for file in "${CRITICAL_CICD_FILES[@]}"; do
+        if git diff --cached --name-status | grep -q "^D.*$file$"; then
+            echo "❌ BLOCKING COMMIT: Attempting to delete critical CI/CD file: $file"
+            echo ""
+            echo "Critical CI/CD files cannot be deleted without:"
+            echo "  1. Feature branch with proper justification"
+            echo "  2. Pull request with detailed explanation"
+            echo "  3. Approval from CI/CD maintainers"
+            echo "  4. Migration plan for any dependencies"
+            echo ""
+            exit 1
+        fi
+    done
+fi
 
 # Check for CI/CD syntax errors
-for file in "${CICD_MODIFICATIONS[@]}"; do
-    if [[ "$file" == *.yml ]] || [[ "$file" == *.yaml ]]; then
-        echo "🔍 Validating CI/CD syntax for: $file"
-        
-        # Basic YAML syntax check
-        if ! python3 -c "import yaml; yaml.safe_load(open('$file'))" 2>/dev/null; then
-            echo "❌ YAML syntax error in: $file"
-            echo "Please fix syntax errors before committing"
-            exit 1
+if [ ${#CICD_MODIFICATIONS[@]} -gt 0 ]; then
+    for file in "${CICD_MODIFICATIONS[@]}"; do
+        if [[ "$file" == *.yml ]] || [[ "$file" == *.yaml ]]; then
+            echo "🔍 Validating CI/CD syntax for: $file"
+            
+            # Basic YAML syntax check
+            if ! python3 -c "import yaml; yaml.safe_load(open('$file'))" 2>/dev/null; then
+                echo "❌ YAML syntax error in: $file"
+                echo "Please fix syntax errors before committing"
+                exit 1
+            fi
+            
+            # Check for required GitHub Actions structure
+            if ! grep -q "name:" "$file" || ! grep -q "on:" "$file" || ! grep -q "jobs:" "$file"; then
+                echo "❌ Invalid GitHub Actions workflow structure in: $file"
+                echo "Workflow must have 'name:', 'on:', and 'jobs:' sections"
+                exit 1
+            fi
+            
+            echo "✅ CI/CD syntax validation passed for: $file"
         fi
-        
-        # Check for required GitHub Actions structure
-        if ! grep -q "name:" "$file" || ! grep -q "on:" "$file" || ! grep -q "jobs:" "$file"; then
-            echo "❌ Invalid GitHub Actions workflow structure in: $file"
-            echo "Workflow must have 'name:', 'on:', and 'jobs:' sections"
-            exit 1
-        fi
-        
-        echo "✅ CI/CD syntax validation passed for: $file"
-    fi
-done
+    done
+fi
 
 echo "✅ CI/CD protection check passed"
 echo ""

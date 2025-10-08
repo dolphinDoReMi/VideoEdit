@@ -15,9 +15,9 @@ echo ""
 # Configuration
 CLIP_FILE="tennis_interview_clip_002.mp4"
 CLIP_SOURCE="/Users/dennis/Movies/VideoEdit/tennis_clips/$CLIP_FILE"
-DEVICE_PATH="/sdcard/MiraWhisper/in/$CLIP_FILE"
-OUTPUT_DIR="/sdcard/MiraWhisper/out"
-MODEL="whisper-base.q5_1.bin"
+DEVICE_PATH="/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/in/$CLIP_FILE"
+OUTPUT_DIR="/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/out"
+MODEL="small.en-q5_1.bin"
 
 # Results directory
 RESULTS_DIR="./simple_test_results_$(date +%Y%m%d_%H%M%S)"
@@ -59,7 +59,7 @@ echo ""
 # Setup device
 echo "=== Device Setup ==="
 echo "Creating directories..."
-adb shell "mkdir -p $OUTPUT_DIR /sdcard/MiraWhisper/in /sdcard/MiraWhisper/models"
+adb shell "mkdir -p $OUTPUT_DIR /storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/in /storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/models"
 
 # Push clip file
 echo "Pushing clip file to device..."
@@ -68,10 +68,10 @@ echo "✅ Clip file pushed to device"
 
 # Check whisper model
 echo "Checking whisper model..."
-if ! adb shell "test -f /sdcard/MiraWhisper/models/$MODEL"; then
+if ! adb shell "test -f /storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/models/$MODEL"; then
     echo "⚠️  Whisper model not found, copying from local..."
     if [ -f "whisper_models/$MODEL" ]; then
-        adb push "whisper_models/$MODEL" "/sdcard/MiraWhisper/models/"
+        adb push "whisper_models/$MODEL" "/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/models/"
         echo "✅ Whisper model copied"
     else
         echo "❌ Whisper model not found locally"
@@ -138,7 +138,7 @@ echo "Monitoring device performance..."
         # Check processing status
         STATUS="IDLE"
         if adb shell "ps | grep com.mira.com" >/dev/null 2>&1; then
-            if adb shell "test -f /sdcard/MiraWhisper/out/tennis_interview_clip_002.srt" 2>/dev/null; then
+            if adb shell "test -f /storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/out/tennis_interview_clip_002.srt" 2>/dev/null; then
                 STATUS="COMPLETED"
                 PROCESSING_COMPLETE=true
             else
@@ -168,8 +168,8 @@ echo ""
 echo "=== Collecting Results ==="
 
 # Get transcript
-if adb shell "test -f /sdcard/MiraWhisper/out/tennis_interview_clip_002.srt" 2>/dev/null; then
-    adb shell "cat /sdcard/MiraWhisper/out/tennis_interview_clip_002.srt" > "$RESULTS_DIR/transcript.srt"
+if adb shell "test -f /storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/out/tennis_interview_clip_002.srt" 2>/dev/null; then
+    adb shell "cat /storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/out/tennis_interview_clip_002.srt" > "$RESULTS_DIR/transcript.srt"
     echo "✅ Transcript saved"
     
     # Show first few lines of transcript
