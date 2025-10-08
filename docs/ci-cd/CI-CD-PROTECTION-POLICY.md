@@ -28,8 +28,10 @@ Pre-commit hooks prevent accidental CI/CD modifications:
 
 **Protected Actions:**
 - ❌ Direct modification of `.github/workflows/ci.yml`
+- ❌ **Creation of ANY new CI/CD workflow files** (`.github/workflows/*.yml`)
 - ❌ Removal of required CI/CD files
 - ❌ Breaking changes to CI/CD structure
+- ❌ Unauthorized CI/CD configuration changes
 
 ### 2. Branch Protection Rules
 GitHub branch protection rules for main branch:
@@ -55,6 +57,17 @@ GitHub branch protection rules for main branch:
 4. **Create Pull Request**: Include detailed justification
 5. **Code Review**: Require 2+ approvals from CI/CD maintainers
 6. **Merge**: Only after all checks pass
+
+#### For NEW CI/CD Workflow Creation:
+1. **Create Feature Branch**: `git checkout -b feature/new-workflow-name`
+2. **Document Requirements**: Comprehensive justification for new workflow
+3. **Design Review**: Get approval from CI/CD maintainers before implementation
+4. **Implement**: Create workflow with proper testing
+5. **Test Thoroughly**: Full validation and testing
+6. **Create Pull Request**: Include detailed explanation and impact analysis
+7. **Code Review**: Require 2+ approvals from CI/CD maintainers
+8. **Security Review**: Ensure no security vulnerabilities
+9. **Merge**: Only after all checks pass and documentation updated
 
 #### For Feature Branch CI/CD Changes:
 - ✅ Allowed with single reviewer approval
