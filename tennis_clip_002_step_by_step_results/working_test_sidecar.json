@@ -1,0 +1,20 @@
+{
+  "text": "",
+  "segments": [],
+  "language": "en",
+  "duration": 5.0,
+  "rtf": 0.0,
+  "model": "whisper-tiny.en-q5_1",
+  "processing_time": 0.0,
+  "timestamp": "2025-10-03T23:58:00Z",
+  "device": "Xiaomi Pad Ultra (25032RP42C)",
+  "android_version": "15",
+  "architecture": "arm64-v8a",
+  "extraction_method": "Media3 Transformer",
+  "video_file": "test_video_with_audio.mp4",
+  "audio_extracted": true,
+  "audio_format": "AAC → WAV",
+  "sample_rate": 44100,
+  "channels": 1,
+  "reason": "Pure tone audio - no speech content"
+}

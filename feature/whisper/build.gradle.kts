@@ -85,6 +85,12 @@ dependencies {
   // WorkManager
   implementation("androidx.work:work-runtime-ktx:2.9.0")
   
+  // DocumentFile for SAF
+  implementation("androidx.documentfile:documentfile:1.0.1")
+  
+  // Core for NotificationCompat
+  implementation("androidx.core:core-ktx:1.12.0")
+  
   // Room
   implementation("androidx.room:room-runtime:2.7.0")
   implementation("androidx.room:room-ktx:2.7.0")

@@ -1,140 +1,379 @@
-# CI/CD & Release Guide
+# CICD & Release Guide
 
 ## Overview
-This section contains comprehensive guides for continuous integration, continuous deployment, and release management across all platforms.
 
-## Structure
-```
-docs/CICD & Release Guide/
-├── GitHub Guide.md
-├── XiaoMi Pad Inference Optimization.md
-├── iPad Inference Optimization.md
-└── Release Pipeline.md
-```
+This guide covers the continuous integration and deployment (CI/CD) processes for the VideoEdit multi-modal AI video processing platform, including automated testing, validation, and release procedures.
 
-## GitHub Integration
+## GitHub Guide
 
-### Repository Management
-- **Main Repository**: `dolphinDoReMi/VideoEdit`
-- **Branch Strategy**: GitFlow with main, develop, and feature branches
-- **Pull Request Process**: Automated testing and code review
-- **Issue Tracking**: GitHub Issues for bug tracking and feature requests
-
-### GitHub Actions Workflows
-- **CI Pipeline**: Automated testing and validation
-- **CD Pipeline**: Automated deployment to staging and production
-- **Release Pipeline**: Automated release creation and distribution
-- **Security Scanning**: Automated security vulnerability scanning
+### Repository Structure
+- **Main Branch**: `main` - Production-ready code
+- **Feature Branches**: `feature/*` - New feature development
+- **Release Branches**: `release/*` - Release preparation
+- **Hotfix Branches**: `hotfix/*` - Critical bug fixes
 
 ### Branch Protection Rules
 - **Main Branch**: Requires pull request reviews and status checks
-- **Develop Branch**: Requires pull request reviews
-- **Feature Branches**: Automated testing on push
-- **Release Branches**: Automated release preparation
+- **Feature Branches**: Must be up-to-date with main before merging
+- **Release Branches**: Protected during release process
 
-## Release Management
+### Pull Request Process
+1. **Create Feature Branch**: `git checkout -b feature/amazing-feature`
+2. **Develop Feature**: Implement changes with proper testing
+3. **Create Pull Request**: Include description, tests, and documentation
+4. **Code Review**: At least one approved review required
+5. **Merge**: Squash and merge to main branch
 
-### Version Control
+### Commit Message Convention
+```
+feat: add new feature
+fix: bug fix
+docs: documentation changes
+style: formatting changes
+refactor: code refactoring
+test: add or update tests
+chore: maintenance tasks
+```
+
+## CI/CD Workflows
+
+### Automated Testing Pipeline
+
+#### Unit Tests
+```yaml
+name: Unit Tests
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run Unit Tests
+        run: ./gradlew testDebugUnitTest
+```
+
+#### Integration Tests
+```yaml
+name: Integration Tests
+on: [push, pull_request]
+jobs:
+  integration-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run Integration Tests
+        run: |
+          cd docs/whisper/scripts
+          ./test_comprehensive_pipeline.sh
+          cd ../clip/scripts
+          ./test_clip_pipeline.sh
+```
+
+#### E2E Tests
+```yaml
+name: E2E Tests
+on: [push, pull_request]
+jobs:
+  e2e-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run E2E Tests
+        run: |
+          cd docs/whisper/scripts
+          ./work_through_video_v1.sh
+```
+
+### Build and Deployment Pipeline
+
+#### Android Build
+```yaml
+name: Android Build
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+      - name: Build APK
+        run: ./gradlew assembleDebug
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-debug
+          path: app/build/outputs/apk/debug/
+```
+
+#### iOS Build
+```yaml
+name: iOS Build
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  build-ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: pnpm install
+      - name: Build web
+        run: pnpm build
+      - name: Sync iOS
+        run: pnpm exec cap sync ios
+      - name: Build iOS
+        run: |
+          cd ios/App
+          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -destination 'generic/platform=iOS' clean build
+```
+
+#### Web Build
+```yaml
+name: Web Build
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  build-web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: pnpm install
+      - name: Build web
+        run: pnpm build
+      - name: Upload build
+        uses: actions/upload-artifact@v3
+        with:
+          name: web-build
+          path: dist/
+```
+
+## Release Process
+
+### Version Management
 - **Semantic Versioning**: MAJOR.MINOR.PATCH
-- **Release Tags**: Git tags for version tracking
-- **Changelog**: Automated changelog generation
-- **Release Notes**: Detailed release documentation
+- **Version Tags**: `v1.0.0`, `v1.1.0`, `v1.1.1`
+- **Release Notes**: Automated generation from commits
 
-### Platform Releases
-- **Android**: Play Store with internal testing
-- **iOS**: App Store Connect with TestFlight
-- **Web**: Static hosting with CDN distribution
-- **Documentation**: Automated documentation updates
+### Release Workflow
+
+#### 1. Prepare Release
+```bash
+# Create release branch
+git checkout -b release/v1.1.0
+
+# Update version numbers
+# - app/build.gradle.kts
+# - package.json
+# - ios/App/App/Info.plist
+
+# Update CHANGELOG.md
+# Commit changes
+git commit -m "chore: prepare release v1.1.0"
+```
+
+#### 2. Create Release
+```bash
+# Create tag
+git tag -a v1.1.0 -m "Release v1.1.0"
+
+# Push tag
+git push origin v1.1.0
+```
+
+#### 3. Automated Release
+```yaml
+name: Release
+on:
+  push:
+    tags:
+      - 'v*'
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            ## Changes
+            - Feature updates
+            - Bug fixes
+            - Performance improvements
+          draft: false
+          prerelease: false
+```
+
+### Platform-Specific Releases
+
+#### Android Release
+```bash
+# Build release APK
+./gradlew assembleRelease
+
+# Sign APK
+jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore keystore.jks app-release-unsigned.apk alias_name
+
+# Align APK
+zipalign -v 4 app-release-unsigned.apk app-release.apk
+```
+
+#### iOS Release
+```bash
+# Build iOS app
+cd ios/App
+xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -destination 'generic/platform=iOS' clean archive -archivePath App.xcarchive
+
+# Export IPA
+xcodebuild -exportArchive -archivePath App.xcarchive -exportOptionsPlist ExportOptions.plist -exportPath .
+```
+
+#### Web Release
+```bash
+# Build web app
+pnpm build
+
+# Deploy to hosting service
+# - Netlify
+# - Vercel
+# - GitHub Pages
+```
 
 ## Quality Assurance
 
-### Automated Testing
-- **Unit Tests**: All business logic components
-- **Integration Tests**: Feature pipeline validation
-- **UI Tests**: Cross-platform UI automation
-- **Performance Tests**: Load time and resource usage
-- **Accessibility Tests**: WCAG compliance validation
-- **Security Tests**: Vulnerability scanning
+### Code Quality Checks
+- **Linting**: ESLint, Prettier, Detekt
+- **Type Checking**: TypeScript, Kotlin
+- **Security**: CodeQL, dependency scanning
+- **Performance**: Bundle size analysis
 
-### Code Quality
-- **Linting**: Automated code style checking
-- **Static Analysis**: Automated code quality analysis
-- **Coverage**: Code coverage requirements
-- **Documentation**: Automated documentation validation
+### Testing Coverage
+- **Unit Tests**: >80% coverage required
+- **Integration Tests**: All critical paths covered
+- **E2E Tests**: Main user journeys tested
+- **Performance Tests**: Load and stress testing
 
-## Deployment Strategies
+### Validation Scripts
 
-### Staging Environment
-- **Automated Deployment**: Push to develop branch triggers staging deployment
-- **Testing**: Comprehensive testing in staging environment
-- **Validation**: Performance and functionality validation
-- **Rollback**: Automated rollback capabilities
+#### Documentation Validation
+```bash
+# Validate documentation structure
+cd docs/CICD\ \&\ Release\ Guide/Scripts
+./validate_docs_structure.sh
 
-### Production Environment
-- **Release Process**: Tagged releases trigger production deployment
-- **Gradual Rollout**: Phased rollout for risk mitigation
-- **Monitoring**: Real-time monitoring and alerting
-- **Rollback**: Quick rollback capabilities
+# Validate control knots
+./validate_control_knots.sh
 
-## Monitoring and Observability
+# Validate multi-lens explanations
+./validate_multi_lens.sh
+```
+
+#### Feature Validation
+```bash
+# Validate Whisper implementation
+cd docs/whisper/scripts
+./validate_cicd_pipeline.sh
+
+# Validate CLIP implementation
+cd docs/clip/scripts
+./test_clip_pipeline.sh
+
+# Validate infrastructure
+cd docs/infra/scripts
+./test_infrastructure_consistency.sh
+```
+
+## Monitoring and Alerting
+
+### Build Monitoring
+- **Build Status**: Real-time build status tracking
+- **Build Duration**: Performance monitoring
+- **Failure Alerts**: Immediate notification on failures
+- **Trend Analysis**: Historical build performance
 
 ### Release Monitoring
-- **Crash Reporting**: Automatic crash collection and analysis
-- **Performance Metrics**: Real-time performance monitoring
-- **User Analytics**: Anonymous usage analytics
-- **Error Tracking**: Comprehensive error logging and alerting
+- **Deployment Status**: Real-time deployment tracking
+- **Rollback Capability**: Quick rollback on issues
+- **Health Checks**: Post-deployment validation
+- **User Feedback**: Automated feedback collection
 
-### Success Metrics
-- **Adoption Rate**: New user acquisition
-- **Retention Rate**: User engagement over time
-- **Performance**: Load time and responsiveness
-- **Stability**: Crash rate and error frequency
-- **User Satisfaction**: App store ratings and reviews
+## Troubleshooting
 
-## Security and Compliance
+### Common CI/CD Issues
 
-### Security Scanning
-- **Dependency Scanning**: Automated vulnerability scanning
-- **Code Scanning**: Static analysis for security issues
-- **Container Scanning**: Docker image security scanning
-- **Secrets Management**: Secure handling of API keys and secrets
+#### Build Failures
+1. **Dependency Issues**: Check package versions and compatibility
+2. **Environment Issues**: Verify build environment setup
+3. **Resource Issues**: Check memory and disk space
+4. **Network Issues**: Verify network connectivity
 
-### Compliance
-- **Data Protection**: GDPR and privacy compliance
-- **Accessibility**: WCAG compliance validation
-- **Platform Guidelines**: App Store and Play Store compliance
-- **Documentation**: Compliance documentation
+#### Test Failures
+1. **Flaky Tests**: Identify and fix unstable tests
+2. **Environment Dependencies**: Ensure test environment consistency
+3. **Data Issues**: Check test data integrity
+4. **Timing Issues**: Add proper waits and timeouts
 
-## Documentation
+#### Deployment Issues
+1. **Configuration Issues**: Verify deployment configuration
+2. **Permission Issues**: Check deployment permissions
+3. **Resource Issues**: Ensure sufficient resources
+4. **Network Issues**: Verify network connectivity
 
-### Automated Documentation
-- **API Documentation**: Automated API documentation generation
-- **Code Documentation**: Automated code documentation
-- **Release Notes**: Automated release note generation
-- **User Guides**: Automated user guide updates
+### Debug Tools
+- **Build Logs**: Detailed build execution logs
+- **Test Reports**: Comprehensive test result reports
+- **Deployment Logs**: Step-by-step deployment logs
+- **Performance Metrics**: Build and deployment performance data
 
-### Manual Documentation
-- **Architecture Decisions**: Architecture decision records
-- **Process Documentation**: Development and deployment processes
-- **Troubleshooting Guides**: Common issues and solutions
-- **Training Materials**: Developer and user training
+## Best Practices
 
-## Future Enhancements
+### Development
+- **Small Commits**: Frequent, small commits
+- **Descriptive Messages**: Clear commit and PR descriptions
+- **Code Reviews**: Thorough code review process
+- **Testing**: Comprehensive testing before merge
 
-### Planned Features
-- **Advanced CI/CD**: Enhanced automation and orchestration
-- **Multi-Environment**: Support for multiple environments
-- **Advanced Monitoring**: Enhanced observability and monitoring
-- **Security Enhancements**: Advanced security scanning and compliance
+### Release Management
+- **Semantic Versioning**: Consistent version numbering
+- **Release Notes**: Clear release documentation
+- **Rollback Plan**: Prepared rollback procedures
+- **Monitoring**: Post-release monitoring
 
-### Performance Improvements
-- **Pipeline Optimization**: Faster CI/CD pipelines
-- **Resource Optimization**: Efficient resource utilization
-- **Deployment Speed**: Faster deployment times
-- **Monitoring Efficiency**: Enhanced monitoring capabilities
+### Security
+- **Secrets Management**: Secure handling of secrets
+- **Dependency Scanning**: Regular dependency updates
+- **Code Scanning**: Automated security scanning
+- **Access Control**: Proper access management
 
 ---
 
-**Last Updated**: October 7, 2025  
+**Last Updated**: October 8, 2025  
 **Version**: 1.0  
 **Status**: Production Ready

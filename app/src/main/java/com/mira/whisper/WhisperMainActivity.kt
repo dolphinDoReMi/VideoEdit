@@ -130,6 +130,9 @@ class WhisperMainActivity : ComponentActivity() {
         
         Log.i(TAG, "Whisper Main Activity launched - initializing interface")
         
+        // Check and request storage permissions
+        checkStoragePermissions()
+        
         // Handle direct processing intents
         handleDirectProcessingIntent(intent)
         
@@ -226,6 +229,43 @@ class WhisperMainActivity : ComponentActivity() {
                 }
             } else {
                 Log.e(TAG, "❌ No file_uri provided in direct processing intent")
+            }
+        }
+    }
+    
+    private fun checkStoragePermissions() {
+        Log.d(TAG, "Checking storage permissions...")
+        
+        // Check if we have MANAGE_EXTERNAL_STORAGE permission
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            if (!android.provider.Settings.canDrawOverlays(this)) {
+                Log.d(TAG, "MANAGE_EXTERNAL_STORAGE permission not granted, requesting...")
+                requestManageExternalStoragePermission()
+            } else {
+                Log.d(TAG, "MANAGE_EXTERNAL_STORAGE permission already granted")
+            }
+        } else {
+            Log.d(TAG, "Android version < 11, using legacy storage permissions")
+        }
+    }
+    
+    private fun requestManageExternalStoragePermission() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            try {
+                val intent = Intent(android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
+                    data = Uri.parse("package:$packageName")
+                }
+                startActivity(intent)
+                Log.d(TAG, "Launched MANAGE_EXTERNAL_STORAGE permission request")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error launching MANAGE_EXTERNAL_STORAGE permission request: ${e.message}", e)
+                // Fallback to general settings
+                try {
+                    val intent = Intent(android.provider.Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
+                    startActivity(intent)
+                } catch (e2: Exception) {
+                    Log.e(TAG, "Error launching fallback permission request: ${e2.message}", e2)
+                }
             }
         }
     }

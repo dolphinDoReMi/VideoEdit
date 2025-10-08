@@ -70,7 +70,7 @@ class DirectWhisperService : Service() {
         val model = intent.getStringExtra(EXTRA_MODEL) ?: "/sdcard/MiraWhisper/models/whisper-base.q5_1.bin"
         val threads = intent.getIntExtra(EXTRA_THREADS, 4)
         val beam = intent.getIntExtra(EXTRA_BEAM, 1)
-        val lang = intent.getStringExtra(EXTRA_LANG) ?: "auto"
+        val lang = intent.getStringExtra(EXTRA_LANG) ?: "en"
         val translate = intent.getBooleanExtra(EXTRA_TRANSLATE, false)
         val maxSeconds = intent.getIntExtra(EXTRA_MAX_SECONDS, 0).coerceAtLeast(0)
         
@@ -110,7 +110,8 @@ class DirectWhisperService : Service() {
             Log.e(TAG, "Optional extras: $EXTRA_MODEL, $EXTRA_THREADS, $EXTRA_BEAM, $EXTRA_LANG, $EXTRA_TRANSLATE, $EXTRA_MAX_SECONDS")
         }
         
-        // Stop the service after processing the request
-        stopSelf()
+        // Don't stop the service immediately - let WorkManager complete
+        // The service will be stopped by the system when appropriate
+        Log.i(TAG, "Service will continue running to allow WorkManager jobs to complete")
     }
 }

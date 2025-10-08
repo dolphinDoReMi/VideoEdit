@@ -2,190 +2,75 @@
 
 ## Multi-Lens Expert Communication
 
+Got you. Here's the Whisper multi-lens explanation—compact, technical, and straight to the point.
+
+⸻
+
 ### 1/ Plain-text: How it works (step-by-step)
 
-**Audio Processing Pipeline:**
-1. **Input**: Locate an input file (static): .wav or .mp4 (AAC inside container)
-2. **Decode**: 
-   - WAV → parse RIFF → PCM16
-   - MP4 → MediaExtractor/MediaCodec → AAC→PCM16
-3. **Normalize**: Front-end processing - downmix to mono, resample to 16 kHz, clamp to int16 range
-4. **Inference**: Feed PCM to whisper.cpp via JNI with explicit config (threads, language or auto-LID, translate on/off, greedy/beam, temperature)
-5. **Processing**: Whisper computes log-mel, runs the Transformer decoder, and returns time-stamped segments (10 ms tick base): [t0Ms, t1Ms, text]
-6. **Enhancement**: Optional word timestamps for word-level CTM
-7. **Serialization**: Persist artifacts next to the audio:
-   - JSON sidecar: {segments[], model_variant, model_sha, decode_cfg, audio_sha256, created_at, rtf}
-   - (Optional) SRT/VTT generated from segments
-8. **Storage**: Persist run metadata in asr.db (asr_files, asr_jobs, asr_segments) for audit/replay
-9. **Verification**: Sanity checks - sample rate==16 kHz mono, non-empty segments, ordered times (t0≤t1), finite text, RTF < target, optional WER ≤ threshold on a reference clip
+- **Locate an input file (static)**: .wav or .mp4 (AAC inside container)
+- **Decode to waveform**:
+  - WAV → parse RIFF → PCM16
+  - MP4 → MediaExtractor/MediaCodec → AAC→PCM16
+- **Normalize front-end**: downmix to mono, resample to 16 kHz, clamp to int16 range
+- **Feed PCM to whisper.cpp via JNI** with explicit config (threads, language or auto-LID, translate on/off, greedy/beam, temperature)
+- **Whisper computes log-mel**, runs the Transformer decoder, and returns time-stamped segments (10 ms tick base): [t0Ms, t1Ms, text]
+- **Optional**: enable word timestamps for word-level CTM
+- **Serialize artifacts next to the audio**:
+  - JSON sidecar: {segments[], model_variant, model_sha, decode_cfg, audio_sha256, created_at, rtf}
+  - (Optional) SRT/VTT generated from segments
+- **Persist run metadata in asr.db** (asr_files, asr_jobs, asr_segments) for audit/replay
+- **Verify with sanity checks**: sample rate==16 kHz mono, non-empty segments, ordered times (t0≤t1), finite text, RTF < target, optional WER ≤ threshold on a reference clip
 
 **Why this works**: End-to-end ASR (Whisper) maps normalized audio to subword text with learned alignment; strict front-end (mono/16k) removes domain mismatch; JSON+DB make outputs reproducible and time-addressable.
 
+⸻
+
 ### 2/ For a Recommendation System Expert
 
-**Indexing Contract:**
-- One immutable transcript JSON per (asset, variant)
-- Path convention: `{variant}/{audioId}.json` (+ SHA of audio and model)
-- Online latency path: user query → text retrieval over transcripts (BM25/ANN on text embeddings) with time-coded jumps back to media
+- **Indexing contract**: one immutable transcript JSON per (asset, variant); path convention: {variant}/{audioId}.json (+ SHA of audio and model)
+- **Online latency path**: user query → text retrieval over transcripts (BM25/ANN on text embeddings) with time-coded jumps back to media
+- **ANN build**: store raw JSON for audit; build a serving index over text embeddings (e.g., E5/MPNet) or n-gram inverted index; keep Whisper confidence/timing as features
+- **MIPS/cosine**: if using unit-norm text embeddings, cosine==dot; standard ANN (Faiss/ScaNN/HNSW) applies
+- **Freshness & TTL**: decouple offline ASR ingest from online retrieval; sidecar has created_at, model_sha, decode_cfg for rollbacks and replays
+- **Feature stability**: fixed resample/downmix and pinned decode params → deterministic transcripts (minus inherent stochasticity like temperature/beam)
+- **Ranking fusion**: score = α·text_match(q, t) + β·ASR_quality(seg) + γ·user_personalization(u, asset) + δ·recency(asset); fuse at segment or asset level
+- **Safety/observability**: metrics = recall@K, latency p99, RTF distribution, segment coverage (% voiced), WER on labeled panels; verify integrity via audio_sha256 and model_sha
+- **AB discipline**: treat model change or decode config change (beam/temp) as new variant keys; support shadow deployments with side-by-side JSONs
 
-**ANN Build:**
-- Store raw JSON for audit
-- Build a serving index over text embeddings (e.g., E5/MPNet) or n-gram inverted index
-- Keep Whisper confidence/timing as features
-
-**MIPS/Cosine:**
-- If using unit-norm text embeddings, cosine==dot
-- Standard ANN (Faiss/ScaNN/HNSW) applies
-
-**Freshness & TTL:**
-- Decouple offline ASR ingest from online retrieval
-- Sidecar has created_at, model_sha, decode_cfg for rollbacks and replays
-
-**Feature Stability:**
-- Fixed resample/downmix and pinned decode params → deterministic transcripts (minus inherent stochasticity like temperature/beam)
-
-**Ranking Fusion:**
-- Score = α·text_match(q, t) + β·ASR_quality(seg) + γ·user_personalization(u, asset) + δ·recency(asset)
-- Fuse at segment or asset level
-
-**Safety/Observability:**
-- Metrics = recall@K, latency p99, RTF distribution, segment coverage (% voiced), WER on labeled panels
-- Verify integrity via audio_sha256 and model_sha
-
-**AB Discipline:**
-- Treat model change or decode config change (beam/temp) as new variant keys
-- Support shadow deployments with side-by-side JSONs
+⸻
 
 ### 3/ For a Deep Learning Expert
 
-**Front-end:**
-- Mono 16 kHz, log-mel computed inside Whisper
-- Ensure amplitude in [−1,1]
+- **Front-end**: mono 16 kHz, log-mel computed inside Whisper; ensure amplitude in [−1,1]
+- **Tokenizer/units**: BPE (Whisper's vocabulary); timestamps at 10 ms tick resolution if enabled
+- **Search**: greedy (fast) vs. beam (beamSize, patience); temperature for exploration; translate toggles X→EN decoding; language can be forced to avoid LID flips
+- **Chunking**: whisper.cpp internally handles ~30 s contexts; for long files, do windowed decode with overlap and stitch segments
+- **Numerical hygiene**: check isFinite, no NaNs; verify RTF vs threads; keep resampler and downmix deterministic; hold temperature fixed in eval runs
+- **Quantization**: GGUF quantization reduces RAM/latency but may raise WER; keep a float (or higher-precision) baseline for audits; report ΔWER/ΔRTF
+- **Known limitations**: no diarization/speaker turns by default; far-field/noisy audio benefits from better resampling and optional VAD; cross-talk and code-switching can degrade unless language is forced
+- **Upgrades**: band-limited resampler (SoX-style) for noisy domains; VAD pre-trim; long-form strategies (context carryover); optional speaker diarization for CU tasks
 
-**Tokenizer/Units:**
-- BPE (Whisper's vocabulary)
-- Timestamps at 10 ms tick resolution if enabled
-
-**Search:**
-- Greedy (fast) vs. beam (beamSize, patience)
-- Temperature for exploration
-- Translate toggles X→EN decoding
-- Language can be forced to avoid LID flips
-
-**Chunking & Memory Management:**
-- whisper.cpp internally handles ~30 s contexts
-- For long files, streaming processing with 30-second chunks prevents OOM
-- Memory pressure management: files >100MB trigger streaming mode
-- Chunk overlap handling: seamless segment stitching across boundaries
-- Batch processing: parallel chunk processing with WorkManager coordination
-
-**Numerical Hygiene:**
-- Check isFinite, no NaNs
-- Verify RTF vs threads
-- Keep resampler and downmix deterministic
-- Hold temperature fixed in eval runs
-
-**Quantization:**
-- GGUF quantization reduces RAM/latency but may raise WER
-- Keep a float (or higher-precision) baseline for audits
-- Report ΔWER/ΔRTF
-
-**Advanced Optimization Control Knots:**
-
-**Compute & Runtime:**
-- **Backend Selection**: Vulkan GPU provides significant speedups if driver exposes FP16 and 16-bit storage; CPU is universal fallback
-- **Build Flag**: `GGML_VULKAN=1` enables Vulkan backend
-- **Thread Configuration**: More threads increase throughput until big cores saturated; beyond that, thermals dominate
-- **Rationale**: Throughput vs. stability trade-off; Vulkan fastest when supported
-
-**Model Choice & Weight Format:**
-- **Model Size**: tiny/small/base/medium/large - bigger = better WER but higher latency/memory
-- **Quantization Strategy**: Q5_1 (sweet spot), Q8_0 (quality), Q4_* (memory-constrained)
-- **Rationale**: Choose smallest model meeting accuracy requirements
-
-**Audio Windowing & Context:**
-- **Audio Context**: Default ~1500 frames (~30s); lowering to 768 speeds encoding but hurts edge accuracy
-- **Constraint**: Keep multiples of 64
-- **Chunking Strategy**: Smaller chunks = lower latency/higher boundary risk; larger = better context/higher memory
-- **Rationale**: Latency vs. context trade-off for real-time vs. batch processing
-
-**Decoding Strategy (Quality vs Speed):**
-- **Beam Search**: Improves quality/consistency, costs speed (set beam size)
-- **Greedy**: Fastest option, can miss alternatives
-- **Temperature Control**: Low temperature (near 0) = more deterministic; temperature fallback for failed heuristics
-- **Rationale**: Beam = accuracy, greedy = latency
-
-**Hallucination & Silence Controls:**
-- **no_speech_threshold**: Controls silence dropping aggressiveness; too high suppresses quiet speech, too low admits noise
-- **Quality Filters**: log_prob_threshold and compression-ratio checks filter low-confidence/hallucinated text
-- **External VAD**: Gate decoding to voiced regions with thresholds and min duration
-- **Rationale**: Guardrails for robustness on noisy inputs
-
-**Language & Conditioning:**
-- **Language Selection**: Fixed language improves speed/avoids mis-detection; auto-detect for unknown languages
-- **Context Carry-over**: Helps continuity across chunks; disable if bad text poisons later segments
-- **Rationale**: Stability vs. error propagation trade-off
-
-**Known Limitations:**
-- No diarization/speaker turns by default
-- Far-field/noisy audio benefits from better resampling and optional VAD
-- Cross-talk and code-switching can degrade unless language is forced
-
-**Upgrades:**
-- Band-limited resampler (SoX-style) for noisy domains
-- VAD pre-trim
-- Long-form strategies (context carryover)
-- Optional speaker diarization for CU tasks
+⸻
 
 ### 4/ For a Content Understanding Expert
 
-**Primitive Output:**
-- `{t0Ms, t1Ms, text}` spans provide exact anchors for highlights, topic segmentation, summarization, safety tagging, and retrieval-augmented QA
+- **Primitive you get**: {t0Ms, t1Ms, text} spans—exact anchors for highlights, topic segmentation, summarization, safety tagging, and retrieval-augmented QA
+- **Segmentation quality**: phrase-level segments are stable for CU; enable word timestamps only when you need word-level alignment (costs compute)
+- **Diagnostics**: coverage (voiced duration / file duration), gap distribution (silences), language stability, OOV rates, ASR confidence proxy (beam entropy or log-probs if exposed)
+- **Sampling bias**: front-end normalization prevents drift across corpora; watch domain shift (far-field, music overlap, accents)
+- **Multimodal hooks**: align transcripts with video frames or shots by time; late-fuse with image/video embeddings for better retrieval and summarization; transcripts also seed topic labels and entity graphs
+- **Safety**: time-pin policy flags (e.g., abuse/PII) to exact spans for explainability and partial redaction
 
-**Segmentation Quality:**
-- Phrase-level segments are stable for CU
-- Enable word timestamps only when you need word-level alignment (costs compute)
-
-**Diagnostics:**
-- Coverage (voiced duration / file duration)
-- Gap distribution (silences)
-- Language stability
-- OOV rates
-- ASR confidence proxy (beam entropy or log-probs if exposed)
-
-**Sampling Bias:**
-- Front-end normalization prevents drift across corpora
-- Watch domain shift (far-field, music overlap, accents)
-
-**Multimodal Hooks:**
-- Align transcripts with video frames or shots by time
-- Late-fuse with image/video embeddings for better retrieval and summarization
-- Transcripts also seed topic labels and entity graphs
-
-**Safety:**
-- Time-pin policy flags (e.g., abuse/PII) to exact spans for explainability and partial redaction
+⸻
 
 ### 5/ For an Audio/LLM Generation & Agents Expert
 
-**RAG over Audio:**
-- Treat transcripts as the retrieval layer
-- For a prompt, fetch top-K spans by cosine/BM25
-- Ground an LLM/agent with verbatim time-linked evidence
-
-**Dubbing/Localization:**
-- translate=true yields EN targets
-- Keep source timestamps to drive subtitle timing and guide TTS alignment
-
-**Guidance Signals:**
-- During A/V generation, periodically score rendered audio/text vs target transcript
-- Use similarity (text or audio embeddings) as auxiliary guidance to reduce semantic drift
-
-**Editing Ops:**
-- Time-aligned text enables text-based editing workflows (cut, copy, replace) that map back to waveform spans deterministically
-
-**Telemetry & Safety:**
-- Because artifacts are auditable (JSON+SHA), you can trace which spans conditioned a generation
-- Gate disallowed content by time
+- **RAG over audio**: treat transcripts as the retrieval layer; for a prompt, fetch top-K spans by cosine/BM25, then ground an LLM/agent with verbatim time-linked evidence
+- **Dubbing/localization**: translate=true yields EN targets; keep source timestamps to drive subtitle timing and guide TTS alignment
+- **Guidance signals**: during A/V generation, periodically score rendered audio/text vs target transcript; use similarity (text or audio embeddings) as auxiliary guidance to reduce semantic drift
+- **Editing ops**: time-aligned text enables text-based editing workflows (cut, copy, replace) that map back to waveform spans deterministically
+- **Telemetry & safety**: because artifacts are auditable (JSON+SHA), you can trace which spans conditioned a generation and gate disallowed content by time
 
 ## Key Features
 
@@ -221,12 +106,41 @@
 - **Unified Processing**: Combined audio-video processing pipeline
 - **Testing Infrastructure**: Comprehensive testing with AutoClipperTest
 
-### Device-Level Job Scheduling System
-- **WorkManager Integration**: Android's job scheduling system for background tasks
-- **Input/Output Directories**: Structured `/sdcard/Mira/` directory system
-- **Job Queue Management**: Priority-based task queuing and execution
-- **Resource-Aware Processing**: Intelligent scheduling based on device resources
-- **Background Service Coordination**: AutoClipperService and WhisperWorker coordination
+### App-Scoped Storage System
+
+**Storage Architecture:**
+The Whisper system uses a robust app-scoped storage implementation that eliminates EPERM (Operation not permitted) errors and provides reliable file operations for background workers.
+
+**Storage Abstraction Layer:**
+- **SidecarStore Interface**: Unified interface for sidecar storage operations
+- **AppScopedSidecarStore**: Uses `getExternalFilesDir()` - no permissions needed
+- **SafSidecarStore**: For user-picked export locations (optional)
+- **StorageConfig**: Global storage management and configuration
+- **StorageSelfTest**: Writability verification before processing
+
+**Safe Write Pattern:**
+- Write to temporary file first (`*.tmp`)
+- Force sync to disk (`fd.sync()`)
+- Atomic commit via `renameTo()` or copy+delete fallback
+- Proper error handling with `Result.retry()` instead of `Result.failure()`
+
+**Worker Hardening:**
+- **Foreground Service**: Workers run as foreground services with notifications
+- **Storage Self-Test**: Verify writability before processing heavy workloads
+- **Error Recovery**: Catch I/O errors and retry instead of failing the chain
+
+**Storage Paths:**
+- **Old Path**: `/sdcard/MiraWhisper/sidecars` (requires permissions, prone to EPERM)
+- **New Path**: `/sdcard/Android/data/com.mira.com/files/MiraWhisper/out/{jobId}/sidecars/` (no permissions needed)
+- **Backward Compatibility**: Reading still checks old location for existing sidecars
+
+**Key Benefits:**
+- ✅ **No Runtime Permissions**: App-scoped storage requires no user permissions
+- ✅ **Background Safe**: Workers can write reliably from background threads
+- ✅ **Atomic Writes**: Temp file + rename pattern prevents corruption
+- ✅ **Error Recovery**: I/O failures trigger retry instead of chain cancellation
+- ✅ **Foreground Service**: Prevents worker cancellation by system
+- ✅ **Self-Testing**: Early detection of storage issues
 
 ## Quick Start
 
@@ -378,16 +292,23 @@ val config = WhisperConfig(
 - **TestReceiver**: Testing and debugging utilities
 - **JobScheduler**: WorkManager job scheduling and management
 - **DirectoryManager**: Input/output directory structure management
+- **SidecarStore**: Unified storage abstraction for sidecar files
+- **AppScopedSidecarStore**: App-scoped storage implementation (no permissions)
+- **SafSidecarStore**: SAF-based storage for user-picked locations
+- **StorageConfig**: Global storage configuration and management
+- **StorageSelfTest**: Storage writability verification and testing
 
 ### Data Flow
 ```
-Audio Input → Size Check → Chunking Decision → Processing → Segment Stitching → Output
-     ↓              ↓              ↓              ↓              ↓           ↓
-  Format Check → 100MB Check → 30s Chunks → Whisper Model → Overlap Handling → Export
+Audio Input → Size Check → Chunking Decision → Processing → Segment Stitching → App-Scoped Storage
+     ↓              ↓              ↓              ↓              ↓                    ↓
+  Format Check → 100MB Check → 30s Chunks → Whisper Model → Overlap Handling → SidecarStore.writeJson()
      ↓
 Video Clipping → AutoClipper Service → Background Processing → Service Communication
      ↓
 Job Scheduling → WorkManager → Directory Management → Resource Monitoring
+     ↓
+Storage Self-Test → Writability Check → Error Recovery → Foreground Service
 ```
 
 ### Control Knots
@@ -405,6 +326,194 @@ Job Scheduling → WorkManager → Directory Management → Resource Monitoring
 - **Job Scheduling**: WorkManager job constraints and backoff policies
 - **Directory Structure**: Configurable input/output directory paths
 - **Resource Thresholds**: Battery, storage, and memory constraints
+- **Storage System**: App-scoped storage with atomic writes and error recovery
+- **Storage Self-Test**: Writability verification before processing
+- **Foreground Service**: Worker notification and cancellation prevention
+- **Error Recovery**: Retry logic for I/O failures instead of chain cancellation
+
+## Storage System Implementation
+
+### App-Scoped Storage Architecture
+
+The Whisper system implements a robust storage solution that eliminates EPERM errors and provides reliable file operations for background workers.
+
+#### Storage Abstraction Layer
+
+**SidecarStore Interface:**
+```kotlin
+interface SidecarStore {
+    suspend fun ensureJobDir(jobId: String): SidecarDir
+    suspend fun writeJson(jobId: String, name: String, json: String): Uri
+    suspend fun writeBytes(jobId: String, name: String, bytes: ByteArray): Uri
+}
+```
+
+**AppScopedSidecarStore Implementation:**
+```kotlin
+class AppScopedSidecarStore(private val ctx: Context) : SidecarStore {
+    private fun baseDir(): File =
+        File(ctx.getExternalFilesDir(null), "MiraWhisper/out")
+    
+    override suspend fun writeBytes(jobId: String, name: String, bytes: ByteArray): Uri {
+        val dir = ensureJobDir(jobId).file!!
+        val finalFile = File(dir, name)
+        val tmpFile = File(dir, "$name.tmp")
+        
+        // Write to temporary file first
+        tmpFile.outputStream().buffered().use { out ->
+            out.write(bytes)
+            out.flush()
+            (out as java.io.FileOutputStream).fd.sync()
+        }
+        
+        // Atomic commit: prefer rename, fallback to copy+delete
+        if (!tmpFile.renameTo(finalFile)) {
+            tmpFile.inputStream().use { inp ->
+                finalFile.outputStream().use { out -> 
+                    inp.copyTo(out)
+                }
+            }
+            tmpFile.delete()
+        }
+        
+        return Uri.fromFile(finalFile)
+    }
+}
+```
+
+#### Worker Integration
+
+**TranscribeWorker with Storage Self-Test:**
+```kotlin
+class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, params) {
+    override suspend fun getForegroundInfo(): ForegroundInfo {
+        // Foreground service notification
+        return ForegroundInfo(NOTIFICATION_ID, notification)
+    }
+    
+    override fun doWork(): Result {
+        setForeground(getForegroundInfo())
+        
+        // P0: Self-test storage before heavy work
+        val sidecarStore = StorageConfig.workSidecarStore(ctx)
+        try {
+            runBlocking {
+                StorageSelfTest.assertWritable(sidecarStore, jobId = "selftest")
+            }
+            Log.d(TAG, "Storage self-test passed")
+        } catch (t: Throwable) {
+            Log.e(TAG, "Storage self-test failed: ${t.message}", t)
+            return Result.retry() // Don't fail the whole chain, retry later
+        }
+        
+        // Process with safe storage writes
+        val sidecarUri = try {
+            runBlocking {
+                sidecarStore.writeJson(jobId, sidecarFilename, sidecar.toString())
+            }
+        } catch (e: SecurityException) {
+            Log.e(TAG, "Sidecar write security error: ${e.message}", e)
+            return Result.retry()
+        } catch (e: Exception) {
+            Log.e(TAG, "Sidecar write error: ${e.message}", e)
+            return Result.retry()
+        }
+        
+        return Result.success()
+    }
+}
+```
+
+#### Storage Configuration
+
+**Global Storage Management:**
+```kotlin
+object StorageConfig {
+    fun workSidecarStore(ctx: Context): SidecarStore =
+        AppScopedSidecarStore(ctx)
+    
+    @Volatile var exportTreeUri: Uri? = null
+    
+    fun exportSidecarStore(ctx: Context): SidecarStore? {
+        val treeUri = exportTreeUri ?: return null
+        return SafSidecarStore(ctx, treeUri)
+    }
+}
+```
+
+#### Storage Self-Test
+
+**Writability Verification:**
+```kotlin
+object StorageSelfTest {
+    suspend fun assertWritable(store: SidecarStore, jobId: String) {
+        val testContent = """{"test":true,"timestamp":${System.currentTimeMillis()}}"""
+        
+        try {
+            // Test write
+            val uri = store.writeJson(jobId, "probe.json", testContent)
+            Log.d(TAG, "Storage test write successful: $uri")
+            
+            // Test cleanup
+            runCatching {
+                when (store) {
+                    is AppScopedSidecarStore -> {
+                        val dir = store.ensureJobDir(jobId)
+                        dir.file?.let { file ->
+                            val probeFile = java.io.File(file, "probe.json")
+                            if (probeFile.exists()) {
+                                probeFile.delete()
+                            }
+                        }
+                    }
+                    is SafSidecarStore -> {
+                        val dir = store.ensureJobDir(jobId)
+                        val parent = DocumentFile.fromTreeUri(store.ctx, dir.uri)
+                        parent?.findFile("probe.json")?.delete()
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Storage test failed: ${e.message}", e)
+            throw Exception("Storage not writable: ${e.message}", e)
+        }
+    }
+}
+```
+
+#### Storage Paths and Migration
+
+**Path Structure:**
+```
+/sdcard/Android/data/com.mira.com/files/MiraWhisper/out/
+├── {jobId}/
+│   ├── sidecars/
+│   │   ├── {filename}.json
+│   │   └── {filename}.txt
+│   └── transcripts/
+│       └── {jobId}.txt
+└── selftest/
+    └── probe.json
+```
+
+**Backward Compatibility:**
+- New sidecar files go to app-scoped storage
+- Reading checks both old and new locations
+- Gradual migration as new jobs use the new system
+
+#### Error Handling and Recovery
+
+**Retry Logic:**
+- I/O failures trigger `Result.retry()` instead of `Result.failure()`
+- Exponential backoff for retry attempts
+- Foreground service prevents worker cancellation
+- Storage self-test catches issues early
+
+**Error Types Handled:**
+- `SecurityException`: Permission-related errors
+- `IOException`: File system errors
+- `OutOfMemoryError`: Memory pressure issues
+- `IllegalStateException`: Invalid state errors
 
 ## Performance
 
@@ -628,12 +737,20 @@ class WhisperPerformanceMonitor {
 2. **Audio Processing Errors**: Validate input format (16kHz, mono, PCM16)
 3. **Performance Issues**: Monitor RTF and adjust thread count
 4. **Language Detection Problems**: Check LID confidence thresholds
+5. **EPERM Errors**: Use app-scoped storage instead of public directories
+6. **Worker Cancellation**: Ensure foreground service is properly configured
+7. **Storage Write Failures**: Check storage self-test results and permissions
+8. **Background Processing Issues**: Verify WorkManager constraints and battery optimization
 
 ### Debug Tools
 - **Logging**: Comprehensive logging with configurable levels
 - **Metrics**: Real-time performance metrics
 - **Profiling**: Built-in performance profiler
 - **Validation**: Automated validation scripts
+- **Storage Self-Test**: Writability verification and diagnostics
+- **Foreground Service Monitoring**: Worker notification and cancellation tracking
+- **Error Recovery Logging**: Detailed retry and failure analysis
+- **Storage Path Verification**: App-scoped storage path validation
 
 ## Future Enhancements
 
@@ -669,6 +786,6 @@ class WhisperPerformanceMonitor {
 
 ---
 
-**Last Updated**: October 7, 2025  
-**Version**: 1.2  
-**Status**: Production Ready with Video Clipping Integration
+**Last Updated**: October 8, 2025  
+**Version**: 1.3  
+**Status**: Production Ready with App-Scoped Storage System

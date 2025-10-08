@@ -44,7 +44,7 @@ object WhisperApi {
             "model" to multilingualModel,
             "threads" to threads,
             "beam" to beam,
-            "lang" to (lang ?: "auto"),
+            "lang" to (lang ?: "en"),
             "translate" to translate,
         )
         if (maxSeconds != null && maxSeconds > 0) base["max_seconds"] = maxSeconds
@@ -81,7 +81,7 @@ object WhisperApi {
                 "model" to multilingualModel,
                 "threads" to threads,
                 "beam" to beam,
-                "lang" to (lang ?: "auto"),
+                "lang" to (lang ?: "en"),
                 "translate" to translate,
                 "batch_index" to index,
                 "batch_total" to uris.size,
@@ -95,7 +95,7 @@ object WhisperApi {
                 .setInputData(data)
                 .addTag("batch_transcribe")
                 .build()
-            Log.d("WhisperApi", "Enqueue job index=$index uri=$uri model=$multilingualModel threads=$threads lang=${lang ?: "auto"} maxSeconds=${maxSeconds ?: "-"}")
+            Log.d("WhisperApi", "Enqueue job index=$index uri=$uri model=$multilingualModel threads=$threads lang=${lang ?: "en"} maxSeconds=${maxSeconds ?: "-"}")
             WorkManager.getInstance(ctx).enqueue(work)
             
             Log.d("WhisperApi", "Enqueued batch job ${index + 1}/${uris.size} for $uri")

@@ -15,9 +15,13 @@ import android.content.Context.BATTERY_SERVICE
 import android.app.Activity
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
+import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
 import org.json.JSONObject
-import com.mira.com.core.ml.WhisperBridge
+import com.mira.com.core.ml.WhisperBridge as CoreWhisperBridge
+import com.mira.com.feature.whisper.storage.StorageConfig
+import com.mira.com.feature.whisper.storage.StorageSelfTest
+import com.mira.com.feature.whisper.engine.WhisperBridge as FeatureWhisperBridge
 import java.io.File
 import java.util.UUID
 import com.mira.resource.DeviceResourceService
@@ -47,7 +51,7 @@ class AndroidWhisperBridge(private val context: Context) {
         // Force WhisperBridge instantiation to load JNI library
         try {
             Log.d(TAG, "Forcing WhisperBridge instantiation...")
-            WhisperBridge.decode(
+            CoreWhisperBridge.decode(
                 shortArrayOf(1, 2, 3, 4, 5), // dummy audio data
                 16000, // sample rate
                 4 // threads
@@ -73,7 +77,7 @@ class AndroidWhisperBridge(private val context: Context) {
         return try {
             Log.d(TAG, "Testing JNI loading...")
             // This should trigger System.loadLibrary("whisper_jni")
-            val result = WhisperBridge.decode(
+            val result = CoreWhisperBridge.decode(
                 shortArrayOf(1, 2, 3, 4, 5), // dummy audio data
                 16000, // sample rate
                 4 // threads
@@ -271,7 +275,7 @@ class AndroidWhisperBridge(private val context: Context) {
     fun resetWhisperNative(): Boolean {
         return try {
             // If your project exposes this in a different package, adjust import/qualifier.
-            WhisperBridge.resetContext()
+            FeatureWhisperBridge.resetContext()
             Log.d(TAG, "Whisper native context reset requested via bridge")
             true
         } catch (t: Throwable) {
@@ -321,9 +325,9 @@ class AndroidWhisperBridge(private val context: Context) {
             // For testing, use dummy audio data but with real model
             val dummyAudio = ShortArray(16000) { (Math.random() * 2000 - 1000).toInt().toShort() }
             
-            Log.d(TAG, "Calling WhisperBridge.decode with tennis clip model...")
+            Log.d(TAG, "Calling CoreWhisperBridge.decode with tennis clip model...")
             
-            val result = WhisperBridge.decode(
+            val result = CoreWhisperBridge.decode(
                 pcm16 = dummyAudio,
                 sampleRate = 16000,
                 threads = 4
@@ -717,10 +721,7 @@ class AndroidWhisperBridge(private val context: Context) {
     
     private fun writeSidecar(sidecar: Sidecar) {
         try {
-            val sidecarDir = File(SIDECAR_DIR)
-            sidecarDir.mkdirs()
-            
-            val sidecarFile = File(sidecarDir, "${sidecar.job_id}.json")
+            val sidecarStore = StorageConfig.workSidecarStore(context)
             val jsonObj = JSONObject().apply {
                 put("job_id", sidecar.job_id)
                 put("uri", sidecar.uri)
@@ -732,9 +733,13 @@ class AndroidWhisperBridge(private val context: Context) {
                 if (sidecar.rtf != null) put("rtf", sidecar.rtf)
                 put("created_at", sidecar.created_at)
             }
-            sidecarFile.writeText(jsonObj.toString())
             
-            Log.d(TAG, "Wrote sidecar: ${sidecarFile.absolutePath}")
+            val sidecarUri = runBlocking {
+                sidecarStore.writeJson(sidecar.job_id, "${sidecar.job_id}.json", jsonObj.toString())
+            }
+            Log.d(TAG, "Wrote sidecar: $sidecarUri")
+        } catch (e: SecurityException) {
+            Log.e(TAG, "Security error writing sidecar: ${e.message}", e)
         } catch (e: Exception) {
             Log.e(TAG, "Error writing sidecar: ${e.message}", e)
         }
@@ -742,7 +747,13 @@ class AndroidWhisperBridge(private val context: Context) {
     
     private fun readSidecar(jobId: String): Sidecar? {
         return try {
-            val sidecarFile = File(SIDECAR_DIR, "$jobId.json")
+            // Try new app-scoped storage first
+            val sidecarStore = StorageConfig.workSidecarStore(context)
+            val sidecarDir = runBlocking {
+                sidecarStore.ensureJobDir(jobId)
+            }
+            val sidecarFile = File(sidecarDir.file, "${jobId}.json")
+            
             if (sidecarFile.exists()) {
                 val jsonStr = sidecarFile.readText()
                 val jsonObj = JSONObject(jsonStr)
@@ -758,7 +769,25 @@ class AndroidWhisperBridge(private val context: Context) {
                     created_at = jsonObj.optLong("created_at", System.currentTimeMillis())
                 )
             } else {
-                null
+                // Fallback to old location for backward compatibility
+                val oldSidecarFile = File(SIDECAR_DIR, "$jobId.json")
+                if (oldSidecarFile.exists()) {
+                    val jsonStr = oldSidecarFile.readText()
+                    val jsonObj = JSONObject(jsonStr)
+                    Sidecar(
+                        job_id = jsonObj.getString("job_id"),
+                        uri = jsonObj.getString("uri"),
+                        preset = jsonObj.optString("preset", "Single"),
+                        model_sha = jsonObj.optString("model_sha", ""),
+                        audio_sha = jsonObj.optString("audio_sha", ""),
+                        transcript_sha = jsonObj.optString("transcript_sha", ""),
+                        segments_sha = jsonObj.optString("segments_sha", ""),
+                        rtf = if (jsonObj.has("rtf")) jsonObj.getDouble("rtf") else null,
+                        created_at = jsonObj.optLong("created_at", System.currentTimeMillis())
+                    )
+                } else {
+                    null
+                }
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error reading sidecar: ${e.message}", e)

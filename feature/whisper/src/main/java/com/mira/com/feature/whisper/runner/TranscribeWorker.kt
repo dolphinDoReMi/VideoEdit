@@ -1,10 +1,17 @@
 package com.mira.com.feature.whisper.runner
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
 import android.net.Uri
+import android.os.Build
+import android.os.Debug
 import android.os.SystemClock
 import android.util.Log
-import androidx.work.Worker
+import androidx.core.app.NotificationCompat
+import androidx.work.ForegroundInfo
+import kotlinx.coroutines.runBlocking
+import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.mira.com.core.media.AudioResampler
@@ -18,16 +25,55 @@ import com.mira.com.feature.whisper.engine.LanguageDetectionService
 import com.mira.com.feature.whisper.util.Hash
 import com.mira.com.feature.whisper.util.Sidecars
 import com.mira.com.feature.whisper.data.db.AsrDao
+import com.mira.com.feature.whisper.storage.StorageConfig
+import com.mira.com.feature.whisper.storage.StorageSelfTest
+import com.mira.com.feature.whisper.storage.SidecarStore
 import org.json.JSONObject
 import java.io.File
 
-class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, params) {
-    override fun doWork(): Result {
+class TranscribeWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, params) {
+    
+    companion object {
+        private const val NOTIFICATION_ID = 42
+        private const val CHANNEL_ID = "whisper_processing"
+        private const val TAG = "TranscribeWorker"
+    }
+    
+    override suspend fun getForegroundInfo(): ForegroundInfo {
+        createNotificationChannel()
+        val notification = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
+            .setContentTitle("Processing Audio")
+            .setContentText("Transcribing audio file...")
+            .setSmallIcon(android.R.drawable.ic_media_play)
+            .setOngoing(true)
+            .build()
+        
+        return ForegroundInfo(NOTIFICATION_ID, notification)
+    }
+    
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                "Whisper Processing",
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = "Notifications for audio transcription processing"
+            }
+            
+            val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+    
+    override suspend fun doWork(): Result {
+        // Start as foreground service to prevent worker cancellation
+        setForeground(getForegroundInfo())
         val uri = inputData.getString("uri") ?: return Result.failure(workDataOf("error" to "No URI provided"))
         val model = inputData.getString("model") ?: return Result.failure(workDataOf("error" to "No model provided"))
         val threads = inputData.getInt("threads", 4)
         val beam = inputData.getInt("beam", 0)
-        val lang = inputData.getString("lang") ?: "auto"
+        val lang = inputData.getString("lang") ?: "en"
         val translate = inputData.getBoolean("translate", false)
         val maxSecondsLimit = inputData.getInt("max_seconds", 0).coerceAtLeast(0)
         val batchIndex = inputData.getInt("batch_index", -1)
@@ -42,11 +88,23 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
             "wjob_${System.currentTimeMillis()}_${fileId.take(8)}"
         }
         
-        Log.d("TranscribeWorker", "=== TECHNICAL LOG: Starting job $jobId ===")
-        Log.d("TranscribeWorker", "TECHNICAL: URI: $uri")
-        Log.d("TranscribeWorker", "TECHNICAL: Model: $model")
-        Log.d("TranscribeWorker", "TECHNICAL: Threads: $threads")
-        Log.d("TranscribeWorker", "TECHNICAL: Batch: $batchIndex/$batchTotal")
+        Log.d(TAG, "=== TECHNICAL LOG: Starting job $jobId ===")
+        Log.d(TAG, "TECHNICAL: URI: $uri")
+        Log.d(TAG, "TECHNICAL: Model: $model")
+        Log.d(TAG, "TECHNICAL: Threads: $threads")
+        Log.d(TAG, "TECHNICAL: Batch: $batchIndex/$batchTotal")
+        
+        // P0: Self-test storage before heavy work
+        val sidecarStore = StorageConfig.workSidecarStore(ctx)
+        try {
+            runBlocking {
+                StorageSelfTest.assertWritable(sidecarStore, jobId = "selftest")
+            }
+            Log.d(TAG, "Storage self-test passed")
+        } catch (t: Throwable) {
+            Log.e(TAG, "Storage self-test failed: ${t.message}", t)
+            return Result.retry() // Don't fail the whole chain, retry later
+        }
         Log.d("TranscribeWorker", "TECHNICAL: Language: $lang")
         Log.d("TranscribeWorker", "TECHNICAL: Translate: $translate")
         
@@ -81,18 +139,24 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
         return try {
             Log.d("TranscribeWorker", "TECHNICAL: Attempting to load audio from URI: $uri")
             
-            // Check available memory before loading
+            // Check available memory before loading (using system memory, not just heap)
             val runtime = Runtime.getRuntime()
             val maxMemory = runtime.maxMemory()
             val freeMemory = runtime.freeMemory()
             val usedMemory = maxMemory - freeMemory
-            val memoryUsagePercent = (usedMemory.toDouble() / maxMemory.toDouble()) * 100
             
-            Log.d("TranscribeWorker", "TECHNICAL: Memory status - Used: ${usedMemory / (1024 * 1024)}MB, Free: ${freeMemory / (1024 * 1024)}MB, Usage: ${String.format("%.1f", memoryUsagePercent)}%")
+            // Get system memory usage (consistent with other parts of the app)
+            val memoryInfo = Debug.MemoryInfo()
+            Debug.getMemoryInfo(memoryInfo)
+            val systemMemoryMB = memoryInfo.totalPss.toLong() / 1024
+            val totalSystemMemory = 12288 // 12GB in MB for Xiaomi Pad
+            val systemMemoryUsagePercent = ((systemMemoryMB.toDouble() / totalSystemMemory) * 100.0)
             
-            // If memory usage is too high, try to free some memory
-            if (memoryUsagePercent > 80) {
-                Log.w("TranscribeWorker", "TECHNICAL: High memory usage (${String.format("%.1f", memoryUsagePercent)}%), attempting garbage collection")
+            Log.d("TranscribeWorker", "TECHNICAL: Memory status - Heap: ${usedMemory / (1024 * 1024)}MB/${maxMemory / (1024 * 1024)}MB, System: ${systemMemoryMB}MB/12288MB, Usage: ${String.format("%.1f", systemMemoryUsagePercent)}%")
+            
+            // If system memory usage is too high, try to free some memory
+            if (systemMemoryUsagePercent > 80) {
+                Log.w("TranscribeWorker", "TECHNICAL: High system memory usage (${String.format("%.1f", systemMemoryUsagePercent)}%), attempting garbage collection")
                 System.gc()
                 Thread.sleep(1000) // Give GC time to work
             }
@@ -212,8 +276,13 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
             // 2) Robust LID Pipeline
             val lidResult = if (lang == "auto") {
                 Log.d("TranscribeWorker", "Running robust LID pipeline...")
+                val startTime = System.currentTimeMillis()
                 val lidService = LanguageDetectionService()
-                lidService.detectLanguage(pcm16k, 16_000, model, threads)
+                Log.d("TranscribeWorker", "LID: Service created, calling detectLanguage...")
+                val result = lidService.detectLanguage(pcm16k, 16_000, model, threads)
+                val endTime = System.currentTimeMillis()
+                Log.d("TranscribeWorker", "LID: detectLanguage completed in ${endTime - startTime}ms")
+                result
             } else {
                 Log.d("TranscribeWorker", "Using forced language: $lang")
                 LanguageDetectionService.LanguageDetectionResult(
@@ -295,9 +364,7 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
             val lidSidecar = lidService.generateLidSidecar(lidResult)
             sidecar.put("lid", lidSidecar)
 
-            Log.d("TranscribeWorker", "Enhanced sidecar with LID data")
-            val outDir = File("/sdcard/MiraWhisper/out").apply { mkdirs() }
-            val sidecarDir = File("/sdcard/MiraWhisper/sidecars").apply { mkdirs() }
+            Log.d(TAG, "Enhanced sidecar with LID data")
             
             // Generate batch-specific sidecar filename
             val sidecarFilename = if (batchIndex >= 0) {
@@ -307,10 +374,21 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
                 "${fileId}_$jobId.json"
             }
             
-            val sidecarPath = File(sidecarDir, sidecarFilename).absolutePath
-            File(sidecarPath).writeText(sidecar.toString())
+            // Write sidecar using safe storage
+            val sidecarUri = try {
+                runBlocking {
+                    sidecarStore.writeJson(jobId, sidecarFilename, sidecar.toString())
+                }
+            } catch (e: SecurityException) {
+                Log.e(TAG, "Sidecar write security error: ${e.message}", e)
+                return Result.retry()
+            } catch (e: Exception) {
+                Log.e(TAG, "Sidecar write error: ${e.message}", e)
+                return Result.retry()
+            }
             
-            Log.d("TranscribeWorker", "Generated sidecar: $sidecarPath")
+            val sidecarPath = sidecarUri.toString()
+            Log.d(TAG, "Generated sidecar: $sidecarPath")
 
             // 4) Persist file state & segments
             dao.updateFile(AsrFile(fileId, uri, null, usedDurationMs, 16_000, 1, "DONE", System.currentTimeMillis()))
@@ -531,18 +609,20 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
             Log.d("TranscribeWorker", "TECHNICAL: - RTF (Real Time Factor): $rtf")
             Log.d("TranscribeWorker", "TECHNICAL: - Final text length: ${finalText.length} characters")
             
-            // Persist transcript and sidecar for e2e retrieval
-            val outRoot = File("/sdcard/MiraWhisper/out").apply { mkdirs() }
-            val jobOutDir = File(outRoot, jobId).apply { mkdirs() }
+            // Persist transcript and sidecar for e2e retrieval using safe storage
+            val sidecarStore = StorageConfig.workSidecarStore(ctx)
             var sidecarPath: String? = null
+            
             try {
-                // Write transcript
-                val transcriptFile = File(jobOutDir, "$jobId.txt")
-                transcriptFile.writeText(finalText)
-                Log.d("TranscribeWorker", "TECHNICAL: Wrote transcript: ${transcriptFile.absolutePath} (${transcriptFile.length()} bytes)")
+                // Write transcript to app-scoped storage
+                val transcriptUri = runBlocking {
+                    sidecarStore.writeBytes(jobId, "$jobId.txt", finalText.toByteArray())
+                }
+                Log.d(TAG, "TECHNICAL: Wrote transcript: $transcriptUri (${finalText.length} characters)")
             } catch (e: Exception) {
-                Log.w("TranscribeWorker", "TECHNICAL: Failed to write transcript: ${e.message}")
+                Log.w(TAG, "TECHNICAL: Failed to write transcript: ${e.message}")
             }
+            
             try {
                 // Minimal sidecar compatible with readers
                 val sidecar = Sidecars.build(
@@ -557,13 +637,18 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, par
                 sidecar.put("uri", uri)
                 sidecar.put("rtf", rtf)
                 sidecar.put("created_at", System.currentTimeMillis())
-                val sidecarDir = File("/sdcard/MiraWhisper/sidecars").apply { mkdirs() }
-                val sidecarFile = File(sidecarDir, "${fileId}_$jobId.json")
-                sidecarFile.writeText(sidecar.toString())
-                sidecarPath = sidecarFile.absolutePath
-                Log.d("TranscribeWorker", "TECHNICAL: Wrote sidecar: $sidecarPath")
+                
+                val sidecarUri = runBlocking {
+                    sidecarStore.writeJson(jobId, "${fileId}_$jobId.json", sidecar.toString())
+                }
+                sidecarPath = sidecarUri.toString()
+                Log.d(TAG, "TECHNICAL: Wrote sidecar: $sidecarPath")
+            } catch (e: SecurityException) {
+                Log.e(TAG, "TECHNICAL: Sidecar write security error: ${e.message}", e)
+                return Result.retry()
             } catch (e: Exception) {
-                Log.w("TranscribeWorker", "TECHNICAL: Failed to write sidecar: ${e.message}")
+                Log.e(TAG, "TECHNICAL: Failed to write sidecar: ${e.message}", e)
+                return Result.retry()
             }
             
             // Save results in DB
