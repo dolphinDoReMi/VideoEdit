@@ -2,33 +2,18 @@ package com.mira.whisper
 
 import android.content.Context
 import android.os.Environment
+import com.mira.storage.ScopedStorageManager
 import java.io.File
 
 /**
  * Directory Manager for App-Scoped Storage
  * 
- * Implements the directory structure specified in Device Deployment documentation:
- * /sdcard/Mira/
- * ├── inbox/                    # Input directory
- * │   ├── audio/               # Audio files (.wav, .mp4)
- * │   ├── video/               # Video files (.mp4, .mov)
- * │   └── batch/               # Batch processing files
- * ├── processing/              # Active processing directory
- * │   ├── temp/               # Temporary files during processing
- * │   ├── chunks/             # Audio/video chunks
- * │   └── intermediate/       # Intermediate processing files
- * ├── output/                  # Output directory
- * │   ├── transcripts/        # Whisper transcription results
- * │   ├── clips/              # AutoClipper video clips
- * │   ├── metadata/           # Processing metadata
- * │   └── exports/            # Exported files (JSON, SRT, TXT)
- * ├── models/                  # ML models storage
- * │   ├── whisper/            # Whisper model files
- * │   └── clip/               # CLIP model files
- * └── logs/                    # System logs
- *     ├── whisper/            # Whisper processing logs
- *     ├── autoclip/           # AutoClipper service logs
- *     └── system/             # System resource logs
+ * DEPRECATED: This class is being replaced by ScopedStorageManager and service-specific adapters.
+ * All new code should use:
+ * - ScopedStorageManager for unified storage access
+ * - WhisperStorageAdapter for Whisper-specific storage
+ * 
+ * This class is kept for backward compatibility only.
  */
 object DirectoryManager {
     
@@ -63,10 +48,11 @@ object DirectoryManager {
     
     /**
      * Get the base Mira directory using app-scoped storage
-     * Uses getExternalFilesDir() which requires no runtime permissions
+     * DEPRECATED: Use ScopedStorageManager.getMiraRootDir() instead
      */
+    @Deprecated("Use ScopedStorageManager.getMiraRootDir() instead")
     fun getMiraBaseDir(context: Context): File {
-        return File(context.getExternalFilesDir(null), MIRA_BASE_DIR)
+        return ScopedStorageManager.getMiraRootDir(context)
     }
     
     /**

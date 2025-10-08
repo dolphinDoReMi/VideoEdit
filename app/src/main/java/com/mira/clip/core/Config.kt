@@ -1,10 +1,15 @@
 package com.mira.clip.core
 
+import android.content.Context
+import com.mira.storage.adapters.ClipStorageAdapter
+
 /**
  * Core configuration constants for mira_clip CLIP4Clip service.
  * 
- * Centralizes defaults for variant, frame count, and device paths
- * to ensure services are deterministic and easy to script.
+ * DEPRECATED: This class is being replaced by ClipStorageAdapter.
+ * All new code should use ClipStorageAdapter for storage access.
+ * 
+ * This class is kept for backward compatibility only.
  */
 object Config {
     /**
@@ -20,34 +25,44 @@ object Config {
     const val DEFAULT_FRAME_COUNT = 32
     
     /**
-     * Default video path on Xiaomi Pad.
-     * ENFORCED: Uses app-scoped storage for proper permissions.
+     * DEPRECATED: Use ClipStorageAdapter.getInputDirPath() instead
      */
-    const val DEFAULT_VIDEO_PATH = "/storage/emulated/0/Android/data/com.mira.com/files/MiraClip/in/video_v1.mp4"
+    @Deprecated("Use ClipStorageAdapter.getInputDirPath() instead")
+    fun getDefaultVideoPath(context: Context): String {
+        return ClipStorageAdapter.getInputDirPath(context) + "/video_v1.mp4"
+    }
     
     /**
-     * Root output directory for all mira_clip artifacts.
-     * ENFORCED: Uses app-scoped storage for proper permissions.
+     * DEPRECATED: Use ClipStorageAdapter.getOutputDirPath() instead
      */
-    const val OUT_ROOT = "/storage/emulated/0/Android/data/com.mira.com/files/MiraClip/out"
+    @Deprecated("Use ClipStorageAdapter.getOutputDirPath() instead")
+    fun getOutRoot(context: Context): String {
+        return ClipStorageAdapter.getOutputDirPath(context)
+    }
     
     /**
-     * Input directory for manifest files.
-     * ENFORCED: Uses app-scoped storage for proper permissions.
+     * DEPRECATED: Use ClipStorageAdapter.getInputDirPath() instead
      */
-    const val IN_ROOT = "/storage/emulated/0/Android/data/com.mira.com/files/MiraClip/in"
+    @Deprecated("Use ClipStorageAdapter.getInputDirPath() instead")
+    fun getInRoot(context: Context): String {
+        return ClipStorageAdapter.getInputDirPath(context)
+    }
     
     /**
-     * Embeddings output directory.
-     * Vector files (.f32) and metadata (.json) are stored here.
+     * DEPRECATED: Use ClipStorageAdapter.getEmbeddingsDirPath() instead
      */
-    const val EMBEDDINGS_DIR = "$OUT_ROOT/embeddings"
+    @Deprecated("Use ClipStorageAdapter.getEmbeddingsDirPath() instead")
+    fun getEmbeddingsDir(context: Context): String {
+        return ClipStorageAdapter.getEmbeddingsDirPath(context)
+    }
     
     /**
-     * Search results output directory.
-     * Query results and rankings are stored here.
+     * DEPRECATED: Use ClipStorageAdapter.getOutputDirPath() + "/search" instead
      */
-    const val SEARCH_DIR = "$OUT_ROOT/search"
+    @Deprecated("Use ClipStorageAdapter.getOutputDirPath() + \"/search\" instead")
+    fun getSearchDir(context: Context): String {
+        return ClipStorageAdapter.getOutputDirPath(context) + "/search"
+    }
     
     /**
      * Expected embedding dimensions for different variants.

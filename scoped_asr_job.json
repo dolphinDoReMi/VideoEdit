@@ -1,0 +1,19 @@
+{
+    "id": 999,
+    "file_id": 999,
+    "model": "whisper-tiny.en-q5_1",
+    "threads": 6,
+    "language": "en",
+    "translate": false,
+    "status": "pending",
+    "created_at": "2025-10-09T06:00:00Z",
+    "file_path": "/storage/emulated/0/MiraWhisper/in/tennis_interview_clip_002.mp4",
+    "file_size": 50920,
+    "duration": 9.0,
+    "sample_rate": 16000,
+    "channels": 1,
+    "format": "mp4",
+    "scoped_storage": true,
+    "bridge_service": "ScopedStorageBridgeService",
+    "test_mode": true
+}

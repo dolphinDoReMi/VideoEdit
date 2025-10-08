@@ -209,5 +209,26 @@
         <meta-data android:name="xiaomi_app_id" android:value="${xiaomi_app_id}" />
         <meta-data android:name="xiaomi_app_key" android:value="your_xiaomi_app_key" />
         
+        <!-- Scoped Direct Whisper Service - Re-architected with scoped storage -->
+        <service
+            android:name="com.mira.whisper.service.ScopedDirectWhisperService"
+            android:enabled="true"
+            android:exported="true"
+            android:foregroundServiceType="dataSync" />
+        
+        <!-- Scoped Storage Bridge Service - Bridge to MiraWhisper ASR system -->
+        <service
+            android:name="com.mira.whisper.service.ScopedStorageBridgeService"
+            android:enabled="true"
+            android:exported="true"
+            android:foregroundServiceType="dataSync" />
+        
+        <!-- Scoped Storage Integration Activity -->
+        <activity
+            android:name="com.mira.whisper.ScopedStorageIntegrationActivity"
+            android:enabled="true"
+            android:exported="true"
+            android:label="Scoped Storage Integration" />
+
     </application>
 </manifest>

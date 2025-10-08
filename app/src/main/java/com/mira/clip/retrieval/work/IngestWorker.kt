@@ -6,7 +6,9 @@ import androidx.work.WorkerParameters
 import com.mira.clip.retrieval.Actions
 import com.mira.clip.retrieval.loadManifest
 import com.mira.clip.retrieval.io.EmbeddingStore
-import com.mira.clip.retrieval.util.FileIO.ensureDir
+import com.mira.storage.ScopedStorageManager
+import com.mira.storage.adapters.ClipStorageAdapter
+import com.mira.storage.adapters.FaissStorageAdapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -18,7 +20,13 @@ class IngestWorker(ctx: Context, params: WorkerParameters)
     val manifestPath = inputData.getString(Actions.EXTRA_MANIFEST_PATH) ?: return@withContext Result.failure()
     val cfg = loadManifest(manifestPath)
 
-    ensureDir(cfg.ingest.outputDir)
+    // Ensure directory structure exists
+    ScopedStorageManager.ensureDirectoryStructure(applicationContext)
+
+    // Resolve output directory using storage adapter
+    val outputDir = cfg.ingest.resolveOutputDir(applicationContext)
+    val outputDirFile = File(outputDir)
+    outputDirFile.mkdirs()
 
     // Try to obtain an embedder from your CLIP module (optional).
     val embedder = tryLoadClipEmbedder(cfg.variant)
@@ -26,8 +34,8 @@ class IngestWorker(ctx: Context, params: WorkerParameters)
     var processed = 0
     for (videoPath in cfg.ingest.videos) {
       val id = File(videoPath).nameWithoutExtension
-      val vecOut = "${cfg.ingest.outputDir}/$id.f32"
-      val metaOut = "${cfg.ingest.outputDir}/$id.json"
+      val vecOut = "$outputDir/$id.f32"
+      val metaOut = "$outputDir/$id.json"
 
       val vec: FloatArray = when {
         embedder != null -> embedder.embedVideo(videoPath, cfg.frameCount, cfg.batchSize)
@@ -46,9 +54,12 @@ class IngestWorker(ctx: Context, params: WorkerParameters)
     }
 
     // Build/refresh index artifacts as needed (FLAT backend uses directory scan)
-    ensureDir(cfg.index.dir)
+    val indexDir = cfg.index.resolveDir(applicationContext)
+    val indexDirFile = File(indexDir)
+    indexDirFile.mkdirs()
+    
     // Optional: write a marker file to bind this embedding root with index dir
-    File("${cfg.index.dir}/BIND.txt").writeText(cfg.ingest.outputDir)
+    FaissStorageAdapter.getBindFile(applicationContext, cfg.variant).writeText(outputDir)
 
     Result.success()
   }

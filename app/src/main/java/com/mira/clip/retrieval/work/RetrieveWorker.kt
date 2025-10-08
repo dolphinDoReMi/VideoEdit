@@ -9,6 +9,8 @@ import com.mira.clip.retrieval.index.FlatIndexBackend
 import com.mira.clip.retrieval.index.IndexBackend
 import com.mira.clip.retrieval.io.EmbeddingStore
 import com.mira.clip.retrieval.io.ResultsWriter
+import com.mira.storage.ScopedStorageManager
+import com.mira.storage.adapters.FaissStorageAdapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -20,9 +22,16 @@ class RetrieveWorker(ctx: Context, params: WorkerParameters)
     val manifestPath = inputData.getString(Actions.EXTRA_MANIFEST_PATH) ?: return@withContext Result.failure()
     val cfg = loadManifest(manifestPath)
 
+    // Ensure directory structure exists
+    ScopedStorageManager.ensureDirectoryStructure(applicationContext)
+
     // Resolve embedding root bound during ingest
-    val bind = File("${cfg.index.dir}/BIND.txt").takeIf { it.exists() }?.readText()
-      ?: cfg.ingest.outputDir // fallback
+    val bindFile = FaissStorageAdapter.getBindFile(applicationContext, cfg.variant)
+    val bind = if (bindFile.exists()) {
+      bindFile.readText()
+    } else {
+      cfg.ingest.resolveOutputDir(applicationContext) // fallback
+    }
 
     val backend: IndexBackend = when (cfg.index.type.uppercase()) {
       "FLAT" -> FlatIndexBackend(bind)
@@ -30,10 +39,12 @@ class RetrieveWorker(ctx: Context, params: WorkerParameters)
       else   -> FlatIndexBackend(bind)
     }
 
-    val q = EmbeddingStore.readVector(cfg.query.queryVecPath)
+    val queryVecPath = cfg.query.resolveQueryVecPath(applicationContext)
+    val q = EmbeddingStore.readVector(queryVecPath)
     val results = backend.searchCosineTopK(q, cfg.query.topK)
 
-    ResultsWriter.writeJson(cfg.query.outputPath, results)
+    val outputPath = cfg.query.resolveOutputPath(applicationContext)
+    ResultsWriter.writeJson(outputPath, results)
     Result.success()
   }
 }

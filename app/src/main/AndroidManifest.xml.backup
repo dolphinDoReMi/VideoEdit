@@ -95,6 +95,40 @@
             </intent-filter>
         </activity>
 
+        <!-- MiraWhisper Integration Activity -->
+        <!-- Unified MiraWhisper Activity -->
+        <!-- Simple MiraWhisper Activity -->
+        <activity 
+            android:name="com.mira.whisper.SimpleMiraWhisperActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Mira">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity 
+            android:name="com.mira.whisper.UnifiedMiraWhisperActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Mira">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity 
+            android:name="com.mira.whisper.MiraWhisperIntegrationActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Mira">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <!-- Whisper File Selection Activity (Secondary) -->
         <activity 
             android:name="com.mira.whisper.WhisperFileSelectionActivity"

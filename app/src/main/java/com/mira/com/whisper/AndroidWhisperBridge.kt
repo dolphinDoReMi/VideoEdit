@@ -13,6 +13,7 @@ import android.content.Context.BATTERY_SERVICE
 import android.app.Activity
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
+import com.mira.storage.adapters.WhisperStorageAdapter
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
@@ -42,8 +43,9 @@ class AndroidWhisperBridge(private val context: Context) {
     
     companion object {
         private const val TAG = "AndroidWhisperBridge"
-        const val OUTPUT_DIR = "/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/out"  // ENFORCED: App-scoped storage
-        const val SIDECAR_DIR = "/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/sidecar"  // Sidecar files directory
+        // DEPRECATED: Use WhisperStorageAdapter instead of hardcoded paths
+        // const val OUTPUT_DIR = "/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/out"
+        // const val SIDECAR_DIR = "/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/sidecar"
     }
     
     data class RunRequest(
@@ -200,7 +202,7 @@ class AndroidWhisperBridge(private val context: Context) {
             
             // Read from new unified location: out/<jobId>/sidecars/sidecar.json
             // For backward compatibility, if legacy dir exists, return empty list (bridge no longer manages legacy files)
-            val sidecarDir = File(OUTPUT_DIR, "sidecars_legacy")
+            val sidecarDir = File(WhisperStorageAdapter.getOutputDirPath(context), "sidecars_legacy")
             if (!sidecarDir.exists()) {
                 sidecarDir.mkdirs()
                 return JSONArray().toString()
@@ -277,7 +279,7 @@ class AndroidWhisperBridge(private val context: Context) {
             
             // With DirectWhisperService, verification is simplified
             // Check if output files exist and are valid
-            val outputFile = File("$OUTPUT_DIR/${getFileName(Uri.parse(sidecar.uri))}.srt")
+            val outputFile = File("${WhisperStorageAdapter.getOutputDirPath(context)}/${getFileName(Uri.parse(sidecar.uri))}.srt")
             val isValid = outputFile.exists() && outputFile.length() > 0
             
             val result = VerifyResult(
@@ -342,7 +344,7 @@ class AndroidWhisperBridge(private val context: Context) {
     private fun writeSidecar(sidecar: Sidecar) {
         try {
             // Align with worker path: out/<jobId>/sidecars
-            val jobSidecarDir = File(OUTPUT_DIR, "${sidecar.job_id}/sidecars")
+            val jobSidecarDir = File(WhisperStorageAdapter.getOutputDirPath(context), "${sidecar.job_id}/sidecars")
             jobSidecarDir.mkdirs()
             val sidecarFile = File(jobSidecarDir, "sidecar.json")
             val jsonObj = JSONObject().apply {
@@ -366,7 +368,7 @@ class AndroidWhisperBridge(private val context: Context) {
     
     private fun readSidecar(jobId: String): Sidecar? {
         return try {
-            val sidecarFile = File(OUTPUT_DIR + "/" + jobId + "/sidecars/sidecar.json")
+            val sidecarFile = File(WhisperStorageAdapter.getOutputDirPath(context) + "/" + jobId + "/sidecars/sidecar.json")
             if (sidecarFile.exists()) {
                 val jsonStr = sidecarFile.readText()
                 val jsonObj = JSONObject(jsonStr)
@@ -500,10 +502,9 @@ class AndroidWhisperBridge(private val context: Context) {
             Log.d(TAG, "Getting all video files")
             
             val commonPaths = listOf(
-                "/sdcard/DCIM/Camera/",
-                "/sdcard/Movies/",
-                "/sdcard/Download/",
-                "/sdcard/"
+                WhisperStorageAdapter.getInputDirPath(context),
+                WhisperStorageAdapter.getProcessingDir(context).absolutePath,
+                WhisperStorageAdapter.getExportsDir(context).absolutePath
             )
             
             // Supported video formats
@@ -558,10 +559,10 @@ class AndroidWhisperBridge(private val context: Context) {
             
             // For now, return a default video file for testing
             // TODO: Implement proper file picker with Activity Result API
-            val defaultVideo = "file:///sdcard/video_v1_long.mp4"
+            val defaultVideo = "file://${WhisperStorageAdapter.getInputDirPath(context)}/video_v1_long.mp4"
             
             // Check if the default video exists
-            val file = File("/sdcard/video_v1_long.mp4")
+            val file = File(WhisperStorageAdapter.getInputDirPath(context), "video_v1_long.mp4")
             if (file.exists()) {
                 Log.d(TAG, "Using default video: ${file.absolutePath}")
                 return defaultVideo
@@ -569,10 +570,9 @@ class AndroidWhisperBridge(private val context: Context) {
             
             // Try to find any video file in common locations
             val commonPaths = listOf(
-                "/sdcard/DCIM/Camera/",
-                "/sdcard/Movies/",
-                "/sdcard/Download/",
-                "/sdcard/"
+                WhisperStorageAdapter.getInputDirPath(context),
+                WhisperStorageAdapter.getProcessingDir(context).absolutePath,
+                WhisperStorageAdapter.getExportsDir(context).absolutePath
             )
             
             // Supported video formats
@@ -596,7 +596,7 @@ class AndroidWhisperBridge(private val context: Context) {
             defaultVideo
         } catch (e: Exception) {
             Log.e(TAG, "Error in pickUri(): ${e.message}", e)
-            "file:///sdcard/video_v1_long.mp4" // Fallback
+            "file://${WhisperStorageAdapter.getInputDirPath(context)}/video_v1_long.mp4" // Fallback
         }
     }
     
@@ -939,10 +939,10 @@ class AndroidWhisperBridge(private val context: Context) {
         return try {
             Log.d(TAG, "Picking model path")
             // For testing, return a default model path
-            "/sdcard/Models/ggml-small.en.bin"
+            WhisperStorageAdapter.getDefaultModelPath(context)
         } catch (e: Exception) {
             Log.e(TAG, "Error in pickModel(): ${e.message}", e)
-            "/sdcard/Models/ggml-small.en.bin" // Fallback
+            WhisperStorageAdapter.getDefaultModelPath(context) // Fallback
         }
     }
     
@@ -966,7 +966,7 @@ class AndroidWhisperBridge(private val context: Context) {
                     put("jobId", sidecar.getString("job_id"))
                     put("uri", sidecar.getString("uri"))
                     put("rtf", if (sidecar.has("rtf")) sidecar.getDouble("rtf") else null)
-                    put("sidecarPath", "$SIDECAR_DIR/${sidecar.getString("job_id")}.json")
+                    put("sidecarPath", "${WhisperStorageAdapter.getSidecarDirPath(context)}/${sidecar.getString("job_id")}.json")
                 }
                 runsArray.put(run)
             }
