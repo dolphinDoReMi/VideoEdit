@@ -1,0 +1,1 @@
+  167% 7051/com.mira.com: 152% user + 15% kernel / faults: 7005 minor 308 major

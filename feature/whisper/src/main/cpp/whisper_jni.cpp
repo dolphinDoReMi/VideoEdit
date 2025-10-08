@@ -8,6 +8,7 @@
 #include <thread>
 #include "whisper.h"
 #include <mutex>
+#include "whisper_loader.h"
 
 #define TAG "WhisperJNI"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, TAG, __VA_ARGS__)
@@ -24,6 +25,8 @@ static void free_ctx_locked() {
         g_whisper_ctx = nullptr;
     }
 }
+
+// Old load_model_checked function removed - using single loader in whisper_loader.cpp
 
 __attribute__((destructor))
 static void on_unload_whisper() {
@@ -65,8 +68,8 @@ Java_com_mira_com_core_ml_WhisperBridge_decode(
         // Initialize whisper context if not already done
         if (g_whisper_ctx == nullptr) {
             LOGI("Initializing whisper context");
-            // Use default model path - this is a simplified version
-            g_whisper_ctx = whisper_init_from_file_with_params("/sdcard/MiraWhisper/models/whisper-base.q5_1.bin", whisper_context_default_params());
+            // Use single loader function with comprehensive logging
+            g_whisper_ctx = load_model_or_throw("/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/models/small.en-q5_1.bin");
             if (g_whisper_ctx == nullptr) {
                 LOGE("Failed to initialize whisper context");
                 env->ReleaseShortArrayElements(pcm16, audio_data, JNI_ABORT);
@@ -161,7 +164,7 @@ Java_com_mira_com_feature_whisper_engine_WhisperBridge_decodeJson(
         // Initialize whisper context if not already done
         if (g_whisper_ctx == nullptr) {
             LOGI("Initializing whisper context with model: %s", model_path_str.c_str());
-            g_whisper_ctx = whisper_init_from_file_with_params(model_path_str.c_str(), whisper_context_default_params());
+            g_whisper_ctx = load_model_or_throw(model_path_str.c_str());
             if (g_whisper_ctx == nullptr) {
                 LOGE("Failed to initialize whisper context");
                 env->ReleaseShortArrayElements(pcm16, audio_data, JNI_ABORT);
@@ -283,7 +286,7 @@ Java_com_mira_com_feature_whisper_engine_WhisperBridge_detectLanguage(
         // Initialize whisper context if not already done
         if (g_whisper_ctx == nullptr) {
             LOGI("Initializing whisper context for language detection with model: %s", model_path_str.c_str());
-            g_whisper_ctx = whisper_init_from_file_with_params(model_path_str.c_str(), whisper_context_default_params());
+            g_whisper_ctx = load_model_or_throw(model_path_str.c_str());
             if (g_whisper_ctx == nullptr) {
                 LOGE("Failed to initialize whisper context for language detection");
                 env->ReleaseShortArrayElements(pcm16, audio_data, JNI_ABORT);

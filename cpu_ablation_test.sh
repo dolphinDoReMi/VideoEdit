@@ -13,8 +13,8 @@ echo ""
 
 # Configuration
 CLIP_FILE="tennis_interview_clip_002.mp4"
-DEVICE_PATH="/sdcard/MiraWhisper/in/$CLIP_FILE"
-MODEL="/sdcard/MiraWhisper/models/whisper-base.q5_1.bin"
+DEVICE_PATH="/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/in/$CLIP_FILE"
+MODEL="/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/models/small.en-q5_1.bin"
 
 # Results directory
 RESULTS_DIR="./cpu_ablation_test_$(date +%Y%m%d_%H%M%S)"
@@ -57,7 +57,7 @@ adb shell am start -n com.mira.com/com.mira.whisper.WhisperMainActivity
 echo ""
 echo "📋 MANUAL STEPS REQUIRED:"
 echo "1. Tap 'Select Files' button"
-echo "2. Navigate to /sdcard/MiraWhisper/in/"
+echo "2. Navigate to /storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/in/"
 echo "3. Select tennis_interview_clip_002.mp4"
 echo "4. Tap 'Start Processing'"
 echo "5. Wait for processing to complete"
@@ -77,9 +77,9 @@ echo ""
 
 # Check results
 echo "=== Checking Results ==="
-if adb shell "test -f /sdcard/MiraWhisper/out/tennis_interview_clip_002.srt" 2>/dev/null; then
+if adb shell "test -f /storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/out/tennis_interview_clip_002.srt" 2>/dev/null; then
     echo "✅ Transcript found!"
-    adb shell "cat /sdcard/MiraWhisper/out/tennis_interview_clip_002.srt" > "$RESULTS_DIR/cpu_transcript.srt"
+    adb shell "cat /storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/out/tennis_interview_clip_002.srt" > "$RESULTS_DIR/cpu_transcript.srt"
     
     echo "📝 Transcript preview:"
     head -10 "$RESULTS_DIR/cpu_transcript.srt"
@@ -131,7 +131,7 @@ cat > "$REPORT_FILE" << EOF
 
 **Test Date:** $(date)  
 **File:** tennis_interview_clip_002.mp4  
-**Model:** whisper-base.q5_1.bin  
+**Model:** small.en-q5_1.bin  
 **Acceleration:** CPU Only (No Vulkan)  
 **Method:** Manual UI Processing  
 

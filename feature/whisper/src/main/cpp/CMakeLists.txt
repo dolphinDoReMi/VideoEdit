@@ -10,7 +10,8 @@ set(WHISPER_LIB_DIR ${CMAKE_SOURCE_DIR}/../../../../../whisper_real)
 set(SOURCE_FILES
     ${WHISPER_LIB_DIR}/src/whisper.cpp
     ${CMAKE_SOURCE_DIR}/whisper_jni.cpp
-    # ${CMAKE_SOURCE_DIR}/vulkan_helper.cpp  # Vulkan helper disabled for CPU-only test
+    ${CMAKE_SOURCE_DIR}/whisper_loader.cpp
+    # # ${CMAKE_SOURCE_DIR}/vulkan_helper.cpp  # Vulkan helper disabled for CPU-only test
 )
 
 # Find libraries
@@ -47,7 +48,7 @@ target_include_directories(whisper_jni PRIVATE
     ${WHISPER_LIB_DIR}/ggml/include
     ${WHISPER_LIB_DIR}/ggml/src
     ${WHISPER_LIB_DIR}/ggml/src/ggml-cpu
-    # ${WHISPER_LIB_DIR}/ggml/src/ggml-vulkan  # Vulkan backend disabled for CPU-only test
+    # # ${WHISPER_LIB_DIR}/ggml/src/ggml-vulkan  # Vulkan backend disabled for CPU-only test
 )
 
 # Compile definitions with CPU-only support (Vulkan disabled for CPU-only test)
@@ -57,7 +58,7 @@ target_compile_definitions(whisper_jni PRIVATE
     GGML_USE_ACCELERATE
     GGML_USE_METAL=0
     GGML_USE_CUDA=0
-    GGML_USE_VULKAN=0
+    # GGML_USE_VULKAN=0
     GGML_USE_SYCL=0
     GGML_USE_KOMPUTE=0
     GGML_USE_RPC=0

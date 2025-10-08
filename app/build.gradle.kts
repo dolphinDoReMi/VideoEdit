@@ -192,6 +192,11 @@ android {
     prefab = true
   }
   
+  // Prevent compression of Whisper model files
+  androidResources {
+    noCompress += listOf(".gguf", ".ggml", ".bin")
+  }
+  
   // Native library configuration removed - no longer using native code
   
   compileOptions {

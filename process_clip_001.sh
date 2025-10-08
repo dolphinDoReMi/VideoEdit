@@ -85,15 +85,17 @@ echo "✅ Clip file found: ${CLIP_SIZE_MB}MB"
 echo ""
 echo "🚀 Starting transcription processing..."
 
-# Send broadcast to trigger processing using RUN_BATCH with streaming
-$ADB_CMD shell "am broadcast -a com.mira.whisper.RUN_BATCH \
-    --es 'uris' 'file://$CLIP_FILE' \
-    --es 'modelPath' '/sdcard/MiraWhisper/models/whisper-base.q5_1.bin' \
-    --es 'preset' 'Single' \
-    --ei 'threads' 4 \
-    --ei 'maxSeconds' 0"
+# Trigger processing via DirectWhisperService (single file processing)
+echo "📡 Starting DirectWhisperService for single file processing..."
+$ADB_CMD shell "am startservice -n com.mira.com/com.mira.com.feature.whisper.service.DirectWhisperService \
+    --es 'action' 'com.mira.com.feature.whisper.PROCESS_DIRECT' \
+    --es 'uri' 'file://$CLIP_FILE' \
+    --es 'model' '/sdcard/MiraWhisper/models/whisper-base.q5_1.bin' \
+    --es 'threads' '4' \
+    --es 'lang' 'auto' \
+    --ez 'translate' 'false'"
 
-echo "✅ Processing broadcast sent!"
+echo "✅ DirectWhisperService started!"
 echo ""
 
 # Monitor processing progress

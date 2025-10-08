@@ -101,20 +101,20 @@ Hash comparison script in `docs/whisper/scripts/validate_audio_processing.sh`
 
 **New Capabilities:**
 - **Background Processing**: AutoClipperService runs independently of Whisper UI
-- **Service Communication**: Broadcast-based communication between services
+- **Service Communication**: Direct service calls for reliable communication
 - **Resource Coordination**: Shared resource monitoring between Whisper and AutoClipper
 - **Unified Processing**: Combined audio-video processing pipeline
 
 **Control Knots for Video Clipping:**
 - **Service Isolation**: AutoClipperService runs in separate process
-- **Broadcast Actions**: `${applicationId}.action.AUTOCLIP_*` for service communication
+- **Direct Service Calls**: Direct Intent-based service communication
 - **Resource Sharing**: Shared DeviceResourceService for monitoring
 - **Processing Coordination**: WorkManager-based task coordination
 
 **Implementation Details:**
 - **Service Architecture**: AutoClipperService extends Service class
-- **Broadcast Handling**: AutoClipperReceiver handles service communication
-- **Test Integration**: TestReceiver for debugging and testing
+- **Direct Communication**: Intent-based service calls for reliable communication
+- **Test Integration**: Direct service testing for debugging and testing
 - **Resource Monitoring**: Integrated with existing Whisper resource monitoring
 
 **Code Pointers:**
@@ -135,9 +135,9 @@ Hash comparison script in `docs/whisper/scripts/validate_audio_processing.sh`
 ### Background Service Integration
 
 **Service Communication:**
-- **Broadcast System**: Uses Android broadcast system for service communication
+- **Direct Service Calls**: Uses direct Intent-based service communication
 - **Intent Actions**: Standardized intent actions for service control
-- **Status Updates**: Real-time status updates via broadcasts
+- **Status Updates**: Real-time status updates via logging and job state
 - **Error Handling**: Comprehensive error handling and recovery
 
 **Resource Management:**
@@ -173,7 +173,7 @@ Hash comparison script in `docs/whisper/scripts/validate_audio_processing.sh`
 - **Whisper UI**: Seamless integration with existing Whisper interface
 - **Resource Monitoring**: Shared resource monitoring system
 - **Background Processing**: Independent background processing
-- **Service Communication**: Broadcast-based communication
+- **Service Communication**: Direct service calls for reliable communication
 
 ## Testing Strategy
 

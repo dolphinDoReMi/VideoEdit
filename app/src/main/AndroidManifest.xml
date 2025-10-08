@@ -20,10 +20,15 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     
     <!-- Notification permission for Android 13+ -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    
+    <!-- Optional (for OEM kill policies + long runs) -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     
     <!-- Network permission for future cloud features -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -139,6 +144,13 @@
             android:name="com.mira.com.feature.whisper.service.DirectWhisperService"
             android:enabled="true"
             android:exported="true" />
+        
+        <!-- Whisper Connector Service - Foreground service for headless background processing -->
+        <service
+            android:name="com.mira.com.feature.whisper.service.WhisperConnectorService"
+            android:exported="false"
+            android:stopWithTask="false"
+            android:foregroundServiceType="dataSync" />
         
         <!-- Removed OrchestrationReceiver; class not present in app module -->
         

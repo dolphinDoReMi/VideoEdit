@@ -9,6 +9,26 @@
 - **CPU**: Snapdragon 870 with ARM64 NEON support
 - **Android**: API 30+ (Android 11+)
 
+### Scoped Storage Configuration
+**Important**: All file operations must use Android scoped storage to ensure proper file access permissions.
+
+**Scoped Storage Paths:**
+```bash
+# Base scoped storage directory
+SCOPED_BASE="/storage/emulated/0/Android/data/com.mira.com/files"
+
+# Directory structure
+MODELS_DIR="$SCOPED_BASE/MiraWhisper/models"
+INPUT_DIR="$SCOPED_BASE/MiraWhisper/in"
+OUTPUT_DIR="$SCOPED_BASE/MiraWhisper/out"
+SIDECAR_DIR="$SCOPED_BASE/MiraWhisper/sidecars"
+```
+
+**Directory Creation:**
+```bash
+adb shell "mkdir -p $SCOPED_BASE/MiraWhisper/{models,in,out,sidecars}"
+```
+
 ### Working Command Flow for Clip Processing
 
 #### Successful Processing Sequence
@@ -23,8 +43,8 @@ adb shell am start -n com.mira.com/com.mira.whisper.WhisperMainActivity
 ```bash
 adb shell am startservice -n com.mira.com/com.mira.com.feature.whisper.service.DirectWhisperService \
   --es "action" "com.mira.com.feature.whisper.PROCESS_DIRECT" \
-  --es "uri" "file:///sdcard/MiraWhisper/in/tennis_interview_clip_002.mp4" \
-  --es "model" "/sdcard/MiraWhisper/models/whisper-base.q5_1.bin" \
+  --es "uri" "file:///storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/in/tennis_interview_clip_002.mp4" \
+  --es "model" "/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/models/small.en-q5_1.bin" \
   --es "threads" "4" \
   --es "lang" "en"
 ```
@@ -40,13 +60,19 @@ adb logcat -s TranscribeWorker:V -d | tail -10
 - **DirectWhisperService**: Uses service-based processing with WorkManager instead of broadcast receivers
 - **Storage Self-Test**: Must pass app-scoped storage directory creation for processing to continue
 
-#### Troubleshooting Command Flow Issues
+#### Troubleshooting Direct Service Issues
 
-**Service Background Error:**
+**Service Not Starting:**
 ```bash
-# Error: "app is in background uid null"
-# Solution: Ensure app stays in foreground
+# Error: Service not responding
+# Solution: Check app state and restart service
 adb shell am start -n com.mira.com/com.mira.whisper.WhisperMainActivity && sleep 5
+adb shell am startservice -n com.mira.com/com.mira.com.feature.whisper.service.DirectWhisperService \
+  --es "action" "com.mira.com.feature.whisper.PROCESS_DIRECT" \
+  --es "uri" "file:///storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/in/test.wav" \
+  --es "model" "/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/models/small.en-q5_1.bin" \
+  --es "threads" "4" \
+  --es "lang" "en"
 ```
 
 **Storage Self-Test Failures:**
@@ -58,30 +84,51 @@ adb shell "ls -la /storage/emulated/0/Android/data/com.mira.com/files/MiraWhispe
 
 **Processing Hangs:**
 ```bash
-# Check if jobs are progressing beyond initial stage
+# Check if WorkManager jobs are progressing
 adb logcat -s TranscribeWorker:V -d | grep -E "(Storage self-test|Audio loaded|LID|Whisper|Processing|Completed)"
+
+# Check WorkManager job status
+adb shell dumpsys jobscheduler | grep com.mira.com
+```
+
+**Service Communication Issues:**
+```bash
+# Check if service is running
+adb shell ps | grep com.mira.com
+
+# Check service logs
+adb logcat -s DirectWhisperService:V -d | tail -20
+
+# Verify service can be started
+adb shell am startservice -n com.mira.com/com.mira.com.feature.whisper.service.DirectWhisperService \
+  --es "action" "com.mira.com.feature.whisper.PROCESS_DIRECT" \
+  --es "uri" "file:///storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/in/test.wav" \
+  --es "model" "/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/models/small.en-q5_1.bin" \
+  --es "threads" "4" \
+  --es "lang" "en"
 ```
 
 #### Alternative Processing Methods
 
-**WebView Interface (Fallback):**
+**Direct Service Processing (Recommended):**
 ```bash
-# Use WebView interface if service fails
-adb shell "am broadcast -a com.mira.com.feature.whisper.PROCESS_FILE \
-  --es \"uri\" \"file:///sdcard/MiraWhisper/in/tennis_interview_clip_002.mp4\" \
-  --es \"model\" \"/sdcard/MiraWhisper/models/whisper-base.q5_1.bin\" \
-  --es \"threads\" \"4\" \
-  --es \"lang\" \"en\""
+# Use direct service for reliable processing
+adb shell am startservice -n com.mira.com/com.mira.com.feature.whisper.service.DirectWhisperService \
+  --es "action" "com.mira.com.feature.whisper.PROCESS_DIRECT" \
+  --es "uri" "file:///storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/in/tennis_interview_clip_002.mp4" \
+  --es "model" "/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/models/small.en-q5_1.bin" \
+  --es "threads" "4" \
+  --es "lang" "en"
 ```
 
 **Batch Processing:**
 ```bash
 # Process multiple files
-for file in /sdcard/MiraWhisper/in/*.mp4; do
+for file in /storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/in/*.mp4; do
   adb shell am startservice -n com.mira.com/com.mira.com.feature.whisper.service.DirectWhisperService \
     --es "action" "com.mira.com.feature.whisper.PROCESS_DIRECT" \
     --es "uri" "file://$file" \
-    --es "model" "/sdcard/MiraWhisper/models/whisper-base.q5_1.bin" \
+    --es "model" "/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/models/small.en-q5_1.bin" \
     --es "threads" "4" \
     --es "lang" "en"
 done
@@ -275,6 +322,200 @@ class XiaomiPadPerformanceMonitor {
 
 ### Troubleshooting
 
+#### Model Loading Reliability (GGML_ERROR_MODEL_LOAD_FAILED)
+
+**Root Cause**: Whisper.cpp can't mmap and parse the model file. On Android this almost always comes from:
+- Wrong file format or truncated/compressed asset
+- Giving a content:// URI instead of a real file path
+- Packaging/ABI/memory mismatches
+
+**Error GGML_ERROR_MODEL_LOAD_FAILED (-3)** means "the bytes I opened are not a valid, readable model."
+
+#### Surgical Troubleshooting Checklist (Ranked by Frequency)
+
+**1. Model Format/Header Mismatch (Most Common)**
+
+*Symptom*: Logs show "bad magic / not GGUF / cannot parse tensor X", then MODEL_LOAD_FAILED.
+
+*Why*: Newer whisper.cpp expects GGUF models. If you pass an old GGML (.bin) model to a build that expects GGUF (or vice-versa), the header check fails.
+
+*Fix*:
+- Use a model that matches your whisper.cpp commit
+- GGUF example: whisper-small-q5_1.gguf
+- Don't rename extensions
+- Quick header test: `hexdump -C -n 4 /path/to/model.gguf` → should print `47 47 55 46` (GGUF)
+
+**2. Asset Got Compressed or Truncated in APK (Very Common on Android)**
+
+*Symptom*: Works from `/sdcard/...` but fails when read from `assets/`. File size reported by loader is smaller than the original model.
+
+*Why*: By default, Gradle compresses assets, breaking offset/length mapping; the native loader then reads garbage.
+
+*Fix (AGP 8+)*:
+```gradle
+android {
+  androidResources {
+    noCompress += ['.gguf', '.ggml', '.bin']
+  }
+}
+```
+
+*Fix (older AGP)*:
+```gradle
+android {
+  aaptOptions {
+    noCompress 'gguf', 'ggml', 'bin'
+  }
+}
+```
+
+*Safer Pattern*: On first run, stream-copy from assets → app files dir (uncompressed real file) and load from that absolute path.
+
+**3. Content:// URI (SAF) Passed to Native Code**
+
+*Symptom*: Works if you copy the same file to `/data/data/<pkg>/files/models/...` and load by path; fails if using a content://… string.
+
+*Why*: The C++ loader wants a filesystem path it can open()/mmap(). A content:// URI is not a path.
+
+*Fix*: Always resolve/copy the picked file into your app's private dir and pass that absolute path to JNI.
+
+**4. ABI / Build Flag / Vulkan Backend Mismatch**
+
+*Symptoms*: Loading fails only on certain builds (e.g., armeabi-v7a) or only when Vulkan is enabled.
+
+*Why*:
+- 32-bit builds can run out of VA space on large models
+- Wrong combination of GGML_USE_VULKAN vs runtime driver
+- Stripped symbols not the issue; memory/map is
+
+*Fix*:
+- Ship arm64-v8a only for Whisper
+- If Vulkan is enabled, confirm device has the required extensions; otherwise build CPU-only or add a runtime fallback
+
+**5. File Permission / Location Issues (MIUI Specifics)**
+
+*Symptoms*: Model under `/sdcard/Android/data/<other.pkg>/...` or random Downloads path fails on MIUI; same file loads from your app dir.
+
+*Why*: Scoped storage + MIUI quirks. NDK open() can fail silently for some external paths.
+
+*Fix*: Keep models in `context.getFilesDir()/models` or `getExternalFilesDir("models")` that belongs to your package.
+
+**6. Corrupted/Incomplete Download**
+
+*Symptoms*: Header is GGUF, size looks right-ish, still fails mid-parse.
+
+*Why*: Partial downloads (e.g., Drive/Browser cutoffs) or resume errors.
+
+*Fix*: Verify SHA-256 and exact size against the source. Re-download if mismatch.
+
+#### Model Loading Preflight Check Implementation
+
+**Kotlin Preflight Function**:
+```kotlin
+suspend fun ensureModelPath(ctx: Context, src: Uri, nameHint: String): File {
+    val modelsDir = File(ctx.filesDir, "models").apply { mkdirs() }
+    val out = File(modelsDir, nameHint)
+    
+    // Copy file from URI to app directory
+    ctx.contentResolver.openInputStream(src).use { ins ->
+        out.outputStream().use { outs -> ins!!.copyTo(outs) }
+    }
+    
+    // Quick header sanity check: must start with "GGUF"
+    ctx.contentResolver.openInputStream(src).use { ins ->
+        val header = ByteArray(4)
+        ins!!.read(header)
+        require(String(header) == "GGUF") { 
+            "Model is not GGUF (header=${String(header)})" 
+        }
+    }
+    return out
+}
+```
+
+**JNI-Side Logging**:
+```cpp
+#include <android/log.h>
+#define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, "WhisperJNI", __VA_ARGS__)
+
+static void* load_model_checked(const char* path) {
+    FILE* f = fopen(path, "rb");
+    if (!f) { 
+        LOGE("fopen failed: %s", path); 
+        return nullptr; 
+    }
+    
+    char hdr[4] = {0};
+    fread(hdr, 1, 4, f); 
+    fseek(f, 0, SEEK_SET);
+    
+    if (strncmp(hdr, "GGUF", 4) != 0) { 
+        LOGE("Bad header: '%.4s' (expected GGUF)", hdr); 
+        fclose(f); 
+        return nullptr; 
+    }
+    fclose(f);
+    
+    // Call whisper.cpp's model loader with detailed status logs enabled
+    return whisper_model_load_from_file(path, /*params*/);
+}
+```
+
+#### Prioritized Actions (Fastest to Slowest ROI)
+
+1. **Confirm header/format**: `hexdump` first 4 bytes → must be GGUF
+2. **Disable compression & copy to app dir**: Load from an absolute path
+3. **Ship arm64-v8a only**: Test CPU path first; add Vulkan later
+4. **Verify SHA-256 & size**: Of the model file
+5. **If still failing**: Post the first 20 log lines from the loader (with the JNI header check added)
+
+#### One-Liner Solution
+
+Because the native loader isn't seeing a valid, mmap-able GGUF file at a real path. Make sure the model is GGUF, not compressed in the APK, copied to your app's files dir, and that you're loading on arm64 with sane memory. After those four, GGML_ERROR_MODEL_LOAD_FAILED goes away.
+
+#### Using the Model Loading Reliability Features
+
+**Preflight Check Before Loading:**
+```kotlin
+import com.mira.com.feature.whisper.utils.ModelValidationUtils
+
+// Validate model before loading
+val preflightResult = ModelValidationUtils.preflightCheck(context, modelPath)
+if (!preflightResult.isReady) {
+    Log.e(TAG, "Model preflight failed: ${preflightResult.summary}")
+    preflightResult.errors.forEach { Log.e(TAG, it) }
+    return
+}
+
+// Safe to load model
+val whisperContext = WhisperBridge.decodeJson(...)
+```
+
+**Enhanced Model Path Handling:**
+```kotlin
+// For content:// URIs, use the safe copy function
+val modelFile = ModelValidationUtils.ensureModelPath(context, contentUri, "whisper-base.gguf")
+val whisperContext = WhisperBridge.decodeJson(
+    pcm16 = audioData,
+    sampleRate = 16000,
+    modelPath = modelFile.absolutePath, // Use absolute path
+    threads = 4,
+    lang = "en"
+)
+```
+
+**Model Validation:**
+```kotlin
+// Validate existing model file
+val validation = ModelValidationUtils.validateModelFile("/path/to/model.gguf")
+if (!validation.isValid) {
+    Log.e(TAG, "Model validation failed: ${validation.error}")
+    return
+}
+
+Log.i(TAG, "Model validated: ${validation.fileSize} bytes, checksum: ${validation.checksum}")
+```
+
 #### Common Issues
 1. **Model Loading Failures**: Check model file integrity and storage permissions
 2. **Audio Processing Errors**: Validate input format (16kHz, mono, PCM16)
@@ -292,8 +533,13 @@ class XiaomiPadPerformanceMonitor {
 # Check Vulkan support
 vulkaninfo | grep -E "(FP16|16-bit storage)"
 
-# Test Vulkan backend
-adb shell am broadcast -a com.mira.com.action.TEST_VULKAN_BACKEND
+# Test Vulkan backend via direct service
+adb shell am startservice -n com.mira.com/com.mira.com.feature.whisper.service.DirectWhisperService \
+  --es "action" "com.mira.com.feature.whisper.PROCESS_DIRECT" \
+  --es "uri" "file:///storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/in/test_audio.wav" \
+  --es "model" "/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/models/small.en-q5_1.bin" \
+  --es "threads" "4" \
+  --es "lang" "en"
 
 # Fallback to CPU if Vulkan fails
 export GGML_VULKAN=0
@@ -310,23 +556,74 @@ adb shell dumpsys meminfo com.mira.com
 # Monitor CPU usage
 adb shell top -n 1 | grep com.mira.com
 
-# Test different thread counts
-adb shell am broadcast -a com.mira.com.action.TEST_THREAD_COUNT --ei threads 2
-adb shell am broadcast -a com.mira.com.action.TEST_THREAD_COUNT --ei threads 4
-adb shell am broadcast -a com.mira.com.action.TEST_THREAD_COUNT --ei threads 6
+# Test different thread counts via direct service
+adb shell am startservice -n com.mira.com/com.mira.com.feature.whisper.service.DirectWhisperService \
+  --es "action" "com.mira.com.feature.whisper.PROCESS_DIRECT" \
+  --es "uri" "file:///storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/in/test_audio.wav" \
+  --es "model" "/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/models/small.en-q5_1.bin" \
+  --es "threads" "2" \
+  --es "lang" "en"
+
+adb shell am startservice -n com.mira.com/com.mira.com.feature.whisper.service.DirectWhisperService \
+  --es "action" "com.mira.com.feature.whisper.PROCESS_DIRECT" \
+  --es "uri" "file:///storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/in/test_audio.wav" \
+  --es "model" "/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/models/small.en-q5_1.bin" \
+  --es "threads" "4" \
+  --es "lang" "en"
+
+adb shell am startservice -n com.mira.com/com.mira.com.feature.whisper.service.DirectWhisperService \
+  --es "action" "com.mira.com.feature.whisper.PROCESS_DIRECT" \
+  --es "uri" "file:///storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/in/test_audio.wav" \
+  --es "model" "/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/models/small.en-q5_1.bin" \
+  --es "threads" "6" \
+  --es "lang" "en"
 ```
 
 **Model Optimization Issues:**
 ```bash
-# Test different model sizes
-adb shell am broadcast -a com.mira.com.action.TEST_MODEL_SIZE --es model "tiny.en"
-adb shell am broadcast -a com.mira.com.action.TEST_MODEL_SIZE --es model "small.en"
-adb shell am broadcast -a com.mira.com.action.TEST_MODEL_SIZE --es model "base.en"
+# Test different model sizes via direct service
+adb shell am startservice -n com.mira.com/com.mira.com.feature.whisper.service.DirectWhisperService \
+  --es "action" "com.mira.com.feature.whisper.PROCESS_DIRECT" \
+  --es "uri" "file:///storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/in/test_audio.wav" \
+  --es "model" "/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/models/whisper-tiny.en.q5_1.bin" \
+  --es "threads" "4" \
+  --es "lang" "en"
+
+adb shell am startservice -n com.mira.com/com.mira.com.feature.whisper.service.DirectWhisperService \
+  --es "action" "com.mira.com.feature.whisper.PROCESS_DIRECT" \
+  --es "uri" "file:///storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/in/test_audio.wav" \
+  --es "model" "/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/models/whisper-small.en.q5_1.bin" \
+  --es "threads" "4" \
+  --es "lang" "en"
+
+adb shell am startservice -n com.mira.com/com.mira.com.feature.whisper.service.DirectWhisperService \
+  --es "action" "com.mira.com.feature.whisper.PROCESS_DIRECT" \
+  --es "uri" "file:///storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/in/test_audio.wav" \
+  --es "model" "/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/models/whisper-base.en.q5_1.bin" \
+  --es "threads" "4" \
+  --es "lang" "en"
 
 # Test different quantization levels
-adb shell am broadcast -a com.mira.com.action.TEST_QUANTIZATION --es quantization "Q4_0"
-adb shell am broadcast -a com.mira.com.action.TEST_QUANTIZATION --es quantization "Q5_1"
-adb shell am broadcast -a com.mira.com.action.TEST_QUANTIZATION --es quantization "Q8_0"
+adb shell am startservice -n com.mira.com/com.mira.com.feature.whisper.service.DirectWhisperService \
+  --es "action" "com.mira.com.feature.whisper.PROCESS_DIRECT" \
+  --es "uri" "file:///storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/in/test_audio.wav" \
+  --es "model" "/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/models/whisper-base.en.q4_0.bin" \
+  --es "threads" "4" \
+  --es "lang" "en"
+
+adb shell am startservice -n com.mira.com/com.mira.com.feature.whisper.service.DirectWhisperService \
+  --es "action" "com.mira.com.feature.whisper.PROCESS_DIRECT" \
+  --es "uri" "file:///storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/in/test_audio.wav" \
+  --es "model" "/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/models/whisper-base.en.q5_1.bin" \
+  --es "threads" "4" \
+  --es "lang" "en"
+
+adb shell am startservice -n com.mira.com/com.mira.com.feature.whisper.service.DirectWhisperService \
+  --es "action" "com.mira.com.feature.whisper.PROCESS_DIRECT" \
+  --es "uri" "file:///storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/in/test_audio.wav" \
+  --es "model" "/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/models/whisper-base.en.q8_0.bin" \
+  --es "threads" "4" \
+  --es "lang" "en"
 ```
 
 #### Debug Commands
@@ -340,8 +637,13 @@ adb shell dumpsys meminfo com.mira.com
 # Check Whisper logs
 adb logcat | grep Whisper
 
-# Test audio format
-adb shell am broadcast -a com.mira.com.action.TEST_AUDIO_FORMAT
+# Test audio format via direct service
+adb shell am startservice -n com.mira.com/com.mira.com.feature.whisper.service.DirectWhisperService \
+  --es "action" "com.mira.com.feature.whisper.PROCESS_DIRECT" \
+  --es "uri" "file:///storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/in/test_audio.wav" \
+  --es "model" "/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/models/small.en-q5_1.bin" \
+  --es "threads" "4" \
+  --es "lang" "en"
 ```
 
 ### iPad Deployment
@@ -429,7 +731,7 @@ The Whisper system operates as part of a comprehensive job scheduling system on 
 4. **Processing**: Execute Whisper transcription with chunking for large files
 5. **Output Generation**: Save transcripts to `/sdcard/Mira/output/transcripts/`
 6. **Cleanup**: Remove temporary files from `/sdcard/Mira/processing/`
-7. **Notification**: Send completion notifications via broadcast
+7. **Notification**: Log completion status and update job state
 
 #### WorkManager Job Configuration
 ```kotlin
@@ -454,10 +756,13 @@ val whisperJob = OneTimeWorkRequestBuilder<WhisperWorker>()
 adb shell mkdir -p /sdcard/Mira/inbox/audio
 adb shell mkdir -p /sdcard/Mira/output/transcripts
 
-# Trigger Whisper processing
-adb shell am broadcast -a com.mira.com.action.WHISPER_RUN \
-  --es input_file "/sdcard/Mira/inbox/audio/sample.wav" \
-  --es output_dir "/sdcard/Mira/output/transcripts/"
+# Trigger Whisper processing via direct service
+adb shell am startservice -n com.mira.com/com.mira.com.feature.whisper.service.DirectWhisperService \
+  --es "action" "com.mira.com.feature.whisper.PROCESS_DIRECT" \
+  --es "uri" "file:///sdcard/Mira/inbox/audio/sample.wav" \
+  --es "model" "/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/models/small.en-q5_1.bin" \
+  --es "threads" "4" \
+  --es "lang" "en"
 
 # Monitor job status
 adb shell dumpsys jobscheduler | grep com.mira.com

@@ -1,20 +1,26 @@
 #!/bin/bash
 
-# Direct WhisperBridge instantiation test
-echo "=== Direct WhisperBridge Instantiation ==="
+# DirectWhisperService instantiation test
+echo "=== DirectWhisperService Instantiation ==="
 
-# Create a simple test that directly calls WhisperBridge
+# Create a simple test that directly calls DirectWhisperService
 echo "1. Creating direct test..."
 adb shell "echo 'test' > /sdcard/direct_test.txt"
 
-# Try to trigger WhisperBridge directly via a simple broadcast
-echo "2. Sending direct broadcast to trigger WhisperBridge..."
-adb shell "am broadcast -a com.mira.whisper.RUN --es job_id 'direct_test' --es uri '/sdcard/direct_test.txt' --es preset 'fast' --es model_path '/sdcard/MiraWhisper/models/whisper-base.q5_1.bin' --ei threads 4"
+# Try to trigger DirectWhisperService directly
+echo "2. Starting DirectWhisperService..."
+adb shell "am startservice -n com.mira.com/com.mira.com.feature.whisper.service.DirectWhisperService \
+    --es 'action' 'com.mira.com.feature.whisper.PROCESS_DIRECT' \
+    --es 'uri' 'file:///sdcard/direct_test.txt' \
+    --es 'model' '/sdcard/MiraWhisper/models/whisper-base.q5_1.bin' \
+    --es 'threads' '4' \
+    --es 'lang' 'auto' \
+    --ez 'translate' 'false'"
 
-echo "3. Check for WhisperBridge activity:"
-adb logcat -d | grep -E "(WhisperBridge|TranscribeWorker|WhisperReceiver)" | tail -5
+echo "3. Check for DirectWhisperService activity:"
+adb logcat -d | grep -E "(DirectWhisperService|TranscribeWorker|WhisperApi)" | tail -5
 
 echo "4. Check for JNI loading:"
 adb logcat -d | grep -E "(loadLibrary|whisper_jni)" | tail -3
 
-echo "5. If still no logs, the broadcast receiver isn't working"
+echo "5. DirectWhisperService should work without broadcast receivers"

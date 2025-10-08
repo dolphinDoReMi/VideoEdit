@@ -101,7 +101,7 @@ Got you. Here's the Whisper multi-lens explanation—compact, technical, and str
 
 ### Video Clipping Integration
 - **AutoClipper Service**: Background video processing service
-- **Service Communication**: Broadcast-based service communication
+- **Service Communication**: Direct service calls for reliable communication
 - **Resource Coordination**: Shared resource monitoring with Whisper
 - **Unified Processing**: Combined audio-video processing pipeline
 - **Testing Infrastructure**: Comprehensive testing with AutoClipperTest
@@ -183,10 +183,12 @@ segments.forEach { segment ->
 val autoClipperService = AutoClipperService()
 autoClipperService.startService(context)
 
-// Trigger video clipping
-val intent = Intent("${BuildConfig.APPLICATION_ID}.action.AUTOCLIP_RUN")
-intent.putExtra("video_path", "/path/to/video.mp4")
-context.sendBroadcast(intent)
+// Trigger video clipping via direct service
+val serviceIntent = Intent(context, AutoClipperService::class.java).apply {
+    action = AutoClipperService.ACTION_PROCESS_VIDEO
+    putExtra("video_path", "/path/to/video.mp4")
+}
+context.startService(serviceIntent)
 ```
 
 ### Job Scheduling System
@@ -226,7 +228,7 @@ The Whisper system operates as part of a comprehensive job scheduling system on 
 4. **Processing**: Execute Whisper transcription with chunking for large files
 5. **Output Generation**: Save transcripts to `/sdcard/Mira/output/transcripts/`
 6. **Cleanup**: Remove temporary files from `/sdcard/Mira/processing/`
-7. **Notification**: Send completion notifications via broadcast
+7. **Notification**: Log completion status and update job state
 
 **WorkManager Job Configuration:**
 ```kotlin
@@ -251,10 +253,13 @@ val whisperJob = OneTimeWorkRequestBuilder<WhisperWorker>()
 adb shell mkdir -p /sdcard/Mira/inbox/audio
 adb shell mkdir -p /sdcard/Mira/output/transcripts
 
-# Trigger Whisper processing
-adb shell am broadcast -a com.mira.com.action.WHISPER_RUN \
-  --es input_file "/sdcard/Mira/inbox/audio/sample.wav" \
-  --es output_dir "/sdcard/Mira/output/transcripts/"
+# Trigger Whisper processing via direct service
+adb shell am startservice -n com.mira.com/com.mira.com.feature.whisper.service.DirectWhisperService \
+  --es "action" "com.mira.com.feature.whisper.PROCESS_DIRECT" \
+  --es "uri" "file:///sdcard/Mira/inbox/audio/sample.wav" \
+  --es "model" "/sdcard/MiraWhisper/models/whisper-base.q5_1.bin" \
+  --es "threads" "4" \
+  --es "lang" "en"
 
 # Monitor job status
 adb shell dumpsys jobscheduler | grep com.mira.com
@@ -321,7 +326,7 @@ Storage Self-Test → Writability Check → Error Recovery → Foreground Servic
 - **Memory**: Streaming mode prevents OOM on large files
 - **Batch Processing**: Parallel chunk coordination via WorkManager
 - **Video Clipping**: AutoClipper service integration
-- **Service Communication**: Broadcast-based service communication
+- **Service Communication**: Direct service calls for reliable communication
 - **Resource Sharing**: Shared resource monitoring between services
 - **Job Scheduling**: WorkManager job constraints and backoff policies
 - **Directory Structure**: Configurable input/output directory paths

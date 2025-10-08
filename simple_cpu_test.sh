@@ -15,8 +15,8 @@ echo ""
 APP_PACKAGE="com.mira.com"
 MAIN_ACTIVITY="com.mira.whisper.WhisperMainActivity"
 CLIP_FILE="tennis_interview_clip_002.mp4"
-DEVICE_PATH="/sdcard/MiraWhisper/in/$CLIP_FILE"
-MODEL="/sdcard/MiraWhisper/models/whisper-base.q5_1.bin"
+DEVICE_PATH="/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/in/$CLIP_FILE"
+MODEL="/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/models/whisper-base.q5_1.bin"
 
 # Results directory
 RESULTS_DIR="./cpu_test_$(date +%Y%m%d_%H%M%S)"
@@ -132,7 +132,7 @@ echo "🔍 Looking for transcript in logs..."
 adb logcat -d | grep -E "(transcript|srt|txt|whisper)" > "$RESULTS_DIR/transcript_logs.txt" 2>/dev/null || true
 
 # Look for any output files that might contain transcripts
-adb shell "find /sdcard/MiraWhisper -name '*.srt' -o -name '*.txt' -o -name '*.json'" > "$RESULTS_DIR/output_files.txt" 2>/dev/null || true
+adb shell "find /storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper -name '*.srt' -o -name '*.txt' -o -name '*.json'" > "$RESULTS_DIR/output_files.txt" 2>/dev/null || true
 
 # Check if any transcript files were created
 if [ -s "$RESULTS_DIR/output_files.txt" ]; then

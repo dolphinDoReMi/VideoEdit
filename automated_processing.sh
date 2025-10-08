@@ -65,17 +65,18 @@ sleep 5
 
 echo ""
 
-# Step 3: Send broadcast to trigger processing
+# Step 3: Trigger processing via DirectWhisperService
 echo "=== Step 3: Automated Processing ==="
-echo "📡 Sending broadcast to trigger processing..."
-adb shell am broadcast -a com.mira.com.feature.whisper.RUN \
+echo "📡 Starting DirectWhisperService for processing..."
+adb shell am startservice -n com.mira.com/com.mira.com.feature.whisper.service.DirectWhisperService \
+    --es "action" "com.mira.com.feature.whisper.PROCESS_DIRECT" \
     --es "uri" "file://$DEVICE_PATH" \
     --es "model" "$MODEL" \
     --es "threads" "4" \
     --es "lang" "auto" \
     --ez "translate" "false"
 
-echo "✅ Broadcast sent"
+echo "✅ DirectWhisperService started"
 
 echo ""
 

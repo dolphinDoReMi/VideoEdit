@@ -56,15 +56,16 @@ echo "🚀 Launching app..."
 adb shell am start -n com.mira.com/com.mira.whisper.WhisperMainActivity
 sleep 3
 
-echo "📡 Sending broadcast to trigger processing..."
-adb shell am broadcast -a com.mira.com.feature.whisper.RUN \
+echo "📡 Starting DirectWhisperService for processing..."
+adb shell am startservice -n com.mira.com/com.mira.com.feature.whisper.service.DirectWhisperService \
+    --es "action" "com.mira.com.feature.whisper.PROCESS_DIRECT" \
     --es "uri" "file://$DEVICE_PATH" \
     --es "model" "$MODEL" \
     --es "threads" "4" \
     --es "lang" "auto" \
     --ez "translate" "false"
 
-echo "✅ Broadcast sent"
+echo "✅ DirectWhisperService started"
 
 # Wait and check logs
 echo "⏳ Waiting 15 seconds for processing to start..."

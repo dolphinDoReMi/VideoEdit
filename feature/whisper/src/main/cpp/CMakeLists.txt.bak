@@ -3,14 +3,14 @@ project(whisper_jni)
 
 set(CMAKE_CXX_STANDARD 17)
 
-# Set whisper.cpp directory
-set(WHISPER_LIB_DIR /Users/dennis/Movies/VideoEdit/whisper_real)
+# Set whisper.cpp directory - use relative path for CI compatibility
+set(WHISPER_LIB_DIR ${CMAKE_SOURCE_DIR}/../../../../../whisper_real)
 
 # Source files
 set(SOURCE_FILES
     ${WHISPER_LIB_DIR}/src/whisper.cpp
     ${CMAKE_SOURCE_DIR}/whisper_jni.cpp
-    # ${CMAKE_SOURCE_DIR}/vulkan_helper.cpp  # Vulkan helper disabled for CPU-only test
+    # # ${CMAKE_SOURCE_DIR}/vulkan_helper.cpp  # Vulkan helper disabled for CPU-only test
 )
 
 # Find libraries
@@ -23,6 +23,16 @@ include(FetchContent)
 add_library(whisper_jni SHARED ${SOURCE_FILES})
 
 # Fetch and configure ggml
+# Check if WHISPER_LIB_DIR exists
+if(NOT EXISTS ${WHISPER_LIB_DIR})
+    message(FATAL_ERROR "WHISPER_LIB_DIR does not exist: ${WHISPER_LIB_DIR}")
+endif()
+
+# Check if ggml directory exists
+if(NOT EXISTS ${WHISPER_LIB_DIR}/ggml)
+    message(FATAL_ERROR "ggml directory does not exist: ${WHISPER_LIB_DIR}/ggml")
+endif()
+
 FetchContent_Declare(ggml SOURCE_DIR ${WHISPER_LIB_DIR}/ggml)
 FetchContent_MakeAvailable(ggml)
 
@@ -37,12 +47,24 @@ target_include_directories(whisper_jni PRIVATE
     ${WHISPER_LIB_DIR}/ggml/include
     ${WHISPER_LIB_DIR}/ggml/src
     ${WHISPER_LIB_DIR}/ggml/src/ggml-cpu
-    # ${WHISPER_LIB_DIR}/ggml/src/ggml-vulkan  # Vulkan backend disabled for CPU-only test
+    # # ${WHISPER_LIB_DIR}/ggml/src/ggml-vulkan  # Vulkan backend disabled for CPU-only test
 )
 
 # Compile definitions with CPU-only support (Vulkan disabled for CPU-only test)
 target_compile_definitions(whisper_jni PRIVATE 
     GGML_USE_CPU
+    GGML_USE_OPENMP
+    GGML_USE_ACCELERATE
+    GGML_USE_METAL=0
+    GGML_USE_CUDA=0
+    # # GGML_USE_VULKAN=0
+    GGML_USE_SYCL=0
+    GGML_USE_KOMPUTE=0
+    GGML_USE_RPC=0
+    GGML_USE_FLASH_ATTN=0
+    GGML_USE_F16=0
+    GGML_F16_VEC=0
+    GGML_F16_SCALAR=0
     WHISPER_VERSION="1.6.0"
 )
 

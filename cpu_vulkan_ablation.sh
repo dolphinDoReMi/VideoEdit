@@ -64,8 +64,9 @@ run_processing_test() {
     adb shell am start -n com.mira.com/com.mira.whisper.WhisperMainActivity
     sleep 5
     
-    echo "📡 Sending broadcast..."
-    adb shell am broadcast -a com.mira.com.feature.whisper.RUN \
+    echo "📡 Starting DirectWhisperService..."
+    adb shell am startservice -n com.mira.com/com.mira.com.feature.whisper.service.DirectWhisperService \
+        --es "action" "com.mira.com.feature.whisper.PROCESS_DIRECT" \
         --es "uri" "file://$DEVICE_PATH" \
         --es "model" "$MODEL" \
         --es "threads" "4" \

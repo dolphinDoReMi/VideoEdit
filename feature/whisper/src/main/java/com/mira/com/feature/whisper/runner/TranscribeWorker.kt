@@ -262,20 +262,7 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker
             Log.d("TranscribeWorker", "TECHNICAL: - Sample rate: ${pcm.sr}Hz")
             Log.d("TranscribeWorker", "TECHNICAL: - Channels: ${pcm.ch}")
 
-            // Broadcast early progress for direct path (small files)
-            try {
-                val intentEarly = android.content.Intent("com.mira.whisper.UPDATE_PROGRESS").apply {
-                    putExtra("batch_id", jobId)
-                    putExtra("progress", 20)
-                    putExtra("file_count", 1)
-                    putExtra("current_file", 0)
-                    putExtra("current_file_progress", 20)
-                    putExtra("current_file_progress_float", 20.0)
-                    putExtra("completed_files", 0)
-                    putExtra("has_errors", false)
-                }
-                applicationContext.sendBroadcast(intentEarly)
-            } catch (_: Exception) { }
+            // Progress logging (broadcasts removed - using direct approach)
 
             // 2) Robust LID Pipeline
             val lidResult = if (lang == "auto") {
@@ -299,20 +286,7 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker
 
             Log.d("TranscribeWorker", "LID Result: ${lidResult.chosen} (${lidResult.confidence}) via ${lidResult.method}")
 
-            // Broadcast mid progress after LID
-            try {
-                val intentMid = android.content.Intent("com.mira.whisper.UPDATE_PROGRESS").apply {
-                    putExtra("batch_id", jobId)
-                    putExtra("progress", 60)
-                    putExtra("file_count", 1)
-                    putExtra("current_file", 0)
-                    putExtra("current_file_progress", 60)
-                    putExtra("current_file_progress_float", 60.0)
-                    putExtra("completed_files", 0)
-                    putExtra("has_errors", false)
-                }
-                applicationContext.sendBroadcast(intentMid)
-            } catch (_: Exception) { }
+            // Mid progress logging (broadcasts removed - using direct approach)
 
             // 3) Decode with detected/forced language
             val t0 = SystemClock.elapsedRealtime()
@@ -331,20 +305,7 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker
             Log.d("TranscribeWorker", "TECHNICAL: - Language detected: ${lidResult.chosen}")
             Log.d("TranscribeWorker", "TECHNICAL: - Confidence: ${lidResult.confidence}")
 
-            // Broadcast near-complete progress before finalization
-            try {
-                val intentLate = android.content.Intent("com.mira.whisper.UPDATE_PROGRESS").apply {
-                    putExtra("batch_id", jobId)
-                    putExtra("progress", 90)
-                    putExtra("file_count", 1)
-                    putExtra("current_file", 0)
-                    putExtra("current_file_progress", 90)
-                    putExtra("current_file_progress_float", 90.0)
-                    putExtra("completed_files", 0)
-                    putExtra("has_errors", false)
-                }
-                applicationContext.sendBroadcast(intentLate)
-            } catch (_: Exception) { }
+            // Near-complete progress logging (broadcasts removed - using direct approach)
 
             // 4) Enhanced sidecar with LID data
             val sidecar =
@@ -556,34 +517,10 @@ class TranscribeWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker
                     val progress = ((chunkIndex + 1) * 100) / totalChunks
                     Log.d("TranscribeWorker", "TECHNICAL: Overall progress: $progress% (${chunkIndex + 1}/$totalChunks chunks)")
                     Log.d("TranscribeWorker", "=== STREAMING CHUNK ${chunkIndex + 1}/$totalChunks COMPLETE ===")
-                    // Broadcast per-chunk progress for UI updates in WebView
-                    try {
-                        val perFileProgressFloat = ((chunkIndex + 1).toDouble() * 100.0 / totalChunks.toDouble())
-                        val perFileProgressDisplay = if (perFileProgressFloat > 0.0) kotlin.math.max(1, kotlin.math.ceil(perFileProgressFloat).toInt()) else 0
-                        val progressIntent = android.content.Intent("com.mira.whisper.UPDATE_PROGRESS").apply {
-                            putExtra("batch_id", jobId)
-                            putExtra("progress", progress)
-                            putExtra("file_count", 1)
-                            putExtra("current_file", 0)
-                            putExtra("current_file_progress", perFileProgressDisplay)
-                            putExtra("current_file_progress_float", perFileProgressFloat)
-                            putExtra("current_chunk", chunkIndex + 1)
-                            putExtra("total_chunks", totalChunks)
-                            putExtra("completed_files", 0)
-                            putExtra("has_errors", false)
-                            // Provide minimal file state so WebView can infer per-file progress
-                            val fileState = org.json.JSONObject().apply {
-                                put("fileName", java.io.File(Uri.parse(uri).lastPathSegment ?: "file").name)
-                                put("fileUri", uri)
-                                put("status", "PROCESSING")
-                                put("progress", perFileProgressDisplay)
-                                put("rtf", 0)
-                                put("error", org.json.JSONObject.NULL)
-                            }
-                            putExtra("file_states", org.json.JSONArray().put(fileState).toString())
-                        }
-                        applicationContext.sendBroadcast(progressIntent)
-                    } catch (_: Exception) { }
+                    // Per-chunk progress logging (broadcasts removed - using direct approach)
+                    val perFileProgressFloat = ((chunkIndex + 1).toDouble() * 100.0 / totalChunks.toDouble())
+                    val perFileProgressDisplay = if (perFileProgressFloat > 0.0) kotlin.math.max(1, kotlin.math.ceil(perFileProgressFloat).toInt()) else 0
+                    Log.d("TranscribeWorker", "TECHNICAL: Per-chunk progress: $perFileProgressDisplay% (chunk ${chunkIndex + 1}/$totalChunks)")
                     
                     // Add timeout protection - if chunk takes too long, warn and continue
                     if (totalChunkTime > 60000) { // 60 seconds per chunk

@@ -156,14 +156,13 @@ run_performance_test() {
     echo "🎤 Starting transcription processing..."
     START_TIME=$(date +%s)
     
-    # Trigger processing via broadcast
-    adb shell am broadcast -a com.mira.com.whisper.RUN \
-        --es "file_path" "$DEVICE_PATH" \
-        --es "model_path" "/sdcard/MiraWhisper/models/$MODEL" \
-        --es "output_dir" "$OUTPUT_DIR" \
-        --es "sidecar_dir" "$SIDECAR_DIR" \
+    # Trigger processing via DirectWhisperService
+    adb shell am startservice -n com.mira.com/com.mira.com.feature.whisper.service.DirectWhisperService \
+        --es "action" "com.mira.com.feature.whisper.PROCESS_DIRECT" \
+        --es "uri" "file://$DEVICE_PATH" \
+        --es "model" "/sdcard/MiraWhisper/models/$MODEL" \
         --es "threads" "$THREADS" \
-        --es "language" "$LANGUAGE" \
+        --es "lang" "$LANGUAGE" \
         --ez "translate" "$TRANSLATE"
     
     # Wait for processing to complete

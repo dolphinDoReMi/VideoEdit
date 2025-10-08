@@ -30,7 +30,7 @@ android {
           "-DGGML_F16_VEC=0",
           "-DGGML_F16_SCALAR=0"
           // Vulkan flags disabled for CPU-only test
-          // "-DGGML_VULKAN=1",
+          // # "-DGGML_VULKAN=1",
           // "-DGGML_VULKAN_DEBUG=1",
           // "-DGGML_VULKAN_CHECK_RESULTS=1"
         )
@@ -56,6 +56,11 @@ android {
   
   kotlinOptions {
     jvmTarget = "17"
+  }
+  
+  // Prevent compression of Whisper model files
+  androidResources {
+    noCompress += listOf(".gguf", ".ggml", ".bin")
   }
   
   buildTypes {

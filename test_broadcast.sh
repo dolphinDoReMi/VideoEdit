@@ -1,14 +1,20 @@
 #!/bin/bash
 
-# Test broadcast receiver directly
-echo "=== Testing Broadcast Receiver ==="
+# Test DirectWhisperService instead of broadcast receiver
+echo "=== Testing DirectWhisperService ==="
 
-# Send ACTION_RUN broadcast directly
-echo "1. Sending ACTION_RUN broadcast..."
-adb shell "am broadcast -a com.mira.whisper.RUN --es job_id 'test123' --es uri '/sdcard/MiraWhisper/clips/tennis_interview_clip_001.mp4' --es preset 'fast' --es model_path '/sdcard/MiraWhisper/models/whisper-base.q5_1.bin' --ei threads 4"
+# Send DirectWhisperService request directly
+echo "1. Starting DirectWhisperService..."
+adb shell "am startservice -n com.mira.com/com.mira.com.feature.whisper.service.DirectWhisperService \
+    --es 'action' 'com.mira.com.feature.whisper.PROCESS_DIRECT' \
+    --es 'uri' 'file:///sdcard/MiraWhisper/clips/tennis_interview_clip_001.mp4' \
+    --es 'model' '/sdcard/MiraWhisper/models/whisper-base.q5_1.bin' \
+    --es 'threads' '4' \
+    --es 'lang' 'auto' \
+    --ez 'translate' 'false'"
 
-echo "2. Check for WhisperReceiver logs:"
-echo "adb logcat -s WhisperReceiver:D | head -5"
+echo "2. Check for DirectWhisperService logs:"
+echo "adb logcat -s DirectWhisperService:D | head -5"
 
 echo "3. Check for TranscribeWorker logs:"
 echo "adb logcat -s TranscribeWorker:D | head -5"

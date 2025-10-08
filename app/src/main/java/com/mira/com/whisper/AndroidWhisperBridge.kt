@@ -44,11 +44,6 @@ class AndroidWhisperBridge(private val context: Context) {
         private const val TAG = "AndroidWhisperBridge"
         const val SIDECAR_DIR = "/sdcard/MiraWhisper/sidecars"
         const val OUTPUT_DIR = "/sdcard/MiraWhisper/out"
-        
-        // Broadcast actions for Whisper service
-        const val ACTION_RUN = "com.mira.whisper.RUN"
-        const val ACTION_EXPORT = "com.mira.whisper.EXPORT"
-        const val ACTION_VERIFY = "com.mira.whisper.VERIFY"
     }
     
     data class RunRequest(
@@ -77,7 +72,7 @@ class AndroidWhisperBridge(private val context: Context) {
     )
     
     /**
-     * Start a Whisper processing job.
+     * Start a Whisper processing job using DirectWhisperService.
      * 
      * @param jsonStr JSON string containing run parameters
      * @return job ID as string
@@ -107,17 +102,18 @@ class AndroidWhisperBridge(private val context: Context) {
             )
             writeSidecar(sidecar)
             
-            // Send broadcast to Whisper service
-            val intent = Intent(ACTION_RUN).apply {
-                putExtra("job_id", jobId)
-                putExtra("uri", request.uri)
-                putExtra("preset", request.preset)
-                putExtra("model_path", request.modelPath)
-                putExtra("threads", request.threads)
+            // Use DirectWhisperService instead of broadcast
+            val serviceIntent = Intent(context, com.mira.com.feature.whisper.service.DirectWhisperService::class.java).apply {
+                action = com.mira.com.feature.whisper.service.DirectWhisperService.ACTION_PROCESS_DIRECT
+                putExtra(com.mira.com.feature.whisper.service.DirectWhisperService.EXTRA_URI, request.uri)
+                putExtra(com.mira.com.feature.whisper.service.DirectWhisperService.EXTRA_MODEL, request.modelPath)
+                putExtra(com.mira.com.feature.whisper.service.DirectWhisperService.EXTRA_THREADS, request.threads)
+                putExtra(com.mira.com.feature.whisper.service.DirectWhisperService.EXTRA_LANG, "auto")
+                putExtra(com.mira.com.feature.whisper.service.DirectWhisperService.EXTRA_TRANSLATE, false)
             }
-            context.sendBroadcast(intent)
+            context.startService(serviceIntent)
             
-            Log.d(TAG, "Started Whisper job: $jobId")
+            Log.d(TAG, "Started Whisper job via DirectWhisperService: $jobId")
             jobId
             
         } catch (e: Exception) {
@@ -174,6 +170,7 @@ class AndroidWhisperBridge(private val context: Context) {
 
     /**
      * Export results for a specific job.
+     * Note: This is now a no-op since DirectWhisperService handles output directly.
      * 
      * @param jobId Job ID to export
      */
@@ -182,12 +179,9 @@ class AndroidWhisperBridge(private val context: Context) {
         try {
             Log.d(TAG, "Export request for job: $jobId")
             
-            val intent = Intent(ACTION_EXPORT).apply {
-                putExtra("job_id", jobId)
-            }
-            context.sendBroadcast(intent)
-            
-            Log.d(TAG, "Export broadcast sent for job: $jobId")
+            // With DirectWhisperService, output files are created directly
+            // No need for broadcast-based export
+            Log.d(TAG, "Export completed automatically by DirectWhisperService for job: $jobId")
             
         } catch (e: Exception) {
             Log.e(TAG, "Error in export(): ${e.message}", e)
@@ -279,16 +273,14 @@ class AndroidWhisperBridge(private val context: Context) {
                 }.toString()
             }
             
-            // Send broadcast to Whisper service for verification
-            val intent = Intent(ACTION_VERIFY).apply {
-                putExtra("job_id", jobId)
-            }
-            context.sendBroadcast(intent)
+            // With DirectWhisperService, verification is simplified
+            // Check if output files exist and are valid
+            val outputFile = File("$OUTPUT_DIR/${getFileNameFromUri(sidecar.uri)}.srt")
+            val isValid = outputFile.exists() && outputFile.length() > 0
             
-            // For now, return a mock verification result
-            // In a real implementation, this would wait for the service response
             val result = VerifyResult(
-                ok = true, // Mock: assume deterministic for now
+                ok = isValid,
+                failedField = if (!isValid) "output_file_missing_or_empty" else null,
                 rtf = sidecar.rtf
             )
             

@@ -17,6 +17,20 @@ fi
 EOF
 chmod +x "${ROOT}/.git/hooks/commit-msg"
 
+# pre-commit: CI/CD protection + other checks
+cat > "${ROOT}/.git/hooks/pre-commit" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Run CI/CD protection check
+if [ -f "scripts/tools/cicd_protection_hook.sh" ]; then
+    ./scripts/tools/cicd_protection_hook.sh
+fi
+
+# Additional pre-commit checks can be added here
+EOF
+chmod +x "${ROOT}/.git/hooks/pre-commit"
+
 # pre-push: policy + quick gradle checks
 cat > "${ROOT}/.git/hooks/pre-push" <<'EOF'
 #!/usr/bin/env bash
@@ -25,4 +39,4 @@ tools/push_guard.sh
 EOF
 chmod +x "${ROOT}/.git/hooks/pre-push"
 
-echo "✓ Git hooks installed"
+echo "✓ Git hooks installed (including CI/CD protection)"
