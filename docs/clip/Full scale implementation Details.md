@@ -1,166 +1,213 @@
 # CLIP Full Scale Implementation Details
 
-## Production-Ready Android/Kotlin Implementation
+## Problem Disaggregation
 
-### Problem Disaggregation
+### Inputs
+- **Video Files**: MP4, AVI, MOV, MKV formats
+- **Audio Tracks**: AAC, MP3, PCM audio streams
+- **Metadata**: Duration, resolution, frame rate information
 
-- **Inputs**: Video files (MP4, AVI, MOV), image sequences
-- **Outputs**: CLIP embeddings (512-dim vectors) + JSON sidecar with frame metadata
-- **Runtime Surfaces**: Broadcast → WorkManager job → CLIP pipeline → Storage writer
-- **Isolation**: 
-  - Preserve existing applicationId
-  - Debug variant uses applicationIdSuffix ".debug"
-  - All actions/authorities use ${applicationId} placeholders
+### Outputs
+- **Video Clips**: Segmented video files with audio synchronization
+- **Metadata**: Clip timestamps, similarity scores, processing metrics
+- **Sidecar Files**: JSON metadata for each generated clip
 
-### Analysis with Trade-offs
+### Runtime Surfaces
+- **Broadcast → WorkManager job → CLIP pipeline → Storage writer**
+- **Service Communication**: Direct Intent-based service calls
+- **Resource Monitoring**: Real-time CPU, memory, battery tracking
 
-- **CLIP vs Custom Models**: CLIP provides zero-shot capabilities vs task-specific fine-tuning
-- **Frame Sampling**: Uniform vs keyframe detection vs dense sampling
-- **Preprocessing**: Center-crop vs resize vs augmentation
-- **Batch Processing**: Memory vs speed trade-offs
-- **Quantization**: FP32 vs FP16 vs INT8 for mobile deployment
+### Isolation Strategy
+- **Application ID**: Preserve existing `com.mira.videoeditor`
+- **Debug Variant**: Uses `applicationIdSuffix ".debug"` for side-by-side installation
+- **Namespace Authority**: All actions/authorities use `${applicationId}` placeholders
 
-### Design
+## Analysis with Trade-offs
 
-**Pipeline Flow:**
+### Frame Processing vs Quality
+- **High Frame Rate**: Better temporal accuracy, higher processing cost
+- **Low Frame Rate**: Faster processing, potential missed transitions
+- **Choice**: 1.0 fps provides optimal balance for most use cases
+
+### Similarity Threshold vs Precision
+- **High Threshold**: Fewer clips, higher precision
+- **Low Threshold**: More clips, potential false positives
+- **Choice**: 0.7 threshold balances precision and recall
+
+### Memory Management
+- **Streaming**: Lower memory usage, sequential processing
+- **Batch**: Higher memory usage, parallel processing
+- **Choice**: Streaming for long videos, batch for short clips
+
+## Design Architecture
+
+### Pipeline Flow
 ```
-Broadcast (ACTION_CLIP_EMBED) → CLIPReceiver → CLIPApi → EmbedWorker 
-→ CLIPModel → FrameSampler → ImagePreprocessor → EmbeddingGenerator → Sidecar
+Video Input → Frame Extraction → CLIP Encoding → Similarity Analysis → Clip Generation → Storage Output
 ```
 
-**Key Control Knots:**
-- `FRAME_SAMPLING_RATE` (default 1.0 fps)
-- `PREPROCESS_SIZE` (224x224)
-- `BATCH_SIZE` (32)
-- `MODEL_TYPE` ("clip-vit-base-patch32")
-- `EMBEDDING_DIM` (512)
-- `NORMALIZATION` ("l2")
-- `QUANTIZATION` ("fp16")
+### Key Control Knots
+- **FRAME_RATE** (default 1.0 fps)
+- **SIMILARITY_THRESHOLD** (default 0.7)
+- **MIN_CLIP_DURATION** (default 2 seconds)
+- **MAX_CLIP_DURATION** (default 30 seconds)
+- **PROCESSING_MODE** (STREAMING | BATCH)
+- **MEMORY_LIMIT** (default 200MB)
+- **GPU_ACCELERATION** (true | false)
+- **AUDIO_SYNC** (true) - Maintain audio-video synchronization
 
-### Implementation Architecture
+### Service Architecture
+- **AutoClipperService**: Main background service
+- **AutoClipperWorker**: WorkManager-based processing
+- **AutoClipperReceiver**: Broadcast communication
+- **ResourceMonitor**: Real-time resource tracking
 
-#### 1. CLIP Model Integration
+## Implementation Details
+
+### Core Components
+
+#### AutoClipperService
 ```kotlin
-class CLIPModel {
-    fun generateEmbeddings(
-        frames: List<Bitmap>,
-        batchSize: Int = 32
-    ): List<FloatArray> {
-        val embeddings = mutableListOf<FloatArray>()
-        
-        frames.chunked(batchSize).forEach { batch ->
-            val batchEmbeddings = processBatch(batch)
-            embeddings.addAll(batchEmbeddings)
-        }
-        
-        return embeddings
+class AutoClipperService : Service() {
+    private val worker = AutoClipperWorker()
+    private val resourceMonitor = DeviceResourceService()
+    
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        // Process video clipping request
+        return START_STICKY
     }
 }
 ```
 
-#### 2. Frame Sampling
+#### Frame Extraction Pipeline
 ```kotlin
-class FrameSampler {
-    fun sampleFrames(
-        videoPath: String,
-        samplingRate: Float = 1.0f
-    ): List<Bitmap> {
-        val frames = mutableListOf<Bitmap>()
-        val duration = getVideoDuration(videoPath)
-        val frameInterval = (1000 / samplingRate).toInt()
-        
-        for (timestamp in 0 until duration step frameInterval) {
-            val frame = extractFrameAtTimestamp(videoPath, timestamp)
-            frames.add(frame)
-        }
-        
-        return frames
+class FrameExtractor {
+    fun extractFrames(videoPath: String, frameRate: Float): List<Bitmap> {
+        // Extract frames at specified rate
+        // Apply center-crop preprocessing
+        // Return processed frames
     }
 }
 ```
 
-#### 3. Embedding Worker
+#### CLIP Encoding
 ```kotlin
-class EmbedWorker : Worker {
-    override suspend fun doWork(): Result {
-        return try {
-            val videoPath = inputData.getString("video_path") ?: return Result.failure()
-            val samplingRate = inputData.getFloat("sampling_rate", 1.0f)
-            
-            // Sample frames
-            val frames = FrameSampler().sampleFrames(videoPath, samplingRate)
-            
-            // Generate embeddings
-            val embeddings = CLIPModel().generateEmbeddings(frames)
-            
-            // Save results
-            saveEmbeddings(videoPath, embeddings)
-            
-            Result.success()
-        } catch (e: Exception) {
-            Log.e(TAG, "Embedding generation failed", e)
-            Result.failure()
-        }
+class CLIPEncoder {
+    fun encodeFrame(frame: Bitmap): FloatArray {
+        // Convert frame to CLIP embedding
+        // Apply deterministic preprocessing
+        // Return normalized embedding vector
     }
 }
 ```
 
-### Scale-out Plan
-
-#### Single (Default Configuration)
-```json
-{
-  "preset": "SINGLE",
-  "sampling": { "rate": 1.0, "method": "uniform" },
-  "preprocessing": { "size": [224, 224], "method": "center_crop" },
-  "model": { "type": "clip-vit-base-patch32", "quantization": "fp16" },
-  "batch": { "size": 32, "memory_limit": "2GB" }
+#### Similarity Analysis
+```kotlin
+class SimilarityAnalyzer {
+    fun findClips(embeddings: List<FloatArray>, threshold: Float): List<ClipSegment> {
+        // Calculate cosine similarity between consecutive frames
+        // Identify clip boundaries based on threshold
+        // Return clip segments with timestamps
+    }
 }
 ```
 
-#### Ablations (Performance Variants)
+### Storage Integration
 
-**A. High-Density Sampling**
-```json
-{
-  "preset": "HIGH_DENSITY",
-  "sampling": { "rate": 2.0, "method": "uniform" },
-  "batch": { "size": 16 }
+#### SAF (Storage Access Framework) Support
+- **File Selection**: User-friendly file picker interface
+- **Permission Handling**: Automatic permission management
+- **Cross-App Access**: Support for external storage providers
+
+#### Output Organization
+```
+/clips/
+  ├── {videoId}/
+  │   ├── clip_001.mp4
+  │   ├── clip_002.mp4
+  │   ├── metadata.json
+  │   └── processing_log.txt
+```
+
+### Resource Management
+
+#### Memory Optimization
+- **Streaming Processing**: Process frames as they arrive
+- **Garbage Collection**: Explicit cleanup of processed frames
+- **Memory Monitoring**: Real-time memory usage tracking
+
+#### CPU Optimization
+- **Thread Pool**: Configurable thread count for parallel processing
+- **Background Processing**: Non-blocking operations
+- **Thermal Management**: Automatic throttling on high temperature
+
+## Testing Strategy
+
+### Unit Tests
+- **Frame Extraction**: Test frame extraction accuracy
+- **CLIP Encoding**: Test embedding consistency
+- **Similarity Analysis**: Test clip boundary detection
+- **Service Communication**: Test Intent-based communication
+
+### Integration Tests
+- **End-to-End Pipeline**: Full video processing workflow
+- **Service Integration**: AutoClipperService with WorkManager
+- **Storage Integration**: SAF file handling
+- **Resource Integration**: Device resource monitoring
+
+### Performance Tests
+- **Memory Usage**: Peak and average memory consumption
+- **Processing Speed**: Frames per second processing rate
+- **Battery Impact**: Power consumption measurement
+- **Thermal Impact**: Device temperature monitoring
+
+### Device Tests
+- **Xiaomi Pad 7 Ultra**: Primary target device testing
+- **iPad**: Cross-platform compatibility testing
+- **Various Resolutions**: Different video format testing
+
+## Performance Metrics
+
+### Target Performance
+- **Processing Speed**: 0.1s per frame on GPU
+- **Memory Usage**: <200MB peak for batch processing
+- **Accuracy**: 95%+ on standard benchmarks
+- **Service Reliability**: 99.9% uptime in background
+
+### Monitoring Implementation
+```kotlin
+class CLIPPerformanceMonitor {
+    fun trackProcessingSpeed(frameCount: Int, duration: Long)
+    fun trackMemoryUsage(peakMemory: Long, averageMemory: Long)
+    fun trackAccuracy(expectedClips: Int, actualClips: Int)
+    fun trackThermal(temperature: Float)
 }
 ```
 
-**B. Keyframe Detection**
-```json
-{
-  "preset": "KEYFRAME",
-  "sampling": { "method": "keyframe", "threshold": 0.3 },
-  "preprocessing": { "method": "resize" }
-}
-```
+## Troubleshooting
 
-**C. Mobile Optimized**
-```json
-{
-  "preset": "MOBILE",
-  "model": { "quantization": "int8" },
-  "batch": { "size": 8, "memory_limit": "512MB" }
-}
-```
+### Common Issues
+1. **High Memory Usage**: Reduce frame rate, enable streaming processing
+2. **Slow Processing**: Enable GPU acceleration, optimize similarity threshold
+3. **Poor Clip Quality**: Adjust similarity threshold, modify duration constraints
+4. **Service Failures**: Check resource monitoring, verify service isolation
 
-**D. High Accuracy**
-```json
-{
-  "preset": "HIGH_ACCURACY",
-  "model": { "type": "clip-vit-large-patch14", "quantization": "fp32" },
-  "preprocessing": { "size": [336, 336] }
-}
-```
+### Debug Tools
+- **Service Monitor**: Real-time service status monitoring
+- **Memory Profiler**: Android Studio profiler for memory usage
+- **Performance Monitor**: Built-in performance tracking
+- **Log Analysis**: Detailed service logs for debugging
 
-### Code Pointers
+## Future Enhancements
 
-- **CLIP Model**: `core/ml/clip/CLIPModel.kt`
-- **Frame Sampling**: `core/media/FrameSampler.kt`
-- **Image Preprocessing**: `core/ml/preprocessing/ImagePreprocessor.kt`
-- **Embedding Generation**: `core/ml/embedding/EmbeddingGenerator.kt`
-- **Embed Worker**: `core/ml/workers/EmbedWorker.kt`
-- **CLIP API**: `core/ml/api/CLIPApi.kt`
+### Planned Features
+- **Advanced Algorithms**: Custom clipping algorithms
+- **Real-time Processing**: Live video clipping during recording
+- **Cloud Integration**: Cloud-based processing options
+- **Advanced Analytics**: Detailed processing analytics
+
+### Performance Targets
+- **Speed**: <0.05s per frame processing time
+- **Memory**: <100MB peak usage
+- **Accuracy**: Maintain 95%+ benchmark performance
+- **Battery**: <1% per hour of processing

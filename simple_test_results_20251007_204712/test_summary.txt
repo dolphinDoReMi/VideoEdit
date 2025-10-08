@@ -1,8 +1,0 @@
-Test Name: CPU Performance Test
-Processing Time: 1983 seconds
-Video Duration: 300 seconds
-File Size: 92MB
-Model: whisper-base.q5_1.bin
-Final CPU Usage: %
-Final Memory Usage: KB
-Timestamp: Tue Oct  7 21:20:19 CST 2025

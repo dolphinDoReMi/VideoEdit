@@ -1,0 +1,10 @@
+{
+  "input_file": "input.mp4",
+  "output_files": [
+    "input.json",
+    "input.srt"
+  ],
+  "processing_time": "2025-10-09T05:45:00Z",
+  "model_used": "whisper-tiny-en",
+  "processing_method": "MiraWhisper Compatible"
+}

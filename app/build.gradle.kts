@@ -282,8 +282,10 @@ tasks.matching { it.name.startsWith("pre") && it.name.endsWith("Build") }.config
 
 dependencies {
   // Feature modules
-  implementation(project(":feature:whisper"))
-  implementation(project(":core:ml"))
+  // Whisper functionality now consolidated in app module
+  // implementation(project(":feature:whisper"))
+  
+  // Infrastructure modules
   
   // Core orchestration dependencies (always included)
   implementation("androidx.work:work-runtime-ktx:2.9.0")

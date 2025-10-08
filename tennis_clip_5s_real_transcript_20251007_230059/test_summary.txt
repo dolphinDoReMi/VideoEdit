@@ -1,9 +1,0 @@
-Test: Tennis Interview Clip 002 - First 5 Seconds Real Transcription
-Processing Time: 196 seconds
-Video Duration: 5 seconds
-File Size: 0MB
-Model: whisper-base.q5_1.bin
-Threads: 4
-Language: en
-Real Transcript Found: false
-Timestamp: Tue Oct  7 23:04:26 CST 2025

@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.os.Build
 import android.content.Context
+import android.os.PowerManager
 import androidx.lifecycle.lifecycleScope
 import com.mira.resource.DeviceResourceService
 import com.mira.whisper.bus.WhisperBus
@@ -32,6 +33,7 @@ class WhisperProcessingActivity : AppCompatActivity() {
     private lateinit var webView: WebView
     private var lastResourceStatsJson: String? = null
     private var lastResourceUpdateMs: Long = 0L
+    private var wakeLock: PowerManager.WakeLock? = null
     
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,6 +44,9 @@ class WhisperProcessingActivity : AppCompatActivity() {
         Log.e(TAG, "Intent data: ${intent.data}")
         Log.e(TAG, "Intent action: ${intent.action}")
         Log.d(TAG, "Creating WhisperProcessingActivity")
+        
+        // Acquire wake lock to keep screen on during processing
+        acquireWakeLock()
         
         // Get batch ID from intent
         val batchId = intent.getStringExtra("batchId")
@@ -54,10 +59,21 @@ class WhisperProcessingActivity : AppCompatActivity() {
         val wv = WebView(this)
         webView = wv
 
-        wv.settings.javaScriptEnabled = true
-        wv.settings.domStorageEnabled = true
-        wv.settings.allowFileAccess = true
-        wv.settings.allowContentAccess = true
+        // Configure WebView with crash-safe settings
+        wv.settings.apply {
+            javaScriptEnabled = true
+            domStorageEnabled = true
+            allowFileAccess = true
+            allowContentAccess = true
+            
+            // Additional safety settings
+            mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE
+            useWideViewPort = true
+            loadWithOverviewMode = true
+        }
+        
+        // Force software rendering to avoid Vulkan/GPU crashes
+        wv.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null)
 
         wv.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
@@ -107,6 +123,7 @@ class WhisperProcessingActivity : AppCompatActivity() {
                 )
             }
 
+            @Suppress("DEPRECATION")
             override fun onReceivedError(view: WebView?, errorCode: Int, description: String?, failingUrl: String?) {
                 super.onReceivedError(view, errorCode, description, failingUrl)
                 Log.e(TAG, "WebView error: $description ($errorCode) for $failingUrl")
@@ -314,6 +331,41 @@ class WhisperProcessingActivity : AppCompatActivity() {
         Log.e(TAG, "=== PROCESSING ACTIVITY DESTROYED ===")
         Log.e(TAG, "Stack trace:", Exception("Processing activity destroyed"))
         
+        // Release wake lock
+        releaseWakeLock()
+        
         Log.d(TAG, "Destroying WhisperProcessingActivity")
+    }
+    
+    /**
+     * Acquire wake lock to keep screen on during processing
+     */
+    private fun acquireWakeLock() {
+        try {
+            val powerManager = getSystemService(POWER_SERVICE) as PowerManager
+            wakeLock = powerManager.newWakeLock(
+                PowerManager.SCREEN_BRIGHT_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP,
+                "WhisperProcessingActivity::ScreenWakeLock"
+            )
+            wakeLock?.acquire(10*60*1000L /*10 minutes*/)
+            Log.i(TAG, "Wake lock acquired - screen will stay on during processing")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to acquire wake lock: ${e.message}", e)
+        }
+    }
+    
+    /**
+     * Release wake lock to allow screen to turn off
+     */
+    private fun releaseWakeLock() {
+        try {
+            if (wakeLock?.isHeld == true) {
+                wakeLock?.release()
+                Log.i(TAG, "Wake lock released - screen can turn off")
+            }
+            wakeLock = null
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to release wake lock: ${e.message}", e)
+        }
     }
 }

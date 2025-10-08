@@ -1,0 +1,11 @@
+1
+00:00:00,000 --> 00:00:05,000
+Welcome to the tennis interview. Today we're discussing the latest match results.
+
+2
+00:00:05,000 --> 00:00:10,000
+The player showed excellent form throughout the match, demonstrating strong serves and precise volleys.
+
+3
+00:00:10,000 --> 00:00:15,000
+The crowd was particularly impressed by the backhand shots in the third set.

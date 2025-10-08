@@ -1,0 +1,100 @@
+🔍 Checking for forbidden storage API usage...
+Checking Kotlin/Java files for forbidden patterns...
+app/lint-baseline.xml:17:        message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
+app/lint-baseline.xml:28:        message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
+app/lint-baseline.xml:39:        message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
+app/lint-baseline.xml:50:        message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
+app/lint-baseline.xml:61:        message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
+app/lint-baseline.xml:72:        message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
+app/lint-baseline.xml:83:        message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
+app/lint-baseline.xml:94:        message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
+app/lint-baseline.xml:105:        message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
+app/lint-baseline.xml:116:        message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
+app/lint-baseline.xml:127:        message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
+app/lint-baseline.xml:138:        message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
+app/lint-baseline.xml:149:        message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
+app/lint-baseline.xml:160:        message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
+app/lint-baseline.xml:171:        message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
+app/lint-baseline.xml:182:        message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
+app/lint-baseline.xml:193:        message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
+app/src/androidTest/java/com/mira/clip/ClipEmbeddingTest.kt:24:        val videoPath = "/sdcard/Movies/video_v1.mp4"
+app/src/androidTest/java/com/mira/clip/ExactEmbeddingTest.kt:24:        val videoPath = "/sdcard/Movies/video_v1.mp4"
+app/src/androidTest/java/com/mira/clip/VideoEmbeddingE2EInstrumentedTest.kt:39:        val sdcardPath = "/sdcard/Movies/video_v1.mp4"
+app/src/androidTest/java/com/mira/clip/VideoEmbeddingE2EInstrumentedTest.kt:115:        val variantDir = File(File("/sdcard/MiraClip/out/embeddings"), variant)
+app/src/androidTest/java/com/mira/clip/E2EVideoEmbeddingTest.kt:50:    private val DEFAULT_VIDEO_PATH = "/sdcard/Movies/video_v1.mp4"
+app/src/androidTest/java/com/mira/clip/ClipLocalVideoTest.kt:23:        val videoPath = "/sdcard/Movies/video_v1.mp4"
+app/src/androidTest/java/com/mira/clip/ClipLocalVideoTest.kt:69:        val videoPath = "/sdcard/Movies/video_v1.mp4"
+app/src/androidTest/java/com/mira/clip/ClipLocalVideoTest.kt:103:        val videoPath = "/sdcard/Movies/video_v1.mp4"
+app/src/androidTest/java/com/mira/clip/ClipLocalVideoTest.kt:137:        val videoPath = "/sdcard/Movies/video_v1.mp4"
+app/src/main/java/com/mira/clip/EmbeddingGenerator.kt:17:        val videoPath = videoPathOverride ?: "/sdcard/Movies/video_v1.mp4"
+app/src/main/java/com/mira/com/whisper/AndroidWhisperBridge.kt:324:            val exportDir = File(Environment.getExternalStorageDirectory(), "MiraWhisper/out/$jobId")
+app/src/main/java/com/mira/com/whisper/AndroidWhisperBridge.kt:503:                "/sdcard/DCIM/Camera/",
+app/src/main/java/com/mira/com/whisper/AndroidWhisperBridge.kt:504:                "/sdcard/Movies/",
+app/src/main/java/com/mira/com/whisper/AndroidWhisperBridge.kt:505:                "/sdcard/Download/",
+app/src/main/java/com/mira/com/whisper/AndroidWhisperBridge.kt:506:                "/sdcard/"
+app/src/main/java/com/mira/com/whisper/AndroidWhisperBridge.kt:564:            val file = File("/sdcard/video_v1_long.mp4")
+app/src/main/java/com/mira/com/whisper/AndroidWhisperBridge.kt:572:                "/sdcard/DCIM/Camera/",
+app/src/main/java/com/mira/com/whisper/AndroidWhisperBridge.kt:573:                "/sdcard/Movies/",
+app/src/main/java/com/mira/com/whisper/AndroidWhisperBridge.kt:574:                "/sdcard/Download/",
+app/src/main/java/com/mira/com/whisper/AndroidWhisperBridge.kt:575:                "/sdcard/"
+app/src/main/java/com/mira/com/whisper/AndroidWhisperBridge.kt:942:            "/sdcard/Models/ggml-small.en.bin"
+app/src/main/java/com/mira/com/whisper/AndroidWhisperBridge.kt:945:            "/sdcard/Models/ggml-small.en.bin" // Fallback
+app/src/main/java/com/mira/whisper/AutoClipperTest.kt:19:            val inputFile = File("/sdcard/Download/TennisInterview_converted.mp4")
+app/src/main/java/com/mira/whisper/AndroidWhisperBridge.kt:174:        const val SIDECAR_DIR = "/sdcard/MiraWhisper/sidecars"
+app/src/main/java/com/mira/whisper/AndroidWhisperBridge.kt:175:        const val OUTPUT_DIR = "/sdcard/MiraWhisper/out"
+app/src/main/java/com/mira/whisper/AndroidWhisperBridge.kt:289:            val tennisClipPath = "/sdcard/Download/tennis_interview_clip_001.mp4"
+app/src/main/java/com/mira/whisper/AndroidWhisperBridge.kt:290:            val modelPath = "/sdcard/MiraWhisper/models/whisper-base.q5_1.bin"
+app/src/main/java/com/mira/whisper/AndroidWhisperBridge.kt:1034:                "/sdcard/DCIM/Camera/",
+app/src/main/java/com/mira/whisper/AndroidWhisperBridge.kt:1035:                "/sdcard/Movies/",
+app/src/main/java/com/mira/whisper/AndroidWhisperBridge.kt:1036:                "/sdcard/Download/",
+app/src/main/java/com/mira/whisper/AndroidWhisperBridge.kt:1037:                "/sdcard/"
+app/src/main/java/com/mira/whisper/AndroidWhisperBridge.kt:1092:                "/sdcard/DCIM/Camera/",
+app/src/main/java/com/mira/whisper/AndroidWhisperBridge.kt:1093:                "/sdcard/Movies/",
+app/src/main/java/com/mira/whisper/AndroidWhisperBridge.kt:1094:                "/sdcard/Download/",
+app/src/main/java/com/mira/whisper/AndroidWhisperBridge.kt:1095:                "/sdcard/"
+app/src/main/java/com/mira/whisper/AndroidWhisperBridge.kt:1507:            "/sdcard/Models/ggml-small.en.bin"
+app/src/main/java/com/mira/whisper/AndroidWhisperBridge.kt:1510:            "/sdcard/Models/ggml-small.en.bin" // Fallback
+app/src/main/java/com/mira/whisper/AndroidWhisperBridge.kt:1847:            val dbDir = File("/sdcard/MiraWhisper/db")
+feature/whisper/build/tmp/kapt3/stubs/debug/com/mira/com/feature/whisper/service/DirectWhisperService.java:11: *  --es "model" "/sdcard/MiraWhisper/models/whisper-base.q5_1.bin" \
+feature/whisper/build/tmp/kapt3/stubs/debug/com/mira/com/feature/whisper/engine/XiaomiPadConfig.java:9:    public static final java.lang.String MODEL_FILE = "/sdcard/MiraWhisper/models/whisper-base.q5_1.bin";
+feature/whisper/src/androidTest/java/com/mira/whisper/BasicWhisperTest.kt:30:        val inputPath = "/sdcard/MiraWhisper/in/test_sample.mp4"
+feature/whisper/src/main/java/com/mira/com/feature/whisper/runner/ScanWorker.kt:41:                            "model" to "/sdcard/MiraWhisper/models/ggml-base.en.gguf",
+feature/whisper/src/main/java/com/mira/com/feature/whisper/service/DirectWhisperService.kt:22: *   --es "model" "/sdcard/MiraWhisper/models/whisper-base.q5_1.bin" \
+feature/whisper/src/main/java/com/mira/com/feature/whisper/engine/WhisperParams.kt:20:    const val MODEL_FILE = "/sdcard/MiraWhisper/models/whisper-base.q5_1.bin" // NOT *.en
+infra-storage/src/test/java/com/mira/videoeditor/infra/storage/ComprehensiveStorageTest.kt:129:                "No external storage access" to !modelPath.contains("/sdcard/"),
+❌ Forbidden storage APIs detected in Kotlin/Java files:
+   - Environment.getExternalStorageDirectory()
+   - Hardcoded /sdcard/ paths
+   - MediaExtractor.setDataSource(String)
+   - FileInputStream(String)
+   Use DLStorage + FD + app-private mmap instead.
+Checking C/C++ files for forbidden patterns...
+feature/whisper/src/main/cpp/whisper_loader.cpp:29:    if (FILE* s = fopen("/proc/self/attr/current","r")) {
+feature/whisper/src/main/cpp/whisper_loader.cpp:46:    FILE* f = fopen(path.c_str(), "rb");
+❌ Forbidden fopen() usage detected in C/C++ files:
+   - fopen() for media files
+   Accept int fd from Java and use fdopen/read instead.
+Checking for required scoped storage patterns...
+⚠️  Warning: No DLStorage.resolveModelPath() usage found
+   Model loading should use DLStorage.resolveModelPath()
+⚠️  Warning: No DLStorage.openReadFd() usage found
+   Media access should use DLStorage.openReadFd()
+⚠️  Warning: No transcribeFromFd JNI method found
+   JNI should expose transcribeFromFd(ctx, fd)
+
+❌ Storage API check FAILED. Fix forbidden patterns before proceeding.
+
+Required refactoring patterns:
+  Kotlin (media):
+    // BEFORE: extractor.setDataSource(path)
+    // AFTER: val fd = contentResolver.openFileDescriptor(uri, "r")!!.detachFd()
+    //         extractor.setDataSource(fd.toLong(), 0, Long.MAX_VALUE)
+
+  Kotlin (model):
+    // BEFORE: NativeWhisper.initFromPath("/sdcard/Models/whisper-small.bin")
+    // AFTER: val handle = storage.installModel(modelUri, "whisper-small.gguf")
+    //         val ctx = NativeWhisper.initModelFromAppFile(storage.resolveModelPath(handle))
+
+  C++ (JNI media):
+    // BEFORE: FILE* f = fopen(path, "rb");
+    // AFTER: FILE* f = fdopen(dup(fd), "rb");

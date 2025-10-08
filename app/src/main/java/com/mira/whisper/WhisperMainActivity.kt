@@ -9,6 +9,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import android.app.Activity
 import android.net.Uri
+import android.os.PowerManager
 import java.io.File
 
 /**
@@ -34,6 +35,7 @@ class WhisperMainActivity : ComponentActivity() {
     private lateinit var bridge: AndroidWhisperBridge
     private var inputFileUri: Uri? = null
     private var outputFolderUri: Uri? = null
+    private var wakeLock: PowerManager.WakeLock? = null
     
     // File picker launcher (SAF with multiple selection)
     private val filePickerLauncher = registerForActivityResult(
@@ -131,6 +133,9 @@ class WhisperMainActivity : ComponentActivity() {
         
         Log.i(TAG, "Whisper Main Activity launched - initializing interface")
         
+        // Acquire wake lock to keep screen on
+        acquireWakeLock()
+        
         // Ensure app-scoped directory structure exists
         DirectoryManager.ensureDirectoryStructure(this)
         
@@ -144,33 +149,99 @@ class WhisperMainActivity : ComponentActivity() {
         webView = WebView(this)
         setContentView(webView)
         
-        // Configure WebView
+        // Configure WebView with crash-safe settings
         webView.settings.apply {
             javaScriptEnabled = true
             domStorageEnabled = true
             allowFileAccess = true
             allowContentAccess = true
             mediaPlaybackRequiresUserGesture = false
+            
+            // Additional safety settings
+            mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE
+            useWideViewPort = true
+            loadWithOverviewMode = true
+            
+            // Disable potentially problematic features
+            setSupportZoom(false)
+            builtInZoomControls = false
+            displayZoomControls = false
+            setSupportMultipleWindows(false)
+            javaScriptCanOpenWindowsAutomatically = false
+            // Note: allowFileAccessFromFileURLs and allowUniversalAccessFromFileURLs are deprecated
+            // but still needed for file access functionality
         }
         
-        // Set WebView client
+        // Force software rendering to avoid Vulkan/GPU crashes
+        webView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null)
+        
+        // Set WebView client with error handling
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
                 Log.d(TAG, "Page loaded: $url")
             }
+            
+            @Suppress("DEPRECATION")
+            override fun onReceivedError(view: WebView?, errorCode: Int, description: String?, failingUrl: String?) {
+                super.onReceivedError(view, errorCode, description, failingUrl)
+                Log.e(TAG, "WebView error: $description ($errorCode) for $failingUrl")
+                
+                // Load fallback page on error
+                view?.loadUrl("file:///android_asset/web/whisper_simple.html")
+            }
+            
+            override fun onReceivedHttpError(view: WebView?, request: android.webkit.WebResourceRequest?, errorResponse: android.webkit.WebResourceResponse?) {
+                super.onReceivedHttpError(view, request, errorResponse)
+                Log.e(TAG, "HTTP error: ${errorResponse?.statusCode} for ${request?.url}")
+            }
         }
         
-        // Initialize bridge
-        bridge = AndroidWhisperBridge(this)
-        webView.addJavascriptInterface(bridge, "WhisperBridge")
+        // Initialize bridge with error handling
         try {
+            bridge = AndroidWhisperBridge(this)
+            webView.addJavascriptInterface(bridge, "WhisperBridge")
+            
             // Provide WebView to bridge for progress/navigation callbacks
             bridge.setWebView(webView)
-        } catch (_: Exception) { }
+            Log.i(TAG, "WhisperBridge initialized successfully")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to initialize WhisperBridge: ${e.message}", e)
+            // Continue without bridge - the HTML will handle simulation mode
+        }
         
-        // Load the unified interface
-        webView.loadUrl("file:///android_asset/web/whisper_unified.html")
+        // Try to load the unified interface first (offline-compatible)
+        try {
+            webView.loadUrl("file:///android_asset/web/whisper_unified.html")
+            Log.i(TAG, "Loading unified interface")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to load unified interface: ${e.message}", e)
+            // Fallback to a minimal error page
+            val errorHtml = """
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Whisper App</title>
+                    <style>
+                        body { 
+                            font-family: Arial, sans-serif; 
+                            background-color: #000; 
+                            color: #fff; 
+                            margin: 20px; 
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h1>Whisper Transcription</h1>
+                    <p>Error loading interface. Please restart the app.</p>
+                </body>
+                </html>
+            """.trimIndent()
+            
+            webView.loadDataWithBaseURL(null, errorHtml, "text/html", "UTF-8", null)
+        }
         
         Log.i(TAG, "Whisper Main Activity initialized successfully")
     }
@@ -367,6 +438,9 @@ class WhisperMainActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         Log.i(TAG, "Whisper Main Activity destroyed")
+        
+        // Release wake lock
+        releaseWakeLock()
     }
     
     /**
@@ -419,6 +493,38 @@ class WhisperMainActivity : ComponentActivity() {
             val script = "if (window.handleFileSelection) { window.handleFileSelection(\"$escapedJson\"); }"
             webView.evaluateJavascript(script, null)
             Log.d(TAG, "Executed JavaScript for file selection: $jsonResponse")
+        }
+    }
+    
+    /**
+     * Acquire wake lock to keep screen on during processing
+     */
+    private fun acquireWakeLock() {
+        try {
+            val powerManager = getSystemService(POWER_SERVICE) as PowerManager
+            wakeLock = powerManager.newWakeLock(
+                PowerManager.SCREEN_BRIGHT_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP,
+                "WhisperMainActivity::ScreenWakeLock"
+            )
+            wakeLock?.acquire(10*60*1000L /*10 minutes*/)
+            Log.i(TAG, "Wake lock acquired - screen will stay on")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to acquire wake lock: ${e.message}", e)
+        }
+    }
+    
+    /**
+     * Release wake lock to allow screen to turn off
+     */
+    private fun releaseWakeLock() {
+        try {
+            if (wakeLock?.isHeld == true) {
+                wakeLock?.release()
+                Log.i(TAG, "Wake lock released - screen can turn off")
+            }
+            wakeLock = null
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to release wake lock: ${e.message}", e)
         }
     }
 }

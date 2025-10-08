@@ -2,378 +2,294 @@
 
 ## Overview
 
-This guide covers the continuous integration and deployment (CI/CD) processes for the VideoEdit multi-modal AI video processing platform, including automated testing, validation, and release procedures.
+This guide provides comprehensive instructions for Continuous Integration/Continuous Deployment (CI/CD) and release management for the VideoEditor application across iOS, Android, and macOS web platforms.
 
 ## GitHub Guide
 
-### Repository Structure
-- **Main Branch**: `main` - Production-ready code
-- **Feature Branches**: `feature/*` - New feature development
-- **Release Branches**: `release/*` - Release preparation
-- **Hotfix Branches**: `hotfix/*` - Critical bug fixes
-
 ### Branch Protection Rules
-- **Main Branch**: Requires pull request reviews and status checks
-- **Feature Branches**: Must be up-to-date with main before merging
-- **Release Branches**: Protected during release process
 
-### Pull Request Process
-1. **Create Feature Branch**: `git checkout -b feature/amazing-feature`
-2. **Develop Feature**: Implement changes with proper testing
-3. **Create Pull Request**: Include description, tests, and documentation
-4. **Code Review**: At least one approved review required
-5. **Merge**: Squash and merge to main branch
+#### Main Branch Protection
+- **Required Status Checks**: All CI/CD checks must pass
+- **Require Up-to-date Branches**: Branches must be up-to-date before merging
+- **Require Linear History**: Maintain clean commit history
+- **Restrict Pushes**: Only allow pushes via pull requests
+- **Dismiss Stale Reviews**: Automatically dismiss stale reviews
 
-### Commit Message Convention
-```
-feat: add new feature
-fix: bug fix
-docs: documentation changes
-style: formatting changes
-refactor: code refactoring
-test: add or update tests
-chore: maintenance tasks
-```
+#### Feature Branch Protection
+- **Required Status Checks**: Basic CI checks must pass
+- **Require Up-to-date Branches**: Branches must be up-to-date
+- **Allow Force Pushes**: Allow force pushes for feature development
+- **Allow Deletions**: Allow branch deletion after merge
 
-## CI/CD Workflows
+### Pull Request Requirements
 
-### Automated Testing Pipeline
+#### Required Checks
+- **Build Verification**: Android and iOS builds must succeed
+- **Test Execution**: Unit and integration tests must pass
+- **Code Quality**: Linting and formatting checks must pass
+- **Security Scanning**: Security vulnerability scans must pass
+- **Documentation**: Documentation updates must be included
 
-#### Unit Tests
-```yaml
-name: Unit Tests
-on: [push, pull_request]
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Run Unit Tests
-        run: ./gradlew testDebugUnitTest
-```
+#### Review Requirements
+- **Minimum Reviewers**: At least 2 reviewers required
+- **Code Owner Review**: Code owner approval required for critical files
+- **Automated Review**: Automated code review checks must pass
 
-#### Integration Tests
-```yaml
-name: Integration Tests
-on: [push, pull_request]
-jobs:
-  integration-test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Run Integration Tests
-        run: |
-          cd docs/whisper/scripts
-          ./test_comprehensive_pipeline.sh
-          cd ../clip/scripts
-          ./test_clip_pipeline.sh
-```
+## Feature Branch CI-CD Guide
 
-#### E2E Tests
-```yaml
-name: E2E Tests
-on: [push, pull_request]
-jobs:
-  e2e-test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Run E2E Tests
-        run: |
-          cd docs/whisper/scripts
-          ./work_through_video_v1.sh
-```
+### Branch Naming Convention
+- **Feature Branches**: `feature/feature-name`
+- **Bug Fix Branches**: `bugfix/bug-description`
+- **Hotfix Branches**: `hotfix/critical-fix`
+- **Release Branches**: `release/version-number`
 
-### Build and Deployment Pipeline
+### CI/CD Pipeline
 
-#### Android Build
-```yaml
-name: Android Build
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-jobs:
-  build-android:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: '11'
-          distribution: 'temurin'
-      - name: Build APK
-        run: ./gradlew assembleDebug
-      - name: Upload APK
-        uses: actions/upload-artifact@v3
-        with:
-          name: app-debug
-          path: app/build/outputs/apk/debug/
-```
+#### Build Stage
+1. **Code Checkout**: Checkout source code
+2. **Dependency Installation**: Install project dependencies
+3. **Build Verification**: Build Android and iOS projects
+4. **Artifact Generation**: Generate build artifacts
 
-#### iOS Build
-```yaml
-name: iOS Build
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-jobs:
-  build-ios:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-      - name: Install dependencies
-        run: pnpm install
-      - name: Build web
-        run: pnpm build
-      - name: Sync iOS
-        run: pnpm exec cap sync ios
-      - name: Build iOS
-        run: |
-          cd ios/App
-          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -destination 'generic/platform=iOS' clean build
-```
+#### Test Stage
+1. **Unit Tests**: Execute unit test suite
+2. **Integration Tests**: Execute integration test suite
+3. **Device Tests**: Execute device-specific tests
+4. **Performance Tests**: Execute performance benchmarks
 
-#### Web Build
-```yaml
-name: Web Build
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-jobs:
-  build-web:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-      - name: Install dependencies
-        run: pnpm install
-      - name: Build web
-        run: pnpm build
-      - name: Upload build
-        uses: actions/upload-artifact@v3
-        with:
-          name: web-build
-          path: dist/
-```
+#### Quality Stage
+1. **Code Linting**: Execute code quality checks
+2. **Security Scanning**: Execute security vulnerability scans
+3. **Documentation Validation**: Validate documentation structure
+4. **Dependency Audit**: Audit project dependencies
 
-## Release Process
+#### Deployment Stage
+1. **Staging Deployment**: Deploy to staging environment
+2. **Smoke Tests**: Execute smoke tests on staging
+3. **Production Deployment**: Deploy to production (if approved)
+4. **Release Notes**: Generate release notes
 
-### Version Management
-- **Semantic Versioning**: MAJOR.MINOR.PATCH
-- **Version Tags**: `v1.0.0`, `v1.1.0`, `v1.1.1`
-- **Release Notes**: Automated generation from commits
+### Environment Configuration
 
-### Release Workflow
+#### Development Environment
+- **Build Type**: Debug
+- **Testing**: Unit and integration tests
+- **Deployment**: Local development only
 
-#### 1. Prepare Release
-```bash
-# Create release branch
-git checkout -b release/v1.1.0
+#### Staging Environment
+- **Build Type**: Release (staging)
+- **Testing**: Full test suite including device tests
+- **Deployment**: Automated staging deployment
 
-# Update version numbers
-# - app/build.gradle.kts
-# - package.json
-# - ios/App/App/Info.plist
+#### Production Environment
+- **Build Type**: Release (production)
+- **Testing**: Full test suite plus smoke tests
+- **Deployment**: Manual approval required
 
-# Update CHANGELOG.md
-# Commit changes
-git commit -m "chore: prepare release v1.1.0"
-```
+## Documentation Validation Workflow
 
-#### 2. Create Release
-```bash
-# Create tag
-git tag -a v1.1.0 -m "Release v1.1.0"
+### Documentation Structure Validation
+- **File Structure**: Validate documentation file structure
+- **Content Validation**: Validate documentation content quality
+- **Link Validation**: Validate internal and external links
+- **Format Validation**: Validate markdown formatting
 
-# Push tag
-git push origin v1.1.0
-```
-
-#### 3. Automated Release
-```yaml
-name: Release
-on:
-  push:
-    tags:
-      - 'v*'
-jobs:
-  release:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Create Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body: |
-            ## Changes
-            - Feature updates
-            - Bug fixes
-            - Performance improvements
-          draft: false
-          prerelease: false
-```
-
-### Platform-Specific Releases
-
-#### Android Release
-```bash
-# Build release APK
-./gradlew assembleRelease
-
-# Sign APK
-jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore keystore.jks app-release-unsigned.apk alias_name
-
-# Align APK
-zipalign -v 4 app-release-unsigned.apk app-release.apk
-```
-
-#### iOS Release
-```bash
-# Build iOS app
-cd ios/App
-xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -destination 'generic/platform=iOS' clean archive -archivePath App.xcarchive
-
-# Export IPA
-xcodebuild -exportArchive -archivePath App.xcarchive -exportOptionsPlist ExportOptions.plist -exportPath .
-```
-
-#### Web Release
-```bash
-# Build web app
-pnpm build
-
-# Deploy to hosting service
-# - Netlify
-# - Vercel
-# - GitHub Pages
-```
-
-## Quality Assurance
-
-### Code Quality Checks
-- **Linting**: ESLint, Prettier, Detekt
-- **Type Checking**: TypeScript, Kotlin
-- **Security**: CodeQL, dependency scanning
-- **Performance**: Bundle size analysis
-
-### Testing Coverage
-- **Unit Tests**: >80% coverage required
-- **Integration Tests**: All critical paths covered
-- **E2E Tests**: Main user journeys tested
-- **Performance Tests**: Load and stress testing
+### Documentation Requirements
+- **Architecture Documents**: Required for each major feature
+- **Control Knots**: Required for each configurable component
+- **Implementation Details**: Required for complex implementations
+- **Device Deployment**: Required for device-specific optimizations
 
 ### Validation Scripts
+- **Structure Validator**: `docs/CICD & Release Guide/Scripts/validate_docs_structure.sh`
+- **Content Validator**: `docs/CICD & Release Guide/Scripts/validate_docs_content.sh`
+- **Link Validator**: `docs/CICD & Release Guide/Scripts/validate_docs_links.sh`
 
-#### Documentation Validation
-```bash
-# Validate documentation structure
-cd docs/CICD\ \&\ Release\ Guide/Scripts
-./validate_docs_structure.sh
+## Release Management
 
-# Validate control knots
-./validate_control_knots.sh
+### Release Process
 
-# Validate multi-lens explanations
-./validate_multi_lens.sh
+#### Pre-Release
+1. **Feature Freeze**: Stop adding new features
+2. **Bug Fixes Only**: Only critical bug fixes allowed
+3. **Testing**: Comprehensive testing on all platforms
+4. **Documentation**: Update all documentation
+
+#### Release Preparation
+1. **Version Bumping**: Update version numbers
+2. **Release Notes**: Generate comprehensive release notes
+3. **Changelog**: Update changelog with all changes
+4. **Tagging**: Create release tags
+
+#### Release Execution
+1. **Build Generation**: Generate release builds
+2. **Testing**: Execute release candidate testing
+3. **Approval**: Get approval for release
+4. **Deployment**: Deploy to production
+
+#### Post-Release
+1. **Monitoring**: Monitor release performance
+2. **Feedback**: Collect user feedback
+3. **Hotfixes**: Address critical issues
+4. **Documentation**: Update post-release documentation
+
+### Release Channels
+
+#### Alpha Releases
+- **Purpose**: Internal testing and development
+- **Frequency**: Weekly
+- **Testing**: Basic functionality testing
+- **Distribution**: Internal team only
+
+#### Beta Releases
+- **Purpose**: External testing and feedback
+- **Frequency**: Bi-weekly
+- **Testing**: Comprehensive testing
+- **Distribution**: Beta testers and stakeholders
+
+#### Stable Releases
+- **Purpose**: Production deployment
+- **Frequency**: Monthly
+- **Testing**: Full test suite plus smoke tests
+- **Distribution**: All users
+
+## Platform-Specific Deployment
+
+### Android Deployment
+
+#### Build Configuration
+```gradle
+android {
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+    }
+}
 ```
 
-#### Feature Validation
+#### Deployment Steps
+1. **Build Generation**: Generate signed APK/AAB
+2. **Testing**: Execute device-specific tests
+3. **Upload**: Upload to Google Play Console
+4. **Review**: Wait for Google Play review
+5. **Release**: Release to production
+
+### iOS Deployment
+
+#### Build Configuration
 ```bash
-# Validate Whisper implementation
-cd docs/whisper/scripts
-./validate_cicd_pipeline.sh
+# Enable pnpm via Corepack
+corepack enable && pnpm --version
 
-# Validate CLIP implementation
-cd docs/clip/scripts
-./test_clip_pipeline.sh
+# Install deps and verify web build
+pnpm install --frozen-lockfile
+pnpm build
 
-# Validate infrastructure
-cd docs/infra/scripts
-./test_infrastructure_consistency.sh
+# Sync Capacitor iOS and CocoaPods
+pnpm exec cap sync ios
+cd ios/App && pod install --repo-update && cd -
+
+# Bump build number, archive Release
+cd ios/App
+agvtool next-version -all
+cd -
+xcodebuild -workspace ios/App/App.xcworkspace \
+  -scheme App -configuration Release \
+  -destination 'generic/platform=iOS' \
+  -allowProvisioningUpdates \
+  clean archive \
+  -archivePath ios/build/App.xcarchive
 ```
+
+#### Deployment Steps
+1. **Build Generation**: Generate iOS archive
+2. **Testing**: Execute iOS-specific tests
+3. **Upload**: Upload to App Store Connect
+4. **Review**: Wait for Apple review
+5. **Release**: Release to App Store
+
+### macOS Web Deployment
+
+#### Build Configuration
+```bash
+# Build web version
+pnpm build
+
+# Deploy to web server
+rsync -avz dist/ user@server:/var/www/videoeditor/
+```
+
+#### Deployment Steps
+1. **Build Generation**: Generate web build
+2. **Testing**: Execute web-specific tests
+3. **Upload**: Upload to web server
+4. **CDN**: Update CDN cache
+5. **Release**: Release to production
 
 ## Monitoring and Alerting
 
-### Build Monitoring
-- **Build Status**: Real-time build status tracking
-- **Build Duration**: Performance monitoring
-- **Failure Alerts**: Immediate notification on failures
-- **Trend Analysis**: Historical build performance
+### Performance Monitoring
+- **Build Times**: Monitor build duration
+- **Test Execution**: Monitor test execution time
+- **Deployment Success**: Monitor deployment success rate
+- **Error Rates**: Monitor error rates
 
-### Release Monitoring
-- **Deployment Status**: Real-time deployment tracking
-- **Rollback Capability**: Quick rollback on issues
-- **Health Checks**: Post-deployment validation
-- **User Feedback**: Automated feedback collection
+### Alerting Configuration
+- **Build Failures**: Immediate alerts for build failures
+- **Test Failures**: Alerts for test failures
+- **Deployment Issues**: Alerts for deployment problems
+- **Performance Degradation**: Alerts for performance issues
 
 ## Troubleshooting
 
-### Common CI/CD Issues
-
-#### Build Failures
-1. **Dependency Issues**: Check package versions and compatibility
-2. **Environment Issues**: Verify build environment setup
-3. **Resource Issues**: Check memory and disk space
-4. **Network Issues**: Verify network connectivity
-
-#### Test Failures
-1. **Flaky Tests**: Identify and fix unstable tests
-2. **Environment Dependencies**: Ensure test environment consistency
-3. **Data Issues**: Check test data integrity
-4. **Timing Issues**: Add proper waits and timeouts
-
-#### Deployment Issues
-1. **Configuration Issues**: Verify deployment configuration
-2. **Permission Issues**: Check deployment permissions
-3. **Resource Issues**: Ensure sufficient resources
-4. **Network Issues**: Verify network connectivity
+### Common Issues
+1. **Build Failures**: Check build configuration and dependencies
+2. **Test Failures**: Review test logs and fix issues
+3. **Deployment Issues**: Verify deployment configuration
+4. **Performance Issues**: Monitor resource usage and optimize
 
 ### Debug Tools
 - **Build Logs**: Detailed build execution logs
-- **Test Reports**: Comprehensive test result reports
-- **Deployment Logs**: Step-by-step deployment logs
-- **Performance Metrics**: Build and deployment performance data
+- **Test Reports**: Comprehensive test execution reports
+- **Deployment Logs**: Detailed deployment logs
+- **Performance Metrics**: Real-time performance monitoring
 
-## Best Practices
+## Scoped Storage CI/CD Integration
 
-### Development
-- **Small Commits**: Frequent, small commits
-- **Descriptive Messages**: Clear commit and PR descriptions
-- **Code Reviews**: Thorough code review process
-- **Testing**: Comprehensive testing before merge
+### Scoped Storage Pipeline
+- **Compliance Check**: Automated scoped storage compliance verification
+- **Architecture Validation**: Verification of scoped storage architecture
+- **Build Integration**: Scoped storage module build verification
+- **Test Execution**: Comprehensive scoped storage testing
+- **Deployment Ready**: Production-ready scoped storage implementation
 
-### Release Management
-- **Semantic Versioning**: Consistent version numbering
-- **Release Notes**: Clear release documentation
-- **Rollback Plan**: Prepared rollback procedures
-- **Monitoring**: Post-release monitoring
+### Scoped Storage Status: ✅ WORKING
+- **Implementation**: Complete and verified
+- **Compliance**: All Android scoped storage requirements met
+- **Testing**: Comprehensive test suite passing
+- **CI/CD**: Fully integrated and operational
+- **Production Ready**: Yes, ready for deployment
 
-### Security
-- **Secrets Management**: Secure handling of secrets
-- **Dependency Scanning**: Regular dependency updates
-- **Code Scanning**: Automated security scanning
-- **Access Control**: Proper access management
+### Verification Scripts
+- **Primary**: `ops/verify_A_scoped_storage.sh`
+- **Enhanced**: `scripts/verify_scoped_storage_cicd.sh`
+- **GitHub Actions**: `.github/workflows/scoped-storage-cicd.yml`
 
----
+## Future Enhancements
 
-**Last Updated**: October 8, 2025  
-**Version**: 1.0  
-**Status**: Production Ready
+### Planned Features
+- **Automated Testing**: Enhanced automated testing capabilities
+- **Performance Optimization**: Improved build and deployment performance
+- **Security Enhancement**: Enhanced security scanning and validation
+- **Documentation Automation**: Automated documentation generation
+- **Scoped Storage Monitoring**: Enhanced scoped storage compliance monitoring
+
+### Performance Targets
+- **Build Time**: <10 minutes for full build
+- **Test Execution**: <5 minutes for full test suite
+- **Deployment Time**: <2 minutes for deployment
+- **Error Rate**: <1% error rate
+- **Scoped Storage Compliance**: 100% compliance maintained

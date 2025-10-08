@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Storage permissions for Auto-Clipper -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" 
+        tools:ignore="ScopedStorage" />
+    
+    <!-- Android 13+ (API 33+) media permissions -->
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    
+    <!-- Camera permission for future video recording features -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    
+    <!-- Audio permissions for whisper.cpp ASR -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    
+    <!-- Notification permission for Android 13+ -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    
+    <!-- Optional (for OEM kill policies + long runs) -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    
+    <!-- Network permission for future cloud features -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    
+    <!-- WebView permissions -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    
+    <!-- Vulkan feature declarations -->
+    <uses-sdk android:minSdkVersion="24" />
+    <uses-feature android:name="android.hardware.vulkan.version"
+                  android:version="0x00400003"
+                  android:required="false"/>
+    <uses-feature android:name="android.hardware.vulkan.level"
+                  android:version="0"
+                  android:required="false"/>
+    
+    <!-- Hardware features -->
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+    <uses-feature android:name="android.hardware.microphone" android:required="false" />
+    
+    <!-- Screen size support -->
+    <supports-screens
+        android:smallScreens="true"
+        android:normalScreens="true"
+        android:largeScreens="true"
+        android:xlargeScreens="true" />
+
+    <application
+        android:name="com.mira.clip.Clip4ClipApplication"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Mira"
+        android:hardwareAccelerated="false"
+        android:vmSafeMode="true"
+        android:largeHeap="true"
+        android:requestLegacyExternalStorage="true"
+        android:extractNativeLibs="false"
+        android:usesCleartextTraffic="true"
+        tools:targetApi="31">
+        
+
+        <!-- Main Activity - Whisper Main Interface -->
+        <activity 
+            android:name="com.mira.whisper.WhisperMainActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Mira">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="video/*" android:scheme="file" />
+            </intent-filter>
+        </activity>
+
+        <!-- Whisper File Selection Activity (Secondary) -->
+        <activity 
+            android:name="com.mira.whisper.WhisperFileSelectionActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Mira">
+            <!-- File association for video files -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="video/*" />
+            </intent-filter>
+        </activity>
+
+        <!-- Whisper Processing Activity -->
+        <activity
+            android:name="com.mira.whisper.WhisperProcessingActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Mira" />
+
+
+        
+        
+        <!-- Video Whisper Service - Background whisper.cpp processing -->
+        <service 
+            android:name="com.mira.whisper.VideoWhisperService"
+            android:enabled="true"
+            android:exported="false" />
+        
+        <!-- Mic Service - Foreground microphone service for real-time ASR -->
+        <service
+            android:name="com.mira.whisper.MicService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="microphone" />
+        
+        <!-- Device Resource Service - Background resource monitoring -->
+        <service
+            android:name="com.mira.resource.DeviceResourceService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+        
+        <!-- Direct Whisper Service - Direct processing without broadcast/receiver pattern -->
+        <service
+            android:name="com.mira.com.feature.whisper.service.DirectWhisperService"
+            android:enabled="true"
+            android:exported="true"
+            android:foregroundServiceType="dataSync" />
+        
+        <!-- Whisper Connector Service - Foreground service for headless background processing -->
+        <service
+            android:name="com.mira.com.feature.whisper.service.WhisperConnectorService"
+            android:exported="false"
+            android:stopWithTask="false"
+            android:foregroundServiceType="dataSync" />
+        
+        <!-- Removed OrchestrationReceiver; class not present in app module -->
+        
+        <!-- Production CLIP receiver removed - class not available in app module -->
+        <!-- The ClipReceiver is in the feature/clip module -->
+        
+        <!-- All broadcast receivers removed - replaced with modern Android patterns -->
+        
+        <!-- File Provider for sharing exported videos -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+        
+        <!-- Xiaomi Store metadata -->
+        <meta-data android:name="xiaomi_app_id" android:value="${xiaomi_app_id}" />
+        <meta-data android:name="xiaomi_app_key" android:value="your_xiaomi_app_key" />
+        
+    </application>
+</manifest>

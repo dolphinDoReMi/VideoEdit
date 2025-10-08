@@ -21,14 +21,16 @@ Got it, Dennis. Below is a full-scale, production-ready Android/Kotlin implement
 - **MediaCodec vs FFmpeg**: native, HW-assisted, small footprint vs broader codec coverage. We choose MediaCodec (no FFmpeg)
 - **Resampler**: windowed-sinc (best), polyphase (great), linear (good & simple). We ship linear first (fast, no deps), keep interface pluggable
 - **PTS**: extract extractor PTS; for decoded PCM we track a sample index → PTS affine map (monotonic fallback)
-- **Memory**: stream to disk (.pcm) vs RAM. We support both; default is stream to disk to avoid OOM on long media
+- **Memory**: **STREAMING APPROACH** - O(1) memory usage with direct sink writing, eliminates OutOfMemoryError on long media
+- **Timeout Strategy**: **DURATION-AWARE** - Dynamic timeout based on media duration (3x safety factor) instead of fixed 30s limit
+- **Progress Monitoring**: **BYTE-BASED** - Track PCM output bytes with inactivity detection to distinguish slow-but-healthy from stuck
 
 ### 3/ Design
 
 **Pipeline:**
 ```
-Broadcast (ACTION_DECODE_URI) → WorkManager DecodeWorker → DecodePipeline.decodeUriToMono16k()
-→ (WavReader | AacDecoder) → Normalizer (downmix+resample) → PcmWriter (.pcm + .json)
+Broadcast (ACTION_DECODE_URI) → WorkManager DecodeWorker → StreamingDecodePipeline.decodeUriToMono16k()
+→ (WavReader | AacDecoder) → Normalizer (downmix+resample) → StreamingPcmWriter (.pcm + .json)
 ```
 
 **Key Control-knots (all exposed):**
@@ -41,6 +43,10 @@ Broadcast (ACTION_DECODE_URI) → WorkManager DecodeWorker → DecodePipeline.de
 - `TIMESTAMP_POLICY` (ExtractorPTS | Monotonic)
 - `OUTPUT_MODE` (FILE | RAM)
 - `SAVE_SIDE_CAR` (true) – codec, bit-rate, in/out SR/CH, length, SHA256 of PCM
+- **`SAFETY_FACTOR`** (default 3.0) – Duration multiplier for timeout calculation
+- **`INACTIVITY_TIMEOUT_MS`** (default 15000) – No-progress timeout threshold
+- **`MIN_WALL_MS`** (default 30000) – Minimum timeout in milliseconds
+- **`MAX_WALL_MS`** (default 600000) – Maximum timeout cap in milliseconds
 
 **Isolation & namespacing:**
 - Broadcast actions: `${applicationId}.action.DECODE_URI`
@@ -50,18 +56,20 @@ Broadcast (ACTION_DECODE_URI) → WorkManager DecodeWorker → DecodePipeline.de
 
 ### 4/ Prioritization & Rationale
 
-- **P0**: WAV/AAC decode, downmix, resample, sidecar, namespaced broadcasts & jobs
-- **P1**: Opus/MP3 support (MediaCodec), streaming mic via AudioRecord, progress callbacks
-- **P2**: Sinc resampler, on-device health metrics, codec-simulation augment toggles
+- **P0**: WAV/AAC decode, downmix, resample, sidecar, namespaced broadcasts & jobs, **streaming memory management**
+- **P1**: Opus/MP3 support (MediaCodec), streaming mic via AudioRecord, progress callbacks, **duration-aware timeouts**
+- **P2**: Sinc resampler, on-device health metrics, codec-simulation augment toggles, **progress monitoring**
+
+**See [Audio Extraction Streaming Design](./Audio_Extraction_Streaming_Design.md) for complete implementation details of the streaming approach.**
 
 ### 5/ Workplan to Execute
 
 1. Scaffold project + build variants (keep applicationId intact; add .debug)
-2. Implement I/O (WAV reader, AAC decoder) + Normalizer (downmix/resample)
+2. Implement **streaming I/O** (WAV reader, AAC decoder) + Normalizer (downmix/resample) with **O(1) memory usage**
 3. Pipeline + WorkManager + BroadcastReceiver with ${applicationId} actions
-4. Writers: .pcm (LE int16) + .json sidecar (audit)
+4. **Streaming writers**: .pcm (LE int16) + .json sidecar (audit) with **progress monitoring**
 5. E2E test via ADB broadcast on both release and debug APKs (install side-by-side)
-6. Bench/verify: sample-accurate length, SR/CH post-conditions, monotonic PTS, SHA256
+6. Bench/verify: sample-accurate length, SR/CH post-conditions, monotonic PTS, SHA256, **memory usage O(1)**
 
 ### 6/ Implementation (runnable Kotlin & Gradle)
 
@@ -176,7 +184,7 @@ The Whisper system implements a robust app-scoped storage solution that eliminat
 
 **Storage Paths:**
 - **Old Path**: `/sdcard/MiraWhisper/sidecars` (requires permissions, prone to EPERM)
-- **New Path**: `/sdcard/Android/data/com.mira.com/files/MiraWhisper/out/{jobId}/sidecars/` (no permissions needed)
+- **New Path**: `/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/out/{jobId}/sidecars/` (no permissions needed)  // ENFORCED: Correct scoped storage path
 - **Backward Compatibility**: Reading checks both old and new locations
 
 **Key Features:**
@@ -196,3 +204,119 @@ The Whisper system implements a robust app-scoped storage solution that eliminat
 - **Whisper Worker**: `feature/whisper/src/main/java/com/mira/com/feature/whisper/runner/TranscribeWorker.kt`
 - **Android Bridge**: `app/src/main/java/com/mira/whisper/AndroidWhisperBridge.kt`
 - **Storage System**: `feature/whisper/src/main/java/com/mira/com/feature/whisper/storage/`
+
+## Audio Extraction Issues & Solutions
+
+### Root Cause Analysis
+
+#### Primary Issue: Android Scoped Storage Enforcement
+The `MediaExtractor.setDataSource(Context, Uri, Map<String, String>)` method **fails silently** when given scoped storage URIs on Android 11+ with scoped storage enforcement.
+
+**Evidence from logs:**
+```
+10-08 14:47:38.056 27262 28942 E AudioIO : TECHNICAL: Failed to set data source for file:///storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/in/tennis_interview_clip_002.mp4: Failed to instantiate extractor.
+```
+
+#### Working vs Failing Comparison
+- ✅ `/data/local/tmp/test_10s.mp4` → 160,085 samples, 10,005ms (WORKS)
+- ❌ `/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/in/tennis_interview_clip_002.mp4` → 0 samples, 0ms (FAILS)
+
+#### Memory Management Problems
+**Location**: `feature/whisper/src/main/java/com/mira/com/feature/whisper/data/io/AudioIO.kt:168`
+
+**Error**: 
+```
+OutOfMemoryError: Failed to allocate a 16 byte allocation with 260952 free bytes and 254KB until OOM, 
+target footprint 536870912, growth limit 536870912
+```
+
+**Root Causes**:
+- **Memory Accumulation**: The `outPcm` ArrayList was accumulating all audio samples in memory
+- **Inefficient Data Structure**: Using `ArrayList<Short>()` for large audio buffers
+- **No Streaming Processing**: Loading entire audio into memory before processing
+- **Fixed Timeout Issues**: 30-second timeout killed good jobs on long videos
+
+### Complete Solution
+
+#### FileDescriptor Approach (Primary Fix)
+Replace the current `MediaExtractor` initialization in `AudioIO.kt` with the FileDescriptor approach:
+
+```kotlin
+private fun decodeAacMp4(ctx: Context, uri: Uri): PCM {
+    val extractor = MediaExtractor()
+    try {
+        // Use FileDescriptor approach for scoped storage compatibility
+        val resolver: ContentResolver = ctx.contentResolver
+        val pfd = resolver.openFileDescriptor(uri, "r")
+            ?: throw Exception("Cannot open input: $uri")
+        val fd: FileDescriptor = pfd.fileDescriptor
+        
+        extractor.setDataSource(fd)
+        
+        // Ensure we close the FileDescriptor when done
+        // ... rest of extraction logic ...
+        extractor.release()
+        pfd.close()
+    } catch (e: Exception) {
+        Log.e("AudioIO", "TECHNICAL: Failed to set data source for $uri: ${e.message}")
+        return tryAlternativeExtraction(ctx, uri)
+    }
+    // ... rest of method
+}
+```
+
+#### Streaming Processing (Memory Fix)
+Implement streaming processing to avoid memory accumulation:
+
+```kotlin
+private fun decodeAacMp4Streaming(ctx: Context, uri: Uri): PCM {
+    val extractor = MediaExtractor()
+    val resolver: ContentResolver = ctx.contentResolver
+    val pfd = resolver.openFileDescriptor(uri, "r")
+        ?: throw Exception("Cannot open input: $uri")
+    val fd: FileDescriptor = pfd.fileDescriptor
+    
+    extractor.setDataSource(fd)
+    
+    // Stream processing instead of accumulating in memory
+    val audioTrack = findAudioTrack(extractor)
+    extractor.selectTrack(audioTrack)
+    
+    val bufferInfo = MediaCodec.BufferInfo()
+    val buffer = ByteBuffer.allocate(1024 * 1024) // 1MB buffer
+    
+    while (true) {
+        val sampleSize = extractor.readSampleData(buffer, 0)
+        if (sampleSize < 0) break
+        
+        // Process chunk directly without storing in memory
+        processAudioChunk(buffer, sampleSize)
+        
+        extractor.advance()
+    }
+    
+    extractor.release()
+    pfd.close()
+}
+```
+
+#### Duration-Aware Timeouts
+Replace fixed timeouts with duration-aware timeouts:
+
+```kotlin
+private fun calculateTimeout(durationMs: Long): Long {
+    return when {
+        durationMs < 30000 -> 30000 // 30s for short files
+        durationMs < 300000 -> durationMs + 10000 // +10s for medium files
+        else -> durationMs + 30000 // +30s for long files
+    }
+}
+```
+
+### Benefits of Complete Solution
+1. **Scoped Storage Compatible**: Works with all Android versions and storage types
+2. **Memory Efficient**: O(1) memory usage regardless of file size
+3. **Reliable**: Uses Android's proper URI resolution mechanisms
+4. **Proven**: Already working in `PcmExtractor.kt`
+5. **Performance**: No file copying required
+6. **Scalable**: Handles files of any size

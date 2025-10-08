@@ -1,309 +1,280 @@
-# Cursor Rules
+# Cursor Rules for VideoEditor Project
 
-## Development Guidelines and Standards
+## Project Overview
+This is a multi-platform video processing application combining CLIP video clipping and Whisper audio transcription across Android, iOS, and macOS web platforms.
 
-This document outlines the development guidelines, coding standards, and best practices for the VideoEdit multi-modal AI video processing platform.
+## Code Style and Standards
 
-## Code Organization
+### Kotlin/Android
+- Follow Kotlin coding conventions
+- Use meaningful variable and function names
+- Prefer immutable data structures
+- Use coroutines for asynchronous operations
+- Follow Android architecture guidelines (MVVM)
 
-### Project Structure
-```
-VideoEdit/
-├── app/                    # Main Android application
-├── feature/                # Feature modules
-│   ├── whisper/           # Whisper ASR implementation
-│   ├── clip/              # CLIP visual understanding
-│   └── infra/             # Infrastructure services
-├── core/                  # Shared core functionality
-├── docs/                  # Comprehensive documentation
-│   ├── whisper/          # Whisper documentation
-│   ├── clip/             # CLIP documentation
-│   ├── infra/            # Infrastructure documentation
-│   └── CICD & Release Guide/ # CI/CD documentation
-└── scripts/               # Utility scripts
-```
+### TypeScript/Web
+- Use TypeScript strict mode
+- Follow ESLint configuration
+- Use meaningful variable and function names
+- Prefer functional programming patterns
+- Use modern ES6+ features
 
-### Module Dependencies
-- **Core**: Shared utilities, data models, and common functionality
-- **Feature Modules**: Self-contained feature implementations
-- **App**: Main application with feature integration
-- **Docs**: Comprehensive documentation and scripts
+### Documentation
+- Write comprehensive JSDoc/KDoc comments
+- Update README files for new features
+- Document all public APIs
+- Include usage examples
 
-## Coding Standards
+## Architecture Guidelines
 
-### Kotlin (Android)
-```kotlin
-// Use data classes for immutable data
-data class WhisperResult(
-    val segments: List<Segment>,
-    val language: String,
-    val confidence: Float
-)
+### Service Architecture
+- Use foreground services for long-running operations
+- Implement proper service lifecycle management
+- Use WorkManager for background tasks
+- Implement proper error handling and recovery
 
-// Use sealed classes for state management
-sealed class ProcessingState {
-    object Idle : ProcessingState()
-    data class Processing(val progress: Float) : ProcessingState()
-    data class Completed(val result: WhisperResult) : ProcessingState()
-    data class Error(val exception: Throwable) : ProcessingState()
-}
+### Data Flow
+- Use unidirectional data flow
+- Implement proper state management
+- Use dependency injection where appropriate
+- Follow reactive programming patterns
 
-// Use extension functions for utility functions
-fun Context.getExternalFilesDir(): File = getExternalFilesDir(null) ?: filesDir
+### Resource Management
+- Implement proper memory management
+- Use resource pooling where appropriate
+- Monitor resource usage
+- Implement proper cleanup
 
-// Use coroutines for async operations
-suspend fun processAudio(audioFile: File): WhisperResult = withContext(Dispatchers.IO) {
-    // Processing logic
-}
-```
+## Testing Requirements
 
-### TypeScript (Web)
-```typescript
-// Use interfaces for type definitions
-interface WhisperConfig {
-  modelPath: string;
-  sampleRate: number;
-  channels: number;
-  language: string;
-  translate: boolean;
-}
+### Unit Tests
+- Write unit tests for all new features
+- Aim for 80%+ code coverage
+- Use mock objects for dependencies
+- Test error conditions and edge cases
 
-// Use enums for constants
-enum ProcessingState {
-  Idle = 'idle',
-  Processing = 'processing',
-  Completed = 'completed',
-  Error = 'error'
-}
+### Integration Tests
+- Write integration tests for service interactions
+- Test cross-module integration
+- Test device-specific functionality
+- Test performance characteristics
 
-// Use async/await for async operations
-async function processAudio(audioFile: File): Promise<WhisperResult> {
-  const result = await whisperEngine.transcribe(audioFile);
-  return result;
-}
-```
+### Device Tests
+- Test on Xiaomi Pad 7 Ultra (primary Android target)
+- Test on iPad (primary iOS target)
+- Test various screen resolutions
+- Test different hardware configurations
 
-### Swift (iOS)
-```swift
-// Use structs for data models
-struct WhisperResult {
-    let segments: [Segment]
-    let language: String
-    let confidence: Float
-}
+## Performance Guidelines
 
-// Use enums for state management
-enum ProcessingState {
-    case idle
-    case processing(Float)
-    case completed(WhisperResult)
-    case error(Error)
-}
+### Memory Management
+- Monitor memory usage
+- Implement proper garbage collection
+- Use streaming processing for large files
+- Implement memory limits and monitoring
 
-// Use async/await for async operations
-func processAudio(audioFile: URL) async throws -> WhisperResult {
-    let result = try await whisperEngine.transcribe(audioFile: audioFile)
-    return result
-}
-```
+### CPU Optimization
+- Use appropriate thread counts
+- Implement thermal management
+- Use GPU acceleration where available
+- Monitor CPU usage
+
+### Battery Optimization
+- Minimize background processing
+- Use efficient algorithms
+- Implement battery monitoring
+- Optimize for mobile devices
+
+## Security Guidelines
+
+### Data Protection
+- Use app-scoped storage
+- Implement proper permission handling
+- Encrypt sensitive data
+- Follow security best practices
+
+### Input Validation
+- Validate all user inputs
+- Sanitize file paths
+- Check file formats
+- Implement proper error handling
 
 ## Documentation Standards
 
-### Architecture Documentation
-- **Status**: Current implementation status
-- **Control Knots**: Key configuration parameters
-- **Implementation**: Technical implementation details
-- **Verification**: Testing and validation procedures
-
 ### Code Documentation
-```kotlin
-/**
- * Processes audio file using Whisper ASR engine
- * 
- * @param audioFile Input audio file
- * @param config Whisper configuration parameters
- * @return WhisperResult with transcription segments
- * @throws ProcessingException if processing fails
- */
-suspend fun processAudio(
-    audioFile: File,
-    config: WhisperConfig
-): WhisperResult {
-    // Implementation
-}
-```
+- Document all public APIs
+- Include usage examples
+- Document configuration options
+- Explain complex algorithms
 
-### API Documentation
-- **Endpoint**: API endpoint URL
-- **Method**: HTTP method (GET, POST, PUT, DELETE)
-- **Parameters**: Request parameters and types
-- **Response**: Response format and status codes
-- **Examples**: Usage examples
+### Architecture Documentation
+- Document system architecture
+- Explain design decisions
+- Document control knots
+- Include performance metrics
 
-## Testing Standards
+### User Documentation
+- Write clear user guides
+- Include troubleshooting sections
+- Document known limitations
+- Provide examples
 
-### Unit Tests
-```kotlin
-@Test
-fun `processAudio should return valid result for valid input`() = runTest {
-    // Given
-    val audioFile = createTestAudioFile()
-    val config = WhisperConfig.default()
-    
-    // When
-    val result = whisperEngine.processAudio(audioFile, config)
-    
-    // Then
-    assertThat(result.segments).isNotEmpty()
-    assertThat(result.language).isEqualTo("en")
-    assertThat(result.confidence).isGreaterThan(0.8f)
-}
-```
+## Git Workflow
 
-### Integration Tests
-```kotlin
-@Test
-fun `whisper pipeline should process video file end-to-end`() = runTest {
-    // Given
-    val videoFile = createTestVideoFile()
-    
-    // When
-    val result = processVideo(videoFile)
-    
-    // Then
-    assertThat(result.transcript).isNotEmpty()
-    assertThat(result.clips).isNotEmpty()
-    assertThat(result.metadata).isNotNull()
-}
-```
+### Branch Naming
+- `feature/feature-name` for new features
+- `bugfix/bug-description` for bug fixes
+- `hotfix/critical-fix` for critical fixes
+- `release/version-number` for releases
 
-### E2E Tests
-```bash
-#!/bin/bash
-# Test complete pipeline
-cd docs/whisper/scripts
-./test_comprehensive_pipeline.sh
+### Commit Messages
+- Use conventional commit format
+- Include descriptive messages
+- Reference issues where appropriate
+- Keep commits atomic
 
-# Test CLIP integration
-cd ../clip/scripts
-./test_clip_pipeline.sh
+### Pull Requests
+- Include comprehensive descriptions
+- Reference related issues
+- Include testing information
+- Request appropriate reviewers
 
-# Test infrastructure
-cd ../infra/scripts
-./test_infrastructure_consistency.sh
-```
+## Build and Deployment
 
-## Performance Standards
+### Android
+- Use Gradle build system
+- Follow Android build conventions
+- Implement proper signing
+- Use ProGuard for release builds
 
-### Memory Management
-- **Streaming Processing**: For files >100MB to prevent OOM
-- **Model Loading**: Lazy loading of ML models
-- **Cache Management**: Intelligent caching with size limits
-- **Memory Monitoring**: Real-time memory usage tracking
+### iOS
+- Use Xcode build system
+- Follow iOS build conventions
+- Implement proper code signing
+- Use appropriate provisioning profiles
 
-### CPU Optimization
-- **Threading**: Configurable thread count based on device capabilities
-- **Background Processing**: WorkManager for background tasks
-- **Resource Monitoring**: CPU usage tracking and optimization
-- **Thermal Management**: Thread count optimization for device thermals
+### Web
+- Use modern build tools
+- Implement proper bundling
+- Use CDN for assets
+- Implement proper caching
 
-### Storage Optimization
-- **App-Scoped Storage**: Use app-scoped storage instead of public directories
-- **Atomic Writes**: Temp file + rename pattern for data integrity
-- **Compression**: Use compressed model formats (GGUF)
-- **Cleanup**: Automatic cleanup of temporary files
+## Monitoring and Logging
 
-## Security Standards
+### Logging
+- Use appropriate log levels
+- Include contextual information
+- Implement log rotation
+- Use structured logging
 
-### Data Protection
-- **Encryption**: Encrypt sensitive data at rest and in transit
-- **Authentication**: Secure authentication mechanisms
-- **Authorization**: Proper access control and permissions
-- **Audit Logging**: Comprehensive audit trails
+### Monitoring
+- Monitor performance metrics
+- Track error rates
+- Monitor resource usage
+- Implement alerting
 
-### Code Security
-- **Dependency Scanning**: Regular security scanning of dependencies
-- **Code Analysis**: Static code analysis for security vulnerabilities
-- **Secrets Management**: Secure handling of API keys and secrets
-- **Input Validation**: Proper validation of user inputs
+### Analytics
+- Track user behavior
+- Monitor feature usage
+- Track performance metrics
+- Implement crash reporting
 
 ## Error Handling
 
-### Exception Handling
-```kotlin
-try {
-    val result = processAudio(audioFile, config)
-    return Result.success(result)
-} catch (e: SecurityException) {
-    Log.e(TAG, "Security error: ${e.message}", e)
-    return Result.retry()
-} catch (e: IOException) {
-    Log.e(TAG, "I/O error: ${e.message}", e)
-    return Result.retry()
-} catch (e: Exception) {
-    Log.e(TAG, "Unexpected error: ${e.message}", e)
-    return Result.failure()
-}
-```
+### Error Types
+- Network errors
+- File system errors
+- Processing errors
+- User input errors
 
 ### Error Recovery
-- **Retry Logic**: Exponential backoff for transient failures
-- **Fallback Mechanisms**: Graceful degradation when possible
-- **User Feedback**: Clear error messages for users
-- **Logging**: Comprehensive error logging for debugging
+- Implement retry mechanisms
+- Provide fallback options
+- Graceful degradation
+- User-friendly error messages
 
-## Deployment Standards
+### Error Reporting
+- Log detailed error information
+- Include stack traces
+- Report to monitoring systems
+- Provide user feedback
 
-### Build Configuration
-- **Debug Builds**: Development and testing builds
-- **Release Builds**: Production-ready builds with optimizations
-- **Staging Builds**: Pre-production testing builds
-- **Version Management**: Semantic versioning (MAJOR.MINOR.PATCH)
+## Platform-Specific Considerations
 
-### Release Process
-1. **Feature Development**: Develop features in feature branches
-2. **Code Review**: Thorough code review process
-3. **Testing**: Comprehensive testing including unit, integration, and E2E tests
-4. **Release Preparation**: Update version numbers and documentation
-5. **Deployment**: Automated deployment to staging and production
-6. **Monitoring**: Post-deployment monitoring and validation
+### Android
+- Use Android-specific APIs
+- Follow Material Design guidelines
+- Implement proper lifecycle management
+- Use Android-specific optimizations
+
+### iOS
+- Use iOS-specific APIs
+- Follow Human Interface Guidelines
+- Implement proper lifecycle management
+- Use iOS-specific optimizations
+
+### Web
+- Use web-specific APIs
+- Follow web accessibility guidelines
+- Implement proper error handling
+- Use web-specific optimizations
+
+## Performance Targets
+
+### CLIP Processing
+- Frame processing: <0.1s per frame
+- Memory usage: <200MB peak
+- Accuracy: 95%+ on benchmarks
+- Battery impact: <1% per hour
+
+### Whisper Processing
+- Processing speed: RTF <0.1
+- Memory usage: <100MB peak
+- Accuracy: 95%+ on benchmarks
+- Battery impact: <2% per hour
+
+### Infrastructure
+- Hash calculation: <1ms per MB
+- Storage savings: 40% reduction
+- Error rate: <0.1%
+- Background impact: <1% CPU
 
 ## Quality Assurance
 
-### Code Quality
-- **Linting**: ESLint, Prettier, Detekt for code quality
-- **Type Checking**: TypeScript, Kotlin type checking
-- **Code Coverage**: Minimum 80% test coverage
-- **Performance**: Performance benchmarks and monitoring
+### Code Review
+- Review all code changes
+- Check for security issues
+- Verify performance impact
+- Ensure proper testing
 
-### Documentation Quality
-- **Accuracy**: Keep documentation up-to-date with code changes
-- **Completeness**: Comprehensive documentation for all features
-- **Clarity**: Clear and concise documentation
-- **Examples**: Practical examples and use cases
+### Testing
+- Run full test suite
+- Test on target devices
+- Verify performance metrics
+- Check error handling
 
-## Best Practices
+### Documentation
+- Update documentation
+- Verify accuracy
+- Include examples
+- Check completeness
 
-### Development
-- **Small Commits**: Frequent, small commits with clear messages
-- **Feature Branches**: Use feature branches for new development
-- **Code Reviews**: Thorough code review process
-- **Testing**: Write tests before implementing features (TDD)
+## Maintenance
 
-### Maintenance
-- **Regular Updates**: Keep dependencies and tools up-to-date
-- **Performance Monitoring**: Monitor performance metrics
-- **Error Tracking**: Track and analyze errors
-- **User Feedback**: Collect and act on user feedback
+### Regular Tasks
+- Update dependencies
+- Review security updates
+- Monitor performance
+- Update documentation
 
-### Collaboration
-- **Communication**: Clear communication in PRs and issues
-- **Documentation**: Keep documentation current and comprehensive
-- **Knowledge Sharing**: Share knowledge through documentation and code reviews
-- **Continuous Improvement**: Regular retrospectives and process improvements
+### Monitoring
+- Track performance metrics
+- Monitor error rates
+- Check resource usage
+- Review user feedback
 
----
-
-**Last Updated**: October 8, 2025  
-**Version**: 1.0  
-**Status**: Production Ready
+### Optimization
+- Identify bottlenecks
+- Optimize algorithms
+- Improve resource usage
+- Enhance user experience

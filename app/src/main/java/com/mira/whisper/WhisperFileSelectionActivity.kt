@@ -71,13 +71,21 @@ class WhisperFileSelectionActivity : AppCompatActivity() {
         webView = WebView(this)
         setContentView(webView)
         
-        // Configure WebView
+        // Configure WebView with crash-safe settings
         webView.settings.apply {
             javaScriptEnabled = true
             domStorageEnabled = true
             allowFileAccess = true
             allowContentAccess = true
+            
+            // Additional safety settings
+            mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE
+            useWideViewPort = true
+            loadWithOverviewMode = true
         }
+        
+        // Force software rendering to avoid Vulkan/GPU crashes
+        webView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null)
         
         // Initialize bridge
         bridge = AndroidWhisperBridge(this)

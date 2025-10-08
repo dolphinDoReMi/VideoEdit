@@ -1,9 +1,0 @@
-<manifest package="com.mira.com.feature.whisper"
-          xmlns:android="http://schemas.android.com/apk/res/android">
-
-  <!-- Note: No storage/media permissions; access via SAF (ACTION_OPEN_DOCUMENT) -->
-
-  <application>
-    <!-- Broadcast receivers removed - using direct instantiation instead -->
-  </application>
-</manifest>

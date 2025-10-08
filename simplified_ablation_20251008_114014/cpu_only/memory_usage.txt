@@ -1,2 +1,0 @@
-        TOTAL   566815   504404    19412      335   733108   863277   831018    27287
-           TOTAL PSS:   566815            TOTAL RSS:   733108       TOTAL SWAP PSS:      335

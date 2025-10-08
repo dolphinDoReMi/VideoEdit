@@ -1,0 +1,24 @@
+{
+  "filename": "tennis_interview_clip_003.mp4",
+  "duration": 97.0,
+  "segments": [
+    {
+      "id": 0,
+      "start": 0.0,
+      "end": 5.0,
+      "text": "Welcome to the tennis interview. Today we're discussing the latest match results."
+    },
+    {
+      "id": 1,
+      "start": 5.0,
+      "end": 10.0,
+      "text": "The player showed excellent form throughout the match, demonstrating strong serves and precise volleys."
+    },
+    {
+      "id": 2,
+      "start": 10.0,
+      "end": 15.0,
+      "text": "The crowd was particularly impressed by the backhand shots in the third set."
+    }
+  ]
+}

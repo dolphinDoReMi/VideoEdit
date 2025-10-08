@@ -1,3 +1,0 @@
-test_video_with_audio.mp4
-video_v1_device.mp4
-video_v1_long.mp4

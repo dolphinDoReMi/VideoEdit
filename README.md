@@ -211,21 +211,102 @@ Video/Audio Input → Format Detection → Parallel Processing → Integration �
 - **Storage**: App-scoped storage with atomic writes
 - **Resource Management**: Battery, storage, and memory constraints
 
+## Documentation Structure
+
+All documentation is organized by feature in the `/docs` directory with Scripts subdirectories:
+
+```
+docs/
+├── clip/                           # CLIP video clipping documentation
+│   ├── Architecture Design and Control Knot.md
+│   ├── Full scale implementation Details.md
+│   ├── XiaoMi Pad Inference Optimization.md
+│   ├── iPad Inference Optimization.md
+│   ├── README.md
+│   └── Scripts/                    # CLIP-related scripts
+│       ├── Verification Ops/       # Verification scripts
+│       └── [CLIP operation scripts]
+├── whisper/                        # Whisper audio transcription documentation
+│   ├── Architecture Design and Control Knot.md
+│   ├── Full scale implementation Details.md
+│   ├── XiaoMi Pad Inference Optimization.md
+│   ├── iPad Inference Optimization.md
+│   ├── README.md
+│   └── Scripts/                    # Whisper-related scripts
+│       └── [Whisper operation scripts]
+├── ui/                            # User interface documentation
+│   ├── Architecture Design and Control Knot.md
+│   ├── README.md
+│   └── Scripts/                   # UI-related scripts
+├── infra/                         # Infrastructure documentation
+│   ├── Architecture Design and Control Knot.md
+│   ├── Full scale implementation Details.md
+│   ├── XiaoMi Pad Inference Optimization.md
+│   ├── iPad Inference Optimization.md
+│   ├── README.md
+│   └── Scripts/                   # Infrastructure scripts
+│       ├── Verification Ops/      # Comprehensive verification scripts
+│       └── [Infrastructure operation scripts]
+├── CICD & Release Guide/         # CI/CD and release documentation
+│   ├── README.md
+│   ├── GitHub Guide.md
+│   ├── XiaoMi Pad Inference Optimization.md
+│   ├── iPad Inference Optimization.md
+│   └── Scripts/                   # CI/CD scripts
+├── cursor_rule.md                 # Cursor IDE rules
+└── README.md                     # Main documentation index
+```
+
+## Scripts Structure
+
+Scripts are organized by feature in their respective documentation directories:
+
+```
+docs/clip/Scripts/
+├── Verification Ops/               # CLIP verification scripts
+│   ├── verify-3page-flow.sh
+│   ├── verify-pipeline-xiaomi.sh
+│   └── verify-xiaomi-pad-ultra.sh
+├── check-autoclip-status.sh
+├── demo-autoclip.sh
+└── live-autoclip-example.sh
+
+docs/whisper/Scripts/
+├── verify-whisper-activity.sh
+├── verify-lid-implementation.sh
+├── bootstrap-whisper-model.sh
+└── download-whisper-model.sh
+
+docs/infra/Scripts/
+├── Verification Ops/              # Comprehensive verification scripts
+│   ├── verify_all.sh
+│   ├── verify_A_scoped_storage.sh
+│   ├── verify_B_capability_access.sh
+│   └── ... (all verify_* scripts)
+├── setup-scoped-storage.sh
+└── duplicate-check-control-knots-demo.sh
+
+docs/CICD & Release Guide/Scripts/
+├── cicd.sh
+├── deploy-feature.sh
+└── validate-cicd-pipeline.sh
+```
+
 ## Quick Start
 
 ### Installation
 ```bash
 # Deploy multilingual models
-cd docs/whisper/scripts
-./deploy_multilingual_models.sh
+docs/CICD\ &\ Release\ Guide/Scripts/deploy-multilingual-models.sh
 
 # Test CLIP integration
-cd docs/clip/scripts
-./video_audio_extraction_test.sh
+docs/clip/Scripts/Verification\ Ops/verify-3page-flow.sh
 
-# Run comprehensive test
-cd docs/whisper/scripts
-./work_through_video_v1.sh
+# Test Whisper functionality
+docs/whisper/Scripts/verify-whisper-activity.sh
+
+# Run comprehensive infrastructure test
+docs/infra/Scripts/Verification\ Ops/verify_all.sh
 ```
 
 ### Basic Usage
@@ -276,9 +357,10 @@ clips.forEach { clip ->
 ## Testing
 
 ### Test Scripts
-- **API Testing**: `docs/whisper/scripts/test_whisper_api.sh`
-- **CLIP Testing**: `docs/clip/scripts/video_audio_extraction_test.sh`
-- **Integration Testing**: `docs/whisper/scripts/work_through_video_v1.sh`
+- **CLIP Testing**: `docs/clip/Scripts/Verification Ops/verify-3page-flow.sh`
+- **Whisper Testing**: `docs/whisper/Scripts/verify-whisper-activity.sh`
+- **Infrastructure Testing**: `docs/infra/Scripts/Verification Ops/verify_all.sh`
+- **CICD Testing**: `docs/CICD & Release Guide/Scripts/validate-cicd-pipeline.sh`
 - **End-to-End**: Comprehensive testing with video clipping
 
 ### Validation

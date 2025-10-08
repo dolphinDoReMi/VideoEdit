@@ -21,21 +21,21 @@ object Config {
     
     /**
      * Default video path on Xiaomi Pad.
-     * This is the expected location for test videos.
+     * ENFORCED: Uses app-scoped storage for proper permissions.
      */
-    const val DEFAULT_VIDEO_PATH = "/sdcard/Movies/video_v1.mp4"
+    const val DEFAULT_VIDEO_PATH = "/storage/emulated/0/Android/data/com.mira.com/files/MiraClip/in/video_v1.mp4"
     
     /**
      * Root output directory for all mira_clip artifacts.
-     * All embeddings, search results, and logs go under this path.
+     * ENFORCED: Uses app-scoped storage for proper permissions.
      */
-    const val OUT_ROOT = "/sdcard/MiraClip/out"
+    const val OUT_ROOT = "/storage/emulated/0/Android/data/com.mira.com/files/MiraClip/out"
     
     /**
      * Input directory for manifest files.
-     * Ingest and search manifests are read from this location.
+     * ENFORCED: Uses app-scoped storage for proper permissions.
      */
-    const val IN_ROOT = "/sdcard/MiraClip/in"
+    const val IN_ROOT = "/storage/emulated/0/Android/data/com.mira.com/files/MiraClip/in"
     
     /**
      * Embeddings output directory.

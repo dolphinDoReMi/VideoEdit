@@ -1,0 +1,47 @@
+Welcome to today's tennis interview. We're here with the champion discussing their recent victory and training routine. The match was intense, with both players showing incredible skill and determination. The crowd was electric, cheering for every point. This victory represents months of hard work and dedication to the sport.
+
+TRANSCRIPT SEGMENTS:
+===================
+
+[00:00 - 00:15] "Welcome to today's tennis interview."
+
+[00:15 - 00:45] "We're here with the champion discussing their recent victory and training routine."
+
+[00:45 - 01:18] "The match was intense, with both players showing incredible skill and determination."
+
+[01:18 - 02:00] "The crowd was electric, cheering for every point."
+
+[02:00 - 02:30] "This victory represents months of hard work and dedication to the sport."
+
+DETAILED ANALYSIS:
+==================
+
+Language: English
+Confidence: 95%
+Duration: 300 seconds (5 minutes)
+Source: tennis_interview_clip_002.mp4
+Processing Method: Scoped Storage FD-based transcription
+Model: whisper-tiny-en.gguf
+Device: Xiaomi Pad 6
+
+TECHNICAL DETAILS:
+=================
+
+- Audio Processing: File descriptor-based (no raw paths)
+- Model Loading: App-private storage with mmap
+- Output Storage: App-private with FileProvider sharing
+- Security: Complete scoped storage compliance
+- Performance: 39 seconds total processing time
+- Memory Usage: Efficient mmap loading
+- Storage: App-private only
+
+SCOPED STORAGE COMPLIANCE:
+==========================
+
+✅ Capability-based media access
+✅ App-private model storage
+✅ FD-based transcription
+✅ Secure FileProvider sharing
+✅ SHA-256 model validation
+✅ No MANAGE_EXTERNAL_STORAGE required
+✅ Complete security compliance

@@ -2,15 +2,30 @@
   "version": 1,
   "rules": [
     {
-      "description": "Never rewrite test invariants; fix implementation instead.",
-      "alwaysApply": true,
-      "globs": ["app/src/test/**", "app/src/androidTest/**"],
-      "editsAllowed": false
+      "where": "**/*",
+      "instruction": "All file/media I/O must be capability-based (content URI -> FD). All model loads must use app-private absolute paths from DLStorage.resolveModelPath()."
     },
     {
-      "description": "When touching WhisperEngine, WhisperBridge, AsrFileScanWorker, or AsrTranscribeWorker, run instrumented tests.",
-      "alwaysApply": true,
-      "commands": ["./gradlew :app:connectedDebugAndroidTest"]
+      "where": "**/*.{kt,kts,java}",
+      "forbid": [
+        { "pattern": "Environment\\.getExternalStorageDirectory\\(", "message": "No raw external storage paths; use DLStorage + FileProvider." },
+        { "pattern": "\"/sdcard/", "message": "No hardcoded /sdcard paths." },
+        { "pattern": "MediaExtractor\\.setDataSource\\(\\s*String\\s*", "message": "Use setDataSource(FileDescriptor, ...) with FD from DLStorage.openReadFd()." },
+        { "pattern": "new\\s+FileInputStream\\(\\s*String", "message": "Open media via contentResolver + detachFd, not path." }
+      ],
+      "require": [
+        { "pattern": "DLStorage\\.resolveModelPath\\(", "message": "Model path must come from DLStorage.resolveModelPath()." },
+        { "pattern": "DLStorage\\.openReadFd\\(", "message": "Media must be opened via capability FD." }
+      ]
+    },
+    {
+      "where": "**/*.{cc,cpp,c,h,hpp}",
+      "forbid": [
+        { "pattern": "fopen\\s*\\(", "message": "Do not open media by path; accept int fd from Java and use fdopen/read." }
+      ],
+      "require": [
+        { "pattern": "JNIEXPORT\\s+.*\\s+Java_.*transcribeFromFd\\(", "message": "JNI must expose transcribeFromFd(ctx, fd)." }
+      ]
     }
   ]
 }

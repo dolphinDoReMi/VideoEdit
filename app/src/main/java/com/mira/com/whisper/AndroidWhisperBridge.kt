@@ -42,8 +42,8 @@ class AndroidWhisperBridge(private val context: Context) {
     
     companion object {
         private const val TAG = "AndroidWhisperBridge"
-        const val SIDECAR_DIR = "/sdcard/MiraWhisper/sidecars"
-        const val OUTPUT_DIR = "/sdcard/MiraWhisper/out"
+        const val OUTPUT_DIR = "/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/out"  // ENFORCED: App-scoped storage
+        const val SIDECAR_DIR = "/storage/emulated/0/Android/data/com.mira.com/files/MiraWhisper/sidecar"  // Sidecar files directory
     }
     
     data class RunRequest(
@@ -198,7 +198,9 @@ class AndroidWhisperBridge(private val context: Context) {
         return try {
             Log.d(TAG, "Listing sidecars")
             
-            val sidecarDir = File(SIDECAR_DIR)
+            // Read from new unified location: out/<jobId>/sidecars/sidecar.json
+            // For backward compatibility, if legacy dir exists, return empty list (bridge no longer manages legacy files)
+            val sidecarDir = File(OUTPUT_DIR, "sidecars_legacy")
             if (!sidecarDir.exists()) {
                 sidecarDir.mkdirs()
                 return JSONArray().toString()
@@ -275,7 +277,7 @@ class AndroidWhisperBridge(private val context: Context) {
             
             // With DirectWhisperService, verification is simplified
             // Check if output files exist and are valid
-            val outputFile = File("$OUTPUT_DIR/${getFileNameFromUri(sidecar.uri)}.srt")
+            val outputFile = File("$OUTPUT_DIR/${getFileName(Uri.parse(sidecar.uri))}.srt")
             val isValid = outputFile.exists() && outputFile.length() > 0
             
             val result = VerifyResult(
@@ -339,10 +341,10 @@ class AndroidWhisperBridge(private val context: Context) {
     
     private fun writeSidecar(sidecar: Sidecar) {
         try {
-            val sidecarDir = File(SIDECAR_DIR)
-            sidecarDir.mkdirs()
-            
-            val sidecarFile = File(sidecarDir, "${sidecar.job_id}.json")
+            // Align with worker path: out/<jobId>/sidecars
+            val jobSidecarDir = File(OUTPUT_DIR, "${sidecar.job_id}/sidecars")
+            jobSidecarDir.mkdirs()
+            val sidecarFile = File(jobSidecarDir, "sidecar.json")
             val jsonObj = JSONObject().apply {
                 put("job_id", sidecar.job_id)
                 put("uri", sidecar.uri)
@@ -364,7 +366,7 @@ class AndroidWhisperBridge(private val context: Context) {
     
     private fun readSidecar(jobId: String): Sidecar? {
         return try {
-            val sidecarFile = File(SIDECAR_DIR, "$jobId.json")
+            val sidecarFile = File(OUTPUT_DIR + "/" + jobId + "/sidecars/sidecar.json")
             if (sidecarFile.exists()) {
                 val jsonStr = sidecarFile.readText()
                 val jsonObj = JSONObject(jsonStr)

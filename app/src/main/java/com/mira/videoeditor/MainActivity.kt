@@ -16,7 +16,7 @@ import java.util.Timer
 import java.util.TimerTask
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.math.max
-import com.mira.whisper.AndroidWhisperBridge
+// import com.mira.whisper.AndroidWhisperBridge  // Commented out to fix import conflict
 import android.content.Intent
 
 class MainActivity : AppCompatActivity() {
@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             addJavascriptInterface(JavaScriptInterface(), "AndroidInterface")
-            addJavascriptInterface(AndroidWhisperBridge(this@MainActivity), "AndroidWhisper")
+            // addJavascriptInterface(AndroidWhisperBridge(this@MainActivity), "AndroidWhisper")  // Commented out to fix import conflict
             loadUrl("file:///android_asset/web/processing.html")
         }
         setContentView(webView)

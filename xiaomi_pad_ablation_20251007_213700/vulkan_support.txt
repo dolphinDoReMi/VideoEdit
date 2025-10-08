@@ -1,2 +1,0 @@
-vulkan_renderengine: false
-Vulkan: Supported
