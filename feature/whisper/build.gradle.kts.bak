@@ -58,6 +58,11 @@ android {
     jvmTarget = "17"
   }
   
+  // Prevent compression of Whisper model files
+  androidResources {
+    noCompress += listOf(".gguf", ".ggml", ".bin")
+  }
+  
   buildTypes {
     getByName("debug") {
       // Debug configuration

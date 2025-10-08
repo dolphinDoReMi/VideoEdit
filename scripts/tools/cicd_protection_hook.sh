@@ -6,6 +6,9 @@ set -euo pipefail
 
 echo "🔍 Checking for CI/CD modifications..."
 
+# Get current branch
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
 # Get list of staged files
 STAGED_FILES=$(git diff --cached --name-only)
 
@@ -17,6 +20,9 @@ CRITICAL_CICD_FILES=(
     ".github/workflows/release.yml"
 )
 
+# CI/CD workflow patterns that are protected
+CICD_WORKFLOW_PATTERN="\.github/workflows/.*\.yml$"
+
 # Check if any critical CI/CD files are being modified
 CICD_MODIFICATIONS=()
 for file in "${CRITICAL_CICD_FILES[@]}"; do
@@ -25,9 +31,73 @@ for file in "${CRITICAL_CICD_FILES[@]}"; do
     fi
 done
 
+# Check for NEW CI/CD workflow files being created
+NEW_CICD_WORKFLOWS=()
+for file in $STAGED_FILES; do
+    if echo "$file" | grep -qE "$CICD_WORKFLOW_PATTERN"; then
+        # Check if this is a new file (not in critical list)
+        is_critical=false
+        for critical_file in "${CRITICAL_CICD_FILES[@]}"; do
+            if [[ "$file" == "$critical_file" ]]; then
+                is_critical=true
+                break
+            fi
+        done
+        
+        if [ "$is_critical" = false ]; then
+            NEW_CICD_WORKFLOWS+=("$file")
+        fi
+    fi
+done
+
 # Initialize arrays if empty
 if [ ${#CICD_MODIFICATIONS[@]} -eq 0 ]; then
     CICD_MODIFICATIONS=()
+fi
+if [ ${#NEW_CICD_WORKFLOWS[@]} -eq 0 ]; then
+    NEW_CICD_WORKFLOWS=()
+fi
+
+# Check for NEW CI/CD workflow files first (highest priority)
+if [ ${#NEW_CICD_WORKFLOWS[@]} -gt 0 ]; then
+    echo "🚨 CRITICAL: New CI/CD workflow files are being created!"
+    echo ""
+    echo "New workflow files:"
+    for file in "${NEW_CICD_WORKFLOWS[@]}"; do
+        echo "  - $file"
+    done
+    echo ""
+    echo "❌ BLOCKING COMMIT: New CI/CD workflow creation is NOT ALLOWED!"
+    echo ""
+    echo "Creating new CI/CD workflows requires:"
+    echo "  1. Feature branch with detailed justification"
+    echo "  2. Pull request with comprehensive explanation"
+    echo "  3. Approval from CI/CD maintainers"
+    echo "  4. Full testing and validation"
+    echo "  5. Documentation updates"
+    echo ""
+    echo "Current branch: $CURRENT_BRANCH"
+    echo ""
+    
+    if [[ "$CURRENT_BRANCH" == "main" ]]; then
+        echo "❌ CRITICAL ERROR: Attempting to create CI/CD workflow on main branch!"
+        echo "This is strictly prohibited and poses a security risk."
+        exit 1
+    fi
+    
+    echo "Please:"
+    echo "  1. Remove the new CI/CD workflow files"
+    echo "  2. Create a feature branch: git checkout -b feature/cicd-workflow-name"
+    echo "  3. Document the need for the new workflow"
+    echo "  4. Create a pull request with detailed justification"
+    echo "  5. Get approval from CI/CD maintainers"
+    echo ""
+    echo "Emergency override (NOT RECOMMENDED):"
+    echo "  CICD_CHANGE_APPROVED=true git commit"
+    echo ""
+    
+    # Block the commit
+    exit 1
 fi
 
 # If CI/CD files are being modified, check for approval
@@ -172,7 +242,11 @@ fi
 echo "✅ CI/CD protection check passed"
 echo ""
 echo "📋 CI/CD Change Summary:"
-if [ ${#CICD_MODIFICATIONS[@]} -gt 0 ]; then
+if [ ${#NEW_CICD_WORKFLOWS[@]} -gt 0 ]; then
+    echo "  🚨 NEW WORKFLOW FILES BLOCKED: ${NEW_CICD_WORKFLOWS[*]}"
+    echo "  Current branch: $CURRENT_BRANCH"
+    echo "  Status: BLOCKED - New CI/CD workflows not allowed"
+elif [ ${#CICD_MODIFICATIONS[@]} -gt 0 ]; then
     echo "  Modified files: ${CICD_MODIFICATIONS[*]}"
     echo "  Current branch: $CURRENT_BRANCH"
     echo "  Approval status: ${CICD_CHANGE_APPROVED:-not approved}"

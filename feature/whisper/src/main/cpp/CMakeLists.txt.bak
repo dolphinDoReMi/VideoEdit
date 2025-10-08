@@ -10,6 +10,7 @@ set(WHISPER_LIB_DIR ${CMAKE_SOURCE_DIR}/../../../../../whisper_real)
 set(SOURCE_FILES
     ${WHISPER_LIB_DIR}/src/whisper.cpp
     ${CMAKE_SOURCE_DIR}/whisper_jni.cpp
+    ${CMAKE_SOURCE_DIR}/whisper_loader.cpp
     # # ${CMAKE_SOURCE_DIR}/vulkan_helper.cpp  # Vulkan helper disabled for CPU-only test
 )
 

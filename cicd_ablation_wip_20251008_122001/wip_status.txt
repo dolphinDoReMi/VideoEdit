@@ -1,0 +1,10 @@
+WIP Status: COMPLETED
+Focus: CPU vs Vulkan Ablation Testing
+Method: DirectWhisperService
+Branch: feature/ablation-test-wip
+Commit: 4ab41453
+Started: Wed Oct  8 12:20:06 CST 2025
+Completed: Wed Oct  8 12:20:06 CST 2025
+Status: ANALYSIS_READY
+CPU Test: FAILED
+Vulkan Test: FAILED
