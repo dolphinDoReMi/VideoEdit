@@ -1,47 +1,32 @@
-plugins { 
-  id("com.android.library")
-  kotlin("android") 
+plugins {
+    id("com.android.library")
+    id("org.jetbrains.kotlin.android")
 }
 
-android { 
-  namespace = "com.mira.com.core.infra"
-  compileSdk = 34
-  
-  defaultConfig { 
-    minSdk = 26 
-  }
-  
-  buildFeatures { 
-    buildConfig = true 
-  }
-  
-  compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
-  }
-  
-  kotlinOptions {
-    jvmTarget = "17"
-  }
-  
-  buildTypes {
-    getByName("debug") {
-      // Debug configuration
+android {
+    namespace = "com.mira.core.infra"
+    compileSdk = 34
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
-    
-    getByName("release") {
-      // Release configuration
+
+    kotlinOptions {
+        jvmTarget = "17"
     }
-    
-    create("internal") {
-      // Internal testing configuration
-      initWith(getByName("release"))
-      isMinifyEnabled = false
-      isShrinkResources = false
+
+    defaultConfig {
+        minSdk = 26
     }
-  }
+
+    buildFeatures {
+        buildConfig = true
+    }
 }
 
-dependencies { 
-  implementation("androidx.core:core-ktx:1.13.1") 
+dependencies {
+    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
 }

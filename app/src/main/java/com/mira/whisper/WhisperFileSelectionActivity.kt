@@ -25,7 +25,6 @@ class WhisperFileSelectionActivity : AppCompatActivity() {
     
     private lateinit var webView: WebView
     private lateinit var bridge: AndroidWhisperBridge
-    private lateinit var connectorReceiver: WhisperConnectorReceiver
     
     // File picker launcher (SAF: ACTION_OPEN_DOCUMENT)
     private val filePickerLauncher = registerForActivityResult(
@@ -95,35 +94,51 @@ class WhisperFileSelectionActivity : AppCompatActivity() {
         }
         
         // Load the whisper file selection HTML file
-        webView.loadUrl("file:///android_asset/web/whisper_file_selection.html")
+        webView.loadUrl("file:///android_asset/web/whisper_unified.html")
         
         Log.i(TAG, "Whisper File Selection interface initialized")
-
-        // Initialize connector receiver for async navigation and updates
-        connectorReceiver = WhisperConnectorReceiver(webView, "file_selection")
-        val filter = IntentFilter().apply {
-            addAction(WhisperConnectorService.ACTION_START_PROCESSING)
-            addAction(WhisperConnectorService.ACTION_UPDATE_PROGRESS)
-            addAction(WhisperConnectorService.ACTION_PROCESSING_COMPLETE)
-            addAction(WhisperConnectorService.ACTION_RESOURCE_UPDATE)
-            addAction(WhisperConnectorService.ACTION_PAGE_NAVIGATION)
-        }
-        registerReceiver(connectorReceiver, filter)
+        
+        // Bridge setup complete - using DirectWhisperService instead of broadcast receivers
     }
     
     /**
-     * Launch the file picker for video files
+     * Launch the file picker for video and photo files with multiple selection
      */
     fun launchFilePicker() {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-            addCategory(Intent.CATEGORY_OPENABLE)
-            type = "video/*"
+        // Try multiple approaches for better multiple selection support
+        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+            type = "*/*"
             putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+            putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("video/*", "image/*"))
+            addCategory(Intent.CATEGORY_OPENABLE)
+        }
+        
+        // Fallback to ACTION_OPEN_DOCUMENT if GET_CONTENT doesn't work
+        val fallbackIntent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "*/*"
+            putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+            putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("video/*", "image/*"))
             putExtra(Intent.EXTRA_LOCAL_ONLY, true)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
         }
-        filePickerLauncher.launch(intent)
+        
+        // Check which intent can be resolved
+        val primaryResolver = intent.resolveActivity(packageManager)
+        val fallbackResolver = fallbackIntent.resolveActivity(packageManager)
+        
+        val finalIntent = when {
+            primaryResolver != null -> intent
+            fallbackResolver != null -> fallbackIntent
+            else -> {
+                Log.e(TAG, "No file picker available on this device")
+                return
+            }
+        }
+        
+        Log.d(TAG, "Launching file picker with multiple selection support")
+        filePickerLauncher.launch(finalIntent)
     }
     
     /**
@@ -148,8 +163,6 @@ class WhisperFileSelectionActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        try {
-            unregisterReceiver(connectorReceiver)
-        } catch (_: Exception) { }
+        // No broadcast receivers to unregister - using DirectWhisperService
     }
 }

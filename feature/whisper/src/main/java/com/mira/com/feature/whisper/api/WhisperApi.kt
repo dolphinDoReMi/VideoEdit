@@ -30,6 +30,7 @@ object WhisperApi {
         beam: Int,
         lang: String?,
         translate: Boolean,
+        maxSeconds: Int? = null,
     ) {
         // Use multilingual model by default for robust LID
         val multilingualModel = if (model.contains(".en")) {
@@ -38,15 +39,16 @@ object WhisperApi {
             model
         }
         
-        val data =
-            workDataOf(
-                "uri" to uri,
-                "model" to multilingualModel,
-                "threads" to threads,
-                "beam" to beam,
-                "lang" to (lang ?: "auto"),
-                "translate" to translate,
-            )
+        val base = mutableMapOf(
+            "uri" to uri,
+            "model" to multilingualModel,
+            "threads" to threads,
+            "beam" to beam,
+            "lang" to (lang ?: "en"),
+            "translate" to translate,
+        )
+        if (maxSeconds != null && maxSeconds > 0) base["max_seconds"] = maxSeconds
+        val data = workDataOf(*base.toList().toTypedArray())
         val work =
             OneTimeWorkRequestBuilder<TranscribeWorker>()
                 .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
@@ -62,6 +64,8 @@ object WhisperApi {
         beam: Int = 0,
         lang: String? = null,
         translate: Boolean = false,
+        batchId: String? = null,
+        maxSeconds: Int? = null,
     ) {
         // Use multilingual model by default for robust LID
         val multilingualModel = if (model.contains(".en")) {
@@ -69,26 +73,29 @@ object WhisperApi {
         } else {
             model
         }
-        Log.d("WhisperApi", "Enqueuing batch transcription for ${uris.size} files")
+        Log.d("WhisperApi", "Enqueuing batch transcription for ${uris.size} files: ${uris.joinToString()}")
         
         uris.forEachIndexed { index, uri ->
-            val data = workDataOf(
+            val map = mutableMapOf(
                 "uri" to uri,
                 "model" to multilingualModel,
                 "threads" to threads,
                 "beam" to beam,
-                "lang" to (lang ?: "auto"),
+                "lang" to (lang ?: "en"),
                 "translate" to translate,
                 "batch_index" to index,
-                "batch_total" to uris.size
+                "batch_total" to uris.size,
+                "batch_id" to (batchId ?: "")
             )
+            if (maxSeconds != null && maxSeconds > 0) map["max_seconds"] = maxSeconds
+            val data = workDataOf(*map.toList().toTypedArray())
             
             val work = OneTimeWorkRequestBuilder<TranscribeWorker>()
                 .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
                 .setInputData(data)
                 .addTag("batch_transcribe")
                 .build()
-                
+            Log.d("WhisperApi", "Enqueue job index=$index uri=$uri model=$multilingualModel threads=$threads lang=${lang ?: "en"} maxSeconds=${maxSeconds ?: "-"}")
             WorkManager.getInstance(ctx).enqueue(work)
             
             Log.d("WhisperApi", "Enqueued batch job ${index + 1}/${uris.size} for $uri")

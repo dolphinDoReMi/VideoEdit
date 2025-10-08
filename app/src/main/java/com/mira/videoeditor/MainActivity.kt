@@ -87,14 +87,9 @@ class MainActivity : AppCompatActivity() {
     }
     
     private fun startResourceMonitoring() {
-        resourceTimer = Timer()
-        resourceTimer?.scheduleAtFixedRate(object : TimerTask() {
-            override fun run() {
-                runOnUiThread {
-                    updateResourceUsage()
-                }
-            }
-        }, 0, 2000) // Update every 2 seconds
+        // Resource monitoring is now handled by DeviceResourceService with StableResourceMonitor
+        // This prevents conflicts and ensures stable readings
+        Log.d("ResourceMonitor", "Resource monitoring disabled - using DeviceResourceService instead")
     }
     
     private fun updateResourceUsage() {
@@ -465,12 +460,5 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        @JavascriptInterface
-        fun openWhisperResults() {
-            runOnUiThread {
-                val intent = Intent(this@MainActivity, com.mira.whisper.WhisperResultsActivity::class.java)
-                startActivity(intent)
-            }
-        }
     }
 }

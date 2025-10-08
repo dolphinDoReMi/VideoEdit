@@ -1,0 +1,46 @@
+# .markdownlint.yml
+# Markdown linting configuration for VideoEdit documentation
+
+# Enable all rules by default
+default: true
+
+# Disable specific rules that conflict with our documentation format
+MD013: false  # Line length - allow longer lines for code examples
+MD033: false  # Inline HTML - allow HTML for complex formatting
+MD041: false  # First line in file should be a top level heading - we have status headers
+
+# Customize specific rules
+MD024:
+  siblings_only: true  # Allow duplicate headings in different files
+
+MD029:
+  style: ordered  # Use ordered list style for numbered sections
+
+MD040:
+  allowed_elements: []  # Allow fenced code blocks without language specification
+
+# Custom rules for our documentation format
+MD022: true   # Headings should be surrounded by blank lines
+MD025: true   # Multiple top level headings in the same document
+MD026: true   # Trailing punctuation in headings
+MD030: true   # Spaces after list markers
+MD031: true   # Fenced code blocks should be surrounded by blank lines
+MD032: true   # Lists should be surrounded by blank lines
+MD034: true   # Bare URL used
+MD035: true   # Horizontal rule style
+MD036: true   # Emphasis used instead of a heading
+MD037: true   # Spaces inside emphasis markers
+MD038: true   # Spaces inside code span elements
+MD039: true   # Spaces inside link text
+MD042: true   # No empty links
+MD043: true   # Required heading structure
+MD044: true   # Proper names should be capitalized
+MD045: true   # Images should have alternate text
+MD046: true   # Code block style
+MD047: true   # Files should end with a single newline character
+MD048: true   # Code fence style
+MD049: true   # Emphasis style should be consistent
+MD050: true   # Strong style should be consistent
+MD051: true   # Link fragments should be valid
+MD052: true   # Reference links should be valid
+MD053: true   # Link and image reference definitions should be valid

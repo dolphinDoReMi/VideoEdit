@@ -1,0 +1,75 @@
+10-08 09:40:45.285 28447 28486 D TranscribeWorker: === TECHNICAL LOG: Starting job wjob_1759887645281_605a76af ===
+10-08 09:40:45.285 28447 28485 D TranscribeWorker: === TECHNICAL LOG: Starting job wjob_1759887645285_605a76af ===
+10-08 09:40:45.285 28447 28485 D TranscribeWorker: TECHNICAL: URI: file:///sdcard/MiraWhisper/in/tennis_interview_clip_002.mp4
+10-08 09:40:45.285 28447 28485 D TranscribeWorker: TECHNICAL: Model: /sdcard/MiraWhisper/models/whisper-base.q5_1.bin
+10-08 09:40:45.285 28447 28485 D TranscribeWorker: TECHNICAL: Threads: 2
+10-08 09:40:45.286 28447 28485 D TranscribeWorker: TECHNICAL: Batch: -1/-1
+10-08 09:40:45.286 28447 28485 D TranscribeWorker: TECHNICAL: Language: en
+10-08 09:40:45.286 28447 28485 D TranscribeWorker: TECHNICAL: Translate: false
+10-08 09:40:45.286 28447 28483 D TranscribeWorker: === TECHNICAL LOG: Starting job batch_0_1759887645283_8e3d0206 ===
+10-08 09:40:45.286 28447 28483 D TranscribeWorker: TECHNICAL: URI: content://media/picker_get_content/0/com.android.providers.media.photopicker/media/1000001186
+10-08 09:40:45.286 28447 28483 D TranscribeWorker: TECHNICAL: Model: /sdcard/MiraWhisper/models/whisper-base.q5_1.bin
+10-08 09:40:45.286 28447 28483 D TranscribeWorker: TECHNICAL: Threads: 4
+10-08 09:40:45.286 28447 28483 D TranscribeWorker: TECHNICAL: Batch: 0/1
+10-08 09:40:45.286 28447 28483 D TranscribeWorker: TECHNICAL: Language: auto
+10-08 09:40:45.286 28447 28483 D TranscribeWorker: TECHNICAL: Translate: false
+10-08 09:40:45.286 28447 28486 D TranscribeWorker: TECHNICAL: URI: file:///sdcard/MiraWhisper/in/tennis_interview_clip_002.mp4
+10-08 09:40:45.286 28447 28486 D TranscribeWorker: TECHNICAL: Model: /sdcard/MiraWhisper/models/whisper-base.q5_1.bin
+10-08 09:40:45.286 28447 28486 D TranscribeWorker: TECHNICAL: Threads: 8
+10-08 09:40:45.286 28447 28484 D TranscribeWorker: === TECHNICAL LOG: Starting job wjob_1759887645284_605a76af ===
+10-08 09:40:45.286 28447 28484 D TranscribeWorker: TECHNICAL: URI: file:///sdcard/MiraWhisper/in/tennis_interview_clip_002.mp4
+10-08 09:40:45.286 28447 28484 D TranscribeWorker: TECHNICAL: Model: /sdcard/MiraWhisper/models/whisper-base.q5_1.bin
+10-08 09:40:45.286 28447 28484 D TranscribeWorker: TECHNICAL: Threads: 4
+10-08 09:40:45.286 28447 28484 D TranscribeWorker: TECHNICAL: Batch: -1/-1
+10-08 09:40:45.286 28447 28484 D TranscribeWorker: TECHNICAL: Language: en
+10-08 09:40:45.286 28447 28484 D TranscribeWorker: TECHNICAL: Translate: false
+10-08 09:40:45.286 28447 28486 D TranscribeWorker: TECHNICAL: Batch: -1/-1
+10-08 09:40:45.286 28447 28486 D TranscribeWorker: TECHNICAL: Language: auto
+10-08 09:40:45.286 28447 28486 D TranscribeWorker: TECHNICAL: Translate: false
+10-08 09:40:45.300 28447 28486 D TranscribeWorker: TECHNICAL: Attempting to load audio from URI: file:///sdcard/MiraWhisper/in/tennis_interview_clip_002.mp4
+10-08 09:40:45.300 28447 28486 D TranscribeWorker: TECHNICAL: Memory status - Used: 278MB, Free: 233MB, Usage: 54.4%
+10-08 09:40:45.301 28447 28486 D TranscribeWorker: TECHNICAL: File size unknown - attempting to load with timeout protection
+10-08 09:40:45.301 28447 28483 D TranscribeWorker: TECHNICAL: Attempting to load audio from URI: content://media/picker_get_content/0/com.android.providers.media.photopicker/media/1000001186
+10-08 09:40:45.301 28447 28483 D TranscribeWorker: TECHNICAL: Memory status - Used: 278MB, Free: 233MB, Usage: 54.4%
+10-08 09:40:45.301 28447 28485 D TranscribeWorker: TECHNICAL: Attempting to load audio from URI: file:///sdcard/MiraWhisper/in/tennis_interview_clip_002.mp4
+10-08 09:40:45.302 28447 28485 D TranscribeWorker: TECHNICAL: Memory status - Used: 278MB, Free: 233MB, Usage: 54.4%
+10-08 09:40:45.302 28447 28485 D TranscribeWorker: TECHNICAL: File size unknown - attempting to load with timeout protection
+10-08 09:40:45.303 28447 28484 D TranscribeWorker: TECHNICAL: Attempting to load audio from URI: file:///sdcard/MiraWhisper/in/tennis_interview_clip_002.mp4
+10-08 09:40:45.304 28447 28484 D TranscribeWorker: TECHNICAL: Memory status - Used: 278MB, Free: 233MB, Usage: 54.4%
+10-08 09:40:45.304 28447 28484 D TranscribeWorker: TECHNICAL: File size unknown - attempting to load with timeout protection
+10-08 09:40:45.309 28447 28483 D TranscribeWorker: TECHNICAL: File size: 2798MB
+10-08 09:40:45.309 28447 28483 D TranscribeWorker: TECHNICAL: Large file detected - using streaming processing
+10-08 09:40:45.309 28447 28483 D TranscribeWorker: TECHNICAL: Starting streaming processing for large file
+10-08 09:40:45.310 28447 28491 D AudioIO : TECHNICAL: File already in H.264 format: file:///sdcard/MiraWhisper/in/tennis_interview_clip_002.mp4
+10-08 09:40:45.310 28447 28493 D AudioIO : TECHNICAL: File already in H.264 format: file:///sdcard/MiraWhisper/in/tennis_interview_clip_002.mp4
+10-08 09:40:45.310 28447 28492 D AudioIO : TECHNICAL: File already in H.264 format: file:///sdcard/MiraWhisper/in/tennis_interview_clip_002.mp4
+10-08 09:40:45.344 28447 28483 D TranscribeWorker: TECHNICAL: Audio duration: 10681088ms, using=10681088ms (10681s)
+10-08 09:40:45.344 28447 28483 D TranscribeWorker: TECHNICAL: Processing 1069 chunks of 10000ms each
+10-08 09:40:45.344 28447 28483 D TranscribeWorker: TECHNICAL: Maximum processing time: 320820s
+10-08 09:40:45.344 28447 28483 D TranscribeWorker: TECHNICAL: Processing started at: 1759887645344
+10-08 09:40:45.344 28447 28483 D TranscribeWorker: TECHNICAL: Time range: 0ms - 10000ms
+10-08 09:40:45.344 28447 28483 D TranscribeWorker: TECHNICAL: Chunk duration: 10000ms
+10-08 09:40:45.344 28447 28483 D TranscribeWorker: TECHNICAL: Elapsed time: 0s / 320820s
+10-08 09:40:45.344 28447 28483 D AudioIO : TECHNICAL: Converting to H.264 for reliable processing: content://media/picker_get_content/0/com.android.providers.media.photopicker/media/1000001186
+10-08 09:40:45.344 28447 28483 D MediaConverter: TECHNICAL: Starting H.264 conversion for content://media/picker_get_content/0/com.android.providers.media.photopicker/media/1000001186
+10-08 09:40:45.351 28447 28483 D MediaConverter: TECHNICAL: Output file: /storage/emulated/0/Documents/ConvertedMedia/converted_1759887645351.mp4
+10-08 09:40:45.932 28447 28486 D TranscribeWorker: TECHNICAL: Audio loaded successfully
+10-08 09:40:45.932 28447 28485 D TranscribeWorker: TECHNICAL: Audio loaded successfully
+10-08 09:40:45.933 28447 28486 D TranscribeWorker: TECHNICAL: - Samples: 48128
+10-08 09:40:45.933 28447 28485 D TranscribeWorker: TECHNICAL: - Samples: 48000
+10-08 09:40:45.933 28447 28484 D TranscribeWorker: TECHNICAL: Audio loaded successfully
+10-08 09:40:45.933 28447 28485 D TranscribeWorker: TECHNICAL: - Duration: 3021ms
+10-08 09:40:45.933 28447 28484 D TranscribeWorker: TECHNICAL: - Samples: 48000
+10-08 09:40:45.933 28447 28486 D TranscribeWorker: TECHNICAL: - Duration: 3021ms
+10-08 09:40:45.933 28447 28484 D TranscribeWorker: TECHNICAL: - Duration: 3021ms
+10-08 09:40:45.933 28447 28484 D TranscribeWorker: TECHNICAL: - Sample rate: 48000Hz
+10-08 09:40:45.933 28447 28485 D TranscribeWorker: TECHNICAL: - Sample rate: 48000Hz
+10-08 09:40:45.933 28447 28486 D TranscribeWorker: TECHNICAL: - Sample rate: 48000Hz
+10-08 09:40:45.933 28447 28484 D TranscribeWorker: TECHNICAL: - Channels: 2
+10-08 09:40:45.933 28447 28486 D TranscribeWorker: TECHNICAL: - Channels: 2
+10-08 09:40:45.933 28447 28485 D TranscribeWorker: TECHNICAL: - Channels: 2
+10-08 09:41:21.077 28447 28483 D MediaConverter: TECHNICAL: File copied to H.264 container: /storage/emulated/0/Documents/ConvertedMedia/converted_1759887645351.mp4
+10-08 09:41:21.078 28447 28483 D MediaConverter: TECHNICAL: Converted file saved to Documents/ConvertedMedia/ for easy access
+10-08 09:41:21.078 28447 28483 D AudioIO : TECHNICAL: H.264 conversion successful: file:///storage/emulated/0/Documents/ConvertedMedia/converted_1759887645351.mp4
+10-08 09:41:25.632 28447 28483 D TranscribeWorker: TECHNICAL: Chunk loaded in 40288ms - 159744 samples
+10-08 09:41:25.632 28447 28483 D TranscribeWorker: TECHNICAL: Audio converted in 0ms - 159744 samples

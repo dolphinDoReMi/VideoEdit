@@ -1,0 +1,9 @@
+Test Name: Tennis Interview Clip 002 (10 seconds)
+Processing Time: 312 seconds
+Video Duration: 10 seconds
+File Size: 2MB
+Model: whisper-base.q5_1.bin
+Threads: 4
+Language: en
+Device: 25032RP42C
+Timestamp: Wed Oct  8 09:41:45 CST 2025

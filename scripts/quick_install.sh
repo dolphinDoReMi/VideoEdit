@@ -56,4 +56,10 @@ fi
 echo -e "${BLUE}📱 Installing to Xiaomi device...${NC}"
 "$SCRIPT_DIR/xiaomi_hands_free_install.sh" "$APK_PATH"
 
-echo -e "${GREEN}✅ Done!${NC}"
+# Validate VULKAN GPU acceleration
+echo -e "${BLUE}🔧 Validating VULKAN GPU acceleration...${NC}"
+if [ -f "$SCRIPT_DIR/validate_vulkan_gpu.sh" ]; then
+    "$SCRIPT_DIR/validate_vulkan_gpu.sh"
+else
+    echo -e "${YELLOW}⚠️  VULKAN validation script not found${NC}"
+fi

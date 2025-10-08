@@ -1,46 +1,41 @@
 package com.mira.whisper
 
-import android.Manifest
-import android.app.Activity
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
-import com.mira.whisper.AndroidWhisperBridge
+import android.app.Activity
+import android.net.Uri
+import java.io.File
 
 /**
- * Main activity for Whisper video transcription service.
+ * Main Whisper Processing Activity
  * 
- * This activity displays the Whisper interface for video selection and processing.
+ * This activity provides a single-page interface that combines all three steps
+ * of the whisper processing pipeline into one comprehensive flow:
+ * 
+ * 1. File Selection & Configuration
+ * 2. Real-time Processing & Monitoring  
+ * 3. Results Display & Export
+ * 
+ * The interface dynamically shows/hides sections based on the current processing state,
+ * providing a seamless user experience without page navigation.
  */
 class WhisperMainActivity : ComponentActivity() {
     
     companion object {
-        private const val TAG = "WhisperMainActivity"
+        private const val TAG = "WhisperMain"
     }
     
     private lateinit var webView: WebView
     private lateinit var bridge: AndroidWhisperBridge
+    private var inputFileUri: Uri? = null
+    private var outputFolderUri: Uri? = null
     
-    // Permission request launcher
-    private val permissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        val allGranted = permissions.values.all { it }
-        if (allGranted) {
-            Log.i(TAG, "Storage permissions granted")
-        } else {
-            Log.w(TAG, "Some storage permissions denied: $permissions")
-        }
-    }
-    
-    // File picker launcher (SAF: ACTION_OPEN_DOCUMENT)
+    // File picker launcher (SAF with multiple selection)
     private val filePickerLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -48,11 +43,9 @@ class WhisperMainActivity : ComponentActivity() {
             val data = result.data
             val uris = mutableListOf<Uri>()
 
-            // Handle single or multiple file selection
             data?.clipData?.let { clipData ->
                 for (i in 0 until clipData.itemCount) {
                     val uri = clipData.getItemAt(i).uri
-                    // Persist read permission for future access
                     try {
                         contentResolver.takePersistableUriPermission(
                             uri,
@@ -71,20 +64,81 @@ class WhisperMainActivity : ComponentActivity() {
                 uris.add(uri)
             }
 
-            bridge.handleFileSelection(uris)
+            // Forward selection to bridge → will notify WebView JS
+            try {
+                bridge.handleFileSelection(uris)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error forwarding file selection to bridge: ${e.message}", e)
+            }
         } else {
             Log.d(TAG, "File selection cancelled")
-            bridge.handleFileSelection(emptyList())
+            try {
+                bridge.handleFileSelection(emptyList())
+            } catch (_: Exception) { }
+        }
+    }
+    
+    // SAF launcher for input file selection
+    private val inputFileLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val uri = result.data?.data
+            if (uri != null) {
+                Log.d(TAG, "Input file selected: $uri")
+                inputFileUri = uri
+                // Take persistable permission
+                try {
+                    contentResolver.takePersistableUriPermission(
+                        uri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    )
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error taking persistable permission for input file", e)
+                }
+                // Request output folder permission
+                requestOutputFolderPermission()
+            }
+        }
+    }
+    
+    // SAF launcher for output folder selection
+    private val outputFolderLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val uri = result.data?.data
+            if (uri != null) {
+                Log.d(TAG, "Output folder selected: $uri")
+                outputFolderUri = uri
+                // Take persistable permission
+                try {
+                    contentResolver.takePersistableUriPermission(
+                        uri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    )
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error taking persistable permission for output folder", e)
+                }
+                // Start Auto-Clipper with SAF permissions
+                startAutoClipperWithSAF()
+            }
         }
     }
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        Log.i(TAG, "Whisper app launched - initializing interface")
+        Log.i(TAG, "Whisper Main Activity launched - initializing interface")
         
-        // Request storage permissions first
-        requestStoragePermissions()
+        // Ensure app-scoped directory structure exists
+        DirectoryManager.ensureDirectoryStructure(this)
+        
+        // Check and request storage permissions
+        checkStoragePermissions()
+        
+        // Handle direct processing intents
+        handleDirectProcessingIntent(intent)
         
         // Initialize WebView
         webView = WebView(this)
@@ -96,92 +150,275 @@ class WhisperMainActivity : ComponentActivity() {
             domStorageEnabled = true
             allowFileAccess = true
             allowContentAccess = true
+            mediaPlaybackRequiresUserGesture = false
         }
-        
-        // Initialize bridge
-        bridge = AndroidWhisperBridge(this)
-        
-        // Set the activity reference in bridge for file picker
-        bridge.setActivity(this)
-        
-        // Add JavaScript bridge for whisper functionality
-        webView.addJavascriptInterface(bridge, "WhisperBridge")
         
         // Set WebView client
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
-                Log.i(TAG, "Whisper page loaded: $url")
+                Log.d(TAG, "Page loaded: $url")
             }
         }
         
-        // Load the file selection page (Step 1 of 3-page flow)
-        webView.loadUrl("file:///android_asset/web/whisper_file_selection.html")
+        // Initialize bridge
+        bridge = AndroidWhisperBridge(this)
+        webView.addJavascriptInterface(bridge, "WhisperBridge")
+        try {
+            // Provide WebView to bridge for progress/navigation callbacks
+            bridge.setWebView(webView)
+        } catch (_: Exception) { }
         
-        Log.i(TAG, "Whisper interface initialized")
+        // Load the unified interface
+        webView.loadUrl("file:///android_asset/web/whisper_unified.html")
+        
+        Log.i(TAG, "Whisper Main Activity initialized successfully")
     }
     
-    override fun onBackPressed() {
-        if (webView.canGoBack()) {
-            webView.goBack()
-        } else {
-            super.onBackPressed()
-        }
-    }
-    
-    /**
-     * Request storage permissions for Android 13+ and older versions
-     */
-    private fun requestStoragePermissions() {
-        val permissionsToRequest = mutableListOf<String>()
-        
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            // Android 13+ - request READ_MEDIA_VIDEO and READ_MEDIA_AUDIO
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VIDEO) != PackageManager.PERMISSION_GRANTED) {
-                permissionsToRequest.add(Manifest.permission.READ_MEDIA_VIDEO)
-            }
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-                permissionsToRequest.add(Manifest.permission.READ_MEDIA_AUDIO)
-            }
-        } else {
-            // Android 12 and below - request READ_EXTERNAL_STORAGE
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                permissionsToRequest.add(Manifest.permission.READ_EXTERNAL_STORAGE)
-            }
-        }
-        
-        if (permissionsToRequest.isNotEmpty()) {
-            Log.i(TAG, "Requesting storage permissions: $permissionsToRequest")
-            permissionLauncher.launch(permissionsToRequest.toTypedArray())
-        } else {
-            Log.i(TAG, "All storage permissions already granted")
-        }
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        Log.d(TAG, "New intent received")
+        handleDirectProcessingIntent(intent)
     }
     
     /**
-     * Launch the file picker for video files
+     * Handle direct processing intents for automated testing
+     * Supports direct_action intents with processing parameters
      */
-    fun launchFilePicker() {
+    private fun handleDirectProcessingIntent(intent: Intent?) {
+        if (intent == null) return
+        
+        // Check for direct_action or regular Intent extras
+        val directAction = intent.getStringExtra("direct_action")
+        val hasFileUri = intent.getStringExtra("file_uri") != null
+        
+        if (directAction == "transcribe" || hasFileUri) {
+            Log.i(TAG, "=== DIRECT PROCESSING INTENT RECEIVED ===")
+            
+            val fileUri = intent.getStringExtra("file_uri")
+            val modelPath = intent.getStringExtra("model_path")
+            val threadCount = intent.getIntExtra("thread_count", 4)
+            val language = intent.getStringExtra("language") ?: "auto"
+            val maxSeconds = intent.getIntExtra("max_seconds", 0)
+            
+            Log.i(TAG, "Direct processing parameters:")
+            Log.i(TAG, "  File URI: $fileUri")
+            Log.i(TAG, "  Model Path: $modelPath")
+            Log.i(TAG, "  Thread Count: $threadCount")
+            Log.i(TAG, "  Language: $language")
+            Log.i(TAG, "  Max Seconds: $maxSeconds")
+            
+            if (fileUri != null) {
+                // Start direct processing via service
+                val serviceIntent = Intent(this, com.mira.com.feature.whisper.service.DirectWhisperService::class.java).apply {
+                    action = com.mira.com.feature.whisper.service.DirectWhisperService.ACTION_PROCESS_DIRECT
+                    putExtra(com.mira.com.feature.whisper.service.DirectWhisperService.EXTRA_URI, fileUri)
+                    putExtra(com.mira.com.feature.whisper.service.DirectWhisperService.EXTRA_MODEL, modelPath ?: DirectoryManager.getDefaultWhisperModelPath(this@WhisperMainActivity))
+                    putExtra(com.mira.com.feature.whisper.service.DirectWhisperService.EXTRA_THREADS, threadCount)
+                    putExtra(com.mira.com.feature.whisper.service.DirectWhisperService.EXTRA_LANG, language)
+                    putExtra(com.mira.com.feature.whisper.service.DirectWhisperService.EXTRA_TRANSLATE, false)
+                    if (maxSeconds > 0) {
+                        putExtra(com.mira.com.feature.whisper.service.DirectWhisperService.EXTRA_MAX_SECONDS, maxSeconds)
+                    }
+                }
+                
+                try {
+                    startService(serviceIntent)
+                    Log.i(TAG, "✅ Direct processing service started")
+                } catch (e: Exception) {
+                    Log.e(TAG, "❌ Error starting direct processing service: ${e.message}", e)
+                }
+            } else {
+                Log.e(TAG, "❌ No file_uri provided in direct processing intent")
+            }
+        }
+    }
+    
+    private fun checkStoragePermissions() {
+        Log.d(TAG, "Checking storage permissions...")
+        
+        // Check if we have the necessary storage permissions
+        val hasPermissions = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            // Android 13+ - check for READ_MEDIA_VIDEO and READ_MEDIA_AUDIO
+            val hasVideoPermission = checkSelfPermission(android.Manifest.permission.READ_MEDIA_VIDEO) == 
+                android.content.pm.PackageManager.PERMISSION_GRANTED
+            val hasAudioPermission = checkSelfPermission(android.Manifest.permission.READ_MEDIA_AUDIO) == 
+                android.content.pm.PackageManager.PERMISSION_GRANTED
+            
+            Log.d(TAG, "Storage permissions (Android 13+) - Video: $hasVideoPermission, Audio: $hasAudioPermission")
+            hasVideoPermission && hasAudioPermission
+        } else {
+            // Android 12 and below - check for READ_EXTERNAL_STORAGE
+            val hasReadPermission = checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) == 
+                android.content.pm.PackageManager.PERMISSION_GRANTED
+            
+            Log.d(TAG, "Storage permissions (Android 12-) - Read: $hasReadPermission")
+            hasReadPermission
+        }
+        
+        if (!hasPermissions) {
+            Log.d(TAG, "Storage permissions not granted, but not requesting automatically")
+            // Don't automatically request permissions on startup - let user initiate file selection
+        } else {
+            Log.d(TAG, "Storage permissions already granted")
+        }
+    }
+    
+    
+    private fun requestInputFilePermission() {
+        Log.d(TAG, "Requesting SAF permission for input file...")
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-            addCategory(Intent.CATEGORY_OPENABLE)
             type = "video/*"
-            putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+            addCategory(Intent.CATEGORY_OPENABLE)
             putExtra(Intent.EXTRA_LOCAL_ONLY, true)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
         }
-        filePickerLauncher.launch(intent)
+        inputFileLauncher.launch(intent)
+    }
+    
+    private fun requestOutputFolderPermission() {
+        Log.d(TAG, "Requesting SAF permission for output folder...")
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+            // Try to navigate to the Clip folder
+            putExtra("android.provider.extra.INITIAL_URI", "content://com.android.externalstorage.documents/tree/primary%3ADocuments%2FClip")
+        }
+        outputFolderLauncher.launch(intent)
+    }
+    
+    private fun startAutoClipperWithSAF() {
+        try {
+            Log.d(TAG, "Starting Auto-Clipper with SAF permissions...")
+            
+            if (inputFileUri == null) {
+                Log.e(TAG, "Input file URI is null")
+                return
+            }
+            
+            if (outputFolderUri == null) {
+                Log.e(TAG, "Output folder URI is null")
+                return
+            }
+            
+            Log.d(TAG, "Input URI: $inputFileUri")
+            Log.d(TAG, "Output URI: $outputFolderUri")
+            
+            val autoClipperService = com.mira.clip.autoclip.AutoClipperService(this)
+            val workRequest = autoClipperService.processTennisInterview(
+                inputVideoUri = inputFileUri!!,
+                outputFolderUri = outputFolderUri!!
+            )
+            
+            Log.d(TAG, "Auto-Clipper pipeline started with SAF: ${workRequest.id}")
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Error starting Auto-Clipper with SAF", e)
+        }
+    }
+    
+    private fun startAutoClipperDirectly() {
+        try {
+            Log.d(TAG, "Starting Auto-Clipper directly with app-scoped storage...")
+            
+            // Use app-scoped storage for input files
+            val audioInboxDir = DirectoryManager.getAudioInboxDir(this)
+            val videoInboxDir = DirectoryManager.getVideoInboxDir(this)
+            
+            // Look for input files in app-scoped directories
+            val inputFile = listOf(
+                File(audioInboxDir, "TennisInterview_converted.mp4"),
+                File(videoInboxDir, "TennisInterview_converted.mp4"),
+                File(DirectoryManager.getBatchInboxDir(this), "TennisInterview_converted.mp4")
+            ).firstOrNull { it.exists() }
+            
+            if (inputFile == null) {
+                Log.e(TAG, "Input file not found in app-scoped directories")
+                Log.d(TAG, "Checked directories:")
+                Log.d(TAG, "  Audio inbox: ${audioInboxDir.absolutePath}")
+                Log.d(TAG, "  Video inbox: ${videoInboxDir.absolutePath}")
+                Log.d(TAG, "  Batch inbox: ${DirectoryManager.getBatchInboxDir(this).absolutePath}")
+                return
+            }
+            
+            Log.d(TAG, "Found input file at: ${inputFile.absolutePath}")
+            
+            val inputUri = android.net.Uri.fromFile(inputFile)
+            val outputUri = android.net.Uri.fromFile(DirectoryManager.getClipsOutputDir(this))
+            
+            Log.d(TAG, "Input URI: $inputUri")
+            Log.d(TAG, "Output URI: $outputUri")
+            
+            val autoClipperService = com.mira.clip.autoclip.AutoClipperService(this)
+            val workRequest = autoClipperService.processTennisInterview(
+                inputVideoUri = inputUri,
+                outputFolderUri = outputUri
+            )
+            
+            Log.d(TAG, "Auto-Clipper pipeline started with app-scoped storage: ${workRequest.id}")
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Error starting Auto-Clipper with app-scoped storage", e)
+        }
+    }
+    
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.i(TAG, "Whisper Main Activity destroyed")
+    }
+    
+    /**
+     * Launch file picker for media selection
+     */
+    fun launchFilePicker() {
+        Log.d(TAG, "launchFilePicker called")
+        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+            type = "*/*"
+            putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+            putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("video/*", "image/*"))
+            addCategory(Intent.CATEGORY_OPENABLE)
+        }
+
+        val fallbackIntent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "*/*"
+            putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+            putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("video/*", "image/*"))
+            putExtra(Intent.EXTRA_LOCAL_ONLY, true)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+
+        val primaryResolver = intent.resolveActivity(packageManager)
+        val fallbackResolver = fallbackIntent.resolveActivity(packageManager)
+        val finalIntent = when {
+            primaryResolver != null -> intent
+            fallbackResolver != null -> fallbackIntent
+            else -> null
+        }
+
+        if (finalIntent == null) {
+            Log.e(TAG, "No file picker available on this device")
+            return
+        }
+
+        filePickerLauncher.launch(finalIntent)
     }
     
     /**
      * Notify JavaScript about file selection results
      */
     fun notifyFileSelection(jsonResponse: String) {
+        // This method is called by AndroidWhisperBridge
+        // Execute JavaScript to handle the file selection
         runOnUiThread {
-            webView.evaluateJavascript(
-                "if (window.handleFileSelection) { window.handleFileSelection('$jsonResponse'); }",
-                null
-            )
+            // Escape quotes in JSON response for JavaScript
+            val escapedJson = jsonResponse.replace("\"", "\\\"")
+            val script = "if (window.handleFileSelection) { window.handleFileSelection(\"$escapedJson\"); }"
+            webView.evaluateJavascript(script, null)
+            Log.d(TAG, "Executed JavaScript for file selection: $jsonResponse")
         }
     }
 }

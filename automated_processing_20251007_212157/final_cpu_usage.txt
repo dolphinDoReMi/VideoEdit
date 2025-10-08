@@ -1,0 +1,1 @@
+  30% 12798/com.mira.com: 29% user + 1.5% kernel / faults: 72749 minor 784 major

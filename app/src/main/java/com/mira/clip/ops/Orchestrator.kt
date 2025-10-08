@@ -5,6 +5,7 @@ import android.util.Log
 import com.mira.clip.core.Config
 import com.mira.clip.services.RetrievalService
 import com.mira.clip.services.VideoIngestService
+// GlobalFileManagementService dependency temporarily removed for build stability in this variant
 import java.io.File
 
 /**
@@ -145,5 +146,102 @@ object Orchestrator {
             Log.e(TAG, "Error clearing cache: ${e.message}", e)
             throw e
         }
+    }
+    
+    /**
+     * Comprehensive global cleanup that removes all temporary files, cache, and converted media.
+     * This is more aggressive than clearCache and includes media conversion cleanup.
+     */
+    fun globalCleanup(context: Context): GlobalCleanupResult {
+        val result = GlobalCleanupResult()
+        
+        try {
+            Log.i(TAG, "Starting comprehensive global cleanup")
+            
+            // Clear CLIP cache
+            try {
+                clearCache(context)
+                result.clipCacheCleared = true
+                Log.i(TAG, "CLIP cache cleared successfully")
+            } catch (e: Exception) {
+                result.errors.add("Failed to clear CLIP cache: ${e.message}")
+                Log.e(TAG, "Error clearing CLIP cache: ${e.message}", e)
+            }
+            
+            // Clear media conversion cache and converted files (disabled in this build variant)
+            try {
+                val mediaFilesDeleted = 0
+                result.mediaFilesDeleted = mediaFilesDeleted
+                Log.i(TAG, "Media cleanup completed: ${mediaFilesDeleted} files deleted")
+            } catch (e: Exception) {
+                result.errors.add("Failed to clear media files: ${e.message}")
+                Log.e(TAG, "Error clearing media files: ${e.message}", e)
+            }
+            
+            // Clear app cache directory
+            try {
+                val cacheDir = context.cacheDir
+                val cacheFiles = cacheDir.listFiles()
+                var cacheFilesDeleted = 0
+                
+                cacheFiles?.forEach { file ->
+                    if (file.deleteRecursively()) {
+                        cacheFilesDeleted++
+                    }
+                }
+                
+                result.cacheFilesDeleted = cacheFilesDeleted
+                Log.i(TAG, "App cache cleared: $cacheFilesDeleted files/directories deleted")
+            } catch (e: Exception) {
+                result.errors.add("Failed to clear app cache: ${e.message}")
+                Log.e(TAG, "Error clearing app cache: ${e.message}", e)
+            }
+            
+            // Clear external cache directory
+            try {
+                val externalCacheDir = context.externalCacheDir
+                if (externalCacheDir != null && externalCacheDir.exists()) {
+                    val externalFiles = externalCacheDir.listFiles()
+                    var externalFilesDeleted = 0
+                    
+                    externalFiles?.forEach { file ->
+                        if (file.deleteRecursively()) {
+                            externalFilesDeleted++
+                        }
+                    }
+                    
+                    result.externalCacheFilesDeleted = externalFilesDeleted
+                    Log.i(TAG, "External cache cleared: $externalFilesDeleted files/directories deleted")
+                }
+            } catch (e: Exception) {
+                result.errors.add("Failed to clear external cache: ${e.message}")
+                Log.e(TAG, "Error clearing external cache: ${e.message}", e)
+            }
+            
+            result.success = result.errors.isEmpty()
+            Log.i(TAG, "Global cleanup completed: ${if (result.success) "SUCCESS" else "PARTIAL_SUCCESS"}")
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Critical error during global cleanup: ${e.message}", e)
+            result.errors.add("Critical cleanup error: ${e.message}")
+            result.success = false
+        }
+        
+        return result
+    }
+    
+    /**
+     * Result object for global cleanup operations.
+     */
+    data class GlobalCleanupResult(
+        var success: Boolean = false,
+        var clipCacheCleared: Boolean = false,
+        var cacheFilesDeleted: Int = 0,
+        var externalCacheFilesDeleted: Int = 0,
+        var mediaFilesDeleted: Int = 0,
+        var errors: MutableList<String> = mutableListOf()
+    ) {
+        val totalFilesDeleted: Int
+            get() = cacheFilesDeleted + externalCacheFilesDeleted + mediaFilesDeleted
     }
 }

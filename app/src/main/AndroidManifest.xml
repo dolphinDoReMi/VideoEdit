@@ -2,13 +2,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Required permissions for video editing -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" 
-        android:maxSdkVersion="32" />
+    <!-- Storage permissions for Auto-Clipper -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" 
+        tools:ignore="ScopedStorage" />
+    
+    <!-- Android 13+ (API 33+) media permissions -->
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
-    <uses-permission android:name="android.permission.WRITE_MEDIA_VIDEO" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" 
-        android:maxSdkVersion="28" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     
     <!-- Camera permission for future video recording features -->
     <uses-permission android:name="android.permission.CAMERA" />
@@ -28,6 +31,15 @@
     
     <!-- WebView permissions -->
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    
+    <!-- Vulkan feature declarations -->
+    <uses-sdk android:minSdkVersion="24" />
+    <uses-feature android:name="android.hardware.vulkan.version"
+                  android:version="0x00400003"
+                  android:required="false"/>
+    <uses-feature android:name="android.hardware.vulkan.level"
+                  android:version="0"
+                  android:required="false"/>
     
     <!-- Hardware features -->
     <uses-feature android:name="android.hardware.camera" android:required="false" />
@@ -51,11 +63,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Mira"
-        android:requestLegacyExternalStorage="true"
         android:hardwareAccelerated="true"
+        android:largeHeap="true"
+        android:requestLegacyExternalStorage="true"
+        android:extractNativeLibs="false"
+        android:vmSafeMode="false"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         
+
         <!-- Main Activity - Whisper Main Interface -->
         <activity 
             android:name="com.mira.whisper.WhisperMainActivity"
@@ -67,7 +83,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             
-            <!-- File association for video files -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -89,13 +104,6 @@
             </intent-filter>
         </activity>
 
-        <!-- Debug Embedding Activity (foreground generator) -->
-        <activity
-            android:name="com.mira.clip.debug.DebugEmbeddingActivity"
-            android:exported="true"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.Mira" />
-        
         <!-- Whisper Processing Activity -->
         <activity
             android:name="com.mira.whisper.WhisperProcessingActivity"
@@ -104,19 +112,6 @@
             android:theme="@style/Theme.Mira" />
 
 
-        <!-- Whisper Results Activity -->
-        <activity
-            android:name="com.mira.whisper.WhisperResultsActivity"
-            android:exported="true"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.Mira" />
-
-        <!-- Whisper Batch Results Activity -->
-        <activity
-            android:name="com.mira.whisper.WhisperBatchResultsActivity"
-            android:exported="true"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.Mira" />
         
         
         <!-- Video Whisper Service - Background whisper.cpp processing -->
@@ -139,50 +134,18 @@
             android:exported="false"
             android:foregroundServiceType="dataSync" />
         
-        <!-- Whisper Connector Service - Connects all 3 whisper pages with background service -->
+        <!-- Direct Whisper Service - Direct processing without broadcast/receiver pattern -->
         <service
-            android:name="com.mira.whisper.WhisperConnectorService"
+            android:name="com.mira.com.feature.whisper.service.DirectWhisperService"
             android:enabled="true"
-            android:exported="false" />
+            android:exported="true" />
         
         <!-- Removed OrchestrationReceiver; class not present in app module -->
         
         <!-- Production CLIP receiver removed - class not available in app module -->
         <!-- The ClipReceiver is in the feature/clip module -->
         
-        <!-- Debug Broadcast Receiver (debug builds only) -->
-        <receiver
-            android:name="com.mira.clip.ops.TestReceiver"
-            android:enabled="true"
-            android:exported="true"
-            tools:ignore="ExportedReceiver">
-            <intent-filter>
-                <action android:name="com.mira.clip.INGEST_MANIFEST" />
-                <action android:name="com.mira.clip.SEARCH_MANIFEST" />
-                <action android:name="com.mira.clip.DEBUG_LOG" />
-                <action android:name="com.mira.clip.CLEAR_CACHE" />
-                <action android:name="com.mira.clip.SELFTEST_TEXT" />
-                <action android:name="com.mira.clip.SELFTEST_VIDEO" />
-                <!-- New verification actions -->
-                <action android:name="com.mira.videoeditor.debug.CLIP.RUN" />
-                <action android:name="com.mira.videoeditor.debug.VERIFY_REPRESENTATION" />
-                <action android:name="com.mira.videoeditor.debug.VERIFY_RETRIEVAL" />
-                <action android:name="com.mira.videoeditor.debug.VERIFY_REPRODUCIBILITY" />
-            </intent-filter>
-        </receiver>
-        
-        <!-- Whisper Broadcast Receiver -->
-        <receiver
-            android:name="com.mira.whisper.WhisperReceiver"
-            android:enabled="true"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.mira.whisper.RUN" />
-                <action android:name="com.mira.whisper.EXPORT" />
-                <action android:name="com.mira.whisper.VERIFY" />
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </receiver>
+        <!-- All broadcast receivers removed - replaced with modern Android patterns -->
         
         <!-- File Provider for sharing exported videos -->
         <provider

@@ -59,9 +59,16 @@ android {
     buildConfigField("int",    "DEFAULT_FRAME_COUNT",   "32")
     buildConfigField("String", "DEFAULT_SCHEDULE",      "\"UNIFORM\"")
     buildConfigField("String", "DEFAULT_DECODE_BACKEND","\"MMR\"")
-    buildConfigField("int",    "DEFAULT_MEM_BUDGET_MB", "512")
+    buildConfigField("int",    "DEFAULT_MEM_BUDGET_MB", "2048")  // Increased for Xiaomi Pad
     buildConfigField("boolean","RETR_USE_L2_NORM",      "true")
     buildConfigField("String", "RETR_SIMILARITY",       "\"cosine\"")
+    
+    // Memory optimization for Xiaomi Pad - Maximum configuration
+    buildConfigField("boolean", "ENABLE_LARGE_HEAP", "true")
+    buildConfigField("int", "MAX_HEAP_SIZE_MB", "8192")  // 8GB for 12GB device
+    buildConfigField("boolean", "ENABLE_MEMORY_MONITORING", "true")
+    buildConfigField("boolean", "ENABLE_MAX_MEMORY_MODE", "true")
+    buildConfigField("int", "MEMORY_PRESSURE_THRESHOLD_MB", "1024")  // 1GB threshold
     buildConfigField("String", "RETR_STORAGE_FMT",      "\".f32\"")
     buildConfigField("boolean","RETR_ENABLE_ANN",       "false")
 
@@ -71,7 +78,15 @@ android {
     buildConfigField("String", "ACTION_INGEST",         "\"com.mira.clip.INGEST\"")
     buildConfigField("String", "ACTION_SEARCH",         "\"com.mira.clip.SEARCH\"")
     
-    // NDK configuration removed - no longer using native code
+    // NDK configuration for VULKAN support
+    ndk {
+      abiFilters += listOf("arm64-v8a")
+    }
+    
+    // VULKAN GPU acceleration configuration
+    buildConfigField("boolean", "ENABLE_VULKAN", "true")
+    buildConfigField("boolean", "ENABLE_OPENCL", "true")
+    buildConfigField("String", "GPU_BACKEND_PRIORITY", "\"VULKAN,OPENCL,CPU\"")
   }
 
   signingConfigs {
@@ -189,9 +204,10 @@ android {
   }
   packaging { 
     resources.pickFirsts += listOf("META-INF/*")
-    // Optimize APK size
+    // Handle duplicate native libraries
     jniLibs {
       useLegacyPackaging = false
+      pickFirsts += listOf("**/libc++_shared.so")
     }
   }
   
@@ -211,6 +227,13 @@ android {
   testOptions {
     unitTests.isIncludeAndroidResources = true
     animationsDisabled = true
+  }
+  
+  // Include native libraries from feature modules
+  packagingOptions {
+    jniLibs {
+      useLegacyPackaging = false
+    }
   }
 }
 
@@ -255,6 +278,7 @@ tasks.matching { it.name.startsWith("pre") && it.name.endsWith("Build") }.config
 dependencies {
   // Feature modules
   implementation(project(":feature:whisper"))
+  implementation(project(":core:ml"))
   
   // Core orchestration dependencies (always included)
   implementation("androidx.work:work-runtime-ktx:2.9.0")
@@ -266,8 +290,11 @@ dependencies {
   implementation("androidx.documentfile:documentfile:1.0.1")
   
   // PyTorch Mobile for CLIP models (always included)
-  implementation("org.pytorch:pytorch_android:1.13.1")
-  implementation("org.pytorch:pytorch_android_torchvision:1.13.1")
+  implementation("org.pytorch:pytorch_android:1.12.2")
+  implementation("org.pytorch:pytorch_android_torchvision:1.12.2")
+  
+  // Note: Vulkan support removed due to dependency resolution issues
+  // implementation("org.pytorch:pytorch_android_vulkan:1.13.1")
 
   // Conditional dependencies based on build variant
   if (gradle.startParameter.taskRequests.toString().contains("minimal")) {
@@ -387,8 +414,8 @@ dependencies {
   implementation("androidx.documentfile:documentfile:1.0.1")
   
   // PyTorch Mobile for CLIP models
-  implementation("org.pytorch:pytorch_android:1.13.1")
-  implementation("org.pytorch:pytorch_android_torchvision:1.13.1")
+  implementation("org.pytorch:pytorch_android:1.12.2")
+  implementation("org.pytorch:pytorch_android_torchvision:1.12.2")
 
   // Media3 - versions compatible with API 34
   implementation("androidx.media3:media3-transformer:1.2.1")

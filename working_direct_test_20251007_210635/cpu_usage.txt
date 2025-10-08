@@ -1,0 +1,1 @@
+  79% 28517/com.mira.com: 44% user + 35% kernel / faults: 11174 minor 11 major

@@ -4,7 +4,7 @@ data class WhisperParams(
     val model: String,
     val threads: Int = 4,
     val beam: Int = 0,
-    val lang: String = "auto",
+    val lang: String = "en",
     val translate: Boolean = false,
     val temperature: Float = 0.0f,
     val enableWordTimestamps: Boolean = false,
@@ -23,7 +23,7 @@ object XiaomiPadConfig {
     fun getOptimalParams(): WhisperParams {
         return WhisperParams(
             model = MODEL_FILE,
-            lang = "auto",              // <-- critical for LID
+            lang = "en",              // <-- critical for LID
             translate = false,          // <-- critical for LID
             threads = OPTIMAL_THREADS,
             temperature = 0.0f,

@@ -30,6 +30,11 @@ object WhisperBridge {
     ): String
 
     /**
+     * Reset the native whisper context
+     */
+    external fun resetContext()
+
+    /**
      * Two-pass re-scoring for uncertain language detection
      */
     fun rescoreLanguage(

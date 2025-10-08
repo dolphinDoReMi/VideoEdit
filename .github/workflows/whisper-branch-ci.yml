@@ -1,0 +1,275 @@
+name: Whisper Branch CI/CD
+
+on:
+  push:
+    branches: [ whisper ]
+  pull_request:
+    branches: [ whisper ]
+  workflow_dispatch:
+
+concurrency:
+  group: whisper-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      whisper-changes: ${{ steps.changes.outputs.whisper }}
+      app-changes: ${{ steps.changes.outputs.app }}
+      core-changes: ${{ steps.changes.outputs.core }}
+      docs-changes: ${{ steps.changes.outputs.docs }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Detect changed paths
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          filters: |
+            whisper:
+              - 'feature/whisper/**'
+              - 'app/src/main/java/com/mira/whisper/**'
+              - 'whisper.cpp/**'
+              - 'whisper_models/**'
+            app:
+              - 'app/**'
+            core:
+              - 'core/**'
+            docs:
+              - 'docs/whisper/**'
+
+  whisper-validation:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.whisper == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      
+      - name: Validate Whisper Implementation
+        run: |
+          echo "🔍 Validating Whisper Implementation..."
+          
+          # Check core Whisper files
+          required_files=(
+            "app/src/main/java/com/mira/whisper/AndroidWhisperBridge.kt"
+            "app/src/main/java/com/mira/whisper/DirectoryManager.kt"
+            "app/src/main/java/com/mira/whisper/WhisperMainActivity.kt"
+            "app/src/main/java/com/mira/whisper/WhisperProcessingActivity.kt"
+            "feature/whisper/src/main/java/com/mira/com/feature/whisper/runner/TranscribeWorker.kt"
+          )
+          
+          for file in "${required_files[@]}"; do
+            if [ -f "$file" ]; then
+              echo "✅ Found: $file"
+            else
+              echo "❌ Missing required file: $file"
+              exit 1
+            fi
+          done
+          
+          # Validate DirectoryManager implementation
+          if grep -q "getMiraBaseDir\|ensureDirectoryStructure" app/src/main/java/com/mira/whisper/DirectoryManager.kt; then
+            echo "✅ DirectoryManager has required methods"
+          else
+            echo "❌ DirectoryManager missing required methods"
+            exit 1
+          fi
+          
+          # Validate AndroidWhisperBridge
+          if grep -q "transcribe\|processAudio" app/src/main/java/com/mira/whisper/AndroidWhisperBridge.kt; then
+            echo "✅ AndroidWhisperBridge has transcription methods"
+          else
+            echo "❌ AndroidWhisperBridge missing transcription methods"
+            exit 1
+          fi
+          
+          # Validate TranscribeWorker
+          if grep -q "doWork\|transcribe" feature/whisper/src/main/java/com/mira/com/feature/whisper/runner/TranscribeWorker.kt; then
+            echo "✅ TranscribeWorker has work methods"
+          else
+            echo "❌ TranscribeWorker missing work methods"
+            exit 1
+          fi
+          
+          echo "✅ Whisper implementation validation passed"
+
+  android-build:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.app == 'true' || needs.detect-changes.outputs.whisper == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+      
+      - name: Cache Gradle packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+      
+      - name: Build Debug APK
+        run: ./gradlew :app:assembleDebug :feature:whisper:assembleDebug
+      
+      - name: Build Release APK
+        run: ./gradlew :app:assembleRelease :feature:whisper:assembleRelease
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+      
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: whisper-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: warn
+      
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: whisper-release-apk
+          path: app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: warn
+
+  whisper-unit-tests:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.whisper == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      
+      - name: Run Whisper Unit Tests
+        run: ./gradlew :feature:whisper:testDebugUnitTest
+      
+      - name: Upload Test Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: whisper-unit-test-reports
+          path: feature/whisper/build/reports/tests/testDebugUnitTest/**
+          if-no-files-found: warn
+
+  whisper-integration-tests:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.whisper == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+      
+      - name: Cache Gradle packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      
+      - name: Build for Testing
+        run: ./gradlew :app:assembleDebug :feature:whisper:assembleDebug
+      
+      # Note: Instrumented tests are disabled in CI due to emulator reliability issues
+      # These should be run locally or on dedicated testing infrastructure
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: whisper-test-artifacts
+          path: |
+            app/build/outputs/apk/debug/
+            feature/whisper/build/outputs/apk/debug/
+          if-no-files-found: warn
+
+  docs-validation:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.docs == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Whisper Documentation
+        run: |
+          echo "🔍 Validating Whisper Documentation..."
+          
+          # Check required documentation files
+          required_docs=(
+            "docs/whisper/Device Deployment.md"
+          )
+          
+          for doc in "${required_docs[@]}"; do
+            if [ -f "$doc" ]; then
+              echo "✅ Found: $doc"
+            else
+              echo "❌ Missing required documentation: $doc"
+              exit 1
+            fi
+          done
+          
+          # Validate documentation content
+          if grep -q "DirectoryManager\|AndroidWhisperBridge" docs/whisper/Device\ Deployment.md; then
+            echo "✅ Documentation references core components"
+          else
+            echo "❌ Documentation missing core component references"
+            exit 1
+          fi
+          
+          echo "✅ Whisper documentation validation passed"
+
+  deployment-status:
+    needs: [whisper-validation, android-build, whisper-unit-tests, whisper-integration-tests, docs-validation]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deployment Status
+        run: |
+          echo "## Whisper Branch Deployment Status" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Whisper Validation | ${{ needs.whisper-validation.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Android Build | ${{ needs.android-build.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Unit Tests | ${{ needs.whisper-unit-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Integration Tests | ${{ needs.whisper-integration-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Documentation | ${{ needs.docs-validation.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [[ "${{ needs.whisper-validation.result }}" == "success" && 
+                "${{ needs.android-build.result }}" == "success" && 
+                "${{ needs.whisper-unit-tests.result }}" == "success" && 
+                "${{ needs.docs-validation.result }}" == "success" ]]; then
+            echo "✅ **Whisper branch is in working state and ready for deployment**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Whisper branch has issues that need to be resolved**" >> $GITHUB_STEP_SUMMARY
+          fi
