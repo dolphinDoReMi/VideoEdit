@@ -7,6 +7,7 @@
 #include <chrono>
 #include <thread>
 #include "whisper.h"
+#include <mutex>
 
 #define TAG "WhisperJNI"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, TAG, __VA_ARGS__)
@@ -15,8 +16,36 @@
 
 // Global whisper context
 static struct whisper_context *g_whisper_ctx = nullptr;
+static std::mutex g_ctx_mu;
+
+static void free_ctx_locked() {
+    if (g_whisper_ctx) {
+        whisper_free(g_whisper_ctx);
+        g_whisper_ctx = nullptr;
+    }
+}
+
+__attribute__((destructor))
+static void on_unload_whisper() {
+    std::lock_guard<std::mutex> lk(g_ctx_mu);
+    free_ctx_locked();
+}
 
 extern "C" {
+
+JNIEXPORT void JNICALL
+Java_com_mira_com_feature_whisper_engine_WhisperBridge_resetContext(JNIEnv* env, jclass clazz) {
+    (void)env; (void)clazz;
+    std::lock_guard<std::mutex> lk(g_ctx_mu);
+    free_ctx_locked();
+}
+
+JNIEXPORT void JNICALL
+Java_com_mira_com_core_ml_WhisperBridge_resetContext(JNIEnv* env, jclass clazz) {
+    (void)env; (void)clazz;
+    std::lock_guard<std::mutex> lk(g_ctx_mu);
+    free_ctx_locked();
+}
 
 JNIEXPORT jstring JNICALL
 Java_com_mira_com_core_ml_WhisperBridge_decode(
@@ -24,6 +53,7 @@ Java_com_mira_com_core_ml_WhisperBridge_decode(
     jshortArray pcm16, jint sampleRate, jint threads) {
 
     UNUSED(thiz);
+    std::lock_guard<std::mutex> lk(g_ctx_mu);
 
     try {
         // Get audio data
@@ -108,6 +138,7 @@ Java_com_mira_com_feature_whisper_engine_WhisperBridge_decodeJson(
     UNUSED(enableWordTimestamps);
     UNUSED(detectLanguage);
     UNUSED(noContext);
+    std::lock_guard<std::mutex> lk(g_ctx_mu);
 
     try {
         // Get model path
@@ -234,6 +265,7 @@ Java_com_mira_com_feature_whisper_engine_WhisperBridge_detectLanguage(
     jshortArray pcm16, jint sampleRate, jstring modelPath, jint threads) {
 
     UNUSED(thiz);
+    std::lock_guard<std::mutex> lk(g_ctx_mu);
 
     try {
         // Get model path

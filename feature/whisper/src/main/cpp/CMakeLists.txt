@@ -3,8 +3,8 @@ project(whisper_jni)
 
 set(CMAKE_CXX_STANDARD 17)
 
-# Set whisper.cpp directory
-set(WHISPER_LIB_DIR /Users/dennis/Movies/VideoEdit/whisper_real)
+# Set whisper.cpp directory - use relative path for CI compatibility
+set(WHISPER_LIB_DIR ${CMAKE_SOURCE_DIR}/../../../../../whisper_real)
 
 # Source files
 set(SOURCE_FILES
@@ -23,6 +23,16 @@ include(FetchContent)
 add_library(whisper_jni SHARED ${SOURCE_FILES})
 
 # Fetch and configure ggml
+# Check if WHISPER_LIB_DIR exists
+if(NOT EXISTS ${WHISPER_LIB_DIR})
+    message(FATAL_ERROR "WHISPER_LIB_DIR does not exist: ${WHISPER_LIB_DIR}")
+endif()
+
+# Check if ggml directory exists
+if(NOT EXISTS ${WHISPER_LIB_DIR}/ggml)
+    message(FATAL_ERROR "ggml directory does not exist: ${WHISPER_LIB_DIR}/ggml")
+endif()
+
 FetchContent_Declare(ggml SOURCE_DIR ${WHISPER_LIB_DIR}/ggml)
 FetchContent_MakeAvailable(ggml)
 

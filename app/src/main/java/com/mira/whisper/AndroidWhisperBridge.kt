@@ -186,6 +186,99 @@ class AndroidWhisperBridge(private val context: Context) {
         const val SIDECAR_DIR = "/sdcard/MiraWhisper/sidecars"
         const val OUTPUT_DIR = "/sdcard/MiraWhisper/out"
     }
+
+    // ------------------------------------------------------------------------
+    // Background service contract (bridge-side). We keep these as local
+    // strings so the bridge compiles even if the service side hasn't been
+    // updated yet. Service should mirror these values.
+    // ------------------------------------------------------------------------
+    private object Bg {
+        const val ACTION_CANCEL = "com.mira.whisper.action.CANCEL_PROCESSING"
+        const val ACTION_STOP_ALL = "com.mira.whisper.action.STOP_ALL"
+        const val ACTION_RESET_NATIVE = "com.mira.whisper.action.RESET_NATIVE"
+
+        const val EXTRA_BATCH_ID = "extra_batch_id"
+    }
+
+    /**
+     * Cancel a running batch by ID. This only signals the background service; the
+     * service is responsible for cancelling WorkManager jobs and releasing codecs.
+     */
+    @JavascriptInterface
+    fun cancelBatch(batchId: String): String {
+        return try {
+            val intent = Intent(context, WhisperConnectorService::class.java).apply {
+                action = Bg.ACTION_CANCEL
+                putExtra(Bg.EXTRA_BATCH_ID, batchId)
+            }
+            context.startService(intent)
+            JSONObject().apply {
+                put("ok", true)
+                put("action", "cancel")
+                put("batchId", batchId)
+            }.toString()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error sending cancel for $batchId: ${e.message}", e)
+            JSONObject().apply {
+                put("ok", false)
+                put("action", "cancel")
+                put("batchId", batchId)
+                put("error", e.message ?: "unknown")
+            }.toString()
+        }
+    }
+
+    /**
+     * Stop all background Whisper work and services.
+     * Signals the connector service to halt, and stops the resource monitor.
+     */
+    @JavascriptInterface
+    fun stopAllBackground(): String {
+        return try {
+            // Ask connector to stop everything
+            val stopIntent = Intent(context, WhisperConnectorService::class.java).apply {
+                action = Bg.ACTION_STOP_ALL
+            }
+            context.startService(stopIntent)
+
+            // Best-effort: stop the resource monitor service too
+            try {
+                val resIntent = Intent(context, DeviceResourceService::class.java)
+                context.stopService(resIntent)
+            } catch (_: Exception) {}
+
+            JSONObject().apply {
+                put("ok", true)
+                put("action", "stop_all")
+                put("timestamp", System.currentTimeMillis())
+            }.toString()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error stopping background work: ${e.message}", e)
+            JSONObject().apply {
+                put("ok", false)
+                put("action", "stop_all")
+                put("error", e.message ?: "unknown")
+                put("timestamp", System.currentTimeMillis())
+            }.toString()
+        }
+    }
+
+    /**
+     * Explicitly reset/tear down the native Whisper context.
+     * Requires JNI exposing WhisperBridge.resetContext() (added in native patch).
+     */
+    @JavascriptInterface
+    fun resetWhisperNative(): Boolean {
+        return try {
+            // If your project exposes this in a different package, adjust import/qualifier.
+            WhisperBridge.resetContext()
+            Log.d(TAG, "Whisper native context reset requested via bridge")
+            true
+        } catch (t: Throwable) {
+            Log.e(TAG, "Failed to reset native context: ${t.message}", t)
+            false
+        }
+    }
     
     data class RunRequest(
         val uri: String,

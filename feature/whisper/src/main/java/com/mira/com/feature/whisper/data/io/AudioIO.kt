@@ -11,6 +11,49 @@ import java.nio.ByteBuffer
 import com.mira.com.core.media.AudioResampler
 import kotlin.math.max
 
+
+// ---- MediaCodec pooling to avoid frequent create/release churn (AIBinder/MediaCodec stability) ----
+private object MediaCodecPool {
+    private const val MAX_PER_MIME = 2
+    private val pools = mutableMapOf<String, ArrayDeque<MediaCodec>>()
+
+    @Synchronized
+    fun borrow(mime: String): MediaCodec {
+        val q = pools.getOrPut(mime) { ArrayDeque() }
+        if (q.isNotEmpty()) {
+            val c = q.removeFirst()
+            try {
+                if (Build.VERSION.SDK_INT >= 23) c.reset() else {
+                    c.release()
+                    return MediaCodec.createDecoderByType(mime)
+                }
+                return c
+            } catch (_: Throwable) {
+                try { c.release() } catch (_: Throwable) {}
+            }
+        }
+        return MediaCodec.createDecoderByType(mime)
+    }
+
+    @Synchronized
+    fun giveBack(mime: String, codec: MediaCodec) {
+        try {
+            try { codec.stop() } catch (_: Throwable) {}
+            try { if (Build.VERSION.SDK_INT >= 23) codec.reset() } catch (_: Throwable) {}
+            val q = pools.getOrPut(mime) { ArrayDeque() }
+            if (q.size < MAX_PER_MIME) q.addLast(codec) else try { codec.release() } catch (_: Throwable) {}
+        } catch (_: Throwable) {
+            try { codec.release() } catch (_: Throwable) {}
+        }
+    }
+
+    @Synchronized
+    fun clear() {
+        pools.values.forEach { q -> q.forEach { c -> try { c.release() } catch (_: Throwable) {} } }
+        pools.clear()
+    }
+}
+
 data class PCM(val sr: Int, val ch: Int, val pcm16: ShortArray, val durationMs: Long)
 
 object AudioIO {
@@ -85,7 +128,7 @@ object AudioIO {
         val ch = fmt!!.getInteger(MediaFormat.KEY_CHANNEL_COUNT)
         val durationUs = if (fmt!!.containsKey(MediaFormat.KEY_DURATION)) fmt!!.getLong(MediaFormat.KEY_DURATION) else 0L
 
-        val codec = MediaCodec.createDecoderByType(mime)
+        val codec = MediaCodecPool.borrow(mime)
         codec.configure(fmt, null, null, 0)
         codec.start()
 
@@ -129,8 +172,7 @@ object AudioIO {
                 outIx == MediaCodec.INFO_TRY_AGAIN_LATER -> { /* spin */ }
             }
         }
-        codec.stop()
-        codec.release()
+        MediaCodecPool.giveBack(mime, codec)
         extractor.release()
         val pcm = outPcm.toShortArray()
         val frames = pcm.size / ch
@@ -216,7 +258,7 @@ object AudioIO {
         val endTimeUs = endTimeMs * 1000L
         extractor.seekTo(startTimeUs, MediaExtractor.SEEK_TO_CLOSEST_SYNC)
         
-        val codec = MediaCodec.createDecoderByType(mime)
+        val codec = MediaCodecPool.borrow(mime)
         codec.configure(fmt, null, null, 0)
         codec.start()
         
@@ -269,8 +311,7 @@ object AudioIO {
             }
         }
         
-        codec.stop()
-        codec.release()
+        MediaCodecPool.giveBack(mime, codec)
         extractor.release()
         
         val pcm = outPcm.toShortArray()
@@ -339,7 +380,7 @@ object AudioIO {
         val ch = fmt!!.getInteger(MediaFormat.KEY_CHANNEL_COUNT)
         val durationUs = if (fmt!!.containsKey(MediaFormat.KEY_DURATION)) fmt!!.getLong(MediaFormat.KEY_DURATION) else 0L
 
-        val codec = MediaCodec.createDecoderByType(mime)
+        val codec = MediaCodecPool.borrow(mime)
         codec.configure(fmt, null, null, 0)
         codec.start()
 
@@ -383,8 +424,7 @@ object AudioIO {
                 outIx == MediaCodec.INFO_TRY_AGAIN_LATER -> { /* spin */ }
             }
         }
-        codec.stop()
-        codec.release()
+        MediaCodecPool.giveBack(mime, codec)
         extractor.release()
         val pcm = outPcm.toShortArray()
         val frames = pcm.size / ch
@@ -456,7 +496,7 @@ object AudioIO {
         val endTimeUs = endTimeMs * 1000L
         extractor.seekTo(startTimeUs, MediaExtractor.SEEK_TO_CLOSEST_SYNC)
         
-        val codec = MediaCodec.createDecoderByType(mime)
+        val codec = MediaCodecPool.borrow(mime)
         codec.configure(fmt, null, null, 0)
         codec.start()
         
@@ -509,8 +549,7 @@ object AudioIO {
             }
         }
         
-        codec.stop()
-        codec.release()
+        MediaCodecPool.giveBack(mime, codec)
         extractor.release()
         
         return outPcm.toShortArray()
@@ -534,5 +573,16 @@ object AudioIO {
             Log.e("AudioIO", "TECHNICAL: Failed to get file path from URI: ${e.message}")
             null
         }
+    }
+    /**
+     * Expose a safe way for services/workers to clear pooled codecs.
+     * Call on service stop / global cancel to deterministically release decoders.
+     */
+    @JvmStatic
+    fun clearCodecPool() {
+        try {
+            MediaCodecPool.clear()
+            Log.d("AudioIO", "MediaCodecPool cleared")
+        } catch (_: Throwable) { }
     }
 }
