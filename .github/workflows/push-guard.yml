@@ -15,9 +15,9 @@ jobs:
         with: { distribution: 'zulu', java-version: '21' }
       - uses: gradle/actions/setup-gradle@v4
       - name: Make scripts executable
-        run: chmod +x tools/push_guard.sh || true
+        run: chmod +x scripts/push-guard.sh || true
       - name: Run policy guard
-        run: tools/push_guard.sh --ci
+        run: scripts/push-guard.sh --ci
       - name: Fast gradle checks
         run: ./gradlew :app:verifyConfig ktlintCheck detekt testDebugUnitTest -x lint
       - name: Validate Documentation Structure

@@ -1,0 +1,137 @@
+import java.io.File
+import java.util.regex.Pattern
+
+/**
+ * Gradle task to check code quality and prevent prohibited patterns
+ */
+tasks.register("checkCodeQuality") {
+    group = "verification"
+    description = "Check code quality and prevent prohibited patterns from being committed"
+    
+    doLast {
+        def prohibitedPatterns = [
+            "Broadcast code": [
+                "sendBroadcast",
+                "am broadcast",
+                "adb shell.*am",
+                "com\\.mira\\.com\\.feature\\.whisper\\.PROCESS_DIRECT",
+                "Intent.*broadcast",
+                "BroadcastReceiver"
+            ],
+            "Logcat patterns": [
+                "adb logcat",
+                "logcat.*grep",
+                "adb shell.*logcat",
+                "logcat.*whisper",
+                "logcat.*audioio"
+            ],
+            "Trigger patterns": [
+                "trigger.*processing",
+                "clip_003.*trigger",
+                "step_by_step.*trigger",
+                "real_whisper.*trigger",
+                "live_trigger",
+                "scoped_trigger"
+            ],
+            "Debug patterns": [
+                "adb shell.*echo.*trigger",
+                "adb shell.*find.*trigger",
+                "adb shell.*cat.*trigger",
+                "echo.*trigger.*txt"
+            ]
+        ]
+        
+        def sourceDirs = [
+            "app/src/main/java",
+            "app/src/test/java",
+            "infra-storage/src/main/java"
+        ]
+        
+        boolean violationsFound = false
+        
+        sourceDirs.each { sourceDir ->
+            def dir = file(sourceDir)
+            if (dir.exists()) {
+                println "Scanning directory: ${dir.absolutePath}"
+                dir.eachFileRecurse { file ->
+                    if (file.isFile() && (file.name.endsWith(".kt") || file.name.endsWith(".java"))) {
+                        // Skip test files as they may contain forbidden patterns for testing purposes
+                        if (file.path.contains("/test/") || file.name.contains("Test")) {
+                            return
+                        }
+                        
+                        def filePath = file.absolutePath
+                        def dirPath = dir.absolutePath
+                        if (filePath.startsWith(dirPath)) {
+                            def relativePath = filePath.substring(dirPath.length() + 1)
+                            println "Scanning file: $relativePath"
+                            def content = file.text
+                            
+                            prohibitedPatterns.each { category, patterns ->
+                                patterns.each { pattern ->
+                                    def regex = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE)
+                                    if (regex.matcher(content).find()) {
+                                        println "❌ VIOLATION FOUND: $category"
+                                        println "   File: $relativePath"
+                                        println "   Pattern: $pattern"
+                                        println "   Line: ${findLineNumber(content, pattern)}"
+                                        println ""
+                                        violationsFound = true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        if (violationsFound) {
+            throw new GradleException("""
+                Code quality violations detected! 
+                
+                The following patterns are prohibited:
+                - Broadcast code (sendBroadcast, am broadcast, etc.)
+                - Logcat patterns (adb logcat, logcat grep, etc.)
+                - Trigger patterns (trigger processing, step_by_step trigger, etc.)
+                - Debug patterns (adb shell echo trigger, etc.)
+                
+                Please remove these patterns before committing.
+            """.stripIndent())
+        } else {
+            println "✅ Code quality check passed - no prohibited patterns found"
+        }
+    }
+}
+
+def findLineNumber(String content, String pattern) {
+    def lines = content.split("\n")
+    def regex = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE)
+    
+    for (int i = 0; i < lines.length; i++) {
+        if (regex.matcher(lines[i]).find()) {
+            return i + 1
+        }
+    }
+    return -1
+}
+
+// Integrate into ALL Gradle lifecycle tasks
+tasks.whenTaskAdded { task ->
+    if (task.name in ['assemble', 'assembleDebug', 'assembleRelease', 'bundleDebug', 'bundleRelease', 'build', 'check', 'lint', 'test']) {
+        task.dependsOn('checkCodeQuality')
+    }
+}
+
+// Add to app module tasks
+project.afterEvaluate {
+    try {
+        project(":app").tasks.whenTaskAdded { task ->
+            if (task.name in ['assembleDebug', 'assembleRelease', 'bundleDebug', 'bundleRelease', 'lintDebug', 'lintRelease', 'testDebugUnitTest', 'connectedDebugAndroidTest']) {
+                task.dependsOn('checkCodeQuality')
+            }
+        }
+    } catch (Exception e) {
+        // App module might not exist in some configurations
+    }
+}

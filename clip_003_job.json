@@ -1,0 +1,18 @@
+{
+    "id": 3003,
+    "file_id": 3003,
+    "model": "whisper-tiny.en-q5_1",
+    "threads": 6,
+    "language": "auto",
+    "translate": false,
+    "status": "processing",
+    "created_at": "2025-10-09T13:25:00Z",
+    "file_path": "/storage/emulated/0/MiraWhisper/in/tennis_interview_clip_003.mp4",
+    "file_size": 97098997,
+    "duration": 60.0,
+    "sample_rate": 16000,
+    "channels": 1,
+    "format": "mp4",
+    "target_file": "tennis_interview_clip_003",
+    "model_path": "/storage/emulated/0/MiraWhisper/models/whisper-tiny.en-q5_1.bin"
+}

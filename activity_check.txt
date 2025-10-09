@@ -1,0 +1,21 @@
+    mLastPausedActivity: ActivityRecord{b7f3240 u0 com.mira.whisper/.ScopedStorageTestActivity t1408}
+    topResumedActivity=ActivityRecord{b7f3240 u0 com.mira.whisper/.ScopedStorageTestActivity t1408}
+    * Hist  #0: ActivityRecord{b7f3240 u0 com.mira.whisper/.ScopedStorageTestActivity t1408}
+      Intent { flg=0x10000000 cmp=com.mira.whisper/.ScopedStorageTestActivity }
+      mActivityComponent=com.mira.whisper/.ScopedStorageTestActivity
+      windows=[Window{e788a4a u0 com.mira.whisper/com.mira.whisper.ScopedStorageTestActivity}]
+    Resumed: ActivityRecord{b7f3240 u0 com.mira.whisper/.ScopedStorageTestActivity t1408}
+  ResumedActivity: ActivityRecord{b7f3240 u0 com.mira.whisper/.ScopedStorageTestActivity t1408}
+  mCurrentFocus=Window{e788a4a u0 com.mira.whisper/com.mira.whisper.ScopedStorageTestActivity}
+  mFocusedApp=ActivityRecord{b7f3240 u0 com.mira.whisper/.ScopedStorageTestActivity t1408}
+        * ActivityRecord{b7f3240 u0 com.mira.whisper/.ScopedStorageTestActivity t1408}
+    mFocusedWindow=Window{e788a4a u0 com.mira.whisper/com.mira.whisper.ScopedStorageTestActivity}
+    mTopFullscreenOpaqueWindowState=Window{e788a4a u0 com.mira.whisper/com.mira.whisper.ScopedStorageTestActivity}
+    mSystemBarColorApps={ActivityRecord{b7f3240 u0 com.mira.whisper/.ScopedStorageTestActivity t1408}}
+    mNavBarColorWindowCandidate=Window{e788a4a u0 com.mira.whisper/com.mira.whisper.ScopedStorageTestActivity}
+    mNavBarBackgroundWindowCandidate=Window{e788a4a u0 com.mira.whisper/com.mira.whisper.ScopedStorageTestActivity}
+      Window{e788a4a u0 com.mira.whisper/com.mira.whisper.ScopedStorageTestActivity}
+      Window{e788a4a u0 com.mira.whisper/com.mira.whisper.ScopedStorageTestActivity}:
+        mControlTarget=Window{e788a4a u0 com.mira.whisper/com.mira.whisper.ScopedStorageTestActivity}
+        mControlTarget=Window{e788a4a u0 com.mira.whisper/com.mira.whisper.ScopedStorageTestActivity}
+        mControlTarget=Window{e788a4a u0 com.mira.whisper/com.mira.whisper.ScopedStorageTestActivity}

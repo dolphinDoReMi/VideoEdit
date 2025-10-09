@@ -1,7 +1,8 @@
 {
-    "id": 3001,
-    "file_id": 3001,
-    "model": "whisper-tiny.en-q5_1",
+    "id": 3002,
+    "file_id": 3002,
+    "model": "small.en-q5_1",
+    "model_format": "gguf",
     "threads": 6,
     "language": "en",
     "translate": false,
@@ -14,5 +15,5 @@
     "channels": 1,
     "format": "mp4",
     "real_whisper_processing": true,
-    "model_path": "/storage/emulated/0/MiraWhisper/models/whisper-tiny.en-q5_1.bin"
+    "model_path": "/storage/emulated/0/MiraWhisper/models/small.en-q5_1.gguf"
 }

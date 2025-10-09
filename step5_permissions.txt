@@ -1,0 +1,11 @@
+    requested permissions:
+      android.permission.POST_NOTIFICATIONS
+      android.permission.MANAGE_EXTERNAL_STORAGE
+      android.permission.FOREGROUND_SERVICE
+      android.permission.READ_MEDIA_VISUAL_USER_SELECTED
+      android.permission.RECEIVE_BOOT_COMPLETED
+      android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+      android.permission.INTERNET
+      android.permission.READ_EXTERNAL_STORAGE
+      android.permission.READ_MEDIA_IMAGES
+      android.permission.FOREGROUND_SERVICE_DATA_SYNC

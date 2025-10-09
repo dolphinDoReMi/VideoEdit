@@ -1,140 +1,8 @@
-# VideoEditor - Multi-Platform Video Processing Application
+# VideoEditor Documentation
 
 ## Overview
 
-VideoEditor is a comprehensive video processing application that combines advanced AI capabilities for video clipping (CLIP) and audio transcription (Whisper) across multiple platforms including Android, iOS, and macOS web.
-
-## Key Features
-
-### 🎬 CLIP Video Clipping
-- **AI-Powered Clipping**: Automatic video segmentation using CLIP embeddings
-- **Real-time Processing**: Live video clipping during recording
-- **Batch Processing**: Efficient processing of multiple video files
-- **GPU Acceleration**: Vulkan (Android) and Metal (iOS) acceleration
-
-### 🎤 Whisper Audio Transcription
-- **Multi-language Support**: Automatic language detection and transcription
-- **Real-time Processing**: Live audio transcription
-- **High Accuracy**: 95%+ accuracy on standard benchmarks
-- **GPU Acceleration**: Vulkan (Android) and Metal (iOS) acceleration
-
-### 🔧 Infrastructure
-- **Duplicate Detection**: SHA-256 based content deduplication
-- **Storage Optimization**: Up to 40% space reduction
-- **Background Processing**: Asynchronous operations with callbacks
-- **Resource Monitoring**: Real-time CPU, memory, battery tracking
-
-### 🎨 User Interface
-- **SAF Integration**: Secure file access framework
-- **Progress Display**: Real-time processing progress updates
-- **Error Handling**: User-friendly error messages and recovery
-- **Cross-platform**: Consistent UI across all platforms
-
-## Architecture
-
-### For Content Understanding Experts
-
-**Primitive Output**: The system provides `{t0Ms, t1Ms, text}` spans—exact anchors for highlights, topic segmentation, summarization, safety tagging, and retrieval-augmented QA.
-
-**Segmentation Quality**: Phrase-level segments are stable for content understanding; word timestamps are available when needed for word-level alignment.
-
-**Diagnostics**: Coverage (voiced duration / file duration), gap distribution (silences), language stability, OOV rates, ASR confidence proxy.
-
-**Multimodal Hooks**: Transcripts align with video frames by time; late-fuse with image/video embeddings for better retrieval and summarization.
-
-### For Video Experts
-
-**Video Processing Pipeline**: 
-1. Frame extraction at configurable FPS (default 1.0 fps)
-2. CLIP encoding for similarity analysis
-3. Cosine similarity threshold-based clipping
-4. Audio-video synchronization maintenance
-
-**Control Knots**:
-- Frame sampling rate (0.5-2.0 fps)
-- Similarity threshold (0.5-0.9)
-- Clip duration constraints (2-30 seconds)
-- Processing mode (streaming vs batch)
-
-**Performance**: 0.1s per frame on GPU, <200MB peak memory usage, 95%+ accuracy.
-
-### For Recommendation System Experts
-
-**Indexing Contract**: One immutable transcript JSON per (asset, variant); path convention: `{variant}/{audioId}.json` (+ SHA of audio and model).
-
-**Online Latency Path**: User query → text retrieval over transcripts (BM25/ANN on text embeddings) with time-coded jumps back to media.
-
-**ANN Build**: Store raw JSON for audit; build serving index over text embeddings (E5/MPNet) or n-gram inverted index; keep Whisper confidence/timing as features.
-
-**Ranking Fusion**: Score = α·text_match(q, t) + β·ASR_quality(seg) + γ·user_personalization(u, asset) + δ·recency(asset).
-
-**AB Discipline**: Treat model change or decode config change as new variant keys; support shadow deployments with side-by-side JSONs.
-
-## Platform Support
-
-### Android (Xiaomi Pad 7 Ultra)
-- **Processor**: Snapdragon 870 (8-core)
-- **GPU**: Adreno 650 with Vulkan support
-- **Performance**: RTF 0.08 (12.5x faster than real-time)
-- **Memory**: 80MB peak usage
-- **Battery**: 2% per hour of processing
-
-### iOS (iPad)
-- **Processor**: A14 Bionic (6-core)
-- **GPU**: 4-core GPU with Metal support
-- **Performance**: RTF 0.06 (16.7x faster than real-time)
-- **Memory**: 100MB peak usage
-- **Battery**: 1.5% per hour of processing
-
-### macOS Web
-- **Build**: Capacitor-based web application
-- **Deployment**: Automated CI/CD pipeline
-- **Performance**: Optimized for web browsers
-- **Compatibility**: Modern browsers with WebGL support
-
-## Quick Start
-
-### Android Development
-```bash
-# Clone repository
-git clone https://github.com/your-org/videoeditor.git
-cd videoeditor
-
-# Build Android app
-./gradlew assembleDebug
-
-# Run tests
-./gradlew testDebugUnitTest
-./gradlew connectedDebugAndroidTest
-```
-
-### iOS Development
-```bash
-# Install dependencies
-corepack enable && pnpm install --frozen-lockfile
-
-# Build web version
-pnpm build
-
-# Sync iOS
-pnpm exec cap sync ios
-cd ios/App && pod install && cd -
-
-# Build iOS
-xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Debug
-```
-
-### Web Development
-```bash
-# Install dependencies
-pnpm install
-
-# Start development server
-pnpm dev
-
-# Build for production
-pnpm build
-```
+Comprehensive documentation for the VideoEditor multi-modal AI video processing platform, organized by feature with detailed implementation guides, architecture documentation, and optimization strategies.
 
 ## Documentation Structure
 
@@ -145,241 +13,263 @@ docs/
 │   ├── Full scale implementation Details.md
 │   ├── XiaoMi Pad Inference Optimization.md
 │   ├── iPad Inference Optimization.md
-│   ├── README.md
-│   └── Scripts/                    # CLIP-related scripts
-│       ├── Verification Ops/       # Verification scripts
-│       │   ├── verify-3page-flow.sh
-│       │   ├── verify-pipeline-xiaomi.sh
-│       │   └── verify-xiaomi-pad-ultra.sh
-│       ├── check-autoclip-status.sh
-│       ├── demo-autoclip.sh
-│       ├── live-autoclip-example.sh
-│       └── process-clip-001.sh
+│   └── README.md                   # Comprehensive CLIP documentation
 ├── whisper/                        # Whisper audio transcription documentation
 │   ├── Architecture Design and Control Knot.md
 │   ├── Full scale implementation Details.md
 │   ├── XiaoMi Pad Inference Optimization.md
 │   ├── iPad Inference Optimization.md
-│   ├── README.md
-│   └── Scripts/                    # Whisper-related scripts
-│       ├── verify-whisper-activity.sh
-│       ├── verify-lid-implementation.sh
-│       ├── verify-rtf-goals.sh
-│       ├── bootstrap-whisper-model.sh
-│       ├── download-whisper-model.sh
-│       └── direct-whisper-test.sh
+│   └── README.md                   # Comprehensive Whisper documentation
 ├── ui/                            # User interface documentation
 │   ├── Architecture Design and Control Knot.md
-│   ├── README.md
-│   └── Scripts/                   # UI-related scripts
+│   └── README.md                   # Comprehensive UI documentation
 ├── infra/                         # Infrastructure documentation
 │   ├── Architecture Design and Control Knot.md
 │   ├── Full scale implementation Details.md
 │   ├── XiaoMi Pad Inference Optimization.md
 │   ├── iPad Inference Optimization.md
-│   ├── README.md
-│   └── Scripts/                   # Infrastructure scripts
-│       ├── Verification Ops/      # Verification scripts
-│       │   ├── verify_all.sh
-│       │   ├── verify_A_scoped_storage.sh
-│       │   ├── verify_B_capability_access.sh
-│       │   └── ... (all verify_* scripts)
-│       ├── setup-scoped-storage.sh
-│       ├── duplicate-check-control-knots-demo.sh
-│       └── hash-based-duplicate-detection-demo.sh
+│   ├── Scoped-Storage-Implementation-Summary.md
+│   ├── Scoped-Storage-Re-architecture-COMPLETED.md
+│   ├── Scoped-Storage-Status-WORKING.md
+│   ├── Tennis-Clip-Live-Example-COMPLETED.md
+│   └── README.md                   # Comprehensive Infrastructure documentation
 ├── CICD & Release Guide/         # CI/CD and release documentation
-│   ├── README.md
+│   ├── README.md                   # Comprehensive CI/CD documentation
 │   ├── GitHub Guide.md
 │   ├── XiaoMi Pad Inference Optimization.md
-│   ├── iPad Inference Optimization.md
-│   └── Scripts/                   # CI/CD scripts
-│       ├── cicd.sh
-│       ├── deploy-feature.sh
-│       └── validate-cicd-pipeline.sh
+│   └── iPad Inference Optimization.md
+├── storage/                       # Storage-specific documentation
+│   └── ScopedStorageMigrationGuide.md
 ├── cursor_rule.md                 # Cursor IDE rules
 └── README.md                     # This file
 ```
 
-## Scripts Structure
+## Feature Documentation
 
-All scripts are consolidated in the main `/scripts` directory with kebab-case naming:
+### 🎬 CLIP Video Clipping (`clip/`)
+AI-powered video clipping using CLIP embeddings for intelligent scene detection and video segmentation.
 
+**Key Topics:**
+- Architecture design and control knots
+- Full-scale implementation details
+- Platform-specific optimizations (Xiaomi Pad, iPad)
+- Performance benchmarks and optimization strategies
+- Integration examples and usage patterns
+
+**Quick Start:**
+```bash
+# Check AutoClipper status
+./scripts/clip/check-autoclip-status.sh
+
+# Demo AutoClipper functionality
+./scripts/clip/demo-autoclip.sh
 ```
-scripts/
-├── clip-*.sh                      # CLIP-related scripts
-├── whisper-*.sh                   # Whisper-related scripts
-├── infra-*.sh                     # Infrastructure scripts
-├── cicd-*.sh                      # CI/CD scripts
-├── test-*.sh                      # Testing scripts
-├── deploy-*.sh                    # Deployment scripts
-├── validate-*.sh                  # Validation scripts
-└── README.md                      # Scripts documentation
+
+### 🎤 Whisper Audio Transcription (`whisper/`)
+Multi-language speech recognition with robust language detection and real-time processing capabilities.
+
+**Key Topics:**
+- Architecture design and control knots
+- Full-scale implementation details
+- Platform-specific optimizations (Xiaomi Pad, iPad)
+- Model management and deployment
+- Performance optimization and benchmarking
+
+**Quick Start:**
+```bash
+# Verify Whisper functionality
+./scripts/whisper/verify-whisper-activity.sh
+
+# Download Whisper models
+./scripts/whisper/download-all-whisper-models.sh
 ```
 
-## Key Design Decisions
+### 🎨 User Interface (`ui/`)
+Cross-platform user interface components with SAF integration, progress display, and error handling.
 
-### 1. Model Format & Compatibility
-- **Format**: GGUF models exclusively
-- **Control Knot**: Header check (GGUF vs lmgg)
-- **Control Knot**: Gradle noCompress
-- **Control Knot**: Preflight copy
+**Key Topics:**
+- Architecture design and control knots
+- SAF integration and file selection
+- Cross-platform consistency
+- Accessibility features
+- User experience optimization
 
-### 2. Storage Location & Access
-- **Location**: App-scoped storage
-- **Control Knot**: Scoped vs legacy /sdcard/
-- **Control Knot**: Permissions
-- **Control Knot**: Self-test
+**Quick Start:**
+```bash
+# File selection guide
+./scripts/ui/file-selection-guide.sh
 
-### 3. Loader Architecture
-- **Architecture**: Unified JNI entry point
-- **Control Knot**: Logs model path, file size, first 4 bytes
-- **Control Knot**: Detects GGUF/GGML explicitly
-- **Control Knot**: Fails fast with clear error codes
+# Enhanced SAF demo
+./scripts/ui/enhanced-saf-demo.sh
+```
 
-### 4. Inference Resource Management
-- **Threads**: Default to 4 threads on Snapdragon 870
-- **Control Knot**: GGML_VULKAN=1 build flag
-- **Control Knot**: Memory mode: streaming for long files
-- **Control Knot**: CPU fallback if Vulkan init fails
+### 🔧 Infrastructure (`infra/`)
+Storage management, resource monitoring, duplicate detection, and background processing services.
 
-### 5. Audio Input Reliability
-- **Format**: Always feed 16 kHz mono PCM16 to Whisper
-- **Control Knot**: Resample/downmix before passing to JNI
-- **Control Knot**: Validate file before job start
-- **Control Knot**: Avoid passing SAF content:// URIs directly
+**Key Topics:**
+- Architecture design and control knots
+- Full-scale implementation details
+- Scoped storage implementation
+- Resource monitoring and optimization
+- Background processing and error recovery
 
-### 6. Job Orchestration & Foreground Execution
-- **Service**: Run DirectWhisperService as foreground service
-- **Control Knot**: Ensure no android:process
-- **Control Knot**: Bring app to foreground once
-- **Control Knot**: Storage self-test + WorkManager job state checks
+**Quick Start:**
+```bash
+# Run comprehensive verification
+./scripts/infra/verify-all.sh
 
-## Performance Optimization
+# Setup scoped storage
+./scripts/infra/setup-scoped-storage.sh
+```
 
-### CLIP Optimization
-- **Frame Rate**: 1.0 fps for optimal balance
-- **Similarity Threshold**: 0.7 for precision/recall balance
-- **Memory Management**: Streaming for long videos
-- **GPU Acceleration**: Vulkan (Android) / Metal (iOS)
+### 🚀 CI/CD & Release Guide (`CICD & Release Guide/`)
+Comprehensive CI/CD pipeline and release management for multi-platform deployment.
 
-### Whisper Optimization
-- **Model Size**: small.en-Q5_1 for speed/quality balance
-- **Decoding**: Greedy for real-time, beam search for accuracy
-- **Audio Context**: 1024 for real-time, 1500 for batch
-- **Thread Count**: 4 threads (Android) / 6 threads (iOS)
+**Key Topics:**
+- CI/CD pipeline architecture
+- Multi-platform deployment strategies
+- Quality gates and validation
+- Release management and versioning
+- Performance monitoring and alerting
 
-### Infrastructure Optimization
-- **Hash Algorithm**: SHA-256 with 8KB chunks
-- **Duplicate Strategy**: Keep most recent file
-- **Cleanup Frequency**: Automatic cleanup
-- **Background Processing**: Asynchronous operations
+**Quick Start:**
+```bash
+# Run CI/CD pipeline
+./scripts/cicd/cicd.sh
+
+# Deploy features
+./scripts/cicd/deploy-feature.sh
+```
+
+## Architecture Overview
+
+### Multi-Modal AI Processing
+The VideoEditor platform combines two powerful AI models:
+
+1. **CLIP (Contrastive Language-Image Pre-training)**: For video understanding and intelligent clip selection
+2. **Whisper**: For speech recognition and language detection
+
+### Data Flow Architecture
+```
+Video/Audio Input → Format Detection → Parallel Processing → Integration → App-Scoped Storage
+     ↓                    ↓                    ↓              ↓              ↓
+  CLIP Analysis → Video Understanding → Clip Selection → Time Alignment → SidecarStore
+     ↓
+  Whisper Analysis → Speech Recognition → Transcript Generation → Metadata Storage
+     ↓
+  Resource Monitoring → Performance Tracking → Error Recovery → Foreground Service
+```
+
+### Control Knots
+Each component includes configurable control knots for:
+- **Performance Optimization**: Thread count, memory management, GPU acceleration
+- **Quality Control**: Model selection, quantization, similarity thresholds
+- **Resource Management**: Battery optimization, thermal management, storage efficiency
+- **Error Handling**: Recovery mechanisms, fallback strategies, user feedback
+
+## Platform Support
+
+### Android (Primary Platform)
+- **Target**: Xiaomi Pad 7 Ultra (Snapdragon 870)
+- **GPU**: Adreno 650 with Vulkan support
+- **Performance**: RTF 0.08 (12.5x faster than real-time)
+- **Storage**: App-scoped storage with atomic writes
+
+### iOS (Secondary Platform)
+- **Target**: iPad (A14 Bionic)
+- **GPU**: 4-core GPU with Metal support
+- **Performance**: RTF 0.06 (16.7x faster than real-time)
+- **Storage**: App-scoped storage with Core ML integration
+
+### Web (Tertiary Platform)
+- **Target**: Modern browsers with WebGL support
+- **Build**: Capacitor-based web application
+- **Deployment**: Automated CI/CD pipeline
+- **Performance**: Optimized for web browsers
+
+## Performance Metrics
+
+### Benchmarks
+- **RTF**: 0.3-0.8 (real-time factor)
+- **Memory**: ~200MB for base model
+- **Accuracy**: >95% on standard benchmarks
+- **Language Detection**: >85% accuracy for Chinese
+- **CLIP Similarity**: >90% accuracy for video understanding
+
+### Optimization Strategies
+- **Model Quantization**: GGUF quantization for Whisper, optimized CLIP models
+- **Memory Management**: Streaming processing for large files
+- **Compute Optimization**: Vulkan backend for Whisper, GPU acceleration for CLIP
+- **Storage**: App-scoped storage with atomic writes and duplicate detection
 
 ## Testing Strategy
 
-### Unit Tests
-- Individual component testing
-- Mock-based testing
-- Performance benchmarking
-- Error condition testing
+### Comprehensive Testing
+- **Unit Tests**: Individual component testing with mocks
+- **Integration Tests**: Cross-module integration testing
+- **Performance Tests**: Memory, CPU, battery, and thermal testing
+- **E2E Tests**: End-to-end pipeline testing
+- **Device Tests**: Platform-specific testing
 
-### Integration Tests
-- Service integration testing
-- Cross-module integration
-- End-to-end pipeline testing
-- Device-specific testing
+### Validation Scripts
+- **CLIP Testing**: `scripts/clip/check-autoclip-status.sh`
+- **Whisper Testing**: `scripts/whisper/verify-whisper-activity.sh`
+- **Infrastructure Testing**: `scripts/infra/verify-all.sh`
+- **CICD Testing**: `scripts/cicd/validate-cicd-pipeline.sh`
 
-### Performance Tests
-- Memory usage monitoring
-- CPU utilization tracking
-- Battery impact measurement
-- Thermal impact assessment
+## Troubleshooting
 
-### Device Tests
-- Xiaomi Pad 7 Ultra testing
-- iPad testing
-- Various resolution testing
-- Cross-platform compatibility
+### Common Issues
+1. **Model Loading Failures**: Check model file integrity and storage permissions
+2. **Audio Processing Errors**: Validate input format (16kHz, mono, PCM16)
+3. **Video Processing Errors**: Check video codec support and format
+4. **Performance Issues**: Monitor RTF and adjust thread count
+5. **Language Detection Problems**: Check LID confidence thresholds
+6. **EPERM Errors**: Use app-scoped storage instead of public directories
+7. **Worker Cancellation**: Ensure foreground service is properly configured
+
+### Debug Tools
+- **Logging**: Comprehensive logging with configurable levels
+- **Metrics**: Real-time performance metrics
+- **Profiling**: Built-in performance profiler
+- **Validation**: Automated validation scripts
+- **Storage Self-Test**: Writability verification and diagnostics
 
 ## Contributing
 
-### Development Workflow
-1. Create feature branch from main
-2. Implement changes with tests
-3. Update documentation
-4. Submit pull request
-5. Address review feedback
-6. Merge after approval
+### Documentation Standards
+- **Comprehensive Coverage**: Complete feature documentation
+- **Clear Examples**: Code examples and usage patterns
+- **Performance Data**: Benchmarks and optimization strategies
+- **Troubleshooting**: Common issues and solutions
+- **Cross-Platform**: Platform-specific considerations
 
-### Code Standards
-- Follow Kotlin coding conventions
-- Write comprehensive tests
-- Update documentation
-- Follow security best practices
+### Maintenance
+- **Regular Updates**: Keep documentation current with code changes
+- **Version Control**: Track documentation changes
+- **Review Process**: Peer review for documentation updates
+- **User Feedback**: Incorporate user feedback and suggestions
 
-### Testing Requirements
-- Unit tests for new features
-- Integration tests for complex changes
-- Performance tests for optimization changes
-- Device tests for platform-specific changes
+## Future Enhancements
 
-## License
+### Planned Features
+- **Speaker Diarization**: Multi-speaker identification
+- **Real-time Processing**: Live audio/video streaming
+- **Custom Models**: Fine-tuned domain-specific models
+- **Advanced Post-processing**: Punctuation and capitalization
+- **Adaptive Chunking**: Dynamic chunk size based on content complexity
+- **Advanced Video Clipping**: AI-powered clip selection with user preferences
+- **Multi-modal Integration**: Enhanced audio-video synchronization
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+### Performance Improvements
+- **GPU Acceleration**: OpenCL/Metal support for both Whisper and CLIP
+- **Model Optimization**: Further quantization options
+- **Pipeline Optimization**: Parallel processing for both audio and video
+- **Memory Optimization**: Advanced caching strategies
+- **Service Optimization**: Enhanced background processing efficiency
 
-## Support
+---
 
-For support and questions:
-- Create an issue on GitHub
-- Check the documentation in the `docs/` folder
-- Review the troubleshooting guides
-- Contact the development team
-
-## Roadmap
-
-### Short Term (Next 3 months)
-- Enhanced GPU acceleration
-- Improved error handling
-- Performance optimizations
-- Documentation improvements
-
-### Medium Term (3-6 months)
-- Cloud integration
-- Advanced analytics
-- Custom algorithms
-- Real-time processing
-
-### Long Term (6+ months)
-- Machine learning optimization
-- Advanced accessibility features
-- Internationalization
-- Enterprise features
-
-## GPU Acceleration
-
-### VULKAN GPU Acceleration for Xiaomi Pad Ultra
-
-#### ✅ ARM64 Architecture: Native ARM64 Compilation
-- **Target Architecture**: `arm64-v8a`
-- **Native Compilation**: Optimized for ARM64 processors
-- **Performance**: Maximum efficiency on ARM64 devices
-
-#### ✅ Adreno 650 GPU: Hardware Acceleration for CLIP Processing
-- **GPU Model**: Adreno 650 (Qualcomm Snapdragon 870)
-- **Hardware Acceleration**: Direct GPU processing for CLIP models
-- **Performance**: 0.1s per frame on GPU vs 1.0s+ on CPU
-
-#### ✅ Batch Processing: Optimal Batch Size of 16 for Memory Efficiency
-- **Batch Size**: 16 frames per batch (optimized for 11.8GB RAM)
-- **Memory Management**: Streaming processing to avoid OOM
-- **Efficiency**: Balanced memory usage and processing speed
-
-#### ✅ VULKAN Support: Cross-Vendor GPU Acceleration
-- **Cross-Vendor**: Works with any VULKAN-compatible GPU
-- **Performance**: Superior to OpenCL in most cases
-- **Fallback**: Automatic fallback to OpenCL or CPU if VULKAN unavailable
-
-### Performance Benefits
-- **CLIP Processing**: 10x faster with GPU acceleration
-- **Memory Efficiency**: Optimized batch processing
-- **Cross-Platform**: Works on any VULKAN-compatible device
-- **Fallback Support**: Graceful degradation to CPU processing
+**Last Updated**: October 9, 2025  
+**Version**: 1.3  
+**Status**: Production Ready with Multi-Modal AI Processing

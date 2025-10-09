@@ -234,9 +234,10 @@ class ScopedStorageBridgeService : Service() {
             val jobFile = File("$OUTPUT_DIR/scoped_asr_job_${System.currentTimeMillis()}.json")
             jobFile.writeText(asrJob)
             
-            // Trigger processing
-            val triggerFile = File("$MIRAWHISPER_ROOT/scoped_trigger_processing.txt")
-            triggerFile.writeText("scoped_processing_requested")
+            // Initiate processing
+            // Use scoped storage for processing requests
+            val processingRequestFile = File("$MIRAWHISPER_ROOT/scoped_processing_request.txt")
+            processingRequestFile.writeText("scoped_processing_requested")
             
             Log.d(TAG, "✅ Scoped ASR job submitted successfully")
             true

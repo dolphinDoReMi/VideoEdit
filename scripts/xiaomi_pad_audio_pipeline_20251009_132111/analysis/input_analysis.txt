@@ -1,0 +1,14 @@
+Input File Analysis
+==================
+File: assets/test/tennis_interview_clip_003.mp4
+Size: 93M
+Duration: 300.011500s
+Format: "mov,mp4,m4a,3gp,3g2,mj2"
+
+Audio Streams:
+aac,48000,2,165954
+
+Video Streams:
+h264,1280,720,2436827
+
+Analysis Date: Thu Oct  9 13:21:11 CST 2025

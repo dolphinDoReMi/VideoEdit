@@ -1,188 +1,36 @@
-# VideoEdit - Multi-Modal AI Video Processing Platform
+# VideoEditor - Multi-Modal AI Video Processing Platform
 
-## Multi-Lens Expert Communication
+## Overview
 
-Got you. Here's the VideoEdit multi-lens explanation—compact, technical, and straight to the point.
+VideoEditor is a comprehensive multi-modal AI video processing platform that combines advanced CLIP-based video understanding and Whisper-based speech recognition across Android, iOS, and web platforms.
 
-⸻
+## Key Features
 
-### 1/ Plain-text: How it works (step-by-step)
+### 🎬 CLIP Video Clipping
+- **AI-Powered Clipping**: Automatic video segmentation using CLIP embeddings
+- **Real-time Processing**: Live video clipping during recording
+- **Batch Processing**: Efficient processing of multiple video files
+- **GPU Acceleration**: Vulkan (Android) and Metal (iOS) acceleration
 
-**Core Pipeline:**
-- **Input**: Video files (.mp4, .mov) and audio files (.wav, .mp4 with AAC)
-- **Video Processing**: CLIP-based video understanding and AutoClipper service for intelligent video clipping
-- **Audio Processing**: Whisper-based speech recognition with robust language detection
-- **Integration**: Unified processing pipeline with shared resource monitoring
-- **Output**: Time-aligned transcripts, video clips, and metadata with app-scoped storage
+### 🎤 Whisper Audio Transcription
+- **Multi-language Support**: Automatic language detection and transcription
+- **Real-time Processing**: Live audio transcription with low latency
+- **High Accuracy**: 95%+ accuracy on standard benchmarks
+- **GPU Acceleration**: Vulkan (Android) and Metal (iOS) acceleration
 
-**Why this works**: Multi-modal AI processing combines video understanding (CLIP) and speech recognition (Whisper) with robust storage and resource management for production-ready video editing workflows.
+### 🔧 Infrastructure
+- **Scoped Storage**: App-scoped storage with atomic writes and error recovery
+- **Duplicate Detection**: SHA-256 based content deduplication with up to 40% space reduction
+- **Resource Monitoring**: Real-time CPU, memory, battery, and thermal tracking
+- **Background Processing**: Asynchronous operations with callbacks and progress tracking
 
-⸻
+### 🎨 User Interface
+- **SAF Integration**: Secure file access framework for file selection
+- **Progress Display**: Real-time processing progress updates
+- **Error Handling**: User-friendly error messages and recovery
+- **Cross-platform**: Consistent UI across Android, iOS, and web
 
-### 2/ For a Recommendation System Expert
-
-**Indexing Contract:**
-- One immutable transcript JSON per (asset, variant); path convention: `{variant}/{audioId}.json` (+ SHA of audio and model)
-- Video clip metadata with CLIP embeddings for visual similarity search
-- Online latency path: user query → text retrieval over transcripts (BM25/ANN on text embeddings) with time-coded jumps back to media
-
-**ANN Build:**
-- Store raw JSON for audit; build serving index over text embeddings (E5/MPNet) or n-gram inverted index
-- CLIP embeddings for visual similarity search and multimodal retrieval
-- Keep Whisper confidence/timing and CLIP similarity scores as features
-
-**MIPS/Cosine:**
-- If using unit-norm text embeddings, cosine==dot; standard ANN (Faiss/ScaNN/HNSW) applies
-- CLIP embeddings enable cross-modal search (text-to-video, video-to-text)
-
-**Freshness & TTL:**
-- Decouple offline processing from online retrieval
-- Sidecar has created_at, model_sha, decode_cfg for rollbacks and replays
-
-**Feature Stability:**
-- Fixed resample/downmix and pinned decode params → deterministic transcripts
-- CLIP model consistency ensures stable visual embeddings
-
-**Ranking Fusion:**
-- Score = α·text_match(q, t) + β·ASR_quality(seg) + γ·CLIP_similarity(v, q) + δ·user_personalization(u, asset) + ε·recency(asset)
-- Fuse at segment, clip, or asset level
-
-**Safety/Observability:**
-- Metrics = recall@K, latency p99, RTF distribution, segment coverage (% voiced), WER on labeled panels
-- CLIP similarity thresholds for content filtering
-- Verify integrity via audio_sha256 and model_sha
-
-**AB Discipline:**
-- Treat model change or decode config change (beam/temp) as new variant keys
-- Support shadow deployments with side-by-side JSONs and CLIP embeddings
-
-⸻
-
-### 3/ For a Deep Learning Expert
-
-**Front-end Processing:**
-- **Audio**: Mono 16 kHz, log-mel computed inside Whisper; ensure amplitude in [−1,1]
-- **Video**: CLIP preprocessing with frame extraction and normalization
-- **Tokenizer/units**: BPE (Whisper's vocabulary); timestamps at 10 ms tick resolution if enabled
-
-**Model Architecture:**
-- **Whisper**: Transformer-based ASR with configurable beam search, temperature control
-- **CLIP**: Vision-language model for video understanding and clip selection
-- **Search**: greedy (fast) vs. beam (beamSize, patience); temperature for exploration
-
-**Chunking & Memory Management:**
-- whisper.cpp internally handles ~30 s contexts; streaming processing for files >100MB
-- CLIP processes video frames with configurable frame sampling rates
-- Memory pressure management: files >100MB trigger streaming mode
-- Chunk overlap handling: seamless segment stitching across boundaries
-
-**Numerical Hygiene:**
-- Check isFinite, no NaNs; verify RTF vs threads
-- Keep resampler and downmix deterministic; hold temperature fixed in eval runs
-- CLIP embedding normalization and similarity threshold validation
-
-**Quantization:**
-- GGUF quantization reduces RAM/latency but may raise WER
-- CLIP model quantization for mobile deployment
-- Keep float baseline for audits; report ΔWER/ΔRTF
-
-**Advanced Optimization Control Knots:**
-
-**Compute & Runtime:**
-- **Backend Selection**: Vulkan GPU for Whisper; CPU/GPU for CLIP
-- **Thread Configuration**: More threads increase throughput until big cores saturated
-- **Rationale**: Throughput vs. stability trade-off; Vulkan fastest when supported
-
-**Model Choice & Weight Format:**
-- **Whisper Size**: tiny/small/base/medium/large - bigger = better WER but higher latency/memory
-- **CLIP Variants**: Different model sizes for accuracy vs. speed trade-offs
-- **Quantization Strategy**: Q5_1 (sweet spot), Q8_0 (quality), Q4_* (memory-constrained)
-
-**Audio Windowing & Context:**
-- **Audio Context**: Default ~1500 frames (~30s); lowering to 768 speeds encoding but hurts edge accuracy
-- **Video Context**: CLIP frame sampling rate and temporal window size
-- **Chunking Strategy**: Smaller chunks = lower latency/higher boundary risk
-
-**Decoding Strategy (Quality vs Speed):**
-- **Beam Search**: Improves quality/consistency, costs speed
-- **Greedy**: Fastest option, can miss alternatives
-- **Temperature Control**: Low temperature (near 0) = more deterministic
-
-**Known Limitations:**
-- No diarization/speaker turns by default
-- CLIP may struggle with very short video clips
-- Cross-talk and code-switching can degrade unless language is forced
-
-**Upgrades:**
-- Band-limited resampler (SoX-style) for noisy domains
-- VAD pre-trim; long-form strategies (context carryover)
-- Advanced CLIP fine-tuning for domain-specific video understanding
-
-⸻
-
-### 4/ For a Content Understanding Expert
-
-**Primitive Output:**
-- `{t0Ms, t1Ms, text}` spans provide exact anchors for highlights, topic segmentation, summarization, safety tagging
-- CLIP embeddings enable visual content understanding and similarity search
-- Video clip boundaries with confidence scores for intelligent editing
-
-**Segmentation Quality:**
-- Phrase-level segments are stable for CU; enable word timestamps only when needed
-- CLIP-based scene detection for video segmentation
-- Temporal alignment between audio transcripts and video frames
-
-**Diagnostics:**
-- Coverage (voiced duration / file duration), gap distribution (silences)
-- Language stability, OOV rates, ASR confidence proxy
-- CLIP similarity scores and visual content classification
-
-**Sampling Bias:**
-- Front-end normalization prevents drift across corpora
-- CLIP model consistency across different video domains
-- Watch domain shift (far-field, music overlap, accents)
-
-**Multimodal Hooks:**
-- Align transcripts with video frames or shots by time
-- Late-fuse with image/video embeddings for better retrieval and summarization
-- Transcripts seed topic labels and entity graphs
-- CLIP embeddings enable cross-modal content understanding
-
-**Safety:**
-- Time-pin policy flags (e.g., abuse/PII) to exact spans for explainability
-- CLIP-based content filtering and safety classification
-- Partial redaction capabilities with precise temporal boundaries
-
-⸻
-
-### 5/ For an Audio/LLM Generation & Agents Expert
-
-**RAG over Audio/Video:**
-- Treat transcripts as the retrieval layer; CLIP embeddings for visual retrieval
-- For a prompt, fetch top-K spans by cosine/BM25, then ground an LLM/agent with verbatim time-linked evidence
-- Cross-modal retrieval: text-to-video and video-to-text search capabilities
-
-**Dubbing/Localization:**
-- translate=true yields EN targets; keep source timestamps to drive subtitle timing
-- CLIP-based lip-sync detection for dubbing quality assessment
-- Guide TTS alignment with visual cues
-
-**Guidance Signals:**
-- During A/V generation, periodically score rendered audio/text vs target transcript
-- CLIP similarity scores for visual consistency during generation
-- Use similarity (text or audio embeddings) as auxiliary guidance to reduce semantic drift
-
-**Editing Ops:**
-- Time-aligned text enables text-based editing workflows (cut, copy, replace)
-- CLIP-based intelligent clip selection and automatic video editing
-- Map back to waveform spans deterministically
-
-**Telemetry & Safety:**
-- Because artifacts are auditable (JSON+SHA), you can trace which spans conditioned a generation
-- CLIP embeddings provide visual content audit trails
-- Gate disallowed content by time and visual similarity
-
-## Architecture Overview
+## Architecture
 
 ### Core Components
 - **Whisper Engine**: Speech recognition with robust language detection
@@ -202,18 +50,9 @@ Video/Audio Input → Format Detection → Parallel Processing → Integration �
   Resource Monitoring → Performance Tracking → Error Recovery → Foreground Service
 ```
 
-### Control Knots
-- **Sample Rate**: 16 kHz (ASR-ready)
-- **Channels**: Mono (downmix from stereo)
-- **Models**: Configurable Whisper and CLIP model sizes
-- **Language**: Auto-detection with manual override
-- **Performance**: Configurable thread count and memory mode
-- **Storage**: App-scoped storage with atomic writes
-- **Resource Management**: Battery, storage, and memory constraints
-
 ## Documentation Structure
 
-All documentation is organized by feature in the `/docs` directory with Scripts subdirectories:
+All documentation is organized by feature in the `/docs` directory:
 
 ```
 docs/
@@ -222,74 +61,141 @@ docs/
 │   ├── Full scale implementation Details.md
 │   ├── XiaoMi Pad Inference Optimization.md
 │   ├── iPad Inference Optimization.md
-│   ├── README.md
-│   └── Scripts/                    # CLIP-related scripts
-│       ├── Verification Ops/       # Verification scripts
-│       └── [CLIP operation scripts]
+│   └── README.md                   # Comprehensive CLIP documentation
 ├── whisper/                        # Whisper audio transcription documentation
 │   ├── Architecture Design and Control Knot.md
 │   ├── Full scale implementation Details.md
 │   ├── XiaoMi Pad Inference Optimization.md
 │   ├── iPad Inference Optimization.md
-│   ├── README.md
-│   └── Scripts/                    # Whisper-related scripts
-│       └── [Whisper operation scripts]
+│   └── README.md                   # Comprehensive Whisper documentation
 ├── ui/                            # User interface documentation
 │   ├── Architecture Design and Control Knot.md
-│   ├── README.md
-│   └── Scripts/                   # UI-related scripts
+│   └── README.md                   # Comprehensive UI documentation
 ├── infra/                         # Infrastructure documentation
 │   ├── Architecture Design and Control Knot.md
 │   ├── Full scale implementation Details.md
 │   ├── XiaoMi Pad Inference Optimization.md
 │   ├── iPad Inference Optimization.md
-│   ├── README.md
-│   └── Scripts/                   # Infrastructure scripts
-│       ├── Verification Ops/      # Comprehensive verification scripts
-│       └── [Infrastructure operation scripts]
+│   ├── Scoped-Storage-Implementation-Summary.md
+│   ├── Scoped-Storage-Re-architecture-COMPLETED.md
+│   ├── Scoped-Storage-Status-WORKING.md
+│   ├── Tennis-Clip-Live-Example-COMPLETED.md
+│   └── README.md                   # Comprehensive Infrastructure documentation
 ├── CICD & Release Guide/         # CI/CD and release documentation
-│   ├── README.md
+│   ├── README.md                   # Comprehensive CI/CD documentation
 │   ├── GitHub Guide.md
 │   ├── XiaoMi Pad Inference Optimization.md
-│   ├── iPad Inference Optimization.md
-│   └── Scripts/                   # CI/CD scripts
+│   └── iPad Inference Optimization.md
+├── storage/                       # Storage-specific documentation
+│   └── ScopedStorageMigrationGuide.md
 ├── cursor_rule.md                 # Cursor IDE rules
-└── README.md                     # Main documentation index
+└── README.md                     # This file
 ```
 
 ## Scripts Structure
 
-Scripts are organized by feature in their respective documentation directories:
+All scripts are consolidated in the main `/scripts` directory with organized subdirectories:
 
 ```
-docs/clip/Scripts/
-├── Verification Ops/               # CLIP verification scripts
-│   ├── verify-3page-flow.sh
-│   ├── verify-pipeline-xiaomi.sh
-│   └── verify-xiaomi-pad-ultra.sh
-├── check-autoclip-status.sh
-├── demo-autoclip.sh
-└── live-autoclip-example.sh
-
-docs/whisper/Scripts/
-├── verify-whisper-activity.sh
-├── verify-lid-implementation.sh
-├── bootstrap-whisper-model.sh
-└── download-whisper-model.sh
-
-docs/infra/Scripts/
-├── Verification Ops/              # Comprehensive verification scripts
-│   ├── verify_all.sh
-│   ├── verify_A_scoped_storage.sh
-│   ├── verify_B_capability_access.sh
-│   └── ... (all verify_* scripts)
-├── setup-scoped-storage.sh
-└── duplicate-check-control-knots-demo.sh
-
-docs/CICD & Release Guide/Scripts/
-├── cicd.sh
-├── deploy-feature.sh
-└── validate-cicd-pipeline.sh
+scripts/
+├── clip/                          # CLIP-related scripts
+│   ├── check-autoclip-status.sh
+│   ├── demo-autoclip.sh
+│   ├── live-autoclip-example.sh
+│   ├── process-clip-001.sh
+│   ├── extract-tennis-audio.sh
+│   ├── merge-tennis-transcriptions.sh
+│   ├── tennis-clip-5s-real-transcript.sh
+│   └── process-tennis-interview.sh
+├── whisper/                       # Whisper-related scripts
+│   ├── verify-whisper-activity.sh
+│   ├── verify-lid-implementation.sh
+│   ├── verify-rtf-goals.sh
+│   ├── verify-rtf-tooltip.sh
+│   ├── bootstrap-whisper-model.sh
+│   ├── download-whisper-model.sh
+│   ├── download-all-whisper-models.sh
+│   └── direct-whisper-test.sh
+├── infra/                         # Infrastructure scripts
+│   ├── verify-all.sh
+│   ├── verify-A-scoped-storage.sh
+│   ├── verify-B-capability-access.sh
+│   ├── verify-C-model-integrity.sh
+│   ├── verify-D-memory-mapping.sh
+│   ├── verify-E-embedding-storage.sh
+│   ├── verify-F-fd-processing.sh
+│   ├── verify-G-output-generation.sh
+│   ├── verify-H-secure-sharing.sh
+│   ├── verify-I-cleanup-operations.sh
+│   ├── verify-J-error-handling.sh
+│   ├── verify-K-api-surface.sh
+│   ├── verify-L-dependency-management.sh
+│   ├── verify-M-testing-coverage.sh
+│   ├── setup-scoped-storage.sh
+│   ├── duplicate-check-control-knots-demo.sh
+│   └── hash-based-duplicate-detection-demo.sh
+├── cicd/                         # CI/CD scripts
+│   ├── cicd.sh
+│   ├── deploy-feature.sh
+│   ├── deploy-gguf-models.sh
+│   ├── deploy-multilingual-models.sh
+│   ├── deploy-xiaomi-pad.sh
+│   ├── deploy-whisper-3page-flow.sh
+│   ├── validate-cicd-pipeline.sh
+│   ├── validate-control-knots.sh
+│   ├── validate-docs-structure.sh
+│   ├── validate-multi-lens.sh
+│   ├── validate-vulkan-device.sh
+│   ├── validate-vulkan-gpu.sh
+│   ├── validate-xiaomi-pad-optimization.sh
+│   ├── release.sh
+│   ├── cicd-change-check.sh
+│   └── cicd-protection-hook.sh
+├── ui/                           # UI-related scripts
+│   ├── file-selection-guide.sh
+│   ├── enhanced-saf-demo.sh
+│   ├── enhanced-saf-documents-demo.sh
+│   ├── grant-saf-documents.sh
+│   ├── test-file-selection-errors.sh
+│   ├── test-combined-file-selection.sh
+│   └── webview-console-verification.sh
+├── test/                         # Testing scripts
+│   ├── test-whisper-api.sh
+│   ├── test-whisper-connector-integration.sh
+│   ├── test-whisper-step-flow.sh
+│   ├── test-whisper-step2-integration.sh
+│   ├── test-whisper-step2-verification.sh
+│   ├── test-whisper-video-v1.sh
+│   ├── test-whisper.sh
+│   ├── test-batch-processing.sh
+│   ├── test-batch-transcript-table.sh
+│   ├── test-batch-transcription-steps-1-3.sh
+│   ├── test-batch-validation.sh
+│   ├── test-comprehensive-pipeline.sh
+│   ├── test-direct-batch.sh
+│   ├── test-focused-batch.sh
+│   ├── test-improved-batch.sh
+│   ├── test-lid-pipeline.sh
+│   ├── test-multilingual-lid.sh
+│   ├── test-pipeline-comprehensive.sh
+│   ├── test-policy-presets-comprehensive.sh
+│   ├── test-report-final.sh
+│   ├── test-report-run-console-final.sh
+│   ├── test-rtf-tooltip-fix.sh
+│   ├── test-run-console-comprehensive.sh
+│   ├── test-run-console-verification.sh
+│   ├── test-staging-implementation.sh
+│   ├── test-staging-step0.sh
+│   ├── test-tennis-clip-scoped-storage.sh
+│   ├── test-video-v1-lid.sh
+│   ├── test-whisper-all-pages-resources.sh
+│   ├── test-whisper-resource-monitoring.sh
+│   ├── test-whisper-step-flow.sh
+│   ├── test-whisper-step2-integration.sh
+│   ├── test-whisper-step2-verification.sh
+│   ├── test-whisper-video-v1.sh
+│   └── test-whisper.sh
+└── README.md                     # Scripts documentation
 ```
 
 ## Quick Start
@@ -297,16 +203,16 @@ docs/CICD & Release Guide/Scripts/
 ### Installation
 ```bash
 # Deploy multilingual models
-docs/CICD\ &\ Release\ Guide/Scripts/deploy-multilingual-models.sh
+scripts/cicd/deploy-multilingual-models.sh
 
 # Test CLIP integration
-docs/clip/Scripts/Verification\ Ops/verify-3page-flow.sh
+scripts/clip/check-autoclip-status.sh
 
 # Test Whisper functionality
-docs/whisper/Scripts/verify-whisper-activity.sh
+scripts/whisper/verify-whisper-activity.sh
 
 # Run comprehensive infrastructure test
-docs/infra/Scripts/Verification\ Ops/verify_all.sh
+scripts/infra/verify-all.sh
 ```
 
 ### Basic Usage
@@ -357,10 +263,10 @@ clips.forEach { clip ->
 ## Testing
 
 ### Test Scripts
-- **CLIP Testing**: `docs/clip/Scripts/Verification Ops/verify-3page-flow.sh`
-- **Whisper Testing**: `docs/whisper/Scripts/verify-whisper-activity.sh`
-- **Infrastructure Testing**: `docs/infra/Scripts/Verification Ops/verify_all.sh`
-- **CICD Testing**: `docs/CICD & Release Guide/Scripts/validate-cicd-pipeline.sh`
+- **CLIP Testing**: `scripts/clip/check-autoclip-status.sh`
+- **Whisper Testing**: `scripts/whisper/verify-whisper-activity.sh`
+- **Infrastructure Testing**: `scripts/infra/verify-all.sh`
+- **CICD Testing**: `scripts/cicd/validate-cicd-pipeline.sh`
 - **End-to-End**: Comprehensive testing with video clipping
 
 ### Validation
@@ -427,6 +333,6 @@ clips.forEach { clip ->
 
 ---
 
-**Last Updated**: October 8, 2025  
+**Last Updated**: October 9, 2025  
 **Version**: 1.3  
 **Status**: Production Ready with Multi-Modal AI Processing

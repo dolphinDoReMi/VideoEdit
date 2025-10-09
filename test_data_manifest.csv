@@ -1,0 +1,2 @@
+clip_id,filename,lang,duration_sec,ref_text
+arm1_test_001,clip_002.mp4,en,30,"This is a test transcript for ARM-1 evaluation"

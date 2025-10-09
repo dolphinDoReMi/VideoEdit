@@ -2,11 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Storage permissions for Auto-Clipper -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" 
-        tools:ignore="ScopedStorage" />
+    <!-- Storage permissions for Auto-Clipper - Using Android 11+ scoped storage -->
+    <!-- Legacy permissions removed - using READ_MEDIA_* permissions below -->
     
     <!-- Android 13+ (API 33+) media permissions -->
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
@@ -71,7 +68,7 @@
         android:hardwareAccelerated="false"
         android:vmSafeMode="true"
         android:largeHeap="true"
-        android:requestLegacyExternalStorage="true"
+        android:requestLegacyExternalStorage="false"
         android:extractNativeLibs="false"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
@@ -95,6 +92,15 @@
             </intent-filter>
         </activity>
 
+        <!-- Scoped Storage Test Activity -->
+        <activity 
+            android:name="com.mira.videoeditor.infra.storage.ScopedStorageTestActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Mira">
+            <!-- Test activity for scoped storage pipeline -->
+        </activity>
+
         <!-- MiraWhisper Integration Activity -->
         <!-- Unified MiraWhisper Activity -->
         <!-- Simple MiraWhisper Activity -->
@@ -103,30 +109,21 @@
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Mira">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            <!-- Removed LAUNCHER category - not main launcher -->
         </activity>
         <activity 
             android:name="com.mira.whisper.UnifiedMiraWhisperActivity"
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Mira">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            <!-- Removed LAUNCHER category - not main launcher -->
         </activity>
         <activity 
             android:name="com.mira.whisper.MiraWhisperIntegrationActivity"
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Mira">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            <!-- Removed LAUNCHER category - not main launcher -->
         </activity>
 
         <!-- Whisper File Selection Activity (Secondary) -->

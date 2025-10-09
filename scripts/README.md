@@ -1,181 +1,199 @@
-# Xiaomi/HyperOS Hands-Free USB Install Scripts
+# Scripts Documentation
 
-This directory contains scripts to automate USB installs on Xiaomi/HyperOS devices with minimal prompts and auto-granted permissions.
+## Overview
 
-## Quick Start
+This directory contains all scripts organized by feature for the VideoEditor application. Scripts are categorized by functionality and maintained with kebab-case naming conventions.
 
-### Simple Usage
-```bash
-# Install debug build (builds if needed)
-./scripts/quick_install.sh debug
+## Directory Structure
 
-# Install release build
-./scripts/quick_install.sh release
-
-# Install Xiaomi-specific build
-./scripts/quick_install.sh xiaomi
+```
+scripts/
+├── clip/                          # CLIP video clipping scripts
+├── whisper/                       # Whisper audio transcription scripts
+├── infra/                         # Infrastructure and storage scripts
+├── cicd/                         # CI/CD and deployment scripts
+├── ui/                           # User interface scripts
+├── test/                         # Testing and validation scripts
+└── README.md                     # This file
 ```
 
-### Advanced Usage
-```bash
-# Install specific APK with custom package name
-./scripts/xiaomi_hands_free_install.sh /path/to/app.apk com.your.package
+## Script Categories
 
-# Install with default settings
-./scripts/xiaomi_hands_free_install.sh
-```
+### CLIP Scripts (`clip/`)
+Scripts related to CLIP video processing and AutoClipper functionality:
 
-## What These Scripts Do
+- **Verification Scripts**: End-to-end CLIP pipeline verification
+- **Processing Scripts**: Video processing and clip generation
+- **Tennis-Specific Scripts**: Specialized tennis video processing
+- **Demo Scripts**: Demonstration and example scripts
 
-### 1. Device Setup Verification
-- ✅ Checks USB debugging is enabled
-- ✅ Verifies "Install via USB" is enabled
-- ✅ Confirms device authorization
-- ✅ Provides guidance for common MIUI/HyperOS issues
+### Whisper Scripts (`whisper/`)
+Scripts related to Whisper audio transcription and language detection:
 
-### 2. Permission Automation
-- ✅ Disables package verifiers temporarily
-- ✅ Installs APK with `-g` flag (auto-grant permissions)
-- ✅ Grants all dangerous runtime permissions via `pm grant`
-- ✅ Re-enables package verifiers after install
+- **Verification Scripts**: Whisper service and functionality verification
+- **Processing Scripts**: Audio processing and transcription
+- **Integration Scripts**: Complete integration testing
+- **Model Management**: Model download and bootstrap scripts
 
-### 3. Error Handling
-- ✅ Handles `INSTALL_FAILED_USER_RESTRICTED` errors
-- ✅ Provides specific guidance for MIUI gate issues
-- ✅ Manages insufficient storage errors
-- ✅ Handles update incompatibility issues
+### Infrastructure Scripts (`infra/`)
+Scripts related to storage, resource monitoring, and system infrastructure:
 
-## One-Time Device Setup
+- **Verification Scripts**: Comprehensive infrastructure verification (A-M)
+- **Storage Scripts**: Scoped storage and duplicate detection
+- **Resource Monitoring**: Memory, CPU, and performance monitoring
+- **System Scripts**: System-level operations and diagnostics
 
-Before using these scripts, ensure your Xiaomi device is properly configured:
+### CI/CD Scripts (`cicd/`)
+Scripts related to continuous integration, deployment, and release management:
 
-### 1. Enable Developer Options
-1. Go to **Settings** → **About phone**
-2. Tap **MIUI version** 7 times
-3. Go back to **Settings** → **Additional settings** → **Developer options**
+- **Build Scripts**: Build automation and configuration
+- **Deployment Scripts**: Multi-platform deployment automation
+- **Validation Scripts**: Pipeline and system validation
+- **Release Scripts**: Release management and versioning
 
-### 2. Configure USB Settings
-1. Enable **USB debugging**
-2. Enable **Install via USB**
-   - If you see "temporarily restricted":
-     - Turn off Wi-Fi
-     - Turn on mobile data
-     - Sign in to Mi account if prompted
-     - Try enabling again
-3. (Optional) Enable **USB debugging (Security settings)**
+### UI Scripts (`ui/`)
+Scripts related to user interface, file selection, and user experience:
 
-### 3. Authorize Your Computer
-1. Connect device via USB
-2. Accept the "Allow USB debugging?" dialog
-3. **Important**: Check "Always allow from this computer"
+- **File Selection Scripts**: SAF integration and file handling
+- **UI Testing Scripts**: User interface testing and validation
+- **Demo Scripts**: User experience demonstrations
 
-## Script Features
+### Test Scripts (`test/`)
+Comprehensive testing and validation scripts:
 
-### `xiaomi_hands_free_install.sh`
-The main installation script with comprehensive error handling:
+- **Unit Tests**: Individual component testing
+- **Integration Tests**: Cross-module integration testing
+- **Performance Tests**: Performance and benchmark testing
+- **E2E Tests**: End-to-end testing scripts
 
-**Features:**
-- Device connection verification
-- Xiaomi-specific setting checks
-- Automatic permission granting
-- Robust error handling
-- Installation verification
-- Optional app launching
+## Usage Guidelines
 
-**Usage:**
-```bash
-./scripts/xiaomi_hands_free_install.sh [APK_PATH] [PACKAGE_NAME] [DEVICE_NAME]
-```
-
-### `quick_install.sh`
-A simple wrapper that builds and installs:
-
-**Features:**
-- Automatic APK building
-- Multiple build type support
-- Simplified interface
-
-**Usage:**
-```bash
-./scripts/quick_install.sh [debug|release|xiaomi]
-```
-
-## Troubleshooting
-
-### Common Issues
-
-#### "INSTALL_FAILED_USER_RESTRICTED"
-This means the MIUI/HyperOS security gate is active:
-
-**Solutions:**
-1. Re-enable "Install via USB" in Developer Options
-2. Toggle Wi-Fi off, mobile data on, then enable "Install via USB" again
-3. Ensure you accepted your computer's ADB key with "Always allow"
-4. Try a different USB port
-
-#### "Remember my choice" doesn't stick
-This is Xiaomi's policy, not a setup issue. The scripts handle this automatically.
-
-#### USB debugging gets disabled
-Xiaomi may disable this periodically. The scripts will detect and warn you.
-
-#### Package verifier errors
-The scripts temporarily disable verifiers during install, then re-enable them.
-
-### Manual Recovery Commands
-
-If you need to manually fix device settings:
+### Script Execution
+All scripts maintain executable permissions (`+x`) and use kebab-case naming:
 
 ```bash
-# Check device connection
-adb devices
+# Execute a script
+./scripts/clip/check-autoclip-status.sh
 
-# Re-enable USB debugging
-adb shell "settings put global adb_enabled 1"
+# Execute with parameters
+./scripts/whisper/verify-whisper-activity.sh --verbose
 
-# Re-enable Install via USB
-adb shell "settings put global install_non_market_apps 1"
-
-# Disable verifiers for troubleshooting
-adb shell "settings put global verifier_verify_adb_installs 0"
-adb shell "settings put global package_verifier_enable 0"
+# Execute from any directory
+cd /path/to/project
+./scripts/infra/verify-all.sh
 ```
 
-## Expected Behavior
+### Script Dependencies
+Scripts may depend on:
+- **Android SDK**: For Android-specific operations
+- **Xcode**: For iOS-specific operations
+- **Node.js/pnpm**: For web-specific operations
+- **System Tools**: Standard Unix tools and utilities
 
-After proper setup:
-- ✅ `adb install -r -t -g` pushes builds with no on-device prompts
-- ✅ Runtime permissions are granted automatically
-- ✅ No permission dialogs appear in the app
-- ✅ Installation is nearly hands-free
+### Error Handling
+All scripts include:
+- **Error Checking**: Comprehensive error detection and handling
+- **Logging**: Detailed logging with configurable levels
+- **Exit Codes**: Proper exit codes for automation
+- **Cleanup**: Proper cleanup on failure
 
-## Limitations
+## Script Maintenance
 
-- Xiaomi's "USB debugging (Security settings)" and "Install via USB" can reset occasionally
-- This is Xiaomi's policy - there's no official way to keep them always-on without root
-- The scripts detect when this happens and provide guidance
+### Naming Conventions
+- **kebab-case**: All script names use kebab-case (e.g., `verify-whisper-activity.sh`)
+- **Descriptive Names**: Script names clearly describe their functionality
+- **Consistent Suffixes**: Use `.sh` suffix for all shell scripts
 
-## Integration with Build Process
+### Documentation
+Each script includes:
+- **Header Comments**: Description, usage, and parameters
+- **Inline Comments**: Key operations and logic explanation
+- **Error Messages**: Clear, actionable error messages
+- **Help Text**: Usage information and examples
 
-You can integrate these scripts into your build process:
+### Testing
+Scripts are tested for:
+- **Functionality**: Correct operation under normal conditions
+- **Error Handling**: Proper behavior under error conditions
+- **Cross-platform**: Compatibility across different platforms
+- **Performance**: Acceptable execution time and resource usage
 
+## Quick Reference
+
+### Most Used Scripts
+
+#### CLIP Operations
 ```bash
-# In your build script
-./gradlew assembleDebug
-./scripts/quick_install.sh debug
+# Check AutoClipper status
+./scripts/clip/check-autoclip-status.sh
+
+# Demo AutoClipper functionality
+./scripts/clip/demo-autoclip.sh
+
+# Process tennis clips
+./scripts/clip/process-tennis-interview.sh
 ```
 
-Or use the main script for more control:
-
+#### Whisper Operations
 ```bash
-# Custom build and install
-./gradlew assembleXiaomiPadDebug
-./scripts/xiaomi_hands_free_install.sh app/build/outputs/apk/xiaomiPad/app-xiaomiPad-debug.apk com.mira.videoeditor.xiaomi
+# Verify Whisper functionality
+./scripts/whisper/verify-whisper-activity.sh
+
+# Download Whisper models
+./scripts/whisper/download-all-whisper-models.sh
+
+# Test Whisper integration
+./scripts/whisper/direct-whisper-test.sh
 ```
 
-## Security Notes
+#### Infrastructure Operations
+```bash
+# Run comprehensive verification
+./scripts/infra/verify-all.sh
 
-- Package verifiers are temporarily disabled during install for smoother operation
-- They are automatically re-enabled after installation
-- This is safe for development builds
-- Consider the security implications for production deployments
+# Setup scoped storage
+./scripts/infra/setup-scoped-storage.sh
+
+# Check storage compliance
+./scripts/infra/check-storage-compliance.sh
+```
+
+#### CI/CD Operations
+```bash
+# Run CI/CD pipeline
+./scripts/cicd/cicd.sh
+
+# Deploy features
+./scripts/cicd/deploy-feature.sh
+
+# Validate pipeline
+./scripts/cicd/validate-cicd-pipeline.sh
+```
+
+## Contributing
+
+### Adding New Scripts
+1. **Choose Category**: Place script in appropriate subdirectory
+2. **Follow Naming**: Use kebab-case naming convention
+3. **Add Documentation**: Include header comments and help text
+4. **Test Thoroughly**: Test under various conditions
+5. **Update README**: Update this documentation
+
+### Modifying Existing Scripts
+1. **Maintain Compatibility**: Ensure backward compatibility
+2. **Update Documentation**: Update comments and help text
+3. **Test Changes**: Test modifications thoroughly
+4. **Update References**: Update any references to the script
+
+### Script Standards
+- **Error Handling**: Comprehensive error checking and handling
+- **Logging**: Detailed logging with appropriate levels
+- **Cleanup**: Proper cleanup on success and failure
+- **Performance**: Efficient execution and resource usage
+- **Security**: Secure handling of sensitive data
+
+---
+
+**Last Updated**: October 9, 2025  
+**Version**: 1.3  
+**Status**: Production Ready

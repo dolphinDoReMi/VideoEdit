@@ -35,12 +35,12 @@ class VideoEmbeddingE2EInstrumentedTest {
                  "clip_image_encoder.ptl, clip_text_encoder.ptl, vocab.json, merges.txt, tokenizer_config.json. Cause: ${t.message}")
         }
 
-        // --- 2) Pick a video source (sdcard preferred, else raw resource)
-        val sdcardPath = "/sdcard/Movies/video_v1.mp4"
-        val useSdcard = File(sdcardPath).let { it.exists() && it.length() > 0L }
+        // --- 2) Pick a video source (app-private storage preferred, else raw resource)
+        val appPrivatePath = File(ctx.filesDir, "test_videos/video_v1.mp4").absolutePath
+        val useAppPrivate = File(appPrivatePath).let { it.exists() && it.length() > 0L }
         val retriever = MediaMetadataRetriever()
-        if (useSdcard) {
-            retriever.setDataSource(sdcardPath)
+        if (useAppPrivate) {
+            retriever.setDataSource(appPrivatePath)
         } else {
             val resId = ctx.resources.getIdentifier("testclip", "raw", ctx.packageName)
             require(resId != 0) {
@@ -84,7 +84,7 @@ class VideoEmbeddingE2EInstrumentedTest {
         val videoVec = ClipEngines.normalizeEmbedding(acc) // final L2 on pooled vector
 
         // --- 5) Persist as auditable bytes and verify sidecar
-        val id = if (useSdcard) "local_video_v1" else "raw_testclip"
+        val id = if (useAppPrivate) "local_video_v1" else "raw_testclip"
         val variant = "clip_vit_b32_mean_v1"
         val embeddingStore = FileEmbeddingStore()
         
@@ -111,8 +111,8 @@ class VideoEmbeddingE2EInstrumentedTest {
         assertEquals("Model mismatch", variant, loadedMetadata["model"])
         assertEquals("ID mismatch", id, loadedMetadata["id"])
 
-        // Verify JSON sidecar consistency
-        val variantDir = File(File("/sdcard/MiraClip/out/embeddings"), variant)
+        // Verify JSON sidecar consistency (using app-private storage)
+        val variantDir = File(File(ctx.filesDir, "MiraClip/out/embeddings"), variant)
         val jsFile = File(variantDir, "$id.json")
         assertTrue("JSON sidecar not created", jsFile.exists())
         

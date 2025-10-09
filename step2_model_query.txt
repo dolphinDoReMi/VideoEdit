@@ -1,0 +1,2 @@
+Row: 209 _id=1000003227, _display_name=test-whisper-model.gguf, _size=1048576
+Row: 210 _id=1000003228, _display_name=small.en-q5_1.gguf, _size=15

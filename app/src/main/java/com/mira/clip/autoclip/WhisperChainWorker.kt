@@ -60,18 +60,21 @@ class WhisperChainWorker(appCtx: Context, params: WorkerParameters) : CoroutineW
                 "batch_id" to "tennis_interview_autoclip"
             )
 
-            val whisperJob = OneTimeWorkRequestBuilder<com.mira.com.feature.whisper.runner.TranscribeWorker>()
-                .setInputData(whisperData)
-                .addTag("WhisperChain")
-                .addTag("TennisInterview")
-                .build()
+            // TODO: Replace with working whisper worker
+            // val whisperJob = OneTimeWorkRequestBuilder<com.mira.com.feature.whisper.runner.TranscribeWorker>()
+            //     .setInputData(whisperData)
+            //     .addTag("WhisperChain")
+            //     .addTag("TennisInterview")
+            //     .build()
 
-            whisperJobs.add(whisperJob)
+            // TODO: Replace with working whisper worker
+            // whisperJobs.add(whisperJob)
         }
 
         // Enqueue all Whisper jobs
         Log.d("WhisperChainWorker", "Enqueuing ${whisperJobs.size} Whisper jobs")
-        workManager.enqueue(whisperJobs)
+        // TODO: Replace with working whisper worker
+        // workManager.enqueue(whisperJobs)
 
         Result.success(workDataOf(
             "whisper_jobs_enqueued" to whisperJobs.size,

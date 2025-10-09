@@ -190,13 +190,14 @@ class StableResourceMonitor(private val context: Context) {
                 
                 var line: String?
                 while (memInfoReader.readLine().also { line = it } != null) {
+                    val currentLine = line
                     when {
-                        line?.startsWith("MemTotal:") == true -> {
-                            totalMemKB = line.substringAfter("MemTotal:").trim()
+                        currentLine?.startsWith("MemTotal:") == true -> {
+                            totalMemKB = currentLine.substringAfter("MemTotal:").trim()
                                 .replace("kB", "").toLongOrNull() ?: 0L
                         }
-                        line?.startsWith("MemAvailable:") == true -> {
-                            availableMemKB = line.substringAfter("MemAvailable:").trim()
+                        currentLine?.startsWith("MemAvailable:") == true -> {
+                            availableMemKB = currentLine.substringAfter("MemAvailable:").trim()
                                 .replace("kB", "").toLongOrNull() ?: 0L
                         }
                     }
@@ -571,8 +572,9 @@ class StableResourceMonitor(private val context: Context) {
             var threadCount = 0
             
             while (reader.readLine().also { line = it } != null) {
-                if (line?.startsWith("Threads:") == true) {
-                    threadCount = line.substringAfter("Threads:").trim().toIntOrNull() ?: 0
+                val currentLine = line
+                if (currentLine?.startsWith("Threads:") == true) {
+                    threadCount = currentLine.substringAfter("Threads:").trim().toIntOrNull() ?: 0
                     break
                 }
             }
@@ -594,8 +596,9 @@ class StableResourceMonitor(private val context: Context) {
             val gpuInfo = StringBuilder()
             var line: String?
             while (reader.readLine().also { line = it } != null) {
-                if (line != null && line.isNotEmpty()) {
-                    gpuInfo.append(line).append(" | ")
+                val currentLine = line
+                if (currentLine != null && currentLine.isNotEmpty()) {
+                    gpuInfo.append(currentLine).append(" | ")
                 }
             }
             reader.close()

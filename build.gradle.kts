@@ -12,3 +12,9 @@ plugins {
   id("io.gitlab.arturbosch.detekt") version "1.23.6" apply false
   id("org.jlleitschuh.gradle.ktlint") version "12.1.0" apply false
 }
+
+// Apply code quality checks
+// apply(from = "code-quality.gradle") // Temporarily disabled for testing
+// apply(from = "scoped-storage-demo.gradle") // Temporarily disabled for testing
+// apply(from = "scoped-storage-enforcement.gradle") // Temporarily disabled for testing
+// apply(from = "build-validation.gradle") // Temporarily disabled for testing

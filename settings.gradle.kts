@@ -9,5 +9,7 @@ rootProject.name = "AutoCutPad"
 include(":app")
 include(":feature:clip")
 include(":feature:retrieval")
-// Whisper functionality consolidated into app module
+include(":infra-storage")
+include(":whisper-native")
+// Whisper functionality consolidated into whisper-native module
 // include(":feature:whisper")

@@ -25,6 +25,21 @@ object Config {
     const val DEFAULT_FRAME_COUNT = 32
     
     /**
+     * Default video path for testing
+     */
+    const val DEFAULT_VIDEO_PATH = "video_v1.mp4"
+    
+    /**
+     * Embeddings directory name
+     */
+    const val EMBEDDINGS_DIR = "embeddings"
+    
+    /**
+     * Search directory name
+     */
+    const val SEARCH_DIR = "search"
+    
+    /**
      * DEPRECATED: Use ClipStorageAdapter.getInputDirPath() instead
      */
     @Deprecated("Use ClipStorageAdapter.getInputDirPath() instead")

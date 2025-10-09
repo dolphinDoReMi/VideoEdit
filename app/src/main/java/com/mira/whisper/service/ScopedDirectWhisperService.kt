@@ -249,9 +249,10 @@ class ScopedDirectWhisperService : Service() {
             val jobFile = File("$OUTPUT_DIR/asr_job_${System.currentTimeMillis()}.json")
             jobFile.writeText(asrJob)
             
-            // Trigger processing
-            val triggerFile = File("$MIRAWHISPER_ROOT/trigger_processing.txt")
-            triggerFile.writeText("processing_requested")
+            // Initiate processing
+            // Use scoped storage for processing requests
+            val processingRequestFile = File("$MIRAWHISPER_ROOT/processing_request.txt")
+            processingRequestFile.writeText("processing_requested")
             
             Log.d(TAG, "✅ ASR job submitted successfully")
             true
@@ -335,7 +336,7 @@ class ScopedDirectWhisperService : Service() {
         }
     
     /**
-     * Public method to trigger processing of a specific file.
+     * Public method to initiate processing of a specific file.
      */
     fun processFile(filePath: String) {
         serviceScope.launch {

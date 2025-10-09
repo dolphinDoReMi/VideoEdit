@@ -1,0 +1,244 @@
+import java.io.File
+import java.util.regex.Pattern
+
+/**
+ * Gradle task to enforce scoped storage access through infra-storage
+ * This task ensures all file operations use proper scoped storage patterns
+ */
+tasks.register("enforceScopedStorage") {
+    group = "verification"
+    description = "Enforce scoped storage access through infra-storage for Android 11+ compliance"
+    
+    doLast {
+        logger.lifecycle "=== SCOPED STORAGE ENFORCEMENT ==="
+        logger.lifecycle "Checking for proper scoped storage access patterns"
+        logger.lifecycle "=================================================="
+        logger.lifecycle ""
+
+        def violationsFound = false
+        def sourceDirs = [
+            "app/src/main/java",
+            "app/src/test/java",
+            "app/src/androidTest/java",
+            "infra-storage/src/main/java"
+        ]
+
+        // Patterns that violate scoped storage
+        def prohibitedPatterns = [
+            "Direct file system access": [
+                "/sdcard/",
+                "/storage/emulated/0/",
+                "File\\(.*sdcard",
+                "File\\(.*storage",
+                "Environment\\.getExternalStorageDirectory",
+                "getExternalFilesDir\\(null\\)",
+                "getExternalCacheDir\\(null\\)"
+            ],
+            "Raw file paths": [
+                "new File\\(.*\\.mp4\\)",
+                "new File\\(.*\\.wav\\)",
+                "new File\\(.*\\.gguf\\)",
+                "new File\\(.*\\.bin\\)",
+                "FileOutputStream\\(.*\\.txt\\)",
+                "FileInputStream\\(.*\\.json\\)"
+            ],
+            "Legacy storage access": [
+                "WRITE_EXTERNAL_STORAGE",
+                "READ_EXTERNAL_STORAGE",
+                "MANAGE_EXTERNAL_STORAGE",
+                "requestLegacyExternalStorage"
+            ],
+            "Direct MediaStore access": [
+                "MediaStore\\.Files\\.getContentUri",
+                "MediaStore\\.Audio\\.getContentUri",
+                "MediaStore\\.Video\\.getContentUri"
+            ]
+        ]
+
+        // Required patterns for scoped storage
+        def requiredPatterns = [
+            "Uri-based access": [
+                "Uri\\.parse",
+                "content://",
+                "Uri\\.fromFile",
+                "FileProvider\\.getUriForFile"
+            ],
+            "ContentResolver usage": [
+                "contentResolver\\.openInputStream",
+                "contentResolver\\.openOutputStream",
+                "contentResolver\\.openFileDescriptor",
+                "contentResolver\\.query"
+            ],
+            "Infra-storage usage": [
+                "DLStorage",
+                "MediaProcessing",
+                "WhisperEngine",
+                "storage\\.installModel",
+                "storage\\.openReadFd",
+                "media\\.decodeWavFromFd"
+            ],
+            "Capability-based permissions": [
+                "READ_MEDIA_AUDIO",
+                "READ_MEDIA_VIDEO",
+                "WRITE_MEDIA_AUDIO",
+                "WRITE_MEDIA_VIDEO"
+            ]
+        ]
+
+        logger.lifecycle "STEP 1: CHECKING FOR PROHIBITED PATTERNS"
+        logger.lifecycle "========================================"
+
+        sourceDirs.each { sourceDir ->
+            def dir = file(sourceDir)
+            if (dir.exists()) {
+                logger.lifecycle "🔍 Scanning: ${dir.relativePath(projectDir)}"
+                
+                dir.eachFileRecurse { file ->
+                    if (file.isFile() && (file.name.endsWith(".kt") || file.name.endsWith(".java"))) {
+                        def content = file.text
+                        def relativePath = file.relativePath(projectDir)
+
+                        prohibitedPatterns.each { category, patterns ->
+                            patterns.each { pattern ->
+                                def regex = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE)
+                                if (regex.matcher(content).find()) {
+                                    logger.lifecycle "❌ VIOLATION: $category"
+                                    logger.lifecycle "   File: $relativePath"
+                                    logger.lifecycle "   Pattern: $pattern"
+                                    logger.lifecycle "   Line: ${findLineNumber(content, pattern)}"
+                                    logger.lifecycle ""
+                                    violationsFound = true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        logger.lifecycle "STEP 2: CHECKING FOR REQUIRED PATTERNS"
+        logger.lifecycle "====================================="
+
+        def infraStorageFiles = []
+        def hasRequiredPatterns = false
+
+        sourceDirs.each { sourceDir ->
+            def dir = file(sourceDir)
+            if (dir.exists()) {
+                dir.eachFileRecurse { file ->
+                    if (file.isFile() && (file.name.endsWith(".kt") || file.name.endsWith(".java"))) {
+                        def content = file.text
+                        def relativePath = file.relativePath(projectDir)
+
+                        // Check for infra-storage usage
+                        if (content.contains("DLStorage") || content.contains("MediaProcessing") || content.contains("WhisperEngine")) {
+                            infraStorageFiles.add(relativePath)
+                            hasRequiredPatterns = true
+                        }
+
+                        requiredPatterns.each { category, patterns ->
+                            patterns.each { pattern ->
+                                def regex = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE)
+                                if (regex.matcher(content).find()) {
+                                    logger.lifecycle "✅ REQUIRED: $category found in $relativePath"
+                                    hasRequiredPatterns = true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        logger.lifecycle "STEP 3: INFRA-STORAGE COMPONENT VERIFICATION"
+        logger.lifecycle "============================================="
+
+        def infraComponents = [
+            "infra-storage/src/main/java/com/mira/videoeditor/infra/storage/WhisperEngine.kt",
+            "infra-storage/src/main/java/com/mira/videoeditor/infra/storage/DLStorage.kt",
+            "infra-storage/src/main/java/com/mira/videoeditor/infra/storage/MediaProcessing.kt"
+        ]
+
+        infraComponents.each { component ->
+            def file = file(component)
+            if (file.exists()) {
+                logger.lifecycle "✅ Found: ${file.relativePath(projectDir)}"
+            } else {
+                logger.lifecycle "❌ Missing: ${file.relativePath(projectDir)}"
+                violationsFound = true
+            }
+        }
+
+        logger.lifecycle "STEP 4: SCOPED STORAGE COMPLIANCE SUMMARY"
+        logger.lifecycle "========================================="
+
+        if (violationsFound) {
+            logger.lifecycle "❌ SCOPED STORAGE VIOLATIONS DETECTED!"
+            logger.lifecycle ""
+            logger.lifecycle "The following patterns violate Android 11+ scoped storage:"
+            logger.lifecycle "• Direct file system access (/sdcard/, /storage/)"
+            logger.lifecycle "• Raw file paths (new File(...))"
+            logger.lifecycle "• Legacy storage permissions"
+            logger.lifecycle "• Direct MediaStore access"
+            logger.lifecycle ""
+            logger.lifecycle "Please use infra-storage components instead:"
+            logger.lifecycle "• DLStorage for capability-based storage"
+            logger.lifecycle "• MediaProcessing for audio/video handling"
+            logger.lifecycle "• WhisperEngine for Uri-based transcription"
+            logger.lifecycle "• Uri-based file operations"
+            logger.lifecycle "• ContentResolver for file access"
+            logger.lifecycle ""
+            throw new GradleException("""
+                Scoped storage violations detected!
+
+                All file operations must use:
+                1. Uri-based access instead of raw file paths
+                2. ContentResolver for file I/O
+                3. Infra-storage components (DLStorage, MediaProcessing, WhisperEngine)
+                4. Capability-based permissions (READ_MEDIA_AUDIO, etc.)
+                5. App-private storage for models and outputs
+
+                This ensures Android 11+ compliance and future-proof architecture.
+            """.stripIndent())
+        } else if (hasRequiredPatterns) {
+            logger.lifecycle "✅ SCOPED STORAGE COMPLIANCE VERIFIED!"
+            logger.lifecycle ""
+            logger.lifecycle "Found proper scoped storage patterns:"
+            logger.lifecycle "• Uri-based file access"
+            logger.lifecycle "• ContentResolver usage"
+            logger.lifecycle "• Infra-storage components"
+            logger.lifecycle "• Capability-based permissions"
+            logger.lifecycle ""
+            logger.lifecycle "Files using infra-storage:"
+            infraStorageFiles.each { file ->
+                logger.lifecycle "  • $file"
+            }
+            logger.lifecycle ""
+            logger.lifecycle "🎯 Android 11+ scoped storage compliance confirmed!"
+        } else {
+            logger.lifecycle "⚠️  NO SCOPED STORAGE PATTERNS DETECTED"
+            logger.lifecycle ""
+            logger.lifecycle "Consider implementing scoped storage patterns:"
+            logger.lifecycle "• Use Uri-based file access"
+            logger.lifecycle "• Implement ContentResolver usage"
+            logger.lifecycle "• Integrate infra-storage components"
+            logger.lifecycle "• Use capability-based permissions"
+        }
+
+        logger.lifecycle ""
+        logger.lifecycle "✅ SCOPED STORAGE ENFORCEMENT COMPLETE"
+        logger.lifecycle "====================================="
+    }
+}
+
+def findLineNumber(String content, String pattern) {
+    def lines = content.split("\n")
+    def regex = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE)
+
+    for (int i = 0; i < lines.length; i++) {
+        if (regex.matcher(lines[i]).find()) {
+            return i + 1
+        }
+    }
+    return -1
+}

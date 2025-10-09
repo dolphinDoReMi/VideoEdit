@@ -1,0 +1,136 @@
+CPU Test Script 001 - Basic Performance Test
+==============================================
+Timestamp: Thu Oct  9 11:52:55 CST 2025
+Device: 25032RP42C (Android 15)
+App: com.mira.com (version: 0.1.0)
+Duration: 60s
+
+Performance Metrics:
+  Average CPU Usage: 103%
+  Maximum CPU Usage: 103%
+  Average Memory Usage: 204MB
+  Maximum Memory Usage: 207MB
+
+Detailed CPU Usage Over Time:
+  0s: 103%
+  2s: 103%
+  3s: 103%
+  4s: 103%
+  5s: 103%
+  7s: 103%
+  8s: 103%
+  9s: 103%
+  10s: 103%
+  12s: 103%
+  13s: 103%
+  14s: 103%
+  15s: 103%
+  17s: 103%
+  18s: 103%
+  19s: 103%
+  21s: 103%
+  22s: 103%
+  23s: 103%
+  24s: 103%
+  26s: 103%
+  27s: 103%
+  28s: 103%
+  29s: 103%
+  31s: 103%
+  32s: 103%
+  33s: 103%
+  34s: 103%
+  36s: 103%
+  37s: 103%
+  38s: 103%
+  40s: 103%
+  41s: 103%
+  42s: 103%
+  43s: 103%
+  45s: 103%
+  46s: 103%
+  47s: 103%
+  48s: 103%
+  50s: 103%
+  51s: 103%
+  52s: 103%
+  54s: 103%
+  55s: 103%
+  56s: 103%
+  57s: 103%
+  59s: 103%
+  60s: 103%
+  61s: 103%
+  62s: 103%
+  64s: 103%
+  65s: 103%
+  66s: 103%
+  67s: 103%
+  69s: 103%
+  70s: 103%
+  71s: 103%
+  72s: 103%
+  74s: 103%
+  75s: 103%
+
+Detailed Memory Usage Over Time:
+  0s: 151MB
+  2s: 204MB
+  3s: 204MB
+  4s: 205MB
+  5s: 205MB
+  7s: 205MB
+  8s: 206MB
+  9s: 206MB
+  10s: 205MB
+  12s: 205MB
+  13s: 205MB
+  14s: 204MB
+  15s: 206MB
+  17s: 204MB
+  18s: 206MB
+  19s: 204MB
+  21s: 205MB
+  22s: 206MB
+  23s: 205MB
+  24s: 205MB
+  26s: 205MB
+  27s: 205MB
+  28s: 205MB
+  29s: 205MB
+  31s: 206MB
+  32s: 205MB
+  33s: 206MB
+  34s: 206MB
+  36s: 204MB
+  37s: 205MB
+  38s: 207MB
+  40s: 206MB
+  41s: 205MB
+  42s: 206MB
+  43s: 206MB
+  45s: 206MB
+  46s: 206MB
+  47s: 204MB
+  48s: 206MB
+  50s: 205MB
+  51s: 205MB
+  52s: 206MB
+  54s: 205MB
+  55s: 204MB
+  56s: 205MB
+  57s: 204MB
+  59s: 204MB
+  60s: 205MB
+  61s: 204MB
+  62s: 204MB
+  64s: 204MB
+  65s: 205MB
+  66s: 204MB
+  67s: 204MB
+  69s: 206MB
+  70s: 205MB
+  71s: 204MB
+  72s: 205MB
+  74s: 205MB
+  75s: 205MB

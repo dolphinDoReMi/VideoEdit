@@ -1,0 +1,120 @@
+import java.io.File
+import java.util.regex.Pattern
+
+/**
+ * Comprehensive Build Validation Task
+ * 
+ * This task runs all quality checks and validations before any build operation.
+ * It ensures code quality, scoped storage compliance, and prevents forbidden patterns.
+ */
+tasks.register("validateBuild") {
+    group = "verification"
+    description = "Comprehensive build validation including code quality and scoped storage compliance"
+    
+    // This task depends on all validation tasks
+    dependsOn("checkCodeQuality", "enforceScopedStorage")
+    
+    doLast {
+        logger.lifecycle "=========================================="
+        logger.lifecycle "✅ BUILD VALIDATION COMPLETE"
+        logger.lifecycle "=========================================="
+        logger.lifecycle ""
+        logger.lifecycle "All quality checks passed:"
+        logger.lifecycle "• Code quality compliance ✅"
+        logger.lifecycle "• Scoped storage compliance ✅"
+        logger.lifecycle "• No forbidden patterns ✅"
+        logger.lifecycle "• Android 11+ compliance ✅"
+        logger.lifecycle ""
+        logger.lifecycle "Build is ready for deployment! 🚀"
+    }
+}
+
+/**
+ * Pre-commit Validation Task
+ * 
+ * This task runs before commits to ensure code quality.
+ * It's designed to be run by git hooks or CI/CD pipelines.
+ */
+tasks.register("preCommitValidation") {
+    group = "verification"
+    description = "Pre-commit validation to ensure code quality before commits"
+    
+    dependsOn("validateBuild")
+    
+    doLast {
+        logger.lifecycle "=========================================="
+        logger.lifecycle "✅ PRE-COMMIT VALIDATION COMPLETE"
+        logger.lifecycle "=========================================="
+        logger.lifecycle ""
+        logger.lifecycle "Code is ready for commit! 📝"
+        logger.lifecycle "All quality gates passed:"
+        logger.lifecycle "• No broadcast patterns ✅"
+        logger.lifecycle "• No logcat patterns ✅"
+        logger.lifecycle "• No trigger patterns ✅"
+        logger.lifecycle "• Scoped storage compliant ✅"
+        logger.lifecycle "• Android 11+ compliant ✅"
+    }
+}
+
+/**
+ * CI/CD Pipeline Validation Task
+ * 
+ * This task runs in CI/CD pipelines to ensure deployment readiness.
+ */
+tasks.register("ciValidation") {
+    group = "verification"
+    description = "CI/CD pipeline validation for deployment readiness"
+    
+    dependsOn("validateBuild")
+    
+    doLast {
+        logger.lifecycle "=========================================="
+        logger.lifecycle "✅ CI/CD VALIDATION COMPLETE"
+        logger.lifecycle "=========================================="
+        logger.lifecycle ""
+        logger.lifecycle "Deployment readiness verified:"
+        logger.lifecycle "• Code quality standards met ✅"
+        logger.lifecycle "• Scoped storage compliance verified ✅"
+        logger.lifecycle "• No forbidden patterns detected ✅"
+        logger.lifecycle "• Android 11+ compliance confirmed ✅"
+        logger.lifecycle ""
+        logger.lifecycle "Ready for production deployment! 🚀"
+    }
+}
+
+/**
+ * Developer Quick Check Task
+ * 
+ * This task provides a quick validation for developers during development.
+ */
+tasks.register("quickCheck") {
+    group = "verification"
+    description = "Quick validation check for developers"
+    
+    dependsOn("checkCodeQuality", "enforceScopedStorage")
+    
+    doLast {
+        logger.lifecycle "=========================================="
+        logger.lifecycle "✅ QUICK CHECK COMPLETE"
+        logger.lifecycle "=========================================="
+        logger.lifecycle ""
+        logger.lifecycle "Development validation passed:"
+        logger.lifecycle "• Code quality ✅"
+        logger.lifecycle "• Scoped storage ✅"
+        logger.lifecycle ""
+        logger.lifecycle "Continue development! 👨‍💻"
+    }
+}
+
+// Integrate validation tasks into app module
+project.afterEvaluate {
+    try {
+        project(":app").tasks.whenTaskAdded { task ->
+            if (task.name in ['assembleDebug', 'assembleRelease', 'bundleDebug', 'bundleRelease', 'lintDebug', 'lintRelease', 'testDebugUnitTest', 'connectedDebugAndroidTest']) {
+                task.dependsOn('validateBuild')
+            }
+        }
+    } catch (Exception e) {
+        // App module might not exist in some configurations
+    }
+}
