@@ -209,26 +209,55 @@
         <meta-data android:name="xiaomi_app_id" android:value="${xiaomi_app_id}" />
         <meta-data android:name="xiaomi_app_key" android:value="your_xiaomi_app_key" />
         
-        <!-- Scoped Direct Whisper Service - Re-architected with scoped storage -->
-        <service
-            android:name="com.mira.whisper.service.ScopedDirectWhisperService"
-            android:enabled="true"
-            android:exported="true"
-            android:foregroundServiceType="dataSync" />
-        
-        <!-- Scoped Storage Bridge Service - Bridge to MiraWhisper ASR system -->
-        <service
-            android:name="com.mira.whisper.service.ScopedStorageBridgeService"
-            android:enabled="true"
-            android:exported="true"
-            android:foregroundServiceType="dataSync" />
-        
-        <!-- Scoped Storage Integration Activity -->
+        <!-- Direct Whisper Processing Activity -->
         <activity
-            android:name="com.mira.whisper.ScopedStorageIntegrationActivity"
+            android:name="com.mira.whisper.DirectWhisperProcessingActivity"
             android:enabled="true"
             android:exported="true"
-            android:label="Scoped Storage Integration" />
+            android:label="Direct Whisper Processing" />
+
+        <!-- Simple Direct Whisper Processing Activity -->
+        <activity
+            android:name="com.mira.whisper.SimpleDirectWhisperActivity"
+            android:enabled="true"
+            android:exported="true"
+            android:label="Simple Direct Whisper" />
+
+        <!-- Direct Whisper Processing Activity -->
+        <activity
+            android:name="com.mira.whisper.DirectWhisperActivity"
+            android:enabled="true"
+            android:exported="true"
+            android:label="Direct Whisper Processing" />
+
+        <!-- Standalone Direct Whisper Processing Activity -->
+        <activity
+            android:name="com.mira.whisper.StandaloneDirectWhisperActivity"
+            android:enabled="true"
+            android:exported="true"
+            android:label="Standalone Direct Whisper" />
+
+        <!-- Simple Direct Whisper Processing Activity -->
+        <activity
+            android:name="com.mira.whisper.SimpleDirectWhisperActivity"
+            android:enabled="true"
+            android:exported="true"
+            android:label="Simple Direct Whisper" />
+
+        <!-- Fixed Direct Whisper Service - Improved idle handling -->
+        <service
+            android:name="com.mira.whisper.service.FixedDirectWhisperService"
+            android:enabled="true"
+            android:exported="true"
+            android:foregroundServiceType="dataSync"
+            android:stopWithTask="false" />
+
+        <!-- Fixed Whisper Service Activity -->
+        <activity
+            android:name="com.mira.whisper.FixedWhisperServiceActivity"
+            android:enabled="true"
+            android:exported="true"
+            android:label="Fixed Whisper Service" />
 
     </application>
 </manifest>

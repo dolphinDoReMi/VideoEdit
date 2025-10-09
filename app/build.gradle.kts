@@ -242,6 +242,16 @@ android {
   }
 }
 
+// Force Kotlin version resolution to prevent version conflicts
+configurations.all {
+  resolutionStrategy {
+    force("org.jetbrains.kotlin:kotlin-stdlib:1.8.0")
+    force("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0")
+    force("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0")
+    force("org.jetbrains.kotlin:kotlin-stdlib-common:1.8.0")
+  }
+}
+
 // --- Sync web assets from repo-root `assets/web` to packaged `app/src/main/assets/web` ---
 val syncWebAssets by tasks.registering(Copy::class) {
   group = "assets"
@@ -281,13 +291,15 @@ tasks.matching { it.name.startsWith("pre") && it.name.endsWith("Build") }.config
 // }
 
 dependencies {
-  // Feature modules
-  // Whisper functionality now consolidated in app module
-  // implementation(project(":feature:whisper"))
+  // Feature modules (temporarily disabled to unblock instrumented tests)
+  // implementation(project(":feature:clip"))
   
-  // Infrastructure modules
+  // Force Kotlin standard library version to match project Kotlin version
+  implementation("org.jetbrains.kotlin:kotlin-stdlib:1.8.0")
+  implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0")
+  implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0")
   
-  // Core orchestration dependencies (always included)
+  // Core orchestration dependencies
   implementation("androidx.work:work-runtime-ktx:2.9.0")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
@@ -296,68 +308,66 @@ dependencies {
   // DocumentFile for SAF (Storage Access Framework)
   implementation("androidx.documentfile:documentfile:1.0.1")
   
-  // PyTorch Mobile for CLIP models (always included)
+  // PyTorch Mobile for CLIP models
   implementation("org.pytorch:pytorch_android:1.12.2")
   implementation("org.pytorch:pytorch_android_torchvision:1.12.2")
+
+  // Media3 - versions compatible with API 34
+  implementation("androidx.media3:media3-transformer:1.2.1")
+  implementation("androidx.media3:media3-effect:1.2.1")
+  implementation("androidx.media3:media3-common:1.2.1")
+  implementation("androidx.media3:media3-exoplayer:1.2.1") // For preview (optional)
+
+  // Room database for CLIP4Clip embeddings and video metadata
+  implementation("androidx.room:room-runtime:2.5.0")
+  // ksp("androidx.room:room-compiler:2.5.0")
+  implementation("androidx.room:room-ktx:2.5.0")
   
-  // Note: Vulkan support removed due to dependency resolution issues
-  // implementation("org.pytorch:pytorch_android_vulkan:1.13.1")
+  // DataStore for settings and preferences
+  implementation("androidx.datastore:datastore-preferences:1.1.1")
+  
+  // Kotlinx Serialization for JSON
+  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+  
+  // Gson for JSON serialization
+  implementation("com.google.code.gson:gson:2.11.0")
+  
+  // Run Console dependencies
+  implementation("com.squareup.moshi:moshi-kotlin:1.15.1")
+  implementation("com.squareup.okio:okio:3.9.0")
+  implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.3")
+  implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.3")
 
-  // Conditional dependencies based on build variant
-  if (gradle.startParameter.taskRequests.toString().contains("minimal")) {
-    // Minimal build - only essential CLIP dependencies
-    println("Building minimal variant - excluding UI, database, and media dependencies")
-  } else {
-    // Full build - include all dependencies
-    
-    // Media3 - versions compatible with API 34
-    implementation("androidx.media3:media3-transformer:1.2.1")
-    implementation("androidx.media3:media3-effect:1.2.1")
-    implementation("androidx.media3:media3-common:1.2.1")
-    implementation("androidx.media3:media3-exoplayer:1.2.1") // For preview (optional)
+  // HTTP client for optional cloud upload
+  implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
-    // UI - Compose dependencies removed (not used in this app)
-    // implementation(platform("androidx.compose:compose-bom:2023.08.00"))
-    // implementation("androidx.activity:activity-compose:1.8.2")
-    // implementation("androidx.compose.ui:ui")
-    // implementation("androidx.compose.material:material")
-    // implementation("androidx.compose.ui:ui-tooling-preview")
-    // debugImplementation("androidx.compose.ui:ui-tooling")
+  // (Optional) ML Kit face detection: boost score weight for "people scenes"
+  // Use "unbundled version" (smaller size, requires model download on first use)
+  implementation("com.google.mlkit:face-detection:16.1.7")
+  
+  // Security - SQLCipher for encrypted database
+  implementation("net.zetetic:android-database-sqlcipher:4.5.4")
+  
+  // Performance monitoring
+  implementation("androidx.tracing:tracing:1.2.0")
 
-    // Room database for CLIP4Clip embeddings and video metadata
-    implementation("androidx.room:room-runtime:2.7.0")
-    // ksp("androidx.room:room-compiler:2.7.0")
-    implementation("androidx.room:room-ktx:2.7.0")
-    
-    // DataStore for settings and preferences
-    implementation("androidx.datastore:datastore-preferences:1.1.1")
-    
-    // Kotlinx Serialization for JSON
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
-    
-    // Gson for JSON serialization
-    implementation("com.google.code.gson:gson:2.11.0")
+  // Test dependencies
+  testImplementation("junit:junit:4.13.2")
+  testImplementation("org.robolectric:robolectric:4.12.2")
+  testImplementation("androidx.room:room-testing:2.5.0")
+  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
+  testImplementation("androidx.test.ext:junit:1.2.1")
+  testImplementation("androidx.test:core:1.5.0")
+  testImplementation("androidx.test:runner:1.5.2")
+  testImplementation("androidx.test:rules:1.5.0")
+  testImplementation("androidx.arch.core:core-testing:2.2.0")
 
-    // HTTP client for optional cloud upload
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
-
-    // Firebase App Distribution (handled by plugin)
-
-    // (Optional) ML Kit face detection: boost score weight for "people scenes"
-    // Use "unbundled version" (smaller size, requires model download on first use)
-    implementation("com.google.mlkit:face-detection:16.1.7")
-    
-    // Dependency Injection with Hilt
-    // implementation("com.google.dagger:hilt-android:2.48")
-    // ksp("com.google.dagger:hilt-compiler:2.48")
-    // implementation("androidx.hilt:hilt-work:1.1.0")
-    
-    // Security - SQLCipher for encrypted database
-    implementation("net.zetetic:android-database-sqlcipher:4.5.4")
-    
-    // Performance monitoring
-    implementation("androidx.tracing:tracing:1.2.0")
-  }
+  androidTestImplementation("androidx.test:runner:1.5.2")
+  androidTestImplementation("androidx.test.ext:junit:1.2.1")
+  androidTestImplementation("androidx.work:work-testing:2.9.1")
+  androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+  androidTestImplementation("androidx.test:core:1.5.0")
+  androidTestImplementation("androidx.test:rules:1.5.0")
 }
 
 // Custom task to verify app configuration
@@ -405,94 +415,4 @@ tasks.register("verifyConfig") {
     
     println("✓ App configuration verification completed successfully")
   }
-}
-
-dependencies {
-  // Feature modules (temporarily disabled to unblock instrumented tests)
-  // implementation(project(":feature:clip"))
-  
-  // Core orchestration dependencies
-  implementation("androidx.work:work-runtime-ktx:2.9.0")
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
-  implementation("org.json:json:20231013")
-  
-  // DocumentFile for SAF (Storage Access Framework)
-  implementation("androidx.documentfile:documentfile:1.0.1")
-  
-  // PyTorch Mobile for CLIP models
-  implementation("org.pytorch:pytorch_android:1.12.2")
-  implementation("org.pytorch:pytorch_android_torchvision:1.12.2")
-
-  // Media3 - versions compatible with API 34
-  implementation("androidx.media3:media3-transformer:1.2.1")
-  implementation("androidx.media3:media3-effect:1.2.1")
-  implementation("androidx.media3:media3-common:1.2.1")
-  implementation("androidx.media3:media3-exoplayer:1.2.1") // For preview (optional)
-
-  // UI - Compose dependencies removed (not used in this app)
-  // implementation(platform("androidx.compose:compose-bom:2023.08.00"))
-  // implementation("androidx.activity:activity-compose:1.8.2")
-  // implementation("androidx.compose.ui:ui")
-  // implementation("androidx.compose.material:material")
-  // implementation("androidx.compose.ui:ui-tooling-preview")
-  // debugImplementation("androidx.compose.ui:ui-tooling")
-
-  // Room database for CLIP4Clip embeddings and video metadata
-  implementation("androidx.room:room-runtime:2.7.0")
-  // ksp("androidx.room:room-compiler:2.7.0")
-  implementation("androidx.room:room-ktx:2.7.0")
-  
-  // DataStore for settings and preferences
-  implementation("androidx.datastore:datastore-preferences:1.1.1")
-  
-  // Kotlinx Serialization for JSON
-  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
-  
-  // Gson for JSON serialization
-  implementation("com.google.code.gson:gson:2.11.0")
-  
-  // Run Console dependencies
-  implementation("com.squareup.moshi:moshi-kotlin:1.15.1")
-  implementation("com.squareup.okio:okio:3.9.0")
-  implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.3")
-  implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.3")
-
-  // HTTP client for optional cloud upload
-  implementation("com.squareup.okhttp3:okhttp:4.12.0")
-
-  // Firebase App Distribution (handled by plugin)
-
-  // (Optional) ML Kit face detection: boost score weight for "people scenes"
-  // Use "unbundled version" (smaller size, requires model download on first use)
-  implementation("com.google.mlkit:face-detection:16.1.7")
-  
-  // Dependency Injection with Hilt
-  // implementation("com.google.dagger:hilt-android:2.48")
-  // ksp("com.google.dagger:hilt-compiler:2.48")
-  // implementation("androidx.hilt:hilt-work:1.1.0")
-  
-  // Security - SQLCipher for encrypted database
-  implementation("net.zetetic:android-database-sqlcipher:4.5.4")
-  
-  // Performance monitoring
-  implementation("androidx.tracing:tracing:1.2.0")
-
-  // Test dependencies
-  testImplementation("junit:junit:4.13.2")
-  testImplementation("org.robolectric:robolectric:4.12.2")
-  testImplementation("androidx.room:room-testing:2.7.0")
-  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
-  testImplementation("androidx.test.ext:junit:1.2.1")
-  testImplementation("androidx.test:core:1.5.0")
-  testImplementation("androidx.test:runner:1.5.2")
-  testImplementation("androidx.test:rules:1.5.0")
-  testImplementation("androidx.arch.core:core-testing:2.2.0")
-
-  androidTestImplementation("androidx.test:runner:1.5.2")
-  androidTestImplementation("androidx.test.ext:junit:1.2.1")
-  androidTestImplementation("androidx.work:work-testing:2.9.1")
-  androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-  androidTestImplementation("androidx.test:core:1.5.0")
-  androidTestImplementation("androidx.test:rules:1.5.0")
 }

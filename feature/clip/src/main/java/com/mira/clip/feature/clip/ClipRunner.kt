@@ -3,8 +3,8 @@ package com.mira.com.feature.clip
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import com.mira.com.core.infra.Config
-import com.mira.com.core.media.FrameSampler
+import com.mira.com.feature.clip.Config
+import com.mira.com.feature.clip.FrameSampler
 import com.mira.com.feature.retrieval.Embedding
 import com.mira.com.feature.retrieval.EmbeddingStore
 import org.json.JSONObject
