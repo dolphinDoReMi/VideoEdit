@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "name": "Security/ToolAllowList",
+      "audience": ["agent"],
+      "trigger": "when-calling-tools",
+      "content": [
+        "ALLOW ONLY: readFiles, searchInWorkspace, writeFiles, runTests.",
+        "readFiles: max_lines_per_read=250; EXCLUDE node_modules, .git, dist, build.",
+        "writeFiles: only files listed in ```verify```; show ```diffplan``` first.",
+        "runTests: must run before commit.",
+        "Shell/network/package-managers are DISALLOWED unless the ```task``` block includes Network: APPROVED."
+      ]
+    },
+    {
+      "name": "Security/TriggerClassifier",
+      "audience": ["agent"],
+      "trigger": "when-calling-tools",
+      "content": [
+        "Before any write or external command proposal (Gradle, ADB, permission grants, broadcasts, MediaStore mutations, file ops), output:",
+        "```triggercheck",
+        "PlannedCommands: <verbatim gradle/adb/content lines or N/A>",
+        "Categories: <ADB|GRADLE|LOGCAT|BROADCAST|FS|MEDIASTORE|PERMISSIONS|PROC|DEVICE|NETWORK|DEBUG>",
+        "DetectedPatterns: <short tags>",
+        "PolicyIntent: <category -> OBSERVE|REVIEW|APPROVAL_RECOMMENDED>",
+        "```"
+      ]
+    },
+    {
+      "name": "Security/ComplianceReport",
+      "audience": ["agent"],
+      "trigger": "after-writing-files",
+      "content": [
+        "After printing ```diffplan``` (and optionally executing commands), save:",
+        "- .cursor.commands.txt (from triggercheck.PlannedCommands)",
+        "- .cursor.diffplan.txt (from diffplan)",
+        "Then run (SOFT): `node scripts/compliance-check.js --diffplan .cursor.diffplan.txt --commands .cursor.commands.txt --risk <LOW|MEDIUM|HIGH> --strict false`",
+        "Paste the emitted report back as a fenced block:",
+        "```compliance",
+        "<checker output>",
+        "```",
+        "Proceed regardless of result (soft mode). If score is HIGH-RISK, recommend manual review."
+      ]
+    }
+  ]
+}

@@ -1,12 +1,12 @@
-package com.mira.videoeditor.infra.storage
+package com.mira.videoeditor.mira.storage
 
 /**
  * Provider interface for Whisper functionality.
  * 
  * This allows dependency injection of real Whisper implementations
- * into the infra-storage module without creating hard dependencies.
+ * into the mira-storage module without creating hard dependencies.
  */
-interface WhisperProvider {
+interface MiraWhisperProvider {
     
     /**
      * Whisper context for processing.
@@ -72,37 +72,37 @@ interface WhisperProvider {
 /**
  * Mock implementation for testing and compilation.
  */
-class MockWhisperProvider : WhisperProvider {
-    override fun initModel(modelPath: String): WhisperProvider.WhisperContext {
-        return WhisperProvider.WhisperContext(System.currentTimeMillis())
+class MockMiraWhisperProvider : MiraWhisperProvider {
+    override fun initModel(modelPath: String): MiraWhisperProvider.WhisperContext {
+        return MiraWhisperProvider.WhisperContext(System.currentTimeMillis())
     }
     
     override fun transcribe(
-        ctx: WhisperProvider.WhisperContext,
-        params: WhisperProvider.WhisperParams,
+        ctx: MiraWhisperProvider.WhisperContext,
+        params: MiraWhisperProvider.WhisperParams,
         samples: FloatArray,
         n_samples: Int
     ): Int {
         return 0 // Success
     }
     
-    override fun getSegmentCount(ctx: WhisperProvider.WhisperContext): Int {
+    override fun getSegmentCount(ctx: MiraWhisperProvider.WhisperContext): Int {
         return 1
     }
     
-    override fun getSegmentText(ctx: WhisperProvider.WhisperContext, index: Int): String {
+    override fun getSegmentText(ctx: MiraWhisperProvider.WhisperContext, index: Int): String {
         return "Mock transcription result"
     }
     
-    override fun getSegment(ctx: WhisperProvider.WhisperContext, index: Int): WhisperProvider.WhisperSegment {
-        return WhisperProvider.WhisperSegment(
+    override fun getSegment(ctx: MiraWhisperProvider.WhisperContext, index: Int): MiraWhisperProvider.WhisperSegment {
+        return MiraWhisperProvider.WhisperSegment(
             t0 = 0,
             t1 = 1000,
             text = "Mock transcription result"
         )
     }
     
-    override fun freeContext(ctx: WhisperProvider.WhisperContext) {
+    override fun freeContext(ctx: MiraWhisperProvider.WhisperContext) {
         // Mock implementation - does nothing
     }
 }

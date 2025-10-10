@@ -94,7 +94,7 @@
 
         <!-- Scoped Storage Test Activity -->
         <activity 
-            android:name="com.mira.videoeditor.infra.storage.ScopedStorageTestActivity"
+            android:name="com.mira.videoeditor.mira.storage.MiraStorageTestActivity"
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Mira">

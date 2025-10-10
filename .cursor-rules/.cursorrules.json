@@ -1,0 +1,782 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "name": "Base/CodeQuality",
+      "audience": [
+        "agent",
+        "developer"
+      ],
+      "trigger": "always",
+      "content": [
+        "Follow Kotlin coding conventions and Android architecture guidelines (MVVM).",
+        "Use meaningful variable and function names.",
+        "Prefer immutable data structures and coroutines for asynchronous operations.",
+        "Write comprehensive JSDoc/KDoc comments for all public APIs.",
+        "Update README files for new features and include usage examples."
+      ]
+    },
+    {
+      "name": "Base/Testing",
+      "audience": [
+        "agent",
+        "developer"
+      ],
+      "trigger": "when-modifying-code",
+      "content": [
+        "Write unit tests for all new features with 80%+ code coverage.",
+        "Use mock objects for dependencies and test error conditions.",
+        "Write integration tests for service interactions and cross-module integration.",
+        "Test on Xiaomi Pad 7 Ultra (primary Android target) and iPad (primary iOS target)."
+      ]
+    },
+    {
+      "name": "Base/Performance",
+      "audience": [
+        "agent",
+        "developer"
+      ],
+      "trigger": "when-modifying-code",
+      "content": [
+        "Monitor memory usage and implement proper garbage collection.",
+        "Use streaming processing for large files and implement memory limits.",
+        "Use appropriate thread counts and implement thermal management.",
+        "Minimize background processing and optimize for mobile devices."
+      ]
+    },
+    {
+      "name": "Security/ToolAllowList",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "when-calling-tools",
+      "content": [
+        "ALLOW ONLY: readFiles, searchInWorkspace, writeFiles, runTests.",
+        "readFiles: max_lines_per_read=250; EXCLUDE node_modules, .git, dist, build.",
+        "writeFiles: only files listed in ```verify```; show ```diffplan``` first.",
+        "runTests: must run before commit.",
+        "Shell/network/package-managers are DISALLOWED unless the ```task``` block includes Network: APPROVED."
+      ]
+    },
+    {
+      "name": "Security/TriggerClassifier",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "when-calling-tools",
+      "content": [
+        "Before any write or external command proposal (Gradle, ADB, permission grants, broadcasts, MediaStore mutations, file ops), output:",
+        "```triggercheck",
+        "PlannedCommands: <verbatim gradle/adb/content lines or N/A>",
+        "Categories: <ADB|GRADLE|LOGCAT|BROADCAST|FS|MEDIASTORE|PERMISSIONS|PROC|DEVICE|NETWORK|DEBUG>",
+        "DetectedPatterns: <short tags>",
+        "PolicyIntent: <category -> OBSERVE|REVIEW|APPROVAL_RECOMMENDED>",
+        "```"
+      ]
+    },
+    {
+      "name": "Security/ComplianceReport",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "after-writing-files",
+      "content": [
+        "After printing ```diffplan``` (and optionally executing commands), save:",
+        "- .cursor.commands.txt (from triggercheck.PlannedCommands)",
+        "- .cursor.diffplan.txt (from diffplan)",
+        "Then run (SOFT): `node scripts/compliance-check.js --diffplan .cursor.diffplan.txt --commands .cursor.commands.txt --risk <LOW|MEDIUM|HIGH> --strict false`",
+        "Paste the emitted report back as a fenced block:",
+        "```compliance",
+        "<checker output>",
+        "```",
+        "Proceed regardless of result (soft mode). If score is HIGH-RISK, recommend manual review."
+      ]
+    },
+    {
+      "name": "Android/ScopedStorage",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "always",
+      "content": [
+        "FORBID raw /sdcard usage in code changes. Prefer app-private dirs and content URI/FD streaming loaders for model/media I/O.",
+        "JNI loaders accept FDs; do not open absolute external paths.",
+        "All file/media I/O must be capability-based (content URI -> FD). All model loads must use app-private absolute paths from DLStorage.resolveModelPath()."
+      ]
+    },
+    {
+      "name": "Android/MediaStorePolicy",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "when-calling-tools",
+      "content": [
+        "Any `content insert|update|delete` must appear in ```triggercheck``` and the Compliance Report.",
+        "MediaStore queries should use proper projection and where clauses.",
+        "File sharing must use FileProvider with proper authority configuration."
+      ]
+    },
+    {
+      "name": "Android/BuildAndDeviceOps",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "when-calling-tools",
+      "content": [
+        "Classify GRADLE (`assemble|bundle|install|connectedAndroidTest`) and ADB (`am start|startservice|broadcast`, `pm grant`, `svc` toggles).",
+        "LOGCAT/dumpsys/getprop reads are fine but still classify.",
+        "Device operations (input tap, input text) require explicit approval.",
+        "Permission grants must be documented and justified."
+      ]
+    },
+    {
+      "name": "Android/ServiceArchitecture",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "when-modifying-services",
+      "content": [
+        "Use foreground services for long-running operations.",
+        "Implement proper service lifecycle management.",
+        "Use WorkManager for background tasks.",
+        "Implement proper error handling and recovery mechanisms."
+      ]
+    },
+    {
+      "name": "Android/MiraStorage/Policy",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "always",
+      "content": [
+        "All Android file I/O MUST go through MiraStorageService (scoped-storage compliant).",
+        "Prohibit direct java.io/java.nio file APIs and absolute external paths.",
+        "App code: use MiraStorageService APIs (URI/FD based) for read/write/exists/list.",
+        "JNI/native: receive and use file descriptors (FD) supplied by MiraStorageService; disallow fopen/open on paths."
+      ]
+    },
+    {
+      "name": "Android/MiraStorage/HowTo",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "always",
+      "content": [
+        "Refactor pattern:",
+        "BEFORE (bad): new File(path), FileInputStream(path), Files.readAllBytes(path), RandomAccessFile(path,'r'), Paths.get(path), '/sdcard/...', Environment.getExternalStorageDirectory().",
+        "AFTER (good):",
+        "- Kotlin: uri: Uri -> MiraStorage.openReadFd(uri) / MiraStorage.openWriteFd(uri) / MiraStorage.readBytes(uri) / MiraStorage.writeBytes(uri, data)",
+        "- JNI: accept fd (int) or AParcelFileDescriptor; use read(2)/write(2)/mmap on FD only; never fopen(path)."
+      ]
+    },
+    {
+      "name": "Android/MiraStorage/Detection",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "when-calling-tools",
+      "content": [
+        "When proposing changes that touch storage or JNI I/O, output a ```triggercheck``` with Categories including: FS, MEDIASTORE.",
+        "DetectedPatterns must list any usages of: java.io.File, FileInputStream/OutputStream, RandomAccessFile, java.nio.file.Files, Paths.get, Environment.getExternalStorageDirectory, '/sdcard', JNI fopen/open."
+      ]
+    },
+    {
+      "name": "Project/VideoEditor",
+      "audience": [
+        "agent",
+        "developer"
+      ],
+      "trigger": "always",
+      "content": [
+        "This is a multi-platform video processing application combining CLIP video clipping and Whisper audio transcription.",
+        "Target platforms: Android (Xiaomi Pad 7 Ultra), iOS (iPad), macOS web.",
+        "Primary focus: Real-time video processing with ML models and audio transcription."
+      ]
+    },
+    {
+      "name": "Project/StorageArchitecture",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "when-modifying-storage",
+      "content": [
+        "Use DLStorage interface for all storage operations.",
+        "Models must be installed to app-private storage and accessed via absolute paths.",
+        "User media must be accessed via content URIs and file descriptors.",
+        "Implement proper SHA-256 validation for model integrity."
+      ]
+    },
+    {
+      "name": "Project/MLModels",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "when-modifying-ml",
+      "content": [
+        "CLIP Processing: Frame processing <0.1s per frame, Memory usage <200MB peak, Accuracy 95%+.",
+        "Whisper Processing: RTF <0.1, Memory usage <100MB peak, Accuracy 95%+.",
+        "Use GGUF format for Whisper models.",
+        "Implement proper model loading and context management."
+      ]
+    },
+    {
+      "name": "Project/Testing",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "when-modifying-critical-components",
+      "content": [
+        "When touching ClipEngines or VideoIngestWorker, run instrumented tests.",
+        "When modifying database entities or DAOs, run unit tests.",
+        "When changing ML models or encoders, run all tests.",
+        "When modifying workers, run instrumented tests.",
+        "When changing video processing, run frame sampler tests."
+      ]
+    },
+    {
+      "name": "Local/Development",
+      "audience": [
+        "developer"
+      ],
+      "trigger": "always",
+      "content": [
+        "Local development overrides and personal preferences.",
+        "Can override any higher-level rule for development convenience.",
+        "Should not be committed to version control."
+      ]
+    },
+    {
+      "name": "Base/CodeQuality",
+      "audience": [
+        "agent",
+        "developer"
+      ],
+      "trigger": "always",
+      "content": [
+        "Follow Kotlin coding conventions and Android architecture guidelines (MVVM).",
+        "Use meaningful variable and function names.",
+        "Prefer immutable data structures and coroutines for asynchronous operations.",
+        "Write comprehensive JSDoc/KDoc comments for all public APIs.",
+        "Update README files for new features and include usage examples."
+      ]
+    },
+    {
+      "name": "Base/Testing",
+      "audience": [
+        "agent",
+        "developer"
+      ],
+      "trigger": "when-modifying-code",
+      "content": [
+        "Write unit tests for all new features with 80%+ code coverage.",
+        "Use mock objects for dependencies and test error conditions.",
+        "Write integration tests for service interactions and cross-module integration.",
+        "Test on Xiaomi Pad 7 Ultra (primary Android target) and iPad (primary iOS target)."
+      ]
+    },
+    {
+      "name": "Base/Performance",
+      "audience": [
+        "agent",
+        "developer"
+      ],
+      "trigger": "when-modifying-code",
+      "content": [
+        "Monitor memory usage and implement proper garbage collection.",
+        "Use streaming processing for large files and implement memory limits.",
+        "Use appropriate thread counts and implement thermal management.",
+        "Minimize background processing and optimize for mobile devices."
+      ]
+    },
+    {
+      "name": "Security/ToolAllowList",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "when-calling-tools",
+      "content": [
+        "ALLOW ONLY: readFiles, searchInWorkspace, writeFiles, runTests.",
+        "readFiles: max_lines_per_read=250; EXCLUDE node_modules, .git, dist, build.",
+        "writeFiles: only files listed in ```verify```; show ```diffplan``` first.",
+        "runTests: must run before commit.",
+        "Shell/network/package-managers are DISALLOWED unless the ```task``` block includes Network: APPROVED."
+      ]
+    },
+    {
+      "name": "Security/TriggerClassifier",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "when-calling-tools",
+      "content": [
+        "Before any write or external command proposal (Gradle, ADB, permission grants, broadcasts, MediaStore mutations, file ops), output:",
+        "```triggercheck",
+        "PlannedCommands: <verbatim gradle/adb/content lines or N/A>",
+        "Categories: <ADB|GRADLE|LOGCAT|BROADCAST|FS|MEDIASTORE|PERMISSIONS|PROC|DEVICE|NETWORK|DEBUG>",
+        "DetectedPatterns: <short tags>",
+        "PolicyIntent: <category -> OBSERVE|REVIEW|APPROVAL_RECOMMENDED>",
+        "```"
+      ]
+    },
+    {
+      "name": "Security/ComplianceReport",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "after-writing-files",
+      "content": [
+        "After printing ```diffplan``` (and optionally executing commands), save:",
+        "- .cursor.commands.txt (from triggercheck.PlannedCommands)",
+        "- .cursor.diffplan.txt (from diffplan)",
+        "Then run (SOFT): `node scripts/compliance-check.js --diffplan .cursor.diffplan.txt --commands .cursor.commands.txt --risk <LOW|MEDIUM|HIGH> --strict false`",
+        "Paste the emitted report back as a fenced block:",
+        "```compliance",
+        "<checker output>",
+        "```",
+        "Proceed regardless of result (soft mode). If score is HIGH-RISK, recommend manual review."
+      ]
+    },
+    {
+      "name": "Android/ScopedStorage",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "always",
+      "content": [
+        "FORBID raw /sdcard usage in code changes. Prefer app-private dirs and content URI/FD streaming loaders for model/media I/O.",
+        "JNI loaders accept FDs; do not open absolute external paths.",
+        "All file/media I/O must be capability-based (content URI -> FD). All model loads must use app-private absolute paths from DLStorage.resolveModelPath()."
+      ]
+    },
+    {
+      "name": "Android/MediaStorePolicy",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "when-calling-tools",
+      "content": [
+        "Any `content insert|update|delete` must appear in ```triggercheck``` and the Compliance Report.",
+        "MediaStore queries should use proper projection and where clauses.",
+        "File sharing must use FileProvider with proper authority configuration."
+      ]
+    },
+    {
+      "name": "Android/BuildAndDeviceOps",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "when-calling-tools",
+      "content": [
+        "Classify GRADLE (`assemble|bundle|install|connectedAndroidTest`) and ADB (`am start|startservice|broadcast`, `pm grant`, `svc` toggles).",
+        "LOGCAT/dumpsys/getprop reads are fine but still classify.",
+        "Device operations (input tap, input text) require explicit approval.",
+        "Permission grants must be documented and justified."
+      ]
+    },
+    {
+      "name": "Android/ServiceArchitecture",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "when-modifying-services",
+      "content": [
+        "Use foreground services for long-running operations.",
+        "Implement proper service lifecycle management.",
+        "Use WorkManager for background tasks.",
+        "Implement proper error handling and recovery mechanisms."
+      ]
+    },
+    {
+      "name": "Android/MiraStorage/Policy",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "always",
+      "content": [
+        "All Android file I/O MUST go through MiraStorageService (scoped-storage compliant).",
+        "Prohibit direct java.io/java.nio file APIs and absolute external paths.",
+        "App code: use MiraStorageService APIs (URI/FD based) for read/write/exists/list.",
+        "JNI/native: receive and use file descriptors (FD) supplied by MiraStorageService; disallow fopen/open on paths."
+      ]
+    },
+    {
+      "name": "Android/MiraStorage/HowTo",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "always",
+      "content": [
+        "Refactor pattern:",
+        "BEFORE (bad): new File(path), FileInputStream(path), Files.readAllBytes(path), RandomAccessFile(path,'r'), Paths.get(path), '/sdcard/...', Environment.getExternalStorageDirectory().",
+        "AFTER (good):",
+        "- Kotlin: uri: Uri -> MiraStorage.openReadFd(uri) / MiraStorage.openWriteFd(uri) / MiraStorage.readBytes(uri) / MiraStorage.writeBytes(uri, data)",
+        "- JNI: accept fd (int) or AParcelFileDescriptor; use read(2)/write(2)/mmap on FD only; never fopen(path)."
+      ]
+    },
+    {
+      "name": "Android/MiraStorage/Detection",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "when-calling-tools",
+      "content": [
+        "When proposing changes that touch storage or JNI I/O, output a ```triggercheck``` with Categories including: FS, MEDIASTORE.",
+        "DetectedPatterns must list any usages of: java.io.File, FileInputStream/OutputStream, RandomAccessFile, java.nio.file.Files, Paths.get, Environment.getExternalStorageDirectory, '/sdcard', JNI fopen/open."
+      ]
+    },
+    {
+      "name": "Project/VideoEditor",
+      "audience": [
+        "agent",
+        "developer"
+      ],
+      "trigger": "always",
+      "content": [
+        "This is a multi-platform video processing application combining CLIP video clipping and Whisper audio transcription.",
+        "Target platforms: Android (Xiaomi Pad 7 Ultra), iOS (iPad), macOS web.",
+        "Primary focus: Real-time video processing with ML models and audio transcription."
+      ]
+    },
+    {
+      "name": "Project/StorageArchitecture",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "when-modifying-storage",
+      "content": [
+        "Use DLStorage interface for all storage operations.",
+        "Models must be installed to app-private storage and accessed via absolute paths.",
+        "User media must be accessed via content URIs and file descriptors.",
+        "Implement proper SHA-256 validation for model integrity."
+      ]
+    },
+    {
+      "name": "Project/MLModels",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "when-modifying-ml",
+      "content": [
+        "CLIP Processing: Frame processing <0.1s per frame, Memory usage <200MB peak, Accuracy 95%+.",
+        "Whisper Processing: RTF <0.1, Memory usage <100MB peak, Accuracy 95%+.",
+        "Use GGUF format for Whisper models.",
+        "Implement proper model loading and context management."
+      ]
+    },
+    {
+      "name": "Project/Testing",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "when-modifying-critical-components",
+      "content": [
+        "When touching ClipEngines or VideoIngestWorker, run instrumented tests.",
+        "When modifying database entities or DAOs, run unit tests.",
+        "When changing ML models or encoders, run all tests.",
+        "When modifying workers, run instrumented tests.",
+        "When changing video processing, run frame sampler tests."
+      ]
+    },
+    {
+      "name": "Local/Development",
+      "audience": [
+        "developer"
+      ],
+      "trigger": "always",
+      "content": [
+        "Local development overrides and personal preferences.",
+        "Can override any higher-level rule for development convenience.",
+        "Should not be committed to version control."
+      ]
+    },
+    {
+      "name": "Base/CodeQuality",
+      "audience": [
+        "agent",
+        "developer"
+      ],
+      "trigger": "always",
+      "content": [
+        "Follow Kotlin coding conventions and Android architecture guidelines (MVVM).",
+        "Use meaningful variable and function names.",
+        "Prefer immutable data structures and coroutines for asynchronous operations.",
+        "Write comprehensive JSDoc/KDoc comments for all public APIs.",
+        "Update README files for new features and include usage examples."
+      ]
+    },
+    {
+      "name": "Base/Testing",
+      "audience": [
+        "agent",
+        "developer"
+      ],
+      "trigger": "when-modifying-code",
+      "content": [
+        "Write unit tests for all new features with 80%+ code coverage.",
+        "Use mock objects for dependencies and test error conditions.",
+        "Write integration tests for service interactions and cross-module integration.",
+        "Test on Xiaomi Pad 7 Ultra (primary Android target) and iPad (primary iOS target)."
+      ]
+    },
+    {
+      "name": "Base/Performance",
+      "audience": [
+        "agent",
+        "developer"
+      ],
+      "trigger": "when-modifying-code",
+      "content": [
+        "Monitor memory usage and implement proper garbage collection.",
+        "Use streaming processing for large files and implement memory limits.",
+        "Use appropriate thread counts and implement thermal management.",
+        "Minimize background processing and optimize for mobile devices."
+      ]
+    },
+    {
+      "name": "Security/ToolAllowList",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "when-calling-tools",
+      "content": [
+        "ALLOW ONLY: readFiles, searchInWorkspace, writeFiles, runTests.",
+        "readFiles: max_lines_per_read=250; EXCLUDE node_modules, .git, dist, build.",
+        "writeFiles: only files listed in ```verify```; show ```diffplan``` first.",
+        "runTests: must run before commit.",
+        "Shell/network/package-managers are DISALLOWED unless the ```task``` block includes Network: APPROVED."
+      ]
+    },
+    {
+      "name": "Security/TriggerClassifier",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "when-calling-tools",
+      "content": [
+        "Before any write or external command proposal (Gradle, ADB, permission grants, broadcasts, MediaStore mutations, file ops), output:",
+        "```triggercheck",
+        "PlannedCommands: <verbatim gradle/adb/content lines or N/A>",
+        "Categories: <ADB|GRADLE|LOGCAT|BROADCAST|FS|MEDIASTORE|PERMISSIONS|PROC|DEVICE|NETWORK|DEBUG>",
+        "DetectedPatterns: <short tags>",
+        "PolicyIntent: <category -> OBSERVE|REVIEW|APPROVAL_RECOMMENDED>",
+        "```"
+      ]
+    },
+    {
+      "name": "Security/ComplianceReport",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "after-writing-files",
+      "content": [
+        "After printing ```diffplan``` (and optionally executing commands), save:",
+        "- .cursor.commands.txt (from triggercheck.PlannedCommands)",
+        "- .cursor.diffplan.txt (from diffplan)",
+        "Then run (SOFT): `node scripts/compliance-check.js --diffplan .cursor.diffplan.txt --commands .cursor.commands.txt --risk <LOW|MEDIUM|HIGH> --strict false`",
+        "Paste the emitted report back as a fenced block:",
+        "```compliance",
+        "<checker output>",
+        "```",
+        "Proceed regardless of result (soft mode). If score is HIGH-RISK, recommend manual review."
+      ]
+    },
+    {
+      "name": "Android/ScopedStorage",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "always",
+      "content": [
+        "FORBID raw /sdcard usage in code changes. Prefer app-private dirs and content URI/FD streaming loaders for model/media I/O.",
+        "JNI loaders accept FDs; do not open absolute external paths.",
+        "All file/media I/O must be capability-based (content URI -> FD). All model loads must use app-private absolute paths from DLStorage.resolveModelPath()."
+      ]
+    },
+    {
+      "name": "Android/MediaStorePolicy",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "when-calling-tools",
+      "content": [
+        "Any `content insert|update|delete` must appear in ```triggercheck``` and the Compliance Report.",
+        "MediaStore queries should use proper projection and where clauses.",
+        "File sharing must use FileProvider with proper authority configuration."
+      ]
+    },
+    {
+      "name": "Android/BuildAndDeviceOps",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "when-calling-tools",
+      "content": [
+        "Classify GRADLE (`assemble|bundle|install|connectedAndroidTest`) and ADB (`am start|startservice|broadcast`, `pm grant`, `svc` toggles).",
+        "LOGCAT/dumpsys/getprop reads are fine but still classify.",
+        "Device operations (input tap, input text) require explicit approval.",
+        "Permission grants must be documented and justified."
+      ]
+    },
+    {
+      "name": "Android/ServiceArchitecture",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "when-modifying-services",
+      "content": [
+        "Use foreground services for long-running operations.",
+        "Implement proper service lifecycle management.",
+        "Use WorkManager for background tasks.",
+        "Implement proper error handling and recovery mechanisms."
+      ]
+    },
+    {
+      "name": "Android/MiraStorage/Policy",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "always",
+      "content": [
+        "All Android file I/O MUST go through MiraStorageService (scoped-storage compliant).",
+        "FORBID: Direct file path manipulation via ADB commands, app-internal storage access, or bypassing Android security model.",
+        "App code: use MiraStorageService APIs (URI/FD based) for read/write/exists/list.",
+        "JNI/native: receive and use file descriptors (FD) supplied by MiraStorageService; disallow fopen/open on paths.",
+        "ADB commands: NEVER manipulate app-internal storage directly; use app's proper interfaces instead."
+      ]
+    },
+    {
+      "name": "Android/MiraStorage/ADB_Prohibition",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "when-calling-tools",
+      "content": [
+        "FORBID these ADB storage manipulation patterns:",
+        "- mkdir /data/user/0/com.mira.*/files",
+        "- cp /sdcard/* /data/user/0/com.mira.*/files/",
+        "- touch /data/user/0/com.mira.*/files/*",
+        "- rm /data/user/0/com.mira.*/files/*",
+        "- Any direct manipulation of app-internal storage paths",
+        "REQUIRED: Use app's file picker, MiraStorageService APIs, or content:// URIs instead."
+      ]
+    },
+    {
+      "name": "Android/MiraStorage/HowTo",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "always",
+      "content": [
+        "Refactor pattern:",
+        "BEFORE (bad):",
+        "- new File(path), FileInputStream(path), Files.readAllBytes(path)",
+        "- RandomAccessFile(path,'r'), Paths.get(path)",
+        "- '/sdcard/...', Environment.getExternalStorageDirectory()",
+        "- adb shell 'mkdir /data/user/0/app/files'",
+        "- adb shell 'cp /sdcard/file /data/user/0/app/files/'",
+        "AFTER (good):",
+        "- Kotlin: uri: Uri -> MiraStorage.openReadFd(uri) / MiraStorage.openWriteFd(uri)",
+        "- Kotlin: MiraStorage.readBytes(uri) / MiraStorage.writeBytes(uri, data)",
+        "- JNI: accept fd (int) or AParcelFileDescriptor; use read(2)/write(2)/mmap on FD only",
+        "- ADB: Use app's file picker UI or content:// URIs for file access"
+      ]
+    },
+    {
+      "name": "Android/MiraStorage/Detection",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "when-calling-tools",
+      "content": [
+        "When proposing changes that touch storage or JNI I/O, output a ```triggercheck``` with Categories including: FS, MEDIASTORE, ADB_STORAGE.",
+        "DetectedPatterns must list any usages of:",
+        "- java.io.File, FileInputStream/OutputStream, RandomAccessFile",
+        "- java.nio.file.Files, Paths.get, Environment.getExternalStorageDirectory",
+        "- '/sdcard', JNI fopen/open",
+        "- adb shell mkdir/cp/touch/rm /data/user/0/com.mira.*/files",
+        "- Any direct app-internal storage manipulation via ADB"
+      ]
+    },
+    {
+      "name": "Android/MiraStorage/Test_Strategy",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "when-creating-tests",
+      "content": [
+        "Test strategy MUST follow MiraStorage policy:",
+        "- Use app's file picker UI for file selection",
+        "- Trigger processing through proper app interfaces",
+        "- Use content:// URIs for file access",
+        "- NEVER manipulate app-internal storage directly via ADB",
+        "- Test MiraStorageService APIs, not direct file system access",
+        "- Use app's WebView interface or proper Android intents"
+      ]
+    },
+    {
+      "name": "Project/VideoEditor",
+      "audience": [
+        "agent",
+        "developer"
+      ],
+      "trigger": "always",
+      "content": [
+        "This is a multi-platform video processing application combining CLIP video clipping and Whisper audio transcription.",
+        "Target platforms: Android (Xiaomi Pad 7 Ultra), iOS (iPad), macOS web.",
+        "Primary focus: Real-time video processing with ML models and audio transcription."
+      ]
+    },
+    {
+      "name": "Project/StorageArchitecture",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "when-modifying-storage",
+      "content": [
+        "Use DLStorage interface for all storage operations.",
+        "Models must be installed to app-private storage and accessed via absolute paths.",
+        "User media must be accessed via content URIs and file descriptors.",
+        "Implement proper SHA-256 validation for model integrity."
+      ]
+    },
+    {
+      "name": "Project/MLModels",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "when-modifying-ml",
+      "content": [
+        "CLIP Processing: Frame processing <0.1s per frame, Memory usage <200MB peak, Accuracy 95%+.",
+        "Whisper Processing: RTF <0.1, Memory usage <100MB peak, Accuracy 95%+.",
+        "Use GGUF format for Whisper models.",
+        "Implement proper model loading and context management."
+      ]
+    },
+    {
+      "name": "Project/Testing",
+      "audience": [
+        "agent"
+      ],
+      "trigger": "when-modifying-critical-components",
+      "content": [
+        "When touching ClipEngines or VideoIngestWorker, run instrumented tests.",
+        "When modifying database entities or DAOs, run unit tests.",
+        "When changing ML models or encoders, run all tests.",
+        "When modifying workers, run instrumented tests.",
+        "When changing video processing, run frame sampler tests."
+      ]
+    },
+    {
+      "name": "Local/Development",
+      "audience": [
+        "developer"
+      ],
+      "trigger": "always",
+      "content": [
+        "Local development overrides and personal preferences.",
+        "Can override any higher-level rule for development convenience.",
+        "Should not be committed to version control."
+      ]
+    }
+  ]
+}

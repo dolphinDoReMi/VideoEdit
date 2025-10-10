@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "name": "Android/ScopedStorage",
+      "audience": ["agent"],
+      "trigger": "always",
+      "content": [
+        "FORBID raw /sdcard usage in code changes. Prefer app-private dirs and content URI/FD streaming loaders for model/media I/O.",
+        "JNI loaders accept FDs; do not open absolute external paths.",
+        "All file/media I/O must be capability-based (content URI -> FD). All model loads must use app-private absolute paths from DLStorage.resolveModelPath()."
+      ]
+    },
+    {
+      "name": "Android/MediaStorePolicy",
+      "audience": ["agent"],
+      "trigger": "when-calling-tools",
+      "content": [
+        "Any `content insert|update|delete` must appear in ```triggercheck``` and the Compliance Report.",
+        "MediaStore queries should use proper projection and where clauses.",
+        "File sharing must use FileProvider with proper authority configuration."
+      ]
+    },
+    {
+      "name": "Android/BuildAndDeviceOps",
+      "audience": ["agent"],
+      "trigger": "when-calling-tools",
+      "content": [
+        "Classify GRADLE (`assemble|bundle|install|connectedAndroidTest`) and ADB (`am start|startservice|broadcast`, `pm grant`, `svc` toggles).",
+        "LOGCAT/dumpsys/getprop reads are fine but still classify.",
+        "Device operations (input tap, input text) require explicit approval.",
+        "Permission grants must be documented and justified."
+      ]
+    },
+    {
+      "name": "Android/ServiceArchitecture",
+      "audience": ["agent"],
+      "trigger": "when-modifying-services",
+      "content": [
+        "Use foreground services for long-running operations.",
+        "Implement proper service lifecycle management.",
+        "Use WorkManager for background tasks.",
+        "Implement proper error handling and recovery mechanisms."
+      ]
+    }
+  ]
+}

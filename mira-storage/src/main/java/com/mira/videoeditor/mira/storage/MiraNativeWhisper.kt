@@ -1,13 +1,13 @@
-package com.mira.videoeditor.infra.storage
+package com.mira.videoeditor.mira.storage
 
 /**
- * Mock implementation of NativeWhisper for infra-storage module.
+ * Mock implementation of NativeWhisper for mira-storage module.
  * 
- * This provides a placeholder implementation that allows the infra-storage
+ * This provides a placeholder implementation that allows the mira-storage
  * module to compile without depending on the actual native Whisper library.
  * The real implementation would be provided by the app module.
  */
-object NativeWhisper {
+object MiraNativeWhisper {
     
     /**
      * Mock whisper context pointer.

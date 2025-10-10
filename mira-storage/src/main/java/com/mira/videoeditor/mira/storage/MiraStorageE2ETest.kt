@@ -1,4 +1,4 @@
-package com.mira.videoeditor.infra.storage
+package com.mira.videoeditor.mira.storage
 
 import android.content.Context
 import android.net.Uri
@@ -13,13 +13,13 @@ import org.json.JSONObject
  * This test verifies the complete pipeline from file access to transcription
  * using real Whisper processing with zero-copy operations and no mock data.
  */
-class E2EVerificationTest(private val context: Context) {
+class MiraStorageE2ETest(private val context: Context) {
     
     companion object {
-        private const val TAG = "E2EVerificationTest"
+        private const val TAG = "MiraStorageE2ETest"
     }
     
-    private val scopedStorageService = ScopedStorageService(context)
+    private val miraStorageService = MiraStorageService(context)
     
     /**
      * Run complete end-to-end verification test.
@@ -53,7 +53,7 @@ class E2EVerificationTest(private val context: Context) {
             
             // Step 3: Real Whisper Processing Verification
             Log.d(TAG, "Step 3: Running real Whisper processing (no mock data)")
-            val result = scopedStorageService.processVideoWithScopedStorage(videoUri, modelUri)
+            val result = miraStorageService.processVideoWithScopedStorage(videoUri, modelUri)
             
             if (!result.success) {
                 return@withContext E2ETestResult.Error("Processing failed: ${result.error}")
@@ -109,7 +109,11 @@ class E2EVerificationTest(private val context: Context) {
      */
     private fun findModelUri(): Uri? {
         val contentResolver = context.contentResolver
-        val uri = android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI
+        val uri = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI
+        } else {
+            android.provider.MediaStore.Files.getContentUri("external")
+        }
         val projection = arrayOf(android.provider.MediaStore.Downloads._ID, android.provider.MediaStore.Downloads.DISPLAY_NAME)
         val selection = "${android.provider.MediaStore.Downloads.DISPLAY_NAME} LIKE ?"
         val selectionArgs = arrayOf("%.gguf%")

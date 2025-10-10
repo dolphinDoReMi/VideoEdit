@@ -1,0 +1,26 @@
+{
+  "ALLOW": [
+    "adb\\s+logcat(\\s+-d|\\s+-s|\\s+\\|\\s+grep)?\\b",
+    "dumpsys\\b\\s+(activity|meminfo|cpuinfo|package|battery|power)\\b",
+    "getprop\\b\\s+ro\\.[\\w.]+",
+    "stat\\b\\s+-c%s\\b",
+    "wc\\b\\s+-l\\b",
+    "gradle(w|\\.bat)?\\b.*\\b(test|lint|check|ktlintCheck|detekt)\\b",
+    "adb\\s+devices\\b",
+    "adb\\s+shell\\s+ps\\b",
+    "adb\\s+shell\\s+pidof\\b",
+    "adb\\s+shell\\s+ls\\s+-l\\b",
+    "adb\\s+shell\\s+find\\s+.*\\s+-name\\s+\\*\\.",
+    "adb\\s+shell\\s+cat\\s+.*\\.txt\\b",
+    "adb\\s+shell\\s+head\\s+-n\\s+\\d+\\b",
+    "adb\\s+shell\\s+tail\\s+-n\\s+\\d+\\b",
+    "adb\\s+shell\\s+hexdump\\s+-C\\b",
+    "adb\\s+shell\\s+top\\s+-n\\s+1\\b",
+    "adb\\s+shell\\s+wm\\s+size\\b",
+    "adb\\s+shell\\s+wm\\s+density\\b",
+    "adb\\s+shell\\s+pm\\s+list\\s+packages\\b",
+    "adb\\s+shell\\s+content\\s+query\\s+--uri\\s+content://media/external.*--projection\\b",
+    "MiraStorage\\.(openReadFd|openWriteFd|readBytes|writeBytes)\\s*\\(",
+    "ContentResolver\\.(openFileDescriptor|openInputStream|openOutputStream)\\s*\\("
+  ]
+}

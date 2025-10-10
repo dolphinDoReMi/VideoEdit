@@ -1,0 +1,7 @@
+Planned ADB commands:
+adb shell "mkdir /data/user/0/com.mira.whisper/files"
+adb shell "cp /sdcard/tennis_interview_clip_002.mp4 /data/user/0/com.mira.whisper/files/in/clip_002.mp4"
+adb shell "am start -n com.mira.whisper/.WhisperMainActivity -d file:///sdcard/tennis_interview_clip_002.mp4"
+
+File changes:
+- Modified direct_tennis_test.sh to add storage manipulation

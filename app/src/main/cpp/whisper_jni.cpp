@@ -36,9 +36,9 @@ static void on_unload_whisper() {
 
 extern "C" {
 
-// Infra-storage module JNI functions
+// Mira-storage module JNI functions
 JNIEXPORT jlong JNICALL
-Java_com_mira_videoeditor_infra_storage_NativeWhisper_initModelFromAppFile(
+Java_com_mira_videoeditor_mira_storage_MiraNativeWhisper_initModelFromAppFile(
     JNIEnv* env, jclass clazz, jstring modelPath) {
     
     const char* path_chars = env->GetStringUTFChars(modelPath, nullptr);
@@ -64,7 +64,7 @@ Java_com_mira_videoeditor_infra_storage_NativeWhisper_initModelFromAppFile(
 }
 
 JNIEXPORT jlong JNICALL
-Java_com_mira_videoeditor_infra_storage_NativeWhisper_initModelFromBuffer(
+Java_com_mira_videoeditor_mira_storage_MiraNativeWhisper_initModelFromBuffer(
     JNIEnv* env, jclass clazz, jobject modelBuffer) {
     
     LOGI("initModelFromBuffer called - not implemented yet");
@@ -72,7 +72,7 @@ Java_com_mira_videoeditor_infra_storage_NativeWhisper_initModelFromBuffer(
 }
 
 JNIEXPORT jstring JNICALL
-Java_com_mira_videoeditor_infra_storage_NativeWhisper_transcribeFromFd(
+Java_com_mira_videoeditor_mira_storage_MiraNativeWhisper_transcribeFromFd(
     JNIEnv* env, jclass clazz, jlong ctxPtr, jint fd) {
     
     LOGI("transcribeFromFd called with fd: %d", fd);
@@ -90,7 +90,7 @@ Java_com_mira_videoeditor_infra_storage_NativeWhisper_transcribeFromFd(
 }
 
 JNIEXPORT jstring JNICALL
-Java_com_mira_videoeditor_infra_storage_NativeWhisper_transcribeFromPcmData(
+Java_com_mira_videoeditor_mira_storage_MiraNativeWhisper_transcribeFromPcmData(
     JNIEnv* env, jclass clazz, jlong ctxPtr, jbyteArray pcmData, jint sampleRate, jint channels) {
     
     LOGI("transcribeFromPcmData called with sampleRate: %d, channels: %d", sampleRate, channels);
@@ -151,7 +151,7 @@ Java_com_mira_videoeditor_infra_storage_NativeWhisper_transcribeFromPcmData(
 }
 
 JNIEXPORT jstring JNICALL
-Java_com_mira_videoeditor_infra_storage_NativeWhisper_getModelInfo(
+Java_com_mira_videoeditor_mira_storage_MiraNativeWhisper_getModelInfo(
     JNIEnv* env, jclass clazz, jlong ctxPtr) {
     
     LOGI("getModelInfo called");
@@ -168,7 +168,7 @@ Java_com_mira_videoeditor_infra_storage_NativeWhisper_getModelInfo(
 }
 
 JNIEXPORT void JNICALL
-Java_com_mira_videoeditor_infra_storage_NativeWhisper_freeContext(
+Java_com_mira_videoeditor_mira_storage_MiraNativeWhisper_freeContext(
     JNIEnv* env, jclass clazz, jlong ctxPtr) {
     
     LOGI("freeContext called");
@@ -178,7 +178,7 @@ Java_com_mira_videoeditor_infra_storage_NativeWhisper_freeContext(
 }
 
 JNIEXPORT jstring JNICALL
-Java_com_mira_videoeditor_infra_storage_NativeWhisper_getLastError(
+Java_com_mira_videoeditor_mira_storage_MiraNativeWhisper_getLastError(
     JNIEnv* env, jclass clazz) {
     
     return nullptr; // No error tracking implemented yet

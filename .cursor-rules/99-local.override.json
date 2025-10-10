@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "name": "Local/Development",
+      "audience": ["developer"],
+      "trigger": "always",
+      "content": [
+        "Local development overrides and personal preferences.",
+        "Can override any higher-level rule for development convenience.",
+        "Should not be committed to version control."
+      ]
+    }
+  ]
+}

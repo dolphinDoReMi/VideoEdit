@@ -50,6 +50,17 @@ Video/Audio Input → Format Detection → Parallel Processing → Integration �
   Resource Monitoring → Performance Tracking → Error Recovery → Foreground Service
 ```
 
+## Cursor Rules System
+
+All cursor rules and compliance tools are consolidated in the `.cursor-rules/` directory:
+
+- **Rule Files**: Layered priority system (Base → Security → Android → Project → Local)
+- **Pattern Detection**: DENY/WARN/ALLOW patterns for Android operations
+- **Soft Guard**: Compliance checking with risk scoring (LOW/MEDIUM/HIGH)
+- **MiraStorage Policy**: Enforces scoped-storage compliant file I/O
+
+See `.cursor-rules/README.md` for detailed documentation and usage instructions.
+
 ## Documentation Structure
 
 All documentation is organized by feature in the `/docs` directory:

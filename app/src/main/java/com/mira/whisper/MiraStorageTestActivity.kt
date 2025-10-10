@@ -7,7 +7,7 @@ import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.mira.videoeditor.infra.storage.ScopedStorageService
+import com.mira.videoeditor.mira.storage.MiraStorageService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,13 +15,13 @@ import kotlinx.coroutines.launch
 /**
  * Test activity to demonstrate scoped storage pipeline with tennis clip.
  */
-class ScopedStorageTestActivity : AppCompatActivity() {
+class MiraStorageTestActivity : AppCompatActivity() {
     
     companion object {
-        private const val TAG = "ScopedStorageTest"
+        private const val TAG = "MiraStorageTest"
     }
     
-    private lateinit var scopedStorageService: ScopedStorageService
+    private lateinit var miraStorageService: MiraStorageService
     private lateinit var statusText: TextView
     private lateinit var resultText: TextView
     private lateinit var processButton: Button
@@ -29,10 +29,10 @@ class ScopedStorageTestActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        Log.d(TAG, "ScopedStorageTestActivity created")
+        Log.d(TAG, "MiraStorageTestActivity created")
         
         // Initialize scoped storage components
-        scopedStorageService = ScopedStorageService(this)
+        miraStorageService = MiraStorageService(this)
         
         setupUI()
         
@@ -78,7 +78,7 @@ class ScopedStorageTestActivity : AppCompatActivity() {
                 updateStatus("Testing scoped storage components...")
                 
                 // Test 1: Check if components are available
-                updateResult("✅ ScopedStorageService created")
+                updateResult("✅ MiraStorageService created")
                 updateStatus("Scoped storage components ready")
                 
             } catch (e: Exception) {
@@ -103,7 +103,7 @@ class ScopedStorageTestActivity : AppCompatActivity() {
                 updateResult("Video URI: $videoUri\nModel URI: $modelUri")
                 
                 // Test the complete pipeline
-                val result = scopedStorageService.processVideoWithScopedStorage(videoUri, modelUri)
+                val result = miraStorageService.processVideoWithScopedStorage(videoUri, modelUri)
                 
                 if (result.success) {
                     updateResult("✅ Pipeline SUCCESS\nTranscript: ${result.transcript}")

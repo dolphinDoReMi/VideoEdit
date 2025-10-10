@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "name": "Base/CodeQuality",
+      "audience": ["agent", "developer"],
+      "trigger": "always",
+      "content": [
+        "Follow Kotlin coding conventions and Android architecture guidelines (MVVM).",
+        "Use meaningful variable and function names.",
+        "Prefer immutable data structures and coroutines for asynchronous operations.",
+        "Write comprehensive JSDoc/KDoc comments for all public APIs.",
+        "Update README files for new features and include usage examples."
+      ]
+    },
+    {
+      "name": "Base/Testing",
+      "audience": ["agent", "developer"],
+      "trigger": "when-modifying-code",
+      "content": [
+        "Write unit tests for all new features with 80%+ code coverage.",
+        "Use mock objects for dependencies and test error conditions.",
+        "Write integration tests for service interactions and cross-module integration.",
+        "Test on Xiaomi Pad 7 Ultra (primary Android target) and iPad (primary iOS target)."
+      ]
+    },
+    {
+      "name": "Base/Performance",
+      "audience": ["agent", "developer"],
+      "trigger": "when-modifying-code",
+      "content": [
+        "Monitor memory usage and implement proper garbage collection.",
+        "Use streaming processing for large files and implement memory limits.",
+        "Use appropriate thread counts and implement thermal management.",
+        "Minimize background processing and optimize for mobile devices."
+      ]
+    }
+  ]
+}

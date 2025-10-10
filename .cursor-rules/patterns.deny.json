@@ -1,0 +1,23 @@
+{
+  "DENY": [
+    "setprop\\b\\s+\\S+",
+    "adb\\s+shell\\s+su\\b",
+    "rm\\s+-rf\\s+/sdcard\\b",
+    "/sdcard\\b.*\\b(mv|cp|tee|echo|cat|chmod)\\b",
+    "adb\\s+shell\\s+am\\s+broadcast\\s+-a\\s+com\\.mira\\.",
+    "adb\\s+shell\\s+pm\\s+uninstall\\b",
+    "adb\\s+shell\\s+kill\\s+-9\\s+\\d+",
+    "adb\\s+shell\\s+svc\\s+(wifi|data|power)\\s+disable",
+    "adb\\s+shell\\s+input\\s+keyevent\\s+KEYCODE_POWER",
+    "adb\\s+shell\\s+reboot\\b",
+    "adb\\s+shell\\s+shutdown\\b",
+    "adb\\s+shell\\s+[\"']mkdir\\s+/data/user/0/com\\.mira\\.",
+    "adb\\s+shell\\s+[\"']cp\\s+/sdcard/.*\\s+/data/user/0/com\\.mira\\.",
+    "adb\\s+shell\\s+[\"']touch\\s+/data/user/0/com\\.mira\\.",
+    "adb\\s+shell\\s+[\"']rm\\s+/data/user/0/com\\.mira\\.",
+    "mkdir\\s+/data/user/0/com\\.mira\\.",
+    "cp\\s+/sdcard/.*\\s+/data/user/0/com\\.mira\\.",
+    "touch\\s+/data/user/0/com\\.mira\\.",
+    "rm\\s+/data/user/0/com\\.mira\\."
+  ]
+}

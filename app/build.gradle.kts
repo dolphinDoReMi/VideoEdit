@@ -302,8 +302,8 @@ dependencies {
   // Feature modules (temporarily disabled to unblock instrumented tests)
   // implementation(project(":feature:clip"))
   
-  // Infra-storage module for scoped storage components
-  implementation(project(":infra-storage"))
+  // Mira-storage module for scoped storage components
+  implementation(project(":mira-storage"))
   
   // Force Kotlin standard library version to match project Kotlin version
   implementation("org.jetbrains.kotlin:kotlin-stdlib:1.8.0")

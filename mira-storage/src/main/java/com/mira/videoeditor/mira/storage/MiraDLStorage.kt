@@ -1,4 +1,4 @@
-package com.mira.videoeditor.infra.storage
+package com.mira.videoeditor.mira.storage
 
 import android.content.Context
 import android.net.Uri
@@ -10,7 +10,7 @@ import java.io.File
  * This interface provides Android 11+ scoped storage compliant operations
  * for model installation, file access, and output sharing.
  */
-interface DLStorage {
+interface MiraDLStorage {
     
     /**
      * Model handle containing metadata about installed models.
@@ -77,12 +77,12 @@ interface DLStorage {
 /**
  * Android implementation of DLStorage using scoped storage APIs.
  */
-class AndroidDLStorage(
+class AndroidMiraDLStorage(
     private val context: Context
-) : DLStorage {
+) : MiraDLStorage {
     
     companion object {
-        private const val TAG = "AndroidDLStorage"
+        private const val TAG = "AndroidMiraDLStorage"
         private const val MODELS_DIR = "whisper_models"
         private const val OUTPUTS_DIR = "whisper_outputs"
     }
@@ -95,7 +95,7 @@ class AndroidDLStorage(
         if (!exists()) mkdirs() 
     }
     
-    override suspend fun installModel(modelUri: Uri, targetName: String): DLStorage.ModelHandle {
+    override suspend fun installModel(modelUri: Uri, targetName: String): MiraDLStorage.ModelHandle {
         val contentResolver = context.contentResolver
         val targetFile = File(modelsDir, targetName)
         
@@ -124,7 +124,7 @@ class AndroidDLStorage(
                 }
             }
             
-            return DLStorage.ModelHandle(
+            return MiraDLStorage.ModelHandle(
                 name = targetName,
                 sha256 = sha256,
                 size = targetFile.length(),
@@ -135,7 +135,7 @@ class AndroidDLStorage(
         }
     }
     
-    override fun resolveModelPath(modelHandle: DLStorage.ModelHandle): String {
+    override fun resolveModelPath(modelHandle: MiraDLStorage.ModelHandle): String {
         return File(modelsDir, modelHandle.name).absolutePath
     }
     

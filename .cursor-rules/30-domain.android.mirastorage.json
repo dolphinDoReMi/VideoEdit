@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "name": "Android/MiraStorage/Policy",
+      "audience": ["agent"],
+      "trigger": "always",
+      "content": [
+        "All Android file I/O MUST go through MiraStorageService (scoped-storage compliant).",
+        "FORBID: Direct file path manipulation via ADB commands, app-internal storage access, or bypassing Android security model.",
+        "App code: use MiraStorageService APIs (URI/FD based) for read/write/exists/list.",
+        "JNI/native: receive and use file descriptors (FD) supplied by MiraStorageService; disallow fopen/open on paths.",
+        "ADB commands: NEVER manipulate app-internal storage directly; use app's proper interfaces instead."
+      ]
+    },
+    {
+      "name": "Android/MiraStorage/ADB_Prohibition",
+      "audience": ["agent"],
+      "trigger": "when-calling-tools",
+      "content": [
+        "FORBID these ADB storage manipulation patterns:",
+        "- mkdir /data/user/0/com.mira.*/files",
+        "- cp /sdcard/* /data/user/0/com.mira.*/files/",
+        "- touch /data/user/0/com.mira.*/files/*",
+        "- rm /data/user/0/com.mira.*/files/*",
+        "- Any direct manipulation of app-internal storage paths",
+        "REQUIRED: Use app's file picker, MiraStorageService APIs, or content:// URIs instead."
+      ]
+    },
+    {
+      "name": "Android/MiraStorage/HowTo",
+      "audience": ["agent"],
+      "trigger": "always",
+      "content": [
+        "Refactor pattern:",
+        "BEFORE (bad):",
+        "- new File(path), FileInputStream(path), Files.readAllBytes(path)",
+        "- RandomAccessFile(path,'r'), Paths.get(path)",
+        "- '/sdcard/...', Environment.getExternalStorageDirectory()",
+        "- adb shell 'mkdir /data/user/0/app/files'",
+        "- adb shell 'cp /sdcard/file /data/user/0/app/files/'",
+        "AFTER (good):",
+        "- Kotlin: uri: Uri -> MiraStorage.openReadFd(uri) / MiraStorage.openWriteFd(uri)",
+        "- Kotlin: MiraStorage.readBytes(uri) / MiraStorage.writeBytes(uri, data)",
+        "- JNI: accept fd (int) or AParcelFileDescriptor; use read(2)/write(2)/mmap on FD only",
+        "- ADB: Use app's file picker UI or content:// URIs for file access"
+      ]
+    },
+    {
+      "name": "Android/MiraStorage/Detection",
+      "audience": ["agent"],
+      "trigger": "when-calling-tools",
+      "content": [
+        "When proposing changes that touch storage or JNI I/O, output a ```triggercheck``` with Categories including: FS, MEDIASTORE, ADB_STORAGE.",
+        "DetectedPatterns must list any usages of:",
+        "- java.io.File, FileInputStream/OutputStream, RandomAccessFile",
+        "- java.nio.file.Files, Paths.get, Environment.getExternalStorageDirectory",
+        "- '/sdcard', JNI fopen/open",
+        "- adb shell mkdir/cp/touch/rm /data/user/0/com.mira.*/files",
+        "- Any direct app-internal storage manipulation via ADB"
+      ]
+    },
+    {
+      "name": "Android/MiraStorage/Test_Strategy",
+      "audience": ["agent"],
+      "trigger": "when-creating-tests",
+      "content": [
+        "Test strategy MUST follow MiraStorage policy:",
+        "- Use app's file picker UI for file selection",
+        "- Trigger processing through proper app interfaces",
+        "- Use content:// URIs for file access",
+        "- NEVER manipulate app-internal storage directly via ADB",
+        "- Test MiraStorageService APIs, not direct file system access",
+        "- Use app's WebView interface or proper Android intents"
+      ]
+    }
+  ]
+}

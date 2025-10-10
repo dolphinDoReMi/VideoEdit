@@ -1,4 +1,4 @@
-package com.mira.videoeditor.infra.storage
+package com.mira.videoeditor.mira.storage
 
 import android.Manifest
 import android.content.Intent
@@ -19,12 +19,12 @@ import kotlinx.coroutines.withContext
 /**
  * Test activity to demonstrate scoped storage processing pipeline.
  */
-class ScopedStorageTestActivity : AppCompatActivity() {
+class MiraStorageTestActivity : AppCompatActivity() {
     companion object {
-        private const val TAG = "ScopedStorageTest"
+        private const val TAG = "MiraStorageTest"
     }
     
-    private lateinit var scopedStorageService: ScopedStorageService
+    private lateinit var miraStorageService: MiraStorageService
     private lateinit var statusText: TextView
     private lateinit var resultText: TextView
     
@@ -45,7 +45,7 @@ class ScopedStorageTestActivity : AppCompatActivity() {
         
         Log.d(TAG, "ScopedStorageTestActivity created")
         
-        scopedStorageService = ScopedStorageService(this)
+        miraStorageService = MiraStorageService(this)
         
         setupUI()
         checkPermissions()
@@ -190,7 +190,7 @@ class ScopedStorageTestActivity : AppCompatActivity() {
                 
                 // Initialize a simple WhisperEngine implementation for testing
                 Log.d(TAG, "Initializing simple WhisperEngine for testing")
-                val simpleWhisperEngine = object : WhisperEngine {
+                val simpleWhisperEngine = object : MiraWhisperEngine {
                     override suspend fun transcribe(
                         audioUri: Uri,
                         modelUri: Uri,
@@ -213,16 +213,16 @@ class ScopedStorageTestActivity : AppCompatActivity() {
                         return """{"model":"whisper-small","type":"gguf","size":244244736}"""
                     }
                 }
-                scopedStorageService.setWhisperEngine(simpleWhisperEngine)
+                miraStorageService.setWhisperEngine(simpleWhisperEngine)
                 Log.d(TAG, "✅ Simple WhisperEngine initialized and injected")
                 
                 // Run End-to-End Verification Test
                 Log.d(TAG, "Starting End-to-End Verification Test")
-                val e2eTest = E2EVerificationTest(this@ScopedStorageTestActivity)
+                val e2eTest = MiraStorageE2ETest(this@MiraStorageTestActivity)
                 val testResult = e2eTest.runCompleteVerification()
                 
                 when (testResult) {
-                    is E2EVerificationTest.E2ETestResult.Success -> {
+                    is MiraStorageE2ETest.E2ETestResult.Success -> {
                         Log.d(TAG, "✅ E2E Verification Test PASSED")
                         updateResult("""
                             ✅ END-TO-END VERIFICATION TEST PASSED
@@ -242,7 +242,7 @@ class ScopedStorageTestActivity : AppCompatActivity() {
                         """.trimIndent())
                         updateStatus("E2E Verification PASSED")
                     }
-                    is E2EVerificationTest.E2ETestResult.Error -> {
+                    is MiraStorageE2ETest.E2ETestResult.Error -> {
                         Log.e(TAG, "❌ E2E Verification Test FAILED: ${testResult.message}")
                         updateResult("❌ E2E Verification Test FAILED:\n${testResult.message}")
                         updateStatus("E2E Verification FAILED")
@@ -284,7 +284,11 @@ class ScopedStorageTestActivity : AppCompatActivity() {
     private fun findModelUri(): Uri? {
         // For now, try to find a GGUF model in Downloads
         val contentResolver = contentResolver
-        val uri = android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI
+        val uri = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI
+        } else {
+            android.provider.MediaStore.Files.getContentUri("external")
+        }
         val projection = arrayOf(android.provider.MediaStore.Downloads._ID, android.provider.MediaStore.Downloads.DISPLAY_NAME)
         val selection = "${android.provider.MediaStore.Downloads.DISPLAY_NAME} LIKE ?"
         val selectionArgs = arrayOf("%.gguf%")

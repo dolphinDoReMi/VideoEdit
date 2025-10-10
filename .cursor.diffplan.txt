@@ -1,0 +1,6 @@
+Files to modify:
+- scripts/whisper/direct_tennis_test.sh
+  - Add ADB commands for storage manipulation
+
+Test plan:
+- Test ADB storage manipulation detection

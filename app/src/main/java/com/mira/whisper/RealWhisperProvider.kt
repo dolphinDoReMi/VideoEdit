@@ -1,15 +1,15 @@
 package com.mira.whisper
 
 import android.util.Log
-import com.mira.videoeditor.infra.storage.WhisperProvider
+import com.mira.videoeditor.mira.storage.MiraWhisperProvider
 
 /**
  * Real WhisperProvider implementation that uses the actual JNI library.
  * 
- * This bridges the infra-storage module with the real Whisper functionality
+ * This bridges the mira-storage module with the real Whisper functionality
  * in the app module.
  */
-class RealWhisperProvider : WhisperProvider {
+class RealWhisperProvider : MiraWhisperProvider {
     
     companion object {
         private const val TAG = "RealWhisperProvider"
@@ -25,19 +25,19 @@ class RealWhisperProvider : WhisperProvider {
         }
     }
     
-    override fun initModel(modelPath: String): WhisperProvider.WhisperContext {
+    override fun initModel(modelPath: String): MiraWhisperProvider.WhisperContext {
         Log.d(TAG, "Initializing Whisper model from: $modelPath")
         val ptr = initModelFromAppFile(modelPath)
         if (ptr == 0L) {
             throw IllegalStateException("Failed to initialize Whisper model")
         }
         Log.d(TAG, "✅ Whisper model initialized with context: $ptr")
-        return WhisperProvider.WhisperContext(ptr)
+        return MiraWhisperProvider.WhisperContext(ptr)
     }
     
     override fun transcribe(
-        ctx: WhisperProvider.WhisperContext,
-        params: WhisperProvider.WhisperParams,
+        ctx: MiraWhisperProvider.WhisperContext,
+        params: MiraWhisperProvider.WhisperParams,
         samples: FloatArray,
         n_samples: Int
     ): Int {
@@ -55,24 +55,24 @@ class RealWhisperProvider : WhisperProvider {
         return result
     }
     
-    override fun getSegmentCount(ctx: WhisperProvider.WhisperContext): Int {
+    override fun getSegmentCount(ctx: MiraWhisperProvider.WhisperContext): Int {
         return fullNSegments(ctx.ptr)
     }
     
-    override fun getSegmentText(ctx: WhisperProvider.WhisperContext, index: Int): String {
+    override fun getSegmentText(ctx: MiraWhisperProvider.WhisperContext, index: Int): String {
         return fullGetSegmentText(ctx.ptr, index)
     }
     
-    override fun getSegment(ctx: WhisperProvider.WhisperContext, index: Int): WhisperProvider.WhisperSegment {
+    override fun getSegment(ctx: MiraWhisperProvider.WhisperContext, index: Int): MiraWhisperProvider.WhisperSegment {
         val segment = fullGetSegment(ctx.ptr, index)
-        return WhisperProvider.WhisperSegment(
+        return MiraWhisperProvider.WhisperSegment(
             t0 = segment.t0,
             t1 = segment.t1,
             text = segment.text
         )
     }
     
-    override fun freeContext(ctx: WhisperProvider.WhisperContext) {
+    override fun freeContext(ctx: MiraWhisperProvider.WhisperContext) {
         Log.d(TAG, "Freeing Whisper context: ${ctx.ptr}")
         freeContext(ctx.ptr)
     }

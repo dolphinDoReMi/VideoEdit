@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "name": "Project/VideoEditor",
+      "audience": ["agent", "developer"],
+      "trigger": "always",
+      "content": [
+        "This is a multi-platform video processing application combining CLIP video clipping and Whisper audio transcription.",
+        "Target platforms: Android (Xiaomi Pad 7 Ultra), iOS (iPad), macOS web.",
+        "Primary focus: Real-time video processing with ML models and audio transcription."
+      ]
+    },
+    {
+      "name": "Project/StorageArchitecture",
+      "audience": ["agent"],
+      "trigger": "when-modifying-storage",
+      "content": [
+        "Use DLStorage interface for all storage operations.",
+        "Models must be installed to app-private storage and accessed via absolute paths.",
+        "User media must be accessed via content URIs and file descriptors.",
+        "Implement proper SHA-256 validation for model integrity."
+      ]
+    },
+    {
+      "name": "Project/MLModels",
+      "audience": ["agent"],
+      "trigger": "when-modifying-ml",
+      "content": [
+        "CLIP Processing: Frame processing <0.1s per frame, Memory usage <200MB peak, Accuracy 95%+.",
+        "Whisper Processing: RTF <0.1, Memory usage <100MB peak, Accuracy 95%+.",
+        "Use GGUF format for Whisper models.",
+        "Implement proper model loading and context management."
+      ]
+    },
+    {
+      "name": "Project/Testing",
+      "audience": ["agent"],
+      "trigger": "when-modifying-critical-components",
+      "content": [
+        "When touching ClipEngines or VideoIngestWorker, run instrumented tests.",
+        "When modifying database entities or DAOs, run unit tests.",
+        "When changing ML models or encoders, run all tests.",
+        "When modifying workers, run instrumented tests.",
+        "When changing video processing, run frame sampler tests."
+      ]
+    }
+  ]
+}

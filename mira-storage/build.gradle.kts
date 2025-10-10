@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.mira.videoeditor.infra.storage"
+    namespace = "com.mira.videoeditor.mira.storage"
     compileSdk = 34
 
     defaultConfig {

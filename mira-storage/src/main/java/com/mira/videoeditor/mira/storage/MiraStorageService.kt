@@ -1,4 +1,4 @@
-package com.mira.videoeditor.infra.storage
+package com.mira.videoeditor.mira.storage
 
 import android.content.Context
 import android.net.Uri
@@ -9,27 +9,55 @@ import kotlinx.coroutines.withContext
 import java.io.File
 
 /**
- * Scoped Storage Service that demonstrates proper Android 11+ compliant file operations
- * using the infra-storage components.
+ * Mira Storage Service that demonstrates proper Android 11+ compliant file operations
+ * using the mira-storage components.
  */
-class ScopedStorageService(
+class MiraStorageService(
     private val context: Context
 ) {
     companion object {
-        private const val TAG = "ScopedStorageService"
+        private const val TAG = "MiraStorageService"
     }
     
-    private val storage: DLStorage = AndroidDLStorage(context)
-    private val media: MediaProcessing = AndroidMediaProcessing(context)
-    // Note: WhisperEngine will be injected by the app module to avoid circular dependencies
-    private var whisperEngine: WhisperEngine? = null
+    private val storage: MiraDLStorage = AndroidMiraDLStorage(context)
+    private val media: MiraMediaProcessing = AndroidMiraMediaProcessing(context)
+    // Note: MiraWhisperEngine will be injected by the app module to avoid circular dependencies
+    private var whisperEngine: MiraWhisperEngine? = null
     
     /**
      * Set the Whisper engine from the app module.
      * This avoids circular dependencies between infra-storage and whisper-native.
      */
-    fun setWhisperEngine(engine: WhisperEngine) {
+    fun setWhisperEngine(engine: MiraWhisperEngine) {
         this.whisperEngine = engine
+    }
+    
+    /**
+     * Validate content URI for scoped storage compliance.
+     */
+    private fun validateContentUri(uri: Uri) {
+        when {
+            uri.scheme == "content" -> {
+                // Valid content URI
+                Log.d(TAG, "Valid content URI: $uri")
+            }
+            uri.scheme == "file" -> {
+                // File URI - check if it's in app-private storage
+                val path = uri.path ?: throw IllegalArgumentException("Invalid file URI: $uri")
+                val appPrivateDir = context.filesDir.absolutePath
+                if (!path.startsWith(appPrivateDir)) {
+                    throw SecurityException("File URI outside app-private storage: $uri")
+                }
+                Log.d(TAG, "Valid app-private file URI: $uri")
+            }
+            uri.scheme == "android.resource" -> {
+                // Android resource URI - valid for assets
+                Log.d(TAG, "Valid Android resource URI: $uri")
+            }
+            else -> {
+                throw IllegalArgumentException("Unsupported URI scheme: ${uri.scheme}")
+            }
+        }
     }
     
     /**
@@ -40,6 +68,10 @@ class ScopedStorageService(
         return withContext(Dispatchers.IO) {
             try {
                 Log.d(TAG, "Starting scoped storage processing for video: $videoUri")
+                
+                // Validate URIs before processing
+                validateContentUri(videoUri)
+                validateContentUri(modelUri)
                 
                 // Step 1: Get media information using scoped access
                 val mediaInfo = getMediaInfoScoped(videoUri)
@@ -73,6 +105,26 @@ class ScopedStorageService(
                     modelHandle = modelHandle
                 )
                 
+            } catch (e: SecurityException) {
+                Log.e(TAG, "Security error in scoped storage processing", e)
+                ProcessingResult(
+                    success = false,
+                    error = "Security error: ${e.message}",
+                    transcript = null,
+                    transcriptUri = null,
+                    mediaInfo = null,
+                    modelHandle = null
+                )
+            } catch (e: IllegalStateException) {
+                Log.e(TAG, "State error in scoped storage processing", e)
+                ProcessingResult(
+                    success = false,
+                    error = "State error: ${e.message}",
+                    transcript = null,
+                    transcriptUri = null,
+                    mediaInfo = null,
+                    modelHandle = null
+                )
             } catch (e: Exception) {
                 Log.e(TAG, "Scoped storage processing failed", e)
                 ProcessingResult(
@@ -91,11 +143,14 @@ class ScopedStorageService(
      * Get media information using scoped storage access.
      */
     private suspend fun getMediaInfoScoped(uri: Uri): MediaInfo {
-        val fd = storage.openReadFd(uri)
+        val contentResolver = context.contentResolver
+        val parcelFileDescriptor = contentResolver.openFileDescriptor(uri, "r")
+            ?: throw IllegalStateException("Cannot open file descriptor for URI: $uri")
+        
         return try {
-            media.getMediaInfo(fd)
+            media.getMediaInfo(parcelFileDescriptor.fileDescriptor)
         } finally {
-            // Close file descriptor if needed
+            parcelFileDescriptor.close()
         }
     }
     
@@ -103,11 +158,14 @@ class ScopedStorageService(
      * Extract audio using scoped storage access.
      */
     private suspend fun extractAudioScoped(uri: Uri): ByteArray {
-        val fd = storage.openReadFd(uri)
+        val contentResolver = context.contentResolver
+        val parcelFileDescriptor = contentResolver.openFileDescriptor(uri, "r")
+            ?: throw IllegalStateException("Cannot open file descriptor for URI: $uri")
+        
         return try {
-            media.extractAudioFromVideo(fd, 16000, true)
+            media.extractAudioFromVideo(parcelFileDescriptor.fileDescriptor, 16000, true)
         } finally {
-            // Close file descriptor if needed
+            parcelFileDescriptor.close()
         }
     }
     
@@ -116,8 +174,8 @@ class ScopedStorageService(
      */
     suspend fun checkModelExists(modelName: String): Boolean {
         return try {
-            val modelPath = File(context.filesDir, "models/$modelName").absolutePath
-            File(modelPath).exists()
+            val modelFile = File(context.filesDir, "whisper_models/$modelName")
+            modelFile.exists()
         } catch (e: Exception) {
             Log.w(TAG, "Error checking model existence: ${e.message}")
             false
@@ -129,7 +187,7 @@ class ScopedStorageService(
      */
     suspend fun listAvailableModels(): List<String> {
         return try {
-            val modelsDir = File(context.filesDir, "models")
+            val modelsDir = File(context.filesDir, "whisper_models")
             if (modelsDir.exists()) {
                 modelsDir.listFiles()?.map { it.name } ?: emptyList()
             } else {
@@ -143,6 +201,7 @@ class ScopedStorageService(
 
     /**
      * Find video file using MediaStore with proper scoped storage access.
+     * Uses DISPLAY_NAME instead of DATA field for Android 11+ compliance.
      */
     suspend fun findVideoFile(fileName: String): Uri? {
         return withContext(Dispatchers.IO) {
@@ -151,10 +210,10 @@ class ScopedStorageService(
                 val uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
                 val projection = arrayOf(
                     MediaStore.Video.Media._ID,
-                    MediaStore.Video.Media.DATA,
+                    MediaStore.Video.Media.DISPLAY_NAME,
                     MediaStore.Video.Media.SIZE
                 )
-                val selection = "${MediaStore.Video.Media.DATA} LIKE ?"
+                val selection = "${MediaStore.Video.Media.DISPLAY_NAME} LIKE ?"
                 val selectionArgs = arrayOf("%$fileName%")
 
                 val cursor = contentResolver.query(uri, projection, selection, selectionArgs, null)
@@ -183,7 +242,11 @@ class ScopedStorageService(
         return withContext(Dispatchers.IO) {
             try {
                 val contentResolver = context.contentResolver
-                val uri = MediaStore.Downloads.EXTERNAL_CONTENT_URI
+                val uri = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                    MediaStore.Downloads.EXTERNAL_CONTENT_URI
+                } else {
+                    MediaStore.Files.getContentUri("external")
+                }
                 val projection = arrayOf(
                     MediaStore.Downloads._ID,
                     MediaStore.Downloads.DISPLAY_NAME,
@@ -258,8 +321,7 @@ class ScopedStorageService(
                 val contentResolver = context.contentResolver
                 val projection = arrayOf(
                     MediaStore.MediaColumns.DISPLAY_NAME,
-                    MediaStore.MediaColumns.SIZE,
-                    MediaStore.MediaColumns.DATA
+                    MediaStore.MediaColumns.SIZE
                 )
 
                 val cursor = contentResolver.query(uri, projection, null, null, null)
@@ -267,13 +329,11 @@ class ScopedStorageService(
                     if (it.moveToFirst()) {
                         val nameIndex = it.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME)
                         val sizeIndex = it.getColumnIndex(MediaStore.MediaColumns.SIZE)
-                        val dataIndex = it.getColumnIndex(MediaStore.MediaColumns.DATA)
                         
                         val name = if (nameIndex >= 0) it.getString(nameIndex) else "Unknown"
                         val size = if (sizeIndex >= 0) it.getLong(sizeIndex) else 0L
-                        val data = if (dataIndex >= 0) it.getString(dataIndex) else "Unknown"
                         
-                        val fileInfo = FileInfo(name, size, data)
+                        val fileInfo = FileInfo(name, size, uri.toString())
                         Log.d(TAG, "File info: $fileInfo")
                         return@withContext fileInfo
                     }
@@ -282,6 +342,50 @@ class ScopedStorageService(
                 null
             } catch (e: Exception) {
                 Log.e(TAG, "Error getting file info: ${e.message}")
+                null
+            }
+        }
+    }
+    
+    /**
+     * Demonstrate proper scoped storage access pattern as described in the analysis.
+     * This method shows the correct way to access video files using MediaStore APIs.
+     */
+    suspend fun demonstrateScopedStoragePattern(fileName: String): Uri? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val contentResolver = context.contentResolver
+                val uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                val projection = arrayOf(MediaStore.Video.Media._ID)
+                val selection = "${MediaStore.Video.Media.DISPLAY_NAME} = ?"
+                val selectionArgs = arrayOf(fileName)
+
+                val cursor = contentResolver.query(uri, projection, selection, selectionArgs, null)
+                cursor?.use {
+                    if (it.moveToFirst()) {
+                        val id = it.getLong(it.getColumnIndexOrThrow(MediaStore.Video.Media._ID))
+                        val foundUri = Uri.withAppendedPath(uri, id.toString())
+                        
+                        // Demonstrate proper file descriptor access
+                        val parcelFileDescriptor = contentResolver.openFileDescriptor(foundUri, "r")
+                        if (parcelFileDescriptor != null) {
+                            try {
+                                val fd = parcelFileDescriptor.fileDescriptor
+                                Log.d(TAG, "Successfully opened file descriptor for scoped storage access: $foundUri")
+                                
+                                // This is the proper way to use the file descriptor with MediaExtractor
+                                // as mentioned in the analysis: MediaExtractor().apply { setDataSource(fd) }
+                                return@withContext foundUri
+                            } finally {
+                                parcelFileDescriptor.close()
+                            }
+                        }
+                    }
+                }
+                Log.w(TAG, "Video file not found: $fileName")
+                null
+            } catch (e: Exception) {
+                Log.e(TAG, "Error in scoped storage demonstration: ${e.message}")
                 null
             }
         }
@@ -296,7 +400,7 @@ data class ProcessingResult(
     val transcript: String? = null,
     val transcriptUri: Uri? = null,
     val mediaInfo: MediaInfo? = null,
-    val modelHandle: DLStorage.ModelHandle? = null,
+    val modelHandle: MiraDLStorage.ModelHandle? = null,
     val error: String? = null
 )
 
@@ -306,5 +410,5 @@ data class ProcessingResult(
 data class FileInfo(
     val name: String,
     val size: Long,
-    val data: String
+    val uri: String
 )

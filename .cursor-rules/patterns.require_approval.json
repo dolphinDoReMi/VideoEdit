@@ -1,0 +1,31 @@
+{
+  "REQUIRE_APPROVAL": [
+    "adb\\s+shell\\s+am\\s+(start|startservice|broadcast)\\b",
+    "adb\\s+shell\\s+content\\s+(insert|update|delete)\\b",
+    "pm\\s+grant\\b\\s+\\S+\\s+android\\.permission\\.[A-Z_]+",
+    "gradle(w|\\.bat)?\\b.*\\b(assemble|bundle|install|connected.*AndroidTest)\\b",
+    "adb\\s+shell\\s+svc\\s+(wifi|data|power)\\b",
+    "adb\\s+shell\\s+input\\s+tap\\s+\\d+\\s+\\d+",
+    "adb\\s+shell\\s+input\\s+text\\s+\".*\"",
+    "adb\\s+shell\\s+am\\s+force-stop\\b",
+    "adb\\s+shell\\s+pm\\s+install\\b",
+    "adb\\s+shell\\s+pm\\s+clear\\b",
+    "adb\\s+shell\\s+setprop\\s+log\\.tag\\.",
+    "adb\\s+shell\\s+am\\s+startservice\\s+-n\\s+com\\.mira\\.",
+    "adb\\s+shell\\s+am\\s+broadcast\\s+-a\\s+com\\.mira\\.",
+    "adb\\s+shell\\s+content\\s+query\\s+--uri\\s+content://media/external",
+    "adb\\s+shell\\s+pm\\s+grant\\s+com\\.mira\\.",
+    "adb\\s+shell\\s+am\\s+start\\s+-n\\s+com\\.mira\\.",
+    "Environment\\.getExternalStorageDirectory\\s*\\(",
+    "new\\s+File\\s*\\(\\s*['\"]/sdcard/",
+    "Paths\\.get\\s*\\(",
+    "Files\\.(readAllBytes|newInputStream|newOutputStream|copy|write)\\s*\\(",
+    "RandomAccessFile\\s*\\(",
+    "File(Input|Output)Stream\\s*\\(",
+    "ParcelFileDescriptor\\s*\\.open\\s*\\(\\s*new\\s+File\\s*\\(",
+    "fopen\\s*\\(",
+    "open\\s*\\(\\s*['\"]/sdcard/",
+    "adb\\s+shell\\s+am\\s+start.*-d\\s+file:///sdcard/",
+    "adb\\s+shell\\s+am\\s+start.*file:///sdcard/"
+  ]
+}

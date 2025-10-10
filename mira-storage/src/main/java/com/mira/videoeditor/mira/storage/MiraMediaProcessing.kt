@@ -1,4 +1,4 @@
-package com.mira.videoeditor.infra.storage
+package com.mira.videoeditor.mira.storage
 
 import android.content.Context
 import android.media.MediaCodec
@@ -15,7 +15,7 @@ import java.nio.ByteBuffer
  * This interface provides capability-based media processing that works with
  * file descriptors and scoped storage APIs.
  */
-interface MediaProcessing {
+interface MiraMediaProcessing {
     
     /**
      * Decodes WAV audio from a file descriptor to PCM data.
@@ -60,12 +60,12 @@ data class MediaInfo(
 /**
  * Android implementation of MediaProcessing using MediaCodec and scoped storage.
  */
-class AndroidMediaProcessing(
+class AndroidMiraMediaProcessing(
     private val context: android.content.Context
-) : MediaProcessing {
+) : MiraMediaProcessing {
     
     companion object {
-        private const val TAG = "AndroidMediaProcessing"
+        private const val TAG = "AndroidMiraMediaProcessing"
     }
     
     override suspend fun decodeWavFromFd(audioFd: java.io.FileDescriptor, targetSampleRate: Int, mono: Boolean): ByteArray {
@@ -111,17 +111,15 @@ class AndroidMediaProcessing(
                 decoder.configure(audioFormat, null, null, 0)
                 decoder.start()
                 
-                val inputBuffers = decoder.inputBuffers
-                val outputBuffers = decoder.outputBuffers
-                
                 val audioData = mutableListOf<ByteArray>()
                 var isEOS = false
+                val bufferInfo = android.media.MediaCodec.BufferInfo()
                 
                 while (!isEOS) {
                     val inputBufferIndex = decoder.dequeueInputBuffer(10000)
                     if (inputBufferIndex >= 0) {
-                        val inputBuffer = inputBuffers[inputBufferIndex]
-                        val sampleSize = extractor.readSampleData(inputBuffer, 0)
+                        val inputBuffer = decoder.getInputBuffer(inputBufferIndex)
+                        val sampleSize = extractor.readSampleData(inputBuffer!!, 0)
                         
                         if (sampleSize < 0) {
                             decoder.queueInputBuffer(inputBufferIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM)
@@ -132,12 +130,14 @@ class AndroidMediaProcessing(
                         }
                     }
                     
-                    val outputBufferIndex = decoder.dequeueOutputBuffer(android.media.MediaCodec.BufferInfo(), 10000)
+                    val outputBufferIndex = decoder.dequeueOutputBuffer(bufferInfo, 10000)
                     if (outputBufferIndex >= 0) {
-                        val outputBuffer = outputBuffers[outputBufferIndex]
-                        val audioChunk = ByteArray(outputBuffer.remaining())
-                        outputBuffer.get(audioChunk)
-                        audioData.add(audioChunk)
+                        val outputBuffer = decoder.getOutputBuffer(outputBufferIndex)
+                        if (outputBuffer != null && bufferInfo.size > 0) {
+                            val audioChunk = ByteArray(bufferInfo.size)
+                            outputBuffer.get(audioChunk)
+                            audioData.add(audioChunk)
+                        }
                         decoder.releaseOutputBuffer(outputBufferIndex, false)
                     }
                 }

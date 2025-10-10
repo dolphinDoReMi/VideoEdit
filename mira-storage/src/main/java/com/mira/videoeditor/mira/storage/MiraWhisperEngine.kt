@@ -1,4 +1,4 @@
-package com.mira.videoeditor.infra.storage
+package com.mira.videoeditor.mira.storage
 
 import android.content.Context
 import android.net.Uri
@@ -12,7 +12,7 @@ import kotlinx.coroutines.withContext
  * This provides the interface for Whisper functionality that will be
  * implemented by the app module to avoid circular dependencies.
  */
-interface WhisperEngine {
+interface MiraWhisperEngine {
     
     /**
      * Transcribes audio from URIs using scoped storage and real Whisper processing.
